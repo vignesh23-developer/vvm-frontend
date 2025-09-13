@@ -166,10 +166,9 @@ const BuildersPropertiesList = [
   },
 ]
 
-const PropertiesListing = ({ params }: { params: any }) => {
+const PropertiesListing = ({ params }: { params: string }) => {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 2 // how many cards per page
-
   // Pagination logic
   const totalPages = Math.ceil(properties.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage

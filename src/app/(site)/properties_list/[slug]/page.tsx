@@ -1,12 +1,14 @@
 import PropertiesListing from '@/components/PropertiesListing/PropertiesListing'
 import React from 'react'
 
-type Props = { params: { slug: string } }
-const page = ({ params }: Props) => {
-  console.log(params, 'slug')
+interface PropertiesListingProps {
+  params: Promise<{ slug: string }>
+}
+const page = async ({ params }: PropertiesListingProps) => {
+  const { slug } = await params
   return (
     <div>
-      <PropertiesListing params={params.slug} />
+      <PropertiesListing params={slug} />
     </div>
   )
 }
