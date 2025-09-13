@@ -1,0 +1,138 @@
+import { Heart, Share, Ruler, Building2, Home, ChevronDown } from 'lucide-react'
+
+interface PropertyCardProps {
+  image: string
+  title: string
+  subtitle: string
+  area: string
+  status: string
+  transaction: string
+  facing: string
+  description: string
+  agent: string
+  operatingSince: string
+  price: string
+  pricePerSqft: string
+}
+
+export default function PropertyCard({
+  image,
+  title,
+  subtitle,
+  area,
+  status,
+  transaction,
+  facing,
+  description,
+  agent,
+  operatingSince,
+  price,
+  pricePerSqft,
+}: PropertyCardProps) {
+  return (
+    <div className="flex flex-col lg:flex-row bg-white rounded-2xl shadow-md overflow-hidden">
+      {/* Left Section */}
+      <div className="flex flex-col lg:flex-row gap-4 p-3 flex-1">
+        {/* Image + Agent */}
+        <div className="flex flex-col items-start">
+          <img
+            src={image}
+            alt={title}
+            className="h-40 object-cover rounded-lg"
+          />
+          {/* Agent Info */}
+          <p className="text-sm text-black-600 mt-2 ml-2">
+            Agent: {agent} <br />
+            <span className="text-xs text-gray-500">
+              Operating Since: {operatingSince}
+            </span>
+          </p>
+        </div>
+
+        {/* Details */}
+        <div className="flex flex-col justify-between flex-1">
+          {/* Title + Icons */}
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-semibold">{title}</h2>
+              <p className="text-[#747474] font-medium underline">{subtitle}</p>
+            </div>
+            <div className="flex gap-3 text-gray-500 shrink-0">
+              <Heart size={18} />
+              <Share size={18} />
+            </div>
+          </div>
+
+          {/* Tags */}
+          <div className="mt-3 w-full bg-[#F5F5F5] rounded-md flex flex-col sm:flex-row justify-between divide-y sm:divide-y-0 sm:divide-x divide-gray-200 text-sm">
+            {/* Carpet Area */}
+            <div className="flex items-center gap-2 px-4 py-3">
+              <Ruler size={18} className="shrink-0" />
+              <div>
+                <div className="text-[11px] uppercase text-gray-500 font-semibold tracking-wide">
+                  Carpet Area
+                </div>
+                <div className="text-[14px] text-gray-800">{area}</div>
+              </div>
+            </div>
+
+            {/* Status */}
+            <div className="flex items-center gap-2 px-4 py-3">
+              <Building2 size={18} className="shrink-0" />
+              <div>
+                <div className="text-[11px] uppercase text-gray-500 font-semibold tracking-wide">
+                  Status
+                </div>
+                <div className="text-[14px] font-bold text-gray-900">
+                  {status}
+                </div>
+              </div>
+            </div>
+
+            {/* Transaction */}
+            <div className="flex items-center gap-2 px-4 py-3">
+              <Home size={18} className="shrink-0" />
+              <div>
+                <div className="text-[11px] uppercase text-gray-500 font-semibold tracking-wide">
+                  Transaction
+                </div>
+                <div className="text-[14px] font-bold text-gray-700 flex items-center gap-1">
+                  {transaction}
+                  <ChevronDown size={16} className="text-gray-500" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Description */}
+          <p className="mt-3 text-sm text-gray-600">
+            <span className="text-green-600">●</span> {facing}
+          </p>
+          <p className="text-sm text-gray-500 mt-1">{description}</p>
+        </div>
+      </div>
+
+      {/* Right Section */}
+      <div className="flex flex-col justify-between bg-[#ECECEC] p-4 min-w-full lg:min-w-[220px]">
+        {/* Price */}
+        <div className="text-left lg:text-right">
+          <h3 className="text-xl font-bold">{price}</h3>
+          <p className="text-sm text-gray-500">{pricePerSqft}</p>
+        </div>
+
+        {/* Buttons */}
+        <div className="flex flex-col gap-4 w-full mt-4">
+          <button className="w-full bg-black text-white py-2 rounded-full cursor-pointer hover:bg-gray-800 transition">
+            Contact Agent
+          </button>
+          <button className="w-full bg-white border py-2 rounded-full cursor-pointer hover:bg-gray-200 transition">
+            Get Phone No.
+          </button>
+          <p className="text-xs text-gray-500 text-center mt-2">
+            Check Affordability
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}

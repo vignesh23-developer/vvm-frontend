@@ -4,10 +4,10 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 
 const navLinks = [
-  { label: 'Home', href: '/' },
+  { label: 'Home', href: '/home' },
   { label: 'Services', href: '/services' },
   { label: 'About Us', href: '/about' },
-  { label: 'Help Center', href: '/help' },
+  { label: 'Help Center', href: '/help-center' },
   { label: 'Pricing', href: '/pricing' },
 ]
 
@@ -15,7 +15,9 @@ export default function Navbar() {
   return (
     <nav className="bg-[#3b1804] text-white px-6 py-4 flex items-center justify-between">
       {/* Logo */}
-      <img src="/logo.png" alt="Logo" className="h-12 w-auto" />
+      <Link href={'/home'}>
+        <img src="/logo.png" alt="Logo" className="h-12 w-auto" />
+      </Link>
 
       {/* Navigation Links */}
       <div className="flex gap-10">
@@ -28,9 +30,7 @@ export default function Navbar() {
             }`}
           >
             {label}
-            {label === 'Home' && (
-              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-white group-hover:w-full transition-all duration-300"></span>
-            )}
+            <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-white group-hover:w-full transition-all duration-300"></span>
           </Link>
         ))}
       </div>

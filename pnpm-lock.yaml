@@ -26,6 +26,9 @@ importers:
       react-dom:
         specifier: 19.1.0
         version: 19.1.0(react@19.1.0)
+      swiper:
+        specifier: ^12.0.1
+        version: 12.0.1
       zod:
         specifier: ^4.1.5
         version: 4.1.7
@@ -689,6 +692,10 @@ packages:
       babel-plugin-macros:
         optional: true
 
+  swiper@12.0.1:
+    resolution: {integrity: sha512-Fi+gNw/tfc4hsGowQU5tRC/f1HFknkh4Vz8PaDI4JTinLUMTwhZyaovcH/va+iXq98BNUHN5ok0c2lEI82Fsgw==}
+    engines: {node: '>= 4.7.0'}
+
   tailwindcss@4.1.13:
     resolution: {integrity: sha512-i+zidfmTqtwquj4hMEwdjshYYgMbOrPzb9a0M3ZgNa0JMoZeFC6bxZvO8yr8ozS6ix2SDz0+mvryPeBs2TFE+w==}
 
@@ -1274,6 +1281,8 @@ snapshots:
     dependencies:
       client-only: 0.0.1
       react: 19.1.0
+
+  swiper@12.0.1: {}
 
   tailwindcss@4.1.13: {}
 
