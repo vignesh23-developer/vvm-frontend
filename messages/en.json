@@ -1,0 +1,60 @@
+{
+  "Hero": {
+    "title": "Welcome back! Choose Premium House"
+  },
+  "Auth": {
+    "login": "Login",
+    "signup": "Sign Up"
+  },
+  "Navbar": {
+    "home": "Home",
+    "services": "Services",
+    "about_us": "About Us",
+    "help_center": "Help Center",
+    "pricing": "Pricing"
+  },
+  "PopularProperties": {
+    "title": "Our Popular Properties",
+    "description": "Discover premium homes with modern amenities and prime locations.",
+    "location": "Location",
+    "bedrooms": "Bedrooms",
+    "area": "Area",
+    "price": "Price"
+  },
+  "ExploreProperties": {
+    "title": "Explore Your Dream Property in Tamil Nadu",
+    "viewDetails": "View Details",
+    "more": "More"
+  },
+  "Testimonials" : {
+    "title": "Our Testimonials",
+    "description": "Everything starts with building trust!"
+  },
+  "ExploreVideo": {
+    "title": "Explore Our Property Videos",
+    "description": "Virtual tours, market insights, and expert tips – all in one place.",
+    "watchVideo": "Watch Video"
+  },
+  "AppPromo": {
+    "title": "Check out our app too, don’t miss it!",
+    "description": "Find your dream home on the go with our mobile app.",
+    "message": "Don’t lose it when it comes out!",
+    "download": "Download Now"
+  },
+  "Footer": {
+    "about": "About",
+    "support": "Support",
+    "our_services": "Our Services",
+    "our_story": "Our Story",
+    "careers": "Careers",
+    "our_team": "Our Team",
+    "resources": "Resources",
+    "faq": "FAQ",
+    "contact_us": "Contact Us",
+    "help_center": "Help Center",
+    "terms_of_service": "Terms of Service",
+    "instagram": "Instagram",
+    "facebook": "Facebook",
+    "twitter_(𝕏)": "Twitter (𝕏)"
+  }
+}

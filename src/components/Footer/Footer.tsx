@@ -1,40 +1,48 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
+
 import Link from 'next/link'
+import Image from 'next/image'
 import { Facebook, Instagram, Twitter } from 'lucide-react'
 import FooterColumn from './FooterColumn'
 
 const aboutLinks = [
-  { label: 'Our Story', href: '/about' },
-  { label: 'Careers', href: '/careers' },
-  { label: 'Our Team', href: '/team' },
-  { label: 'Resources', href: '/resources' },
+  { label: 'our_story', href: '/about' },
+  { label: 'careers', href: '/careers' },
+  { label: 'our_team', href: '/team' },
+  { label: 'resources', href: '/resources' },
 ]
 
 const supportLinks = [
-  { label: 'FAQ', href: '/faq' },
-  { label: 'Contact Us', href: '/contact' },
-  { label: 'Help Center', href: '/help' },
-  { label: 'Terms of Service', href: '/terms' },
+  { label: 'faq', href: '/faq' },
+  { label: 'contact_us', href: '/contact' },
+  { label: 'help_center', href: '/help' },
+  { label: 'terms_of_service', href: '/terms' },
 ]
 
 const socialLinks = [
-  { label: 'Instagram', icon: Instagram, href: '#' },
-  { label: 'Facebook', icon: Facebook, href: '#' },
-  { label: 'Twitter (𝕏)', icon: Twitter, href: '#' },
+  { label: 'instagram', icon: Instagram, href: '#' },
+  { label: 'facebook', icon: Facebook, href: '#' },
+  { label: 'twitter_(𝕏)', icon: Twitter, href: '#' },
 ]
 
 export default function Footer() {
+  const t = useTranslations('Footer')
   return (
     <footer className="bg-[#2a1407] text-white px-10 py-12">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
         {/* Left - Logo */}
         <div>
-          <img
-            src="/footer_logo.png"
-            alt="Logo"
-            className="w-[200px] h-auto object-contain"
-          />
+          <Link href={'/home'}>
+            <Image
+              src="/footer_logo.png"
+              alt="Logo"
+              width={200}
+              height={100}
+              className="w-[200px] h-auto object-contain"
+            />
+          </Link>
         </div>
 
         {/* Right - Columns */}
@@ -53,7 +61,7 @@ export default function Footer() {
                 <li key={label} className="flex items-center gap-2">
                   <Icon size={18} />
                   <Link href={href} className="hover:text-white">
-                    {label}
+                    {t(label)}
                   </Link>
                 </li>
               ))}

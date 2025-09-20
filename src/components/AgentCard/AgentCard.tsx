@@ -1,4 +1,5 @@
 import { Heart, Share } from 'lucide-react'
+import Stats from '../Stats/Stats'
 
 interface AgentCardProps {
   image: string
@@ -27,6 +28,12 @@ export default function AgentCard({
   agentName,
   operatingSince,
 }: AgentCardProps) {
+  const stats = [
+    { value: '40', label: 'Properties\nFor Sale' },
+    { value: '15', label: 'Properties\nFor Rent' },
+    { value: '2500', label: 'Deals\nClosed' },
+    { value: '5', label: 'Team\nMembers' },
+  ]
   return (
     <div className="flex bg-white rounded-2xl shadow-md overflow-hidden">
       {/* Left Section */}
@@ -62,32 +69,7 @@ export default function AgentCard({
           </div>
 
           {/* Stats Row */}
-          <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-6 py-2">
-            <div className="text-center sm:text-left border-r pr-3">
-              <p className="text-2xl font-bold">40</p>
-              <p className="text-sm font-medium text-gray-700">
-                Properties <br /> For Sale
-              </p>
-            </div>
-            <div className="text-center sm:text-left border-r pr-3">
-              <p className="text-2xl font-bold">15</p>
-              <p className="text-sm font-medium text-gray-700">
-                Properties <br /> For Rent
-              </p>
-            </div>
-            <div className="text-center sm:text-left border-r pr-3">
-              <p className="text-2xl font-bold">2500</p>
-              <p className="text-sm font-medium text-gray-700">
-                Deals <br /> Closed
-              </p>
-            </div>
-            <div className="text-center sm:text-left">
-              <p className="text-2xl font-bold">5</p>
-              <p className="text-sm font-medium text-gray-700">
-                Team <br /> Members
-              </p>
-            </div>
-          </div>
+          <Stats stats={stats} />
 
           {/* Deals in */}
           <div className="mt-4">

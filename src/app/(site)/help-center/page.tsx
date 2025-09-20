@@ -1,9 +1,10 @@
+import PropertyDetails from '@/components/PropertyDetails/PropertyDetails'
 import React from 'react'
 
 const HelpCenter = () => {
   return (
     <div>
-      <h1>Progress UnderGoing</h1>
+      <PropertyDetails />
     </div>
   )
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 
 export default function FooterColumn({
   title,
@@ -9,6 +10,7 @@ export default function FooterColumn({
   title: string
   links: { label: string; href: string }[]
 }) {
+  const t = useTranslations('Footer')
   return (
     <div>
       <h3 className="font-semibold text-lg mb-4">{title}</h3>
@@ -16,7 +18,7 @@ export default function FooterColumn({
         {links.map(({ label, href }) => (
           <li key={label}>
             <Link href={href} className="hover:text-white">
-              {label}
+              {t(label)}
             </Link>
           </li>
         ))}

@@ -1,7 +1,7 @@
+'use client'
 import HeroSection from '@/components/HeroSection/HeroSection'
 import PopularProperties from '@/components/PopularProperties/PopularProperties'
 import Testimonials from '@/components/Testimonials/Testimonials'
-import React from 'react'
 import AppPromo from '@/components/AppPromo/AppPromo'
 import PropertyVideos from '@/components/PropertyVideos/PropertyVideos'
 import ExploreProperties from '@/components/ExploreProperties/ExploreProperties'

@@ -1,7 +1,9 @@
 // components/ExploreProperties.tsx
 import { Building2, Star } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 export default function ExploreProperties() {
+  const t = useTranslations('ExploreProperties')
   const properties = [
     {
       city: 'Coimbatore',
@@ -42,7 +44,7 @@ export default function ExploreProperties() {
       <div className="max-w-7xl mx-auto px-6 text-center">
         {/* Heading */}
         <h2 className="text-3xl lg:text-5xl font-bold text-gray-900">
-          Explore Your Dream Property <br /> in Tamil Nadu
+          {t('title')}
         </h2>
 
         {/* Grid */}
@@ -108,7 +110,7 @@ export default function ExploreProperties() {
         {/* More Button */}
         <div className="mt-10">
           <button className="text-gray-800 font-medium hover:underline">
-            More
+            {t('more')}
           </button>
         </div>
       </div>
