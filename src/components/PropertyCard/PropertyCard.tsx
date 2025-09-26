@@ -1,5 +1,6 @@
 import { Heart, Share, Ruler, Building2, Home, ChevronDown } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface PropertyCardProps {
   image: string
@@ -14,6 +15,7 @@ interface PropertyCardProps {
   operatingSince: string
   price: string
   pricePerSqft: string
+  language?: any
 }
 
 export default function PropertyCard({
@@ -29,6 +31,7 @@ export default function PropertyCard({
   operatingSince,
   price,
   pricePerSqft,
+  language,
 }: PropertyCardProps) {
   return (
     <div className="flex flex-col lg:flex-row bg-white rounded-2xl shadow-md overflow-hidden">
@@ -37,16 +40,18 @@ export default function PropertyCard({
         <div className="flex flex-col lg:flex-row gap-4 p-3 flex-1">
           {/* Image + Agent */}
           <div className="flex flex-col items-start">
-            <img
+            <Image
               src={image}
               alt={title}
-              className="h-40 object-cover rounded-lg"
+              width={250}
+              height={150}
+              className="h-40 object-cover hover:scale-105 transition"
             />
             {/* Agent Info */}
             <p className="text-sm text-black-600 mt-2 ml-2">
-              Agent: {agent} <br />
+              {language('agent')}: {agent} <br />
               <span className="text-xs text-gray-500">
-                Operating Since: {operatingSince}
+                {language('operating_since')}: {operatingSince}
               </span>
             </p>
           </div>
@@ -74,7 +79,7 @@ export default function PropertyCard({
                 <Ruler size={18} className="shrink-0" />
                 <div>
                   <div className="text-[11px] uppercase text-gray-500 font-semibold tracking-wide">
-                    Carpet Area
+                    {language('carpet_area')}
                   </div>
                   <div className="text-[14px] text-gray-800">{area}</div>
                 </div>
@@ -85,7 +90,7 @@ export default function PropertyCard({
                 <Building2 size={18} className="shrink-0" />
                 <div>
                   <div className="text-[11px] uppercase text-gray-500 font-semibold tracking-wide">
-                    Status
+                    {language('status')}
                   </div>
                   <div className="text-[14px] font-bold text-gray-900">
                     {status}
@@ -98,7 +103,7 @@ export default function PropertyCard({
                 <Home size={18} className="shrink-0" />
                 <div>
                   <div className="text-[11px] uppercase text-gray-500 font-semibold tracking-wide">
-                    Transaction
+                    {language('transaction')}
                   </div>
                   <div className="text-[14px] font-bold text-gray-700 flex items-center gap-1">
                     {transaction}
@@ -128,13 +133,13 @@ export default function PropertyCard({
         {/* Buttons */}
         <div className="flex flex-col gap-4 w-full mt-4">
           <button className="w-full bg-black text-white py-2 rounded-full cursor-pointer hover:bg-gray-800 transition">
-            Contact Agent
+            {language('contact_agent')}
           </button>
           <button className="w-full bg-white border py-2 rounded-full cursor-pointer hover:bg-gray-200 transition">
-            Get Phone No.
+            {language('get_phone_number')}
           </button>
           <p className="text-xs text-gray-500 text-center mt-2">
-            Check Affordability
+            {language('check_affordability')}
           </p>
         </div>
       </div>

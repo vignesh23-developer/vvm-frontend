@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import SwiperWrapper from '../Slider/SwipperSlider'
+import SwiperWrapper from '../../CustomComponent/Slider/SwipperSlider'
 
 interface Slide {
   id: number

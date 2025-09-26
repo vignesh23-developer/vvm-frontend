@@ -1,6 +1,7 @@
 // components/ExploreProperties.tsx
 import { Building2, Star } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import Image from 'next/image'
 
 export default function ExploreProperties() {
   const t = useTranslations('ExploreProperties')
@@ -96,10 +97,11 @@ export default function ExploreProperties() {
               {/* Image Section */}
               <div className="h-[120px] bg-[#B0BEC5] shadow-md relative flex flex-col items-start justify-end">
                 <div className="absolute -top-6 right-1/2 transform -translate-x-1/2 w-20 h-20 rounded-full overflow-hidden shadow-md">
-                  <img
+                  <Image
                     src={p.image}
                     alt={p.city}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
                   />
                 </div>
               </div>

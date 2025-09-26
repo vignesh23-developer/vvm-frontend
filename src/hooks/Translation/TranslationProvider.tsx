@@ -33,11 +33,17 @@ export default function TranslationProvider({
 }) {
   const [locale, setLocale] = useState<'en' | 'ta'>('ta')
 
+  const timeZone = 'Asia/Kolkata'
+
   const value = useMemo(() => ({ locale, setLocale }), [locale])
 
   return (
     <TranslationContext.Provider value={value}>
-      <NextIntlClientProvider locale={locale} messages={messagesMap[locale]}>
+      <NextIntlClientProvider
+        locale={locale}
+        timeZone={timeZone}
+        messages={messagesMap[locale]}
+      >
         {children}
       </NextIntlClientProvider>
     </TranslationContext.Provider>

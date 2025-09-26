@@ -1,8 +1,10 @@
 'use client'
 
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 
 const About = () => {
+  const t = useTranslations('About')
   const aboutImage = [
     {
       src: '/about1.png',
@@ -41,7 +43,7 @@ const About = () => {
                 alt={value.alt}
                 width={value.width}
                 height={value.height}
-                className="object-cover w-full h-full"
+                className="w-full h-full object-cover transform hover:scale-105 transition duration-300"
               />
             </div>
           ))}
@@ -53,25 +55,16 @@ const About = () => {
         {/* Right side - Content */}
         <div>
           <h2 className="text-4xl font-extrabold text-gray-900 mb-4">
-            ABOUT US
+            {t('title')}
           </h2>
           <h3 className="text-lg font-semibold text-gray-700 mb-6">
-            Vaazhga Valamudan is more than just a real estate service
+            {t('header')}
           </h3>
           <p className="text-gray-600 leading-relaxed text-justify mb-8">
-            They are a trusted partner in finding the perfect home. From the
-            first conversation, they truly listened to my needs and preferences.
-            Their deep understanding of the Bay Area market gave me confidence
-            at every step. Each property they recommended was thoughtfully
-            chosen to match my vision. They were patient, professional, and
-            incredibly detail-oriented. Communication was always clear, timely,
-            and friendly. They anticipated challenges before they arose, making
-            the process smooth. Their dedication made my home search stress-free
-            and enjoyable. When I found my dream home, I knew it was the perfect
-            fit. Vaazhga Valamudan exceeded my expectations in every way.
+            {t('description')}
           </p>
           <button className="bg-[#2B1B12] text-white px-6 py-3 rounded-lg shadow-md cursor-pointer hover:bg-[#3A2A20] transition">
-            EXPLORE MORE
+            {t('explore_more')}
           </button>
         </div>
       </div>

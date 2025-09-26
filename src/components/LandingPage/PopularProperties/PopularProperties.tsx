@@ -1,6 +1,7 @@
 import { MapPin, BedSingle, Ruler, IndianRupee } from 'lucide-react'
-import SwiperWrapper from '../Slider/SwipperSlider'
+import SwiperWrapper from '../../CustomComponent/Slider/SwipperSlider'
 import { useTranslations } from 'next-intl'
+import Image from 'next/image'
 
 export default function PopularProperties() {
   const t = useTranslations('PopularProperties')
@@ -75,10 +76,12 @@ export default function PopularProperties() {
                 className="max-w-90 mx-auto rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition duration-300 flex flex-col"
               >
                 {/* Image */}
-                <img
+                <Image
                   src={item.image}
                   alt={item.title}
-                  className="h-full w-full object-cover"
+                  width={300}
+                  height={250}
+                  className="object-cover w-full hover:scale-105 transition"
                 />
 
                 {/* Content */}
@@ -101,7 +104,7 @@ export default function PopularProperties() {
 
                   <div className="flex justify-between items-center mt-auto">
                     <button className="px-3 py-1.5 bg-black text-white rounded-md hover:bg-gray-800 transition text-xs sm:text-sm">
-                      See More
+                      {t('see_more')}
                     </button>
                     <p className="flex items-center gap-1 font-bold text-sm sm:text-base text-gray-800">
                       <IndianRupee size={16} className="text-gray-700" />

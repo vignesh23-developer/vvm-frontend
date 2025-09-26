@@ -28,7 +28,7 @@ const socialLinks = [
 ]
 
 export default function Footer() {
-  const t = useTranslations('Footer')
+  const t = useTranslations()
   return (
     <footer className="bg-[#2a1407] text-white px-10 py-12">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
@@ -48,20 +48,25 @@ export default function Footer() {
         {/* Right - Columns */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-10">
           {/* About */}
-          <FooterColumn title="About" links={aboutLinks} />
+          <FooterColumn title={t('Footer.Headers.about')} links={aboutLinks} />
 
           {/* Support */}
-          <FooterColumn title="Support" links={supportLinks} />
+          <FooterColumn
+            title={t('Footer.Headers.support')}
+            links={supportLinks}
+          />
 
           {/* Social */}
           <div>
-            <h3 className="font-semibold text-lg mb-4">Our Social</h3>
+            <h3 className="font-semibold text-lg mb-4">
+              {t('Footer.Headers.our_services')}
+            </h3>
             <ul className="space-y-3 text-gray-300">
               {socialLinks.map(({ label, icon: Icon, href }) => (
                 <li key={label} className="flex items-center gap-2">
                   <Icon size={18} />
                   <Link href={href} className="hover:text-white">
-                    {t(label)}
+                    {t(`Footer.${label}`)}
                   </Link>
                 </li>
               ))}

@@ -1,9 +1,8 @@
 'use client'
 
-import ExploreProperties from '@/components/ExploreProperties/ExploreProperties'
-import PopularProperties from '@/components/PopularProperties/PopularProperties'
-import PropertySlider from '@/components/PropertySlider/PropertySlider'
-import React from 'react'
+import ExploreProperties from '@/components/LandingPage/ExploreProperties/ExploreProperties'
+import PopularProperties from '@/components/LandingPage/PopularProperties/PopularProperties'
+import PropertySlider from '@/components/LandingPage/PropertySlider/PropertySlider'
 
 function page() {
   return (

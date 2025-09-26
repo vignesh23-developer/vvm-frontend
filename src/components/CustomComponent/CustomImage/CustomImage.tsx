@@ -1,40 +1,44 @@
 'use client'
 
-import Image from 'next/image'
+import Image, { ImageProps } from 'next/image'
 
 type CustomImageProps = {
+  rounded?: boolean
+  containerClass?: string
   src: string
   alt: string
-  rounded?: boolean
   className?: string
-  width: number
-  height: number
-  priority?: boolean
+  fill?: boolean
 }
 
 export default function CustomImage({
   src,
   alt,
   rounded = true,
+  containerClass = '',
   className = '',
-  width,
-  height,
-  priority = false,
+  fill,
+  ...rest
 }: CustomImageProps) {
   const containerClasses = `
+    relative
     ${rounded ? 'rounded-xl overflow-hidden' : ''}
+    ${containerClass}
+  `.trim()
+
+  const imageClasses = `
+    object-cover w-full h-full
     ${className}
-  `
+  `.trim()
 
   return (
-    <div className={containerClasses} style={{ width, height }}>
+    <div className={containerClasses}>
       <Image
         src={src}
         alt={alt}
-        width={width}
-        height={height}
-        className="object-cover w-full h-full"
-        priority={priority}
+        fill={fill}
+        className={imageClasses}
+        {...rest}
       />
     </div>
   )

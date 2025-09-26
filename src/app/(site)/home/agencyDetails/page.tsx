@@ -1,4 +1,4 @@
-import AgencyDetails from '@/components/AgencyDetails/AgencyDetails'
+import AgencyDetails from '@/components/Agency/AgencyDetails/AgencyDetails'
 
 const page = () => {
   return (

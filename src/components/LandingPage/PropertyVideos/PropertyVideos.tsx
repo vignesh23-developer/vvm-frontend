@@ -1,4 +1,4 @@
-import SwiperWrapper from '../Slider/SwipperSlider'
+import SwiperWrapper from '../../CustomComponent/Slider/SwipperSlider'
 import { useTranslations } from 'next-intl'
 
 // components/PropertyVideos.tsx

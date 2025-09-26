@@ -2,9 +2,10 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowRight, Menu, X, Globe } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useTranslationContext } from '../../hooks/Translation/TranslationProvider'
+import { useTranslationContext } from '../../../hooks/Translation/TranslationProvider'
 import { useTranslations } from 'next-intl'
 
 const navLinks = [
@@ -31,7 +32,13 @@ export default function Navbar() {
     <nav className="bg-[#3b1804] text-white px-6 py-4 flex items-center justify-between sticky top-0 z-50 shadow-md">
       {/* Logo */}
       <Link href="/home" className="flex items-center">
-        <img src="/logo.png" alt="Logo" className="h-12 w-auto" />
+        <Image
+          src="/logo.png"
+          alt="Logo"
+          width={120}
+          height={50}
+          className="h-12 w-auto"
+        />
       </Link>
 
       {/* Desktop Navigation Links */}

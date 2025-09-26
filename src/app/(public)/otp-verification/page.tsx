@@ -1,11 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import CustomImage from '@/components/CustomImage/CustomImage'
+import Image from 'next/image'
 import Link from 'next/link'
-// import { FaWhatsapp } from "react-icons/fa";
+import { ArrowLeft } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 const OtpVerification = () => {
+  const t = useTranslations('Auth')
   const [otp, setOtp] = useState(['', '', '', ''])
 
   const handleChange = (value: string, index: number) => {
@@ -25,38 +27,38 @@ const OtpVerification = () => {
     <div className="min-h-screen flex">
       {/* Left Side - Logo Section */}
       <div className="hidden md:flex w-1/2 bg-[#2c1207] flex-col items-center justify-center text-center p-6">
-        <div className="max-w-xs">
-          <CustomImage
-            src="/footer_logo.png"
-            alt="Vaazhga Valamudan Logo"
-            width={300}
-            height={300}
-            className="mx-auto"
-          />
-        </div>
+        <Link href="/home">
+          <div className="max-w-xs hover:cursor-pointer">
+            <Image
+              src="/footer_logo.png"
+              alt="Vaazhga Valamudan Logo"
+              width={400}
+              height={300}
+              className="mt-6 hover:scale-105 transition"
+            />
+          </div>
+        </Link>
       </div>
 
       {/* Right Side - Signup Form */}
-      <div className="w-full md:w-1/2 flex items-center justify-center p-8">
+      <div className="w-full md:w-1/2 flex items-start justify-center p-20">
         <div className="w-full max-w-md">
           {/* Back Button */}
           <Link
-            href="/forget-password"
-            className="flex items-center text-sm font-semibold text-green-900 mb-6 hover:underline"
+            href="/forgot-password"
+            className="flex items-center text-sm font-semibold text-green-900 mb-2 hover:underline"
           >
-            {/* <FaArrowLeft className="mr-2" /> Back */}
+            <ArrowLeft size={20} className="mr-2" /> {t('back')}
           </Link>
 
           {/* Title */}
-          <h2 className="text-3xl font-bold text-gray-800 leading-snug">
-            Verify Your <br /> OTP
+          <h2 className="text-2xl font-bold text-gray-800 leading-snug">
+            {t('otp_verification')}
           </h2>
-          <p className="text-gray-500 mt-2 text-sm">
-            Check your SMS for the 4-digit code.
-          </p>
+          <p className="text-gray-500 mt-2 text-xs">{t('otp_description')}</p>
 
           {/* OTP Inputs */}
-          <div className="flex justify-between mt-8 mb-6">
+          <div className="flex justify-between mt-4 mb-4">
             {otp.map((digit, index) => (
               <input
                 key={index}
@@ -73,14 +75,14 @@ const OtpVerification = () => {
           {/* Verify Button */}
           <button
             type="button"
-            className="w-full bg-[#2B1B12] text-white py-2 rounded-md font-medium hover:bg-[#3d2616]"
+            className="w-full bg-[#2B1B12] text-white text-sm py-2 rounded-md font-medium hover:bg-[#3d2616]"
           >
-            Verify
+            {t('verify')}
           </button>
 
           {/* Resend Link */}
-          <p className="text-right mt-4 text-sm text-gray-600 hover:underline cursor-pointer">
-            Resend OTP
+          <p className="text-right mt-4 text-xs text-gray-600 hover:underline cursor-pointer">
+            {t('resend_otp')}
           </p>
         </div>
       </div>

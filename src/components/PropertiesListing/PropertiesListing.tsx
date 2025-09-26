@@ -4,8 +4,9 @@ import { useState } from 'react'
 import PropertyCard from '../PropertyCard/PropertyCard'
 import FlatCard from '../FlatCard/FlatCard'
 import FilterBar from '../FilterBar/FilterBar'
-import AgentCard from '../AgentCard/AgentCard'
-import BuilderCard from '../BuilderCard/BuilderCard'
+import AgentCard from '../Agency/AgentCard/AgentCard'
+import BuilderCard from '../Builders/BuilderCard/BuilderCard'
+import { useTranslations } from 'next-intl'
 
 const flats = [
   {
@@ -167,6 +168,8 @@ const BuildersPropertiesList = [
 ]
 
 const PropertiesListing = ({ params }: { params: string }) => {
+  const t = useTranslations('PropertiesListCard')
+  const filter = useTranslations('PropertiesFilter')
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 2 // how many cards per page
   // Pagination logic
@@ -180,7 +183,7 @@ const PropertiesListing = ({ params }: { params: string }) => {
   return (
     <div className="min-h-screen bg-[#F0F0F0]">
       {/* Filter Bar */}
-      <FilterBar params={params} />
+      <FilterBar params={params} language={filter} />
 
       {/* Heading */}
       <div className="px-6 py-4">
@@ -206,15 +209,15 @@ const PropertiesListing = ({ params }: { params: string }) => {
         <div className="flex-1 space-y-6">
           {params === 'explore_by_category'
             ? properties.map((property, index) => (
-                <PropertyCard key={index} {...property} />
+                <PropertyCard key={index} {...property} language={t} />
               ))
             : params === 'agency'
             ? AgentPropertiesList.map((agentProperty, index) => (
-                <AgentCard key={index} {...agentProperty} />
+                <AgentCard key={index} {...agentProperty} language={t} />
               ))
             : params === 'builder'
             ? BuildersPropertiesList.map((BuilderProperty, index) => (
-                <BuilderCard key={index} {...BuilderProperty} />
+                <BuilderCard key={index} {...BuilderProperty} language={t} />
               ))
             : null}
 
@@ -224,7 +227,7 @@ const PropertiesListing = ({ params }: { params: string }) => {
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
             >
-              Prev
+              {t('previous')}
             </button>
 
             {/* Page numbers */}
@@ -249,7 +252,7 @@ const PropertiesListing = ({ params }: { params: string }) => {
               }
               disabled={currentPage === totalPages}
             >
-              Next
+              {t('next')}
             </button>
           </div>
         </div>

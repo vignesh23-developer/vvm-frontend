@@ -4,61 +4,62 @@ import { ChevronDown, SortAsc } from 'lucide-react'
 
 interface FiltersBarProps {
   params: string
+  language?: any
 }
 
-export default function FiltersBar({ params }: FiltersBarProps) {
+const baseBtn =
+  'py-2 px-4 mt-4 rounded-t-md text-sm font-medium bg-white border-b-4 border-b-yellow-500 flex items-center gap-1 transition'
+const activeText = 'text-black'
+const inactiveText = 'text-gray-500 hover:text-black'
+
+export default function FiltersBar({ params, language }: FiltersBarProps) {
+  const categoryTabs = ['Properties', 'New Projects', 'Top Agents']
+
   return (
-    <>
-      <div className="w-full bg-white shadow-sm">
-        <div className="flex items-center justify-between px-6">
-          {/* Left Tabs */}
-          {params === 'explore_by_category' ? (
-            <div className="flex space-x-4">
-              <button className="relative py-3 px-4 rounded-t-md border-b-2 border-yellow-500 text-black font-medium">
-                Properties
+    <div className="w-full">
+      <div className="flex items-center justify-between px-6">
+        {/* Left Section */}
+        {params === 'explore_by_category' ? (
+          <div className="flex gap-3">
+            {categoryTabs.map(tab => (
+              <button key={tab} className={`${baseBtn} ${activeText}`}>
+                {tab}
               </button>
-              <button className="py-3 px-4 rounded-t-md text-gray-700 hover:text-black hover:border-b-2 hover:border-yellow-500 transition">
-                New Projects
-              </button>
-              <button className="py-3 px-4 rounded-t-md text-gray-700 hover:text-black hover:border-b-2 hover:border-yellow-500 transition">
-                Top Agents
-              </button>
-            </div>
-          ) : (
-            <div className="flex space-x-4">
-              {/* City Dropdown */}
-              <button className="flex items-center space-x-1 py-3 px-4 rounded-t-md border-b-2 border-yellow-500 text-black font-medium">
-                <span>Bangalore</span>
-                <ChevronDown size={16} />
-              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="flex gap-3">
+            {/* City Dropdown */}
+            <button className={`${baseBtn} ${activeText}`}>
+              <span>Bangalore</span>
+              <ChevronDown size={16} />
+            </button>
 
-              {/* Localities Dropdown */}
-              <button className="flex items-center space-x-1 py-3 px-4 rounded-t-md text-gray-400 hover:text-black hover:border-b-2 hover:border-yellow-500 transition">
-                <span>All Localities</span>
-                <ChevronDown size={16} />
-              </button>
-            </div>
-          )}
-
-          {/* Right Filters */}
-          <div className="flex items-center space-x-4">
-            {/* Location Dropdown */}
-            {params === 'explore_by_category' && (
-              <button className="flex items-center space-x-1 py-3 px-4 rounded-t-md text-gray-700 hover:text-black hover:border-b-2 hover:border-yellow-500 transition">
-                <span>Chennai, central</span>
-                <ChevronDown size={16} />
-              </button>
-            )}
-
-            {/* Sort Dropdown */}
-            <button className="flex items-center space-x-1 py-3 px-4 rounded-t-md text-gray-700 hover:text-black hover:border-b-2 hover:border-yellow-500 transition">
-              <SortAsc size={16} />
-              <span>Sort By : Relevance</span>
+            {/* Localities Dropdown */}
+            <button className={`${baseBtn} ${inactiveText}`}>
+              <span>{language('all_localities')}</span>
               <ChevronDown size={16} />
             </button>
           </div>
+        )}
+
+        {/* Right Section */}
+        <div className="flex gap-3">
+          {params === 'explore_by_category' && (
+            <button className={`${baseBtn} ${inactiveText}`}>
+              <span>Chennai, central</span>
+              <ChevronDown size={16} />
+            </button>
+          )}
+          <button className={`${baseBtn} ${inactiveText}`}>
+            <SortAsc size={16} />
+            <span>
+              {language('sort_by')} : {language('relevance')}
+            </span>
+            <ChevronDown size={16} />
+          </button>
         </div>
       </div>
-    </>
+    </div>
   )
 }

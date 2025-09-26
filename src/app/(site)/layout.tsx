@@ -1,5 +1,5 @@
-import Footer from '@/components/Footer/Footer'
-import Navbar from '@/components/Navbar/Navbar'
+import Footer from '@/components/layout/Footer/Footer'
+import Navbar from '@/components/layout/Navbar/Navbar'
 import React from 'react'
 
 const HomePageLayout = ({

@@ -1,5 +1,5 @@
 import { Star } from 'lucide-react'
-import SwiperWrapper from '../Slider/SwipperSlider'
+import SwiperWrapper from '../../CustomComponent/Slider/SwipperSlider'
 import { useTranslations } from 'next-intl'
 
 export default function Testimonials() {

@@ -5,14 +5,17 @@ import { Formik, Form } from 'formik'
 import { MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 import { AuthSchema } from '@/utils/validations/auth/AuthValidationSchema'
-import CustomImage from '@/components/CustomImage/CustomImage'
+import Image from 'next/image'
+import Button from '@/components/CustomComponent/Button/Button'
 // import { FaWhatsapp } from "react-icons/fa";
+import { useTranslations } from 'next-intl'
 
 interface AuthFormValues {
   phone: string
 }
 
 const Login = () => {
+  const t = useTranslations()
   const initialValues: AuthFormValues = {
     phone: '',
   }
@@ -32,74 +35,82 @@ const Login = () => {
       {/* Left Side - Logo Section */}
       {/* <LogoSection /> */}
       <div className="hidden md:flex w-1/2 bg-[#2c1207] flex-col items-center justify-center text-center p-6">
-        <div className="max-w-xs">
-          <CustomImage
-            src="/footer_logo.png"
-            alt="Vaazhga Valamudan Logo"
-            width={300}
-            height={300}
-            className="mx-auto"
-          />
-        </div>
+        <Link href="/home">
+          <div className="max-w-xs hover:cursor-pointer">
+            <Image
+              src="/footer_logo.png"
+              alt="Vaazhga Valamudan Logo"
+              width={400}
+              height={300}
+              className="mt-6 hover:scale-105 transition"
+            />
+          </div>
+        </Link>
       </div>
 
       {/* Right Side - Signup Form */}
-      <div className="w-full md:w-1/2 flex items-center justify-center p-8">
+      <div className="w-full md:w-1/2 flex items-start justify-center p-20">
         <div className="w-full max-w-md">
           <h2 className="text-2xl font-bold text-gray-800">
-            Hello <br />
-            <span className="text-green-900">Welcome Back</span>
+            {t('Auth.hello')} <br />
+            <span className="text-green-900">{t('Auth.welcome_back')}</span>
           </h2>
-          <p className="text-gray-500 mt-1 text-sm">
-            Login to Unlock Smarter Moves
+          <p className="text-gray-500 mt-2 text-xs">
+            {t('Auth.login_description')}
           </p>
 
           <Formik
             initialValues={initialValues}
-            validationSchema={AuthSchema}
+            validationSchema={AuthSchema(t)}
             onSubmit={(values, { setSubmitting }) => {
               handleLoginSubmit(values, setSubmitting)
             }}
           >
             {({ isSubmitting }) => (
-              <Form className="mt-6 space-y-4">
+              <Form className="mt-4 space-y-4">
                 {/* Phone Number */}
                 <div>
                   <FormikTextField
-                    label="Phone Number"
+                    label={t('form.phone_number.label')}
                     type="tel"
                     name="phone"
-                    placeholder="Enter your Phone Number"
-                    className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-900"
+                    placeholder={t('form.phone_number.placeholder')}
+                    className="w-full border border-gray-300 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-900"
                   />
                 </div>
 
                 {/* Forgot Password Link */}
-                <div className="flex justify-end mb-2">
+                <div className="flex justify-end">
                   <Link
-                    href="/forget-password"
-                    className="font-semibold text-black-600 text-right hover:underline text-sm"
+                    href="/forgot-password"
+                    className="font-semibold text-black-600 text-right hover:underline text-xs"
                   >
-                    Forgot your password?
+                    {t('Auth.forgot_password')}
                   </Link>
                 </div>
 
                 {/* WhatsApp Button */}
-                <button
+                <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-[#2B1B12] text-white py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-[#3d2616] disabled:opacity-60"
+                  onClick={() => {
+                    console.log('Login Clicked')
+                  }}
+                  className="w-full bg-[#2B1B12] text-white text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-[#3d2616] cursor-pointer disabled:opacity-60"
                 >
                   <span>
-                    {isSubmitting ? 'Verifying...' : "Verify Via What's app"}
+                    {isSubmitting ? 'Verifying...' : t('Auth.whatapp_button')}
                   </span>
-                </button>
+                </Button>
 
                 {/* Login Link */}
-                <p className="text-center text-gray-600 text-sm">
-                  Don’t have an account?{' '}
-                  <a href="/signup" className="font-semibold text-green-900">
-                    Sign Up
+                <p className="text-center text-gray-600 text-xs">
+                  {t('Auth.login_message')}{' '}
+                  <a
+                    href="/signup"
+                    className="font-semibold text-green-900 hover:underline"
+                  >
+                    {t('Auth.signup')}
                   </a>
                 </p>
 
@@ -111,15 +122,18 @@ const Login = () => {
                 </div>
 
                 {/* Continue with SMS */}
-                <button
+                <Button
                   type="button"
-                  className="w-full border border-gray-400 rounded-md py-2 flex items-center justify-center space-x-2 hover:bg-gray-50"
+                  onClick={() => {
+                    console.log('SMS Clicked')
+                  }}
+                  className="w-full border border-gray-400 text-sm rounded-md py-2 flex items-center justify-center space-x-2 hover:bg-gray-50 cursor-pointer"
                 >
                   <span>
-                    <MessageCircle />
+                    <MessageCircle size={20} />
                   </span>
-                  <span>Continue with SMS</span>
-                </button>
+                  <span>{t('Auth.continue_with_sms')}</span>
+                </Button>
               </Form>
             )}
           </Formik>

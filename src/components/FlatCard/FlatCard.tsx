@@ -21,7 +21,12 @@ export default function FlatCard({
     <div className="w-[252px] h-[400px] rounded-2xl bg-white shadow-md overflow-hidden flex flex-col">
       {/* Image */}
       <div className="relative w-[234px] h-[217px] item-center mx-auto mt-2 rounded-lg overflow-hidden">
-        <Image src={image} alt={title} fill className="object-cover" />
+        <Image
+          src={image}
+          alt={title}
+          fill
+          className="object-cover hover:scale-105 transition"
+        />
       </div>
 
       {/* Details */}

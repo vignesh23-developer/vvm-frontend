@@ -44,14 +44,14 @@ export default function AppPromo() {
             <form className="flex max-w-md rounded-md overflow-hidden border border-gray-300 focus-within:ring-2 focus-within:ring-blue-500">
               <input
                 type="email"
-                placeholder="Your email"
+                placeholder={t('placeholder')}
                 className="w-full px-4 py-3 text-gray-700 focus:outline-none"
               />
               <button
                 type="submit"
                 className="bg-gray-900 text-white px-6 hover:bg-gray-800 transition"
               >
-                Subscribe
+                {t('subscribe')}
               </button>
             </form>
           </div>

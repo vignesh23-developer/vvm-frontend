@@ -1,10 +1,39 @@
 {
   "Hero": {
-    "title": "Welcome back! Choose Premium House"
+    "title": "Welcome back! Choose Premium House",
+    "HeroMenu" : {
+      "buy": "Buy",
+      "rent": "Rent",
+      "new_projects": "New Projects",
+      "pg": "PG",
+      "plots": "Plots",
+      "commercial": "Commercial"
+    }
   },
   "Auth": {
     "login": "Login",
-    "signup": "Sign Up"
+    "login_description": "Sign In to Unlock Smarter Moves",
+    "login_message": "Don’t have an account?",
+    "signup": "Sign Up",
+    "signup_description": "Start Your Property Journey With Us",
+    "signup_message": "Already have an account?",
+    "hello": "Hello",
+    "welcome_back": "Welcome Back",
+    "forgot_password": "Forgot Your Password?",
+    "forgot_description": "We’ll Help You Find Your Way Back",
+    "forgot_message": "Check WhatsApp – we’ll send your OTP there",
+    "reset_password": "Reset Password",
+    "continue_with_sms": "Continue With SMS",
+    "otp_verification": "Verify Your OTP",
+    "otp_description": "Check your SMS for the 4-digit code.",
+    "verify": "Verify",
+    "profile_creation": "Introduce Yourself to the Platform",
+    "profile_description": "The right first impression starts with your profile.",
+    "submit": "Submit",
+    "back": "Back",
+    "resend_otp": "Resend OTP",
+    "to_get_started": "to Get Started",
+    "whatapp_button": "Verify Via What’s app"
   },
   "Navbar": {
     "home": "Home",
@@ -19,7 +48,8 @@
     "location": "Location",
     "bedrooms": "Bedrooms",
     "area": "Area",
-    "price": "Price"
+    "price": "Price",
+    "see_more": "See More"
   },
   "ExploreProperties": {
     "title": "Explore Your Dream Property in Tamil Nadu",
@@ -39,12 +69,11 @@
     "title": "Check out our app too, don’t miss it!",
     "description": "Find your dream home on the go with our mobile app.",
     "message": "Don’t lose it when it comes out!",
-    "download": "Download Now"
+    "download": "Download Now",
+    "placeholder": "Your email",
+    "subscribe": "Subscribe"
   },
   "Footer": {
-    "about": "About",
-    "support": "Support",
-    "our_services": "Our Services",
     "our_story": "Our Story",
     "careers": "Careers",
     "our_team": "Our Team",
@@ -55,6 +84,158 @@
     "terms_of_service": "Terms of Service",
     "instagram": "Instagram",
     "facebook": "Facebook",
-    "twitter_(𝕏)": "Twitter (𝕏)"
+    "twitter_(𝕏)": "Twitter (𝕏)",
+    "Headers" : {
+     "about": "About",
+     "support": "Support",
+     "our_services": "Our Services"
+  }
+},
+  
+  "PropertiesListCard": {
+     "agent" : "Agent",
+     "operating_since": "Operating Since",
+     "carpet_area": "Carpet Area",
+     "status" : "Status",
+     "ready_to_move": "Ready to Move",
+     "transaction": "Transaction",
+     "resale": "Resale",
+     "contact_agent": "Contact Agent",
+     "get_phone_number": "Get Phone No.",
+     "view_details": "View Details",
+     "check_affordability": "Check Affordability",
+     "per_sqft": "per sqft",
+     "builder_name":"Bulider Name",
+     "agent_name": "Agent Name",
+     "properties_for_sale": "Properties For Sale",
+     "properties_for_rent": "Properties For Rent",
+     "deals_closed": "Deals Closed",
+     "team_members": "Team Members",
+     "next" : "Next",
+     "previous": "Prev"
+    },
+    "AgencyDetails": {
+    "enquire_now": "Enquire Now",
+    "enquire_description": "Let’s Start the Conversation",
+    "contact_owner": "Contact Owner"
+  },
+  "PropertiesDetails" : {
+    "name": "Name",
+    "contact_owner" : "Contact Owner",
+    "bed_rooms": "Bed Rooms",
+    "bath_rooms": "Bath Rooms",
+    "balcony" : "Balcony",
+    "semi_furnished" : "Semi Furnished",
+    "super_built_up_area" : "Super Built-up Area",
+    "floors": "Floors",
+    "parking": "Parking",
+    "age_of_building": "Age of Building",
+    "price" : "Price",
+    "booking_amount":"Booking_Amount",
+    "address": "Address",
+    "gated_security": "Gated Security",
+    "description" : "Description",
+    "amenities": "Amenities",
+    "agent" : "Agent"
+  },
+    "PropertiesFilter": {
+      "properties" : "Properties",
+      "sort_by": "Sort By",
+      "relevance": "Relevance",
+      "new_projects": "New Projects",
+      "top_agents": "Top Agents",
+      "all_localities": "All Localities",
+      "price_low_to_high": "Price: Low to High",
+      "price_high_to_low": "Price: High to Low",
+      "newest_listings": "Newest Listings"
+    },
+  "About": {
+    "title": "ABOUT US",
+    "header" : "Vaazhga Valamudan is more than just a real estate service",
+    "description": "At Premium House, we are dedicated to transforming the way you find and experience real estate. Our mission is to connect you with your dream property through innovative technology, personalized service, and a commitment to excellence.",
+    "explore_more": "EXPLORE MORE"
+  },
+  
+  
+  "form": {
+    "first_name": {
+      "label": "First Name",
+      "placeholder": "Enter your first name",
+      "error": {
+        "required": "First name is required",
+        "minLength": "First name must be at least 2 characters",
+        "maxLength": "First name must be less than 50 characters"
+
+      }
+    },
+    "last_name": {
+      "label": "Last Name",
+      "placeholder": "Enter your last name",
+      "error": {
+        "required": "Last name is required",
+        "minLength": "Last name must be at least 2 characters",
+        "maxLength": "Last name must be less than 50 characters"
+      }
+    },
+    "email": {
+      "label": "Email",
+      "placeholder": "Enter your email",
+      "error": {
+        "required": "Email is required",
+        "pattern": "Invalid email format"
+      }
+    },
+    "phone_number": {
+      "label": "Phone Number",
+      "placeholder": "Enter your phone number",
+      "error": {
+        "required": "Phone number is required",
+        "pattern": "Phone number must be 10 digits"
+      }
+    },
+    "address": {
+      "label": "Address",
+      "placeholder": "Enter your address",
+      "error": {
+        "required": "Address is required",
+        "minLength": "Address must be at least 5 characters"
+      }
+    },
+    "land_mark": {
+      "label": "Land Mark",
+      "placeholder": "Enter your land mark",
+      "error": {
+        "required": "Land mark is required",
+        "maxLength": "Landmark must be less than 50 characters"
+      }
+    },
+    "post_code": {
+      "label": "Post Code",
+      "placeholder": "Enter your post code",
+      "error": {
+        "required": "Post code is required",
+        "pattern": "Postal code must be 6 digits"
+      }
+    },
+    "referral_id": {
+      "label": "Referral Id",
+      "placeholder": "Enter your referral id (optional)",
+      "error": {}
+    },
+    "name": {
+      "label": "Name",
+      "placeholder": "Enter your name",
+      "error": {
+        "required": "Name is required",
+        "minLength": "Name must be at least 2 characters",
+        "maxLength": "Name must be less than 50 characters"
+      }
+    },"message": {
+      "label": "Message",
+      "placeholder": "Enter your message",
+      "error": {
+        "required": "Message is required"
+      }
+  }
   }
 }

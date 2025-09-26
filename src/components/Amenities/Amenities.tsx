@@ -9,7 +9,7 @@ import {
   CigaretteOff,
 } from 'lucide-react'
 
-const Amenities = () => {
+const Amenities = ({ lanJson }: any) => {
   const amenityList = [
     {
       icon: AirVent, // closest to AC
@@ -47,7 +47,9 @@ const Amenities = () => {
 
   return (
     <div className="bg-white shadow-md rounded-xl p-6">
-      <h2 className="text-lg font-semibold mb-4">Amenities</h2>
+      <h2 className="text-lg font-semibold mb-4">
+        {lanJson('PropertiesDetails.amenities')}
+      </h2>
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3 text-sm text-gray-700">
         {amenityList.map((item, i) => (
           <span key={i}>
