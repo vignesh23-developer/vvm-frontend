@@ -17,8 +17,7 @@ const navLinks = [
 ]
 
 export default function Navbar() {
-  const t = useTranslations('Auth')
-  const tNav = useTranslations('Navbar')
+  const t = useTranslations()
   const [isOpen, setIsOpen] = useState(false)
   const { locale, setLocale } = useTranslationContext()
   const router = useRouter()
@@ -37,7 +36,7 @@ export default function Navbar() {
           alt="Logo"
           width={120}
           height={50}
-          className="h-12 w-auto"
+          className="w-10 h-10 w-auto"
         />
       </Link>
 
@@ -51,7 +50,7 @@ export default function Navbar() {
               label === 'Home' ? 'font-medium' : ''
             }`}
           >
-            {tNav(label)}
+            {t(`Navbar.${label}`)}
             <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-white group-hover:w-full transition-all duration-300"></span>
           </Link>
         ))}
@@ -68,7 +67,7 @@ export default function Navbar() {
           <select
             value={locale}
             onChange={e => handleLanguageChange(e.target.value as 'en' | 'ta')}
-            className="absolute text-color-red inset-0 opacity-0 cursor-pointer"
+            className="absolute text-color-red inset-0 opacity-0 hover: cursor-pointer"
           >
             <option value="en" className="text-black">
               EN
@@ -84,7 +83,7 @@ export default function Navbar() {
           href="/login"
           className="flex items-center gap-2 bg-white text-[#3b1804] px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors"
         >
-          {t('login')} <ArrowRight size={18} />
+          {t(`Auth.${'login'}`)} <ArrowRight size={18} />
         </Link>
       </div>
 
@@ -112,7 +111,7 @@ export default function Navbar() {
             onClick={() => setIsOpen(false)}
             className="w-full text-center py-2 hover:text-gray-300 transition-colors"
           >
-            {label}
+            {t(`Navbar.${label}`)}
           </Link>
         ))}
 
@@ -135,7 +134,7 @@ export default function Navbar() {
           onClick={() => setIsOpen(false)}
           className="flex items-center gap-2 bg-white text-[#3b1804] px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors w-full justify-center"
         >
-          Login <ArrowRight size={18} />
+          {t(`Auth.${'login'}`)} <ArrowRight size={18} />
         </Link>
       </div>
     </nav>

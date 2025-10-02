@@ -7,7 +7,11 @@
       "new_projects": "New Projects",
       "pg": "PG",
       "plots": "Plots",
-      "commercial": "Commercial"
+      "commercial": "Commercial",
+      "search" : "Search",
+      "budget" : "Budget",
+      "flat" : "Flat",
+      "add_more" : "Add more..."
     }
   },
   "Auth": {
@@ -107,10 +111,10 @@
      "per_sqft": "per sqft",
      "builder_name":"Bulider Name",
      "agent_name": "Agent Name",
-     "properties_for_sale": "Properties For Sale",
-     "properties_for_rent": "Properties For Rent",
-     "deals_closed": "Deals Closed",
-     "team_members": "Team Members",
+     "properties_for_sale": "Properties\nFor Sale",
+     "properties_for_rent": "Properties\nFor Rent",
+     "deals_closed": "Deals\nClosed",
+     "team_members": "Team\nMembers",
      "next" : "Next",
      "previous": "Prev"
     },

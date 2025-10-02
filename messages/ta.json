@@ -7,7 +7,11 @@
       "new_projects": "புதிய திட்டங்கள்",
       "pg": "பி.ஜி",
       "plots": "திட்டங்கள்",
-      "commercial": "வணிக"
+      "commercial": "வணிக",
+      "search": "தேடல்",
+      "budget": "பட்ஜெட்",
+      "flat": "பிளாட்",
+      "add_more": "மேலும் சேர்க்க..."
     } 
   },
   "Auth": {
@@ -110,10 +114,10 @@
   "per_sqft": "சதுர அடிக்கு",
   "builder_name": "பில்டர் பெயர்",
   "agent_name": "எஜென்ட் பெயர்",
-  "properties_for_sale": "விற்பனைக்கு சொத்துகள்",
-  "properties_for_rent": "வாடகைக்கு சொத்துகள்",
-  "deals_closed": "முடிக்கப்பட்ட ஒப்பந்தங்கள்",
-  "team_members": "குழு உறுப்பினர்கள்",
+  "properties_for_sale": "விற்பனைக்கு\nசொத்துகள்",
+  "properties_for_rent": "வாடகைக்கு\nசொத்துகள்",
+  "deals_closed": "முடிக்கப்பட்ட\nஒப்பந்தங்கள்",
+  "team_members": "குழு\nஉறுப்பினர்கள்",
   "next": "அடுத்தது",
   "previous": "முந்தையது"
 },
