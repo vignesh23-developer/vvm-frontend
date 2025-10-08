@@ -34,9 +34,11 @@ export default function Navbar() {
         <Image
           src="/logo.png"
           alt="Logo"
-          width={120}
-          height={50}
-          className="w-10 h-10 w-auto"
+          width={200}
+          height={80}
+          className="h-auto w-[200px] object-contain"
+          unoptimized
+          priority
         />
       </Link>
 

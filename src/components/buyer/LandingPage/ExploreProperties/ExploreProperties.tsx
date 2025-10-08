@@ -1,10 +1,32 @@
-// components/ExploreProperties.tsx
+'use client'
+
+import { motion, Variants } from 'framer-motion'
 import { Building2, Star } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 
+// Animation variants
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.2 },
+  },
+}
+
+const cardVariants: Variants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: 'spring', stiffness: 80, damping: 12 },
+  },
+  hover: { scale: 1.05, boxShadow: '0 8px 25px rgba(0,0,0,0.1)' },
+}
+
 export default function ExploreProperties() {
   const t = useTranslations('ExploreProperties')
+
   const properties = [
     {
       city: 'Coimbatore',
@@ -12,48 +34,62 @@ export default function ExploreProperties() {
       count: 288,
       rating: 5,
       tags: ['Land', 'Plots', 'House', 'Commercial', 'Projects'],
-      image: '/Ellipse.png', // replace with your image
-    },
-    {
-      city: 'Coimbatore',
-      priceRange: '₹ 2.24 L – 4.65 Cr',
-      count: 288,
-      rating: 5,
-      tags: ['Land', 'Plots', 'House', 'Commercial', 'Projects'],
       image: '/Ellipse.png',
     },
     {
-      city: 'Coimbatore',
-      priceRange: '₹ 2.24 L – 4.65 Cr',
-      count: 288,
-      rating: 5,
-      tags: ['Land', 'Plots', 'House', 'Commercial', 'Projects'],
+      city: 'Chennai',
+      priceRange: '₹ 4.1 L – 5.2 Cr',
+      count: 310,
+      rating: 4,
+      tags: ['Flats', 'Villa', 'Commercial'],
       image: '/Ellipse.png',
     },
     {
-      city: 'Coimbatore',
-      priceRange: '₹ 2.24 L – 4.65 Cr',
-      count: 288,
+      city: 'Bangalore',
+      priceRange: '₹ 3.5 L – 6.8 Cr',
+      count: 410,
       rating: 5,
-      tags: ['Land', 'Plots', 'House', 'Commercial', 'Projects'],
+      tags: ['Plots', 'Villa', 'House'],
+      image: '/Ellipse.png',
+    },
+    {
+      city: 'Hyderabad',
+      priceRange: '₹ 2.8 L – 5.0 Cr',
+      count: 250,
+      rating: 5,
+      tags: ['Land', 'Projects', 'Commercial'],
       image: '/Ellipse.png',
     },
   ]
 
   return (
-    <section className="py-8  bg-gray-100">
+    <section className="py-12 bg-gray-100">
       <div className="max-w-7xl mx-auto px-6 text-center">
         {/* Heading */}
-        <h2 className="text-3xl lg:text-5xl font-bold text-gray-900">
+        <motion.h2
+          className="text-3xl lg:text-5xl font-bold text-gray-900"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+        >
           {t('title')}
-        </h2>
+        </motion.h2>
 
-        {/* Grid */}
-        <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        {/* Animated Grid */}
+        <motion.div
+          className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+        >
           {properties.map((p, idx) => (
-            <div
+            <motion.div
               key={idx}
-              className="bg-white rounded-2xl shadow-md hover:shadow-lg transition overflow-hidden flex flex-col"
+              variants={cardVariants}
+              whileHover="hover"
+              className="bg-white rounded-2xl shadow-md transition overflow-hidden flex flex-col"
             >
               <div className="p-6 flex-1">
                 <h3 className="text-lg text-start font-semibold text-gray-900 mb-2">
@@ -76,7 +112,11 @@ export default function ExploreProperties() {
                     <Star
                       key={i}
                       size={18}
-                      className="fill-yellow-400 text-yellow-400"
+                      className={`${
+                        i < p.rating
+                          ? 'fill-yellow-400 text-yellow-400'
+                          : 'text-gray-300'
+                      }`}
                     />
                   ))}
                 </div>
@@ -105,16 +145,26 @@ export default function ExploreProperties() {
                   />
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* More Button */}
-        <div className="mt-10">
-          <button className="text-gray-800 font-medium hover:underline">
+        <motion.div
+          className="mt-10"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          viewport={{ once: true }}
+        >
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="text-gray-800 font-medium hover:underline"
+          >
             {t('more')}
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
       </div>
     </section>
   )

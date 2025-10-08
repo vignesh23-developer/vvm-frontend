@@ -6,6 +6,7 @@ interface TextFieldProps {
   label: string
   name: string
   type?: string
+  as?: string
   placeholder?: string
   className?: string
 }
@@ -14,6 +15,7 @@ export default function FormikTextField({
   label,
   name,
   type = 'text',
+  as,
   placeholder,
   className = 'w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none',
 }: TextFieldProps) {
@@ -26,6 +28,7 @@ export default function FormikTextField({
         id={name}
         name={name}
         type={type}
+        as={as}
         placeholder={placeholder}
         className={className}
       />

@@ -7,6 +7,7 @@ import FilterBar from '../FilterBar/FilterBar'
 import AgentCard from '../Agency/AgentCard/AgentCard'
 import BuilderCard from '../Builders/BuilderCard/BuilderCard'
 import { useTranslations } from 'next-intl'
+import SkeletonLoader from '@/components/ui/CustomComponent/SkeletonLoader/SkeletonLoader'
 
 const flats = [
   {
@@ -136,6 +137,7 @@ const PropertiesListing = ({ params }: { params: string }) => {
     startIndex,
     startIndex + itemsPerPage,
   )
+  const [isLoading, setIsLoading] = useState(true)
 
   return (
     <div className="min-h-screen bg-[#F0F0F0]">
@@ -165,17 +167,29 @@ const PropertiesListing = ({ params }: { params: string }) => {
         {/* Left Section - Properties */}
         <div className="flex-1 space-y-6">
           {params === 'explore_by_category'
-            ? currentProperties.map((property, index) => (
-                <PropertyCard key={index} {...property} language={t} />
-              ))
+            ? currentProperties.map((property, index) =>
+                isLoading ? (
+                  <SkeletonLoader key={index} />
+                ) : (
+                  <PropertyCard key={index} {...property} language={t} />
+                ),
+              )
             : params === 'agency'
-            ? AgentPropertiesList.map((agentProperty, index) => (
-                <AgentCard key={index} {...agentProperty} language={t} />
-              ))
+            ? AgentPropertiesList.map((agentProperty, index) =>
+                isLoading ? (
+                  <SkeletonLoader key={index} />
+                ) : (
+                  <AgentCard key={index} {...agentProperty} language={t} />
+                ),
+              )
             : params === 'builder'
-            ? BuildersPropertiesList.map((BuilderProperty, index) => (
-                <BuilderCard key={index} {...BuilderProperty} language={t} />
-              ))
+            ? BuildersPropertiesList.map((BuilderProperty, index) =>
+                isLoading ? (
+                  <SkeletonLoader key={index} />
+                ) : (
+                  <BuilderCard key={index} {...BuilderProperty} language={t} />
+                ),
+              )
             : null}
 
           {/* Pagination */}

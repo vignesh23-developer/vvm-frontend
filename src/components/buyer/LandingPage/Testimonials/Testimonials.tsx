@@ -1,9 +1,13 @@
+'use client'
+
+import { motion, Variants } from 'framer-motion'
 import { Star } from 'lucide-react'
 import SwiperWrapper from '../../../ui/CustomComponent/Slider/SwipperSlider'
 import { useTranslations } from 'next-intl'
 
 export default function Testimonials() {
   const t = useTranslations('Testimonials')
+
   const feedback = [
     {
       id: 1,
@@ -37,16 +41,40 @@ export default function Testimonials() {
     },
   ]
 
+  // Animation variants for reusable motion effects
+  const fadeUp: Variants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: 'easeOut' },
+    },
+  }
+
   return (
-    <section className="py-12 sm:py-16 bg-white">
+    <section className="py-5 sm:py-10 bg-white overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center">
-        {/* Section Heading */}
-        <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-gray-900">
+        {/* Heading */}
+        <motion.h2
+          className="text-2xl sm:text-3xl lg:text-5xl font-bold text-gray-900"
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
           {t('title')}
-        </h2>
-        <p className="text-gray-500 text-sm sm:text-base mt-2 mb-10 sm:mb-12">
+        </motion.h2>
+
+        <motion.p
+          className="text-gray-500 text-sm sm:text-base mt-2 mb-10 sm:mb-12"
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          transition={{ delay: 0.1 }}
+        >
           {t('description')}
-        </p>
+        </motion.p>
 
         {/* Swiper Carousel */}
         <SwiperWrapper
@@ -58,38 +86,51 @@ export default function Testimonials() {
             1024: { slidesPerView: 3, spaceBetween: 20 },
           }}
           renderItem={item => (
-            <div
+            <motion.div
               key={item.id}
-              className="bg-[#D9D9D9] p-4 sm:p-6 rounded-xl sm:rounded-2xl relative text-left shadow-md hover:shadow-xl transition-transform duration-300 hover:-translate-y-1"
+              className="bg-[#D9D9D9] p-4 sm:p-6 rounded-xl sm:rounded-2xl relative text-left 
+                shadow-md hover:shadow-xl transition-all duration-500 ease-out hover:-translate-y-2
+                flex flex-col h-full min-h-[300px]"
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
             >
               {/* Decorative quote mark */}
-              <span className="absolute top-0 left-3 text-4xl sm:text-5xl text-black-300 font-serif -translate-y-3 sm:-translate-y-4">
+              <span className="absolute top-2 left-3 text-4xl sm:text-5xl text-black-300 font-serif -translate-y-3 sm:-translate-y-4">
                 “
               </span>
 
-              <div className="mt-6">
+              <div className="mt-6 flex flex-col flex-grow">
                 <p className="font-semibold text-sm sm:text-base md:text-lg">
                   {item.client}
                 </p>
-                <p className="text-gray-700 mt-2 text-sm sm:text-base leading-relaxed line-clamp-5">
+
+                <p className="text-gray-700 mt-2 text-sm sm:text-base leading-relaxed line-clamp-5 flex-grow">
                   {item.text}
                 </p>
 
                 {/* Rating Stars */}
-                <div className="flex mt-4 space-x-1">
+                <motion.div
+                  className="flex mt-4 space-x-1"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2, duration: 0.4 }}
+                  viewport={{ once: true }}
+                >
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
                       key={i}
-                      className={`w-4 h-4 sm:w-5 sm:h-5 ${
+                      className={`w-4 h-4 sm:w-5 sm:h-5 transition-all duration-300 ${
                         i < item.rating
-                          ? 'fill-black text-black'
+                          ? 'fill-black text-black scale-110'
                           : 'text-gray-400'
                       }`}
                     />
                   ))}
-                </div>
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
           )}
         />
       </div>
