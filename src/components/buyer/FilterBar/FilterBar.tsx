@@ -37,7 +37,7 @@ export default function FiltersBar({ params, language }: FiltersBarProps) {
 
             {/* Localities Dropdown */}
             <button className={`${baseBtn} ${inactiveText}`}>
-              <span>{language('all_localities')}</span>
+              <span>{language('PropertiesFilter.all_localities')}</span>
               <ChevronDown size={16} />
             </button>
           </div>
@@ -54,7 +54,8 @@ export default function FiltersBar({ params, language }: FiltersBarProps) {
           <button className={`${baseBtn} ${inactiveText}`}>
             <SortAsc size={16} />
             <span className="whitespace-nowrap">
-              {language('sort_by')} : {language('relevance')}
+              {language('PropertiesFilter.sort_by')} :{' '}
+              {language('PropertiesFilter.relevance')}
             </span>
             <ChevronDown size={16} />
           </button>

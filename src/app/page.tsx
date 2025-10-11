@@ -1,4 +1,3 @@
-import HeroSection from '@/components/buyer/HeroSection/HeroSection'
 import styles from './page.module.css'
 
 export default function Home() {

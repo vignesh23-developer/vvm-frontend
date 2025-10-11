@@ -127,8 +127,7 @@ const BuildersPropertiesList = [
 ]
 
 const PropertiesListing = ({ params }: { params: string }) => {
-  const t = useTranslations('PropertiesListCard')
-  const filter = useTranslations('PropertiesFilter')
+  const t = useTranslations()
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 2
   const totalPages = Math.ceil(properties.length / itemsPerPage)
@@ -137,12 +136,12 @@ const PropertiesListing = ({ params }: { params: string }) => {
     startIndex,
     startIndex + itemsPerPage,
   )
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
 
   return (
     <div className="min-h-screen bg-[#F0F0F0]">
       {/* Filter Bar */}
-      <FilterBar params={params} language={filter} />
+      <FilterBar params={params} language={t} />
 
       {/* Heading */}
       <div className="px-4 sm:px-6 py-4">
@@ -199,7 +198,7 @@ const PropertiesListing = ({ params }: { params: string }) => {
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
             >
-              {t('previous')}
+              {t('PropertiesListCard.previous')}
             </button>
 
             {[...Array(totalPages)].map((_, i) => (
@@ -223,7 +222,7 @@ const PropertiesListing = ({ params }: { params: string }) => {
               }
               disabled={currentPage === totalPages}
             >
-              {t('next')}
+              {t('PropertiesListCard.next')}
             </button>
           </div>
         </div>

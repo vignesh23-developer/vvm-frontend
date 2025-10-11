@@ -5,6 +5,7 @@ import { Formik, Form } from 'formik'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
 import Image from 'next/image'
 import { ProfileCreationSchema } from '@/utils/validations/auth/AuthValidationSchema'
+import LanguageSwitch from '@/components/ui/CustomComponent/languageSwitch/languageSwitch'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 
@@ -43,7 +44,10 @@ function ProfileCreation() {
     }, 1000)
   }
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex relative">
+      <div className="absolute top-4 right-4">
+        <LanguageSwitch />
+      </div>
       {/* Left Side - Logo Section */}
       <div className="hidden md:flex w-1/2 bg-[#2c1207] flex-col items-center justify-center text-center p-6">
         <Link href="/home">

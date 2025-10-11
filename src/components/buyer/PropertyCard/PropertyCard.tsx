@@ -35,6 +35,7 @@ export default function PropertyCard({
   pricePerSqft,
   language,
 }: PropertyCardProps) {
+  console.log(language, 'lang')
   return (
     <div className="flex flex-col lg:flex-row bg-white rounded-2xl shadow-md overflow-hidden w-full">
       {/* Left Section */}
@@ -51,9 +52,10 @@ export default function PropertyCard({
             />
             {/* Agent Info */}
             <p className="text-sm text-gray-700 mt-2 ml-1 sm:ml-2">
-              {language?.('agent')}: {agent} <br />
+              {language?.('PropertiesListCard.agent')}: {agent} <br />
               <span className="text-xs text-gray-500">
-                {language?.('operating_since')}: {operatingSince}
+                {language?.('PropertiesListCard.operating_since')}:{' '}
+                {operatingSince}
               </span>
             </p>
           </div>
@@ -81,7 +83,7 @@ export default function PropertyCard({
                 <Ruler size={18} className="shrink-0" />
                 <div>
                   <div className="text-[11px] uppercase text-gray-500 font-semibold tracking-wide">
-                    {language?.('carpet_area')}
+                    {language?.('PropertiesListCard.carpet_area')}
                   </div>
                   <div className="text-[14px] text-gray-800">{area}</div>
                 </div>
@@ -92,7 +94,7 @@ export default function PropertyCard({
                 <Building2 size={18} className="shrink-0" />
                 <div>
                   <div className="text-[11px] uppercase text-gray-500 font-semibold tracking-wide">
-                    {language?.('status')}
+                    {language?.('PropertiesListCard.status')}
                   </div>
                   <div className="text-[14px] font-bold text-gray-900">
                     {status}
@@ -105,7 +107,7 @@ export default function PropertyCard({
                 <Home size={18} className="shrink-0" />
                 <div>
                   <div className="text-[11px] uppercase text-gray-500 font-semibold tracking-wide">
-                    {language?.('transaction')}
+                    {language?.('PropertiesListCard.transaction')}
                   </div>
                   <div className="text-[14px] font-bold text-gray-700 flex items-center gap-1">
                     {transaction}
@@ -137,13 +139,13 @@ export default function PropertyCard({
         {/* Buttons */}
         <div className="flex flex-col gap-3 w-full mt-4">
           <button className="w-full bg-black text-white py-2 rounded-full cursor-pointer hover:bg-gray-800 transition">
-            {language?.('contact_agent')}
+            {language?.('PropertiesListCard.contact_agent')}
           </button>
           <button className="w-full bg-white border py-2 rounded-full cursor-pointer hover:bg-gray-200 transition">
-            {language?.('get_phone_number')}
+            {language?.('PropertiesListCard.get_phone_number')}
           </button>
           <p className="text-xs text-gray-500 text-center mt-2">
-            {language?.('check_affordability')}
+            {language?.('PropertiesListCard.check_affordability')}
           </p>
         </div>
       </div>

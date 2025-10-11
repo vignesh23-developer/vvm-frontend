@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 
 const About = () => {
-  const t = useTranslations('About')
+  const t = useTranslations()
   const aboutImage = [
     {
       src: '/about1.png',
@@ -55,16 +55,16 @@ const About = () => {
         {/* Right side - Content */}
         <div>
           <h2 className="text-4xl font-extrabold text-gray-900 mb-4">
-            {t('title')}
+            {t('About.title')}
           </h2>
           <h3 className="text-lg font-semibold text-gray-700 mb-6">
-            {t('header')}
+            {t('About.header')}
           </h3>
           <p className="text-gray-600 leading-relaxed text-justify mb-8">
-            {t('description')}
+            {t('About.description')}
           </p>
           <button className="bg-[#2B1B12] text-white px-6 py-3 rounded-lg shadow-md cursor-pointer hover:bg-[#3A2A20] transition">
-            {t('explore_more')}
+            {t('About.explore_more')}
           </button>
         </div>
       </div>

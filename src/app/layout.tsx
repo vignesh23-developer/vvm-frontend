@@ -24,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ta">
+    <html lang="ta | en">
       <body>
         <TranslationProvider>{children}</TranslationProvider>
       </body>

@@ -54,7 +54,7 @@ export default function AgentCard({
             className="w-full sm:w-60 h-40 object-cover rounded-lg hover:scale-105 transition"
           />
           <p className="text-sm font-bold text-gray-800 mt-2 ml-1">
-            {language('agent_name')}: {agentName} <br />
+            {language('PropertiesListCard.agent_name')}: {agentName} <br />
             <span className="text-xs text-gray-500">{agentAddress}</span>
           </p>
         </div>
@@ -65,10 +65,11 @@ export default function AgentCard({
           <div className="flex items-start justify-between">
             <div>
               <h2 className="text-base sm:text-lg font-bold">
-                {language('agent')}: {agent}
+                {language('PropertiesListCard.agent')}: {agent}
               </h2>
               <p className="text-[#747474] text-sm sm:text-base font-medium">
-                {language('operating_since')}: {operatingSince}
+                {language('PropertiesListCard.operating_since')}:{' '}
+                {operatingSince}
               </p>
             </div>
             <div className="flex gap-3 text-gray-500">
@@ -108,10 +109,10 @@ export default function AgentCard({
       <div className="flex flex-col justify-center items-center lg:items-end bg-[#ECECEC] p-4 min-w-full sm:min-w-[220px]">
         <div className="flex flex-col gap-3 w-full mt-3">
           <button className="w-full bg-black text-white py-2 rounded-full cursor-pointer hover:bg-gray-800 transition text-sm sm:text-base">
-            {language('contact_agent')}
+            {language('PropertiesListCard.contact_agent')}
           </button>
           <button className="w-full bg-white border py-2 rounded-full cursor-pointer hover:bg-gray-200 transition text-sm sm:text-base">
-            {language('view_details')}
+            {language('PropertiesListCard.view_details')}
           </button>
         </div>
       </div>

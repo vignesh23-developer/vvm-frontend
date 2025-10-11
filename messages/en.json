@@ -44,7 +44,13 @@
     "services": "Services",
     "about_us": "About Us",
     "help_center": "Help Center",
-    "pricing": "Pricing"
+    "pricing": "Pricing",
+    "properties" : "Properties",
+    "leads" : "Leads",
+    "users": "Users",
+    "support" : "Support",
+    "profile": "Profile",
+    "logout": "Logout"
   },
   "PopularProperties": {
     "title": "Our Popular Properties",

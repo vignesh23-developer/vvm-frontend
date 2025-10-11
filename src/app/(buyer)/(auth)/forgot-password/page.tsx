@@ -6,6 +6,7 @@ import { ArrowLeft, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { AuthSchema } from '@/utils/validations/auth/AuthValidationSchema'
+import LanguageSwitch from '@/components/ui/CustomComponent/languageSwitch/languageSwitch'
 import { useTranslations } from 'next-intl'
 
 interface AuthFormValues {
@@ -13,7 +14,7 @@ interface AuthFormValues {
 }
 
 const ForgotPassword = () => {
-  const t = useTranslations('Auth')
+  const t = useTranslations()
   const initialValues: AuthFormValues = {
     phone: '',
   }
@@ -29,7 +30,10 @@ const ForgotPassword = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
+    <div className="min-h-screen flex flex-col md:flex-row relative">
+      <div className="absolute top-4 right-4">
+        <LanguageSwitch />
+      </div>
       {/* Left Side - Logo Section */}
       <div className="hidden md:flex w-full md:w-1/2 bg-[#2c1207] flex-col items-center justify-center p-6">
         <Link href="/home">
@@ -54,39 +58,36 @@ const ForgotPassword = () => {
             href="/login"
             className="flex items-center text-sm font-semibold text-green-900 mb-4 hover:underline"
           >
-            <ArrowLeft size={20} className="mr-2" /> {t('back')}
+            <ArrowLeft size={20} className="mr-2" /> {t('Auth.back')}
           </Link>
 
           {/* Title */}
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 leading-snug">
-            {t('forgot_password')}
+            {t('Auth.forgot_password')}
           </h2>
           <p className="text-gray-500 mt-2 text-xs sm:text-sm">
-            {t('forgot_description')}
+            {t('Auth.forgot_description')}
           </p>
 
           {/* Formik Form */}
           <Formik
             initialValues={initialValues}
-            validationSchema={AuthSchema}
+            validationSchema={AuthSchema(t)}
             onSubmit={(values, { setSubmitting }) => {
               handleForgotPasswordSubmit(values, setSubmitting)
             }}
           >
             {({ isSubmitting }) => (
-              <Form className="mt-6 space-y-5">
+              <Form className="mt-4 space-y-4">
                 {/* Phone Number */}
                 <div>
                   <FormikTextField
-                    label="Phone Number"
+                    label={t('form.phone_number.label')}
                     type="tel"
                     name="phone"
-                    placeholder="Enter your Phone Number"
-                    className="w-full border border-gray-300 text-xs sm:text-sm rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-900"
+                    placeholder={t('form.phone_number.placeholder')}
+                    className="w-full border border-gray-300 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-900"
                   />
-                  <p className="flex items-center text-gray-500 text-xs mt-2">
-                    {t('forgot_message')}
-                  </p>
                 </div>
 
                 {/* Reset Password Button */}
@@ -95,7 +96,7 @@ const ForgotPassword = () => {
                   disabled={isSubmitting}
                   className="w-full bg-[#2B1B12] text-white text-sm sm:text-base py-2 rounded-md font-medium hover:bg-[#3d2616] disabled:opacity-60 cursor-pointer"
                 >
-                  {isSubmitting ? 'Sending OTP...' : t('reset_password')}
+                  {isSubmitting ? 'Sending OTP...' : t('Auth.reset_password')}
                 </button>
 
                 {/* Divider */}
@@ -111,7 +112,7 @@ const ForgotPassword = () => {
                   className="w-full border border-gray-400 text-sm sm:text-base rounded-md py-2 flex items-center justify-center space-x-2 hover:bg-gray-50 cursor-pointer"
                 >
                   <MessageCircle size={20} />
-                  <span>{t('continue_with_sms')}</span>
+                  <span>{t('Auth.continue_with_sms')}</span>
                 </button>
               </Form>
             )}

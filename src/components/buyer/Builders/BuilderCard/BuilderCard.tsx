@@ -52,7 +52,7 @@ export default function BuilderCard({
             className="h-40 w-full sm:w-[250px] object-cover rounded-lg hover:scale-105 transition"
           />
           <p className="text-sm font-bold text-gray-700 mt-2">
-            {language('builder_name')}: {builderName}
+            {language('PropertiesListCard.builder_name')}: {builderName}
           </p>
         </div>
 
@@ -63,7 +63,7 @@ export default function BuilderCard({
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-lg font-bold">
-                  {language('agent')}: {agent}
+                  {language('PropertiesListCard.agent')}: {agent}
                 </h2>
                 <span className="text-[#747474] text-sm">₹ 1.19Cr Onwards</span>
               </div>
@@ -112,10 +112,10 @@ export default function BuilderCard({
       <div className="flex flex-col justify-center items-center lg:items-end bg-[#ECECEC] p-4 min-w-full lg:min-w-[200px]">
         <div className="flex flex-col gap-3 w-full mt-4">
           <button className="w-full bg-black text-white py-2 rounded-full cursor-pointer hover:bg-gray-800 transition">
-            {language('contact_agent')}
+            {language('PropertiesListCard.contact_agent')}
           </button>
           <button className="w-full bg-white border py-2 rounded-full cursor-pointer hover:bg-gray-200 transition">
-            {language('view_details')}
+            {language('PropertiesListCard.view_details')}
           </button>
         </div>
       </div>

@@ -9,6 +9,7 @@ import Image from 'next/image'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 // import { FaWhatsapp } from "react-icons/fa";
 import { useTranslations } from 'next-intl'
+import LanguageSwitch from '@/components/ui/CustomComponent/languageSwitch/languageSwitch'
 
 interface AuthFormValues {
   phone: string
@@ -31,7 +32,11 @@ const Login = () => {
     }, 1000)
   }
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex relative">
+      <div className="absolute top-4 right-4">
+        <LanguageSwitch />
+      </div>
+
       {/* Left Side - Logo Section */}
       {/* <LogoSection /> */}
       <div className="hidden md:flex w-1/2 bg-[#2c1207] flex-col items-center justify-center text-center p-6">
@@ -49,7 +54,7 @@ const Login = () => {
       </div>
 
       {/* Right Side - Signup Form */}
-      <div className="w-full md:w-1/2 flex items-start justify-center p-20">
+      <div className="w-full md:w-1/2 flex items-center justify-center p-20">
         <div className="w-full max-w-md">
           <h2 className="text-2xl font-bold text-gray-800">
             {t('Auth.hello')} <br />
@@ -80,14 +85,14 @@ const Login = () => {
                 </div>
 
                 {/* Forgot Password Link */}
-                <div className="flex justify-end">
+                {/* <div className="flex justify-end">
                   <Link
                     href="/forgot-password"
                     className="font-semibold text-black-600 text-right hover:underline text-xs"
                   >
                     {t('Auth.forgot_password')}
                   </Link>
-                </div>
+                </div> */}
 
                 {/* WhatsApp Button */}
                 <Button

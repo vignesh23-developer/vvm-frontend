@@ -6,7 +6,7 @@ import SwiperWrapper from '../../../ui/CustomComponent/Slider/SwipperSlider'
 import { useTranslations } from 'next-intl'
 
 export default function Testimonials() {
-  const t = useTranslations('Testimonials')
+  const t = useTranslations()
 
   const feedback = [
     {
@@ -62,7 +62,7 @@ export default function Testimonials() {
           whileInView="visible"
           viewport={{ once: true }}
         >
-          {t('title')}
+          {t('Testimonials.title')}
         </motion.h2>
 
         <motion.p
@@ -73,7 +73,7 @@ export default function Testimonials() {
           viewport={{ once: true }}
           transition={{ delay: 0.1 }}
         >
-          {t('description')}
+          {t('Testimonials.description')}
         </motion.p>
 
         {/* Swiper Carousel */}

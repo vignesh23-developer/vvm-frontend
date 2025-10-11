@@ -25,7 +25,7 @@ const cardVariants: Variants = {
 }
 
 export default function ExploreProperties() {
-  const t = useTranslations('ExploreProperties')
+  const t = useTranslations()
 
   const properties = [
     {
@@ -73,7 +73,7 @@ export default function ExploreProperties() {
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          {t('title')}
+          {t('ExploreProperties.title')}
         </motion.h2>
 
         {/* Animated Grid */}
@@ -162,7 +162,7 @@ export default function ExploreProperties() {
             whileTap={{ scale: 0.95 }}
             className="text-gray-800 font-medium hover:underline"
           >
-            {t('more')}
+            {t('ExploreProperties.more')}
           </motion.button>
         </motion.div>
       </div>

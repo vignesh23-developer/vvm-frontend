@@ -4,20 +4,20 @@ import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 
 export default function AppPromo() {
-  const t = useTranslations('AppPromo')
+  const t = useTranslations()
   return (
     <section className="w-full bg-gradient-to-r from-[#ECF1F8] to-[#D9D9D9] py-10">
       <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 items-center gap-12">
         {/* Left content */}
         <div className="space-y-8">
           <h2 className="text-3xl lg:text-5xl font-extrabold text-gray-900 leading-tight">
-            {t('title')}
+            {t('AppPromo.title')}
           </h2>
           <p className="text-gray-600 max-w-xl">
             {/* Lorem ipsum <span className="font-semibold">dolor sit amet</span>,
             consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
             labore et{' '} */}
-            {t('description')} <br />
+            {t('AppPromo.description')} <br />
             {/* <span className="font-semibold">dolore magna aliqua.</span> */}
           </p>
 
@@ -41,18 +41,18 @@ export default function AppPromo() {
 
           {/* Subscription */}
           <div className="space-y-3">
-            <p className="text-gray-700 font-medium">{t('message')}</p>
+            <p className="text-gray-700 font-medium">{t('AppPromo.message')}</p>
             <form className="flex max-w-md rounded-md overflow-hidden border border-gray-300 focus-within:ring-2 focus-within:ring-blue-500">
               <input
                 type="email"
-                placeholder={t('placeholder')}
+                placeholder={t('AppPromo.placeholder')}
                 className="w-full px-4 py-3 text-gray-700 focus:outline-none"
               />
               <button
                 type="submit"
                 className="bg-gray-900 text-white px-6 hover:bg-gray-800 transition"
               >
-                {t('subscribe')}
+                {t('AppPromo.subscribe')}
               </button>
             </form>
           </div>

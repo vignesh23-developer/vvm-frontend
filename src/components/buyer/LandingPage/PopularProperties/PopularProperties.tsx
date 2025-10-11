@@ -17,7 +17,7 @@ interface PropertyItem {
 }
 
 export default function PopularProperties() {
-  const t = useTranslations('PopularProperties')
+  const t = useTranslations()
 
   const items: PropertyItem[] = [
     {
@@ -79,7 +79,7 @@ export default function PopularProperties() {
           viewport={{ once: true }}
           className="text-2xl sm:text-3xl lg:text-5xl font-bold text-gray-900"
         >
-          {t('title')}
+          {t('PopularProperties.title')}
         </motion.h2>
 
         {/* Description */}
@@ -90,7 +90,7 @@ export default function PopularProperties() {
           viewport={{ once: true }}
           className="mt-3 text-gray-600 text-sm sm:text-lg max-w-2xl mx-auto"
         >
-          {t('description')}
+          {t('PopularProperties.description')}
         </motion.p>
 
         {/* Swiper Section */}
@@ -155,7 +155,7 @@ export default function PopularProperties() {
                       whileTap={{ scale: 0.95 }}
                       className="px-3 py-1.5 bg-black text-white rounded-md hover:bg-gray-800 transition text-xs sm:text-sm"
                     >
-                      {t('see_more')}
+                      {t('PopularProperties.see_more')}
                     </motion.button>
 
                     <p className="flex items-center gap-1 font-bold text-sm sm:text-base text-gray-800">

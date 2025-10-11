@@ -5,7 +5,7 @@ import SwiperWrapper from '../../../ui/CustomComponent/Slider/SwipperSlider'
 import { useTranslations } from 'next-intl'
 
 export default function PropertyVideos() {
-  const t = useTranslations('ExploreVideo')
+  const t = useTranslations()
 
   const videos = [
     {
@@ -46,7 +46,7 @@ export default function PropertyVideos() {
           viewport={{ once: true }}
           className="text-3xl md:text-5xl font-bold text-gray-900"
         >
-          {t('title')}
+          {t('ExploreVideo.title')}
         </motion.h2>
 
         <motion.p
@@ -56,7 +56,7 @@ export default function PropertyVideos() {
           viewport={{ once: true }}
           className="mt-3 text-gray-600 text-lg max-w-2xl mx-auto"
         >
-          {t('description')}
+          {t('ExploreVideo.description')}
         </motion.p>
 
         {/* Swiper Section */}
