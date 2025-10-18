@@ -3,29 +3,11 @@
 import { Heart, Share } from 'lucide-react'
 import Image from 'next/image'
 import Stats from '../../Stats/Stats'
-
-interface BuilderCardProps {
-  image: string
-  title: string
-  area: string
-  status: string
-  transaction: string
-  facing: string
-  description: string
-  agent: string
-  builderName: string
-  agentAddress: string
-  language: any
-}
+import { BuilderCardProps } from '@/data/component/builderCardTypes'
 
 export default function BuilderCard({
   image,
   title,
-  area,
-  status,
-  transaction,
-  facing,
-  description,
   agent,
   agentAddress,
   builderName,

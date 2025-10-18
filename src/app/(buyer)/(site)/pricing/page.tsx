@@ -9,6 +9,7 @@ import {
   Award,
   Settings,
 } from 'lucide-react'
+import { motion, Variants } from 'framer-motion'
 
 interface Feature {
   text: string
@@ -132,16 +133,47 @@ function FeatureValue({ value }: { value: string | boolean }) {
   return <span>{value}</span>
 }
 
+// Animation Variants
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.15 },
+  },
+}
+
+const cardVariants: Variants = {
+  hidden: { opacity: 0, scale: 0.9, y: 30 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: 'easeOut' },
+  },
+}
+
 function PlanCard({ plan }: { plan: Plan }) {
   const Icon = iconMap[plan.icon]
   return (
-    <div className="bg-white p-6 rounded-xl shadow-md">
+    <motion.div
+      variants={cardVariants}
+      whileHover={{
+        y: -8,
+        boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+        transition: { duration: 0.3 },
+      }}
+      className="bg-white p-6 rounded-xl shadow-md transition-transform duration-300"
+    >
       <div
         className={`rounded-lg p-3 flex flex-col items-center ${
           plan.bgColor || 'bg-gray-100'
-        }`}
+        } transition-colors duration-300`}
       >
-        <Icon className={`w-6 h-6 ${plan.textColor || 'text-gray-800'}`} />
+        <Icon
+          className={`w-6 h-6 transform transition-transform duration-300 hover:scale-110 ${
+            plan.textColor || 'text-gray-800'
+          }`}
+        />
         <h3
           className={`mt-2 font-semibold ${plan.textColor || 'text-gray-800'}`}
         >
@@ -155,33 +187,59 @@ function PlanCard({ plan }: { plan: Plan }) {
           {plan.price}
         </p>
       </div>
+
       <ul className="mt-6 space-y-4 text-sm text-gray-700">
         {plan.features.map((f, i) => (
-          <li key={i} className="flex justify-between">
+          <li key={i} className="flex justify-between items-center">
             <span className="font-medium">{f.text}</span>
             <FeatureValue value={f.value} />
           </li>
         ))}
       </ul>
-    </div>
+    </motion.div>
   )
 }
 
 export default function PricingPlans() {
   return (
-    <div className="w-full p-15 bg-[#F0F0F0]">
+    <div className="w-full py-16 bg-[#F8F9FA]">
       <div className="max-w-7xl mx-auto px-4">
-        {/* Mobile stacked */}
-        <div className="grid grid-cols-1 gap-8 md:hidden">
+        {/* Heading */}
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center text-3xl sm:text-4xl font-bold text-gray-800 mb-12"
+        >
+          Choose Your Plan
+        </motion.h2>
+
+        {/* Mobile Cards */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="grid grid-cols-1 gap-8 md:hidden"
+        >
           {plans.map((plan, idx) => (
             <PlanCard key={idx} plan={plan} />
           ))}
-        </div>
+        </motion.div>
 
-        {/* Desktop comparison table */}
-        <div className="hidden md:block overflow-x-auto">
-          <div className="grid grid-cols-[200px_repeat(5,minmax(180px,1fr))] rounded-2xl shadow-md overflow-hidden">
-            {/* Left Features Column */}
+        {/* Desktop Table */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="hidden md:block overflow-x-auto"
+        >
+          <motion.div
+            variants={cardVariants}
+            className="grid grid-cols-[200px_repeat(5,minmax(180px,1fr))] rounded-2xl shadow-md overflow-hidden"
+          >
+            {/* Left Column */}
             <div className="bg-white p-6 border-r">
               <h3 className="font-semibold text-gray-700">Feature / Benefit</h3>
               <ul className="mt-6 space-y-6 text-sm text-gray-600">
@@ -191,13 +249,19 @@ export default function PricingPlans() {
               </ul>
             </div>
 
-            {/* Plan Columns */}
+            {/* Plans */}
             {plans.map((plan, idx) => {
               const Icon = iconMap[plan.icon]
               return (
-                <div
+                <motion.div
                   key={idx}
-                  className="p-6 text-center border-r last:border-r-0 bg-white"
+                  variants={cardVariants}
+                  whileHover={{
+                    scale: 1.03,
+                    backgroundColor: '#fafafa',
+                    transition: { duration: 0.3 },
+                  }}
+                  className="p-6 text-center border-r last:border-r-0 bg-white transition-all"
                 >
                   <div
                     className={`rounded-lg p-3 flex flex-col items-center ${
@@ -229,11 +293,11 @@ export default function PricingPlans() {
                       </li>
                     ))}
                   </ul>
-                </div>
+                </motion.div>
               )
             })}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </div>
   )

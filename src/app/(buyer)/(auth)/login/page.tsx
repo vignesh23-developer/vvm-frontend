@@ -1,5 +1,6 @@
 'use client'
 
+import { motion } from 'framer-motion'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
 import { Formik, Form } from 'formik'
 import { MessageCircle } from 'lucide-react'
@@ -7,7 +8,6 @@ import Link from 'next/link'
 import { AuthSchema } from '@/utils/validations/auth/AuthValidationSchema'
 import Image from 'next/image'
 import Button from '@/components/ui/CustomComponent/Button/Button'
-// import { FaWhatsapp } from "react-icons/fa";
 import { useTranslations } from 'next-intl'
 import LanguageSwitch from '@/components/ui/CustomComponent/languageSwitch/languageSwitch'
 
@@ -17,52 +17,95 @@ interface AuthFormValues {
 
 const Login = () => {
   const t = useTranslations()
-  const initialValues: AuthFormValues = {
-    phone: '',
-  }
+  const initialValues: AuthFormValues = { phone: '' }
 
   const handleLoginSubmit = (
     values: AuthFormValues,
     setSubmitting: (isSubmitting: boolean) => void,
   ) => {
     console.log('Form Submitted ✅', values)
-    // 👉 Call API here (e.g. send OTP)
     setTimeout(() => {
       setSubmitting(false)
     }, 1000)
   }
+
   return (
-    <div className="min-h-screen flex relative">
-      <div className="absolute top-4 right-4">
+    <motion.div
+      className="min-h-screen flex relative overflow-hidden"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.6, ease: 'easeOut' }}
+    >
+      {/* Language Switch */}
+      <motion.div
+        className="absolute top-4 right-4"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
         <LanguageSwitch />
-      </div>
+      </motion.div>
 
       {/* Left Side - Logo Section */}
-      {/* <LogoSection /> */}
-      <div className="hidden md:flex w-1/2 bg-[#2c1207] flex-col items-center justify-center text-center p-6">
+      <motion.div
+        className="hidden md:flex w-1/2 bg-[#2c1207] flex-col items-center justify-center text-center p-6"
+        initial={{ x: -100, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
+      >
         <Link href="/home">
-          <div className="max-w-xs hover:cursor-pointer">
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: 'spring', stiffness: 300 }}
+            className="max-w-xs cursor-pointer"
+          >
             <Image
               src="/footer_logo.png"
               alt="Vaazhga Valamudan Logo"
               width={400}
               height={300}
-              className="mt-6 hover:scale-105 transition"
+              className="mt-6"
             />
-          </div>
+          </motion.div>
         </Link>
-      </div>
+      </motion.div>
 
-      {/* Right Side - Signup Form */}
-      <div className="w-full md:w-1/2 flex items-center justify-center p-20">
-        <div className="w-full max-w-md">
-          <h2 className="text-2xl font-bold text-gray-800">
+      {/* Right Side - Login Form */}
+      <motion.div
+        className="w-full md:w-1/2 flex items-center justify-center p-20"
+        initial={{ x: 100, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
+      >
+        <motion.div
+          className="w-full max-w-md"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: { staggerChildren: 0.1 },
+            },
+          }}
+        >
+          <motion.h2
+            className="text-2xl font-bold text-gray-800"
+            variants={{
+              hidden: { y: 20, opacity: 0 },
+              visible: { y: 0, opacity: 1 },
+            }}
+          >
             {t('Auth.hello')} <br />
             <span className="text-green-900">{t('Auth.welcome_back')}</span>
-          </h2>
-          <p className="text-gray-500 mt-2 text-xs">
+          </motion.h2>
+
+          <motion.p
+            className="text-gray-500 mt-2 text-xs"
+            variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
+          >
             {t('Auth.login_description')}
-          </p>
+          </motion.p>
 
           <Formik
             initialValues={initialValues}
@@ -73,8 +116,12 @@ const Login = () => {
           >
             {({ isSubmitting }) => (
               <Form className="mt-4 space-y-4">
-                {/* Phone Number */}
-                <div>
+                <motion.div
+                  variants={{
+                    hidden: { y: 20, opacity: 0 },
+                    visible: { y: 0, opacity: 1 },
+                  }}
+                >
                   <FormikTextField
                     label={t('form.phone_number.label')}
                     type="tel"
@@ -82,34 +129,36 @@ const Login = () => {
                     placeholder={t('form.phone_number.placeholder')}
                     className="w-full border border-gray-300 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-900"
                   />
-                </div>
-
-                {/* Forgot Password Link */}
-                {/* <div className="flex justify-end">
-                  <Link
-                    href="/forgot-password"
-                    className="font-semibold text-black-600 text-right hover:underline text-xs"
-                  >
-                    {t('Auth.forgot_password')}
-                  </Link>
-                </div> */}
+                </motion.div>
 
                 {/* WhatsApp Button */}
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  onClick={() => {
-                    console.log('Login Clicked')
+                <motion.div
+                  variants={{
+                    hidden: { y: 20, opacity: 0 },
+                    visible: { y: 0, opacity: 1 },
                   }}
-                  className="w-full bg-[#2B1B12] text-white text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-[#3d2616] cursor-pointer disabled:opacity-60"
                 >
-                  <span>
-                    {isSubmitting ? 'Verifying...' : t('Auth.whatapp_button')}
-                  </span>
-                </Button>
+                  <motion.div whileTap={{ scale: 0.97 }}>
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                      onClick={() => {}}
+                      className="w-full bg-[#2B1B12] text-white text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-[#3d2616] disabled:opacity-60"
+                    >
+                      <span>
+                        {isSubmitting
+                          ? 'Verifying...'
+                          : t('Auth.whatapp_button')}
+                      </span>
+                    </Button>
+                  </motion.div>
+                </motion.div>
 
                 {/* Login Link */}
-                <p className="text-center text-gray-600 text-xs">
+                <motion.p
+                  className="text-center text-gray-600 text-xs"
+                  variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
+                >
                   {t('Auth.login_message')}{' '}
                   <a
                     href="/signup"
@@ -117,34 +166,42 @@ const Login = () => {
                   >
                     {t('Auth.signup')}
                   </a>
-                </p>
+                </motion.p>
 
                 {/* Divider */}
-                <div className="flex items-center justify-center space-x-2">
+                <motion.div
+                  className="flex items-center justify-center space-x-2"
+                  variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
+                >
                   <div className="flex-1 border-t border-gray-300"></div>
                   <span className="text-gray-500 text-sm">OR</span>
                   <div className="flex-1 border-t border-gray-300"></div>
-                </div>
+                </motion.div>
 
                 {/* Continue with SMS */}
-                <Button
-                  type="button"
-                  onClick={() => {
-                    console.log('SMS Clicked')
+                <motion.div
+                  variants={{
+                    hidden: { y: 20, opacity: 0 },
+                    visible: { y: 0, opacity: 1 },
                   }}
-                  className="w-full border border-gray-400 text-sm rounded-md py-2 flex items-center justify-center space-x-2 hover:bg-gray-50 cursor-pointer"
                 >
-                  <span>
-                    <MessageCircle size={20} />
-                  </span>
-                  <span>{t('Auth.continue_with_sms')}</span>
-                </Button>
+                  <motion.div whileTap={{ scale: 0.97 }}>
+                    <Button
+                      type="button"
+                      onClick={() => console.log('SMS Clicked')}
+                      className="w-full border border-gray-400 text-sm rounded-md py-2 flex items-center justify-center space-x-2 hover:bg-gray-50"
+                    >
+                      <MessageCircle size={20} />
+                      <span>{t('Auth.continue_with_sms')}</span>
+                    </Button>
+                  </motion.div>
+                </motion.div>
               </Form>
             )}
           </Formik>
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   )
 }
 

@@ -1,21 +1,28 @@
 'use client'
 
 import Link from 'next/link'
-import Stats from '../../../../components/buyer/Stats/Stats'
 import Image from 'next/image'
-import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
 import { Formik, Form } from 'formik'
-import { AgencyEnquirySchema } from '@/utils/validations/agency/AgencyValidationSchema'
 import { useTranslations } from 'next-intl'
+import Stats from '@/components/buyer/Stats/Stats'
+import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
+import { AgencyEnquirySchema } from '@/utils/validations/agency/AgencyValidationSchema'
+import {
+  Stat,
+  Property,
+  EnquiryFormValues,
+} from '@/data/component/agencyDetailsTypes'
 
 export default function AgencyDetails() {
   const t = useTranslations()
-  const stats = [
+
+  const stats: Stat[] = [
     { value: '40', label: 'properties_for_sale' },
     { value: '15', label: 'properties_for_rent' },
     { value: '2500', label: 'deals_closed' },
   ]
-  const propertiesForSale = [
+
+  const propertiesForSale: Property[] = [
     {
       id: 1,
       title: '2 BHK Flat',
@@ -39,7 +46,22 @@ export default function AgencyDetails() {
     },
   ]
 
-  const propertiesForRent = [...propertiesForSale] // demo re-use
+  const propertiesForRent: Property[] = [...propertiesForSale] // demo re-use
+
+  const initialValues: EnquiryFormValues = {
+    name: '',
+    email: '',
+    phone: '',
+    message: '',
+  }
+
+  const handleSubmit = (
+    values: EnquiryFormValues,
+    { resetForm }: { resetForm: () => void },
+  ) => {
+    console.log('Form Data:', values)
+    resetForm()
+  }
 
   return (
     <main className="w-full bg-gray-50 py-8 px-4 sm:px-6 lg:px-12">
@@ -111,12 +133,9 @@ export default function AgencyDetails() {
             </p>
 
             <Formik
-              initialValues={{ name: '', email: '', phone: '', message: '' }}
+              initialValues={initialValues}
               validationSchema={AgencyEnquirySchema(t)}
-              onSubmit={(values, { resetForm }) => {
-                console.log('Form Data:', values)
-                resetForm()
-              }}
+              onSubmit={handleSubmit}
             >
               {({ isSubmitting }) => (
                 <Form className="space-y-3 sm:space-y-4">

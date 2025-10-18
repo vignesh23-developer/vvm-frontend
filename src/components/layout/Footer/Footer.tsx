@@ -40,7 +40,7 @@ export default function Footer() {
               alt="Logo"
               width={200}
               height={100}
-              className="w-[200px] h-auto object-contain"
+              className="w-[200px] h-auto object-contain hover:scale-105 transition"
             />
           </Link>
         </div>

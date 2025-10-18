@@ -9,7 +9,7 @@ export default function RootLayout({
 }>) {
   const user = {
     name: 'Farooq',
-    avatar: '/images/avatar.jpg',
+    avatar: '/avatar.png',
   }
 
   // const handleLogout = () => {
@@ -17,26 +17,24 @@ export default function RootLayout({
   //   // Clear tokens or session here
   // }
   return (
-    <html lang="ta">
-      <body>
-        <header>
-          <Navbar
-            navLinks={[
-              { label: 'home', href: '/' },
-              { label: 'properties', href: '/properties' },
-              { label: 'leads', href: '/leads' },
-              { label: 'users', href: '/users' },
-              { label: 'support', href: '/support' },
-            ]}
-            user={user}
-            // onLogout={handleLogout}
-          />
-        </header>
-        <TranslationProvider>{children}</TranslationProvider>
-        <footer>
-          <Footer />
-        </footer>
-      </body>
-    </html>
+    <div>
+      <header>
+        <Navbar
+          navLinks={[
+            { label: 'home', href: '/' },
+            { label: 'properties', href: '/properties' },
+            { label: 'leads', href: '/leads' },
+            { label: 'users', href: '/users' },
+            { label: 'support', href: '/support' },
+          ]}
+          user={user}
+          // onLogout={handleLogout}
+        />
+      </header>
+      <main>{children}</main>
+      <footer>
+        <Footer />
+      </footer>
+    </div>
   )
 }

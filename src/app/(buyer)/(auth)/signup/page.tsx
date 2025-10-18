@@ -1,10 +1,11 @@
 'use client'
 
-import { Formik, Form, Field, FieldArray } from 'formik'
+import { Formik, Form, FieldArray } from 'formik'
 import { useTranslations } from 'next-intl'
 import { MessageCircle } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
 import LanguageSwitch from '@/components/ui/CustomComponent/languageSwitch/languageSwitch'
 import { SignupSchema } from '@/utils/validations/auth/AuthValidationSchema'
@@ -37,55 +38,77 @@ export default function SignupPage() {
     setTimeout(() => setSubmitting(false), 1000)
   }
 
-  const handleOtpChange = (
-    value: string,
-    index: number,
-    arrayHelpers: any,
-    currentOtp: string[],
-  ) => {
-    if (/^[0-9]?$/.test(value)) {
-      const newOtp = [...currentOtp]
-      newOtp[index] = value
-      arrayHelpers.form.setFieldValue('otp', newOtp)
-
-      // Move focus automatically to next box
-      if (value && index < 5) {
-        const nextInput = document.getElementById(`otp-${index + 1}`)
-        nextInput?.focus()
-      }
-    }
-  }
-
   return (
-    <div className="min-h-screen flex relative">
-      <div className="absolute top-4 right-4">
+    <motion.div
+      className="min-h-screen flex relative"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      {/* Language Switch */}
+      <motion.div
+        className="absolute top-4 right-4"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
         <LanguageSwitch />
-      </div>
-      {/* Left side - logo section */}
-      <div className="hidden md:flex w-1/2 bg-[#2c1207] flex-col items-center justify-center text-center p-6">
+      </motion.div>
+
+      {/* Left Section - Logo */}
+      <motion.div
+        className="hidden md:flex w-1/2 bg-[#2c1207] flex-col items-center justify-center text-center p-6"
+        initial={{ x: -100, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.8 }}
+      >
         <Link href="/home">
-          <div className="max-w-xs hover:cursor-pointer">
+          <motion.div
+            className="max-w-xs hover:cursor-pointer"
+            whileHover={{ scale: 1.05 }}
+          >
             <Image
               src="/footer_logo.png"
               alt="Vaazhga Valamudan Logo"
               width={400}
               height={300}
-              className="mt-6 hover:scale-105 transition"
+              className="mt-6"
             />
-          </div>
+          </motion.div>
         </Link>
-      </div>
+      </motion.div>
 
-      {/* Right side - signup form */}
-      <div className="w-full md:w-1/2 flex items-center justify-center p-20">
-        <div className="w-full max-w-md">
-          <h2 className="text-2xl font-bold text-gray-800">
+      {/* Right Section - Signup Form */}
+      <motion.div
+        className="w-full md:w-1/2 flex items-center justify-center p-10 sm:p-16 md:p-20"
+        initial={{ x: 100, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.8 }}
+      >
+        <motion.div
+          className="w-full max-w-md"
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.5 }}
+        >
+          <motion.h2
+            className="text-2xl font-bold text-gray-800"
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
             {t('Auth.signup')} <br />
             <span className="text-green-900">{t('Auth.to_get_started')}</span>
-          </h2>
-          <p className="text-gray-500 mt-2 text-xs">
+          </motion.h2>
+
+          <motion.p
+            className="text-gray-500 mt-2 text-xs"
+            initial={{ y: -10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
             {t('Auth.signup_description')}
-          </p>
+          </motion.p>
 
           <Formik
             initialValues={initialValues}
@@ -96,119 +119,147 @@ export default function SignupPage() {
           >
             {({ values, isSubmitting }) => (
               <Form className="mt-4 space-y-4">
-                {/* First Name */}
-                <FormikTextField
-                  label={t('form.first_name.label')}
-                  type="text"
-                  name="firstName"
-                  placeholder={t('form.first_name.placeholder')}
-                  className="w-full border border-gray-300 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-900"
-                />
+                {/* Input Fields */}
+                <motion.div
+                  initial="hidden"
+                  animate="visible"
+                  variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    visible: {
+                      opacity: 1,
+                      y: 0,
+                      transition: { staggerChildren: 0.1 },
+                    },
+                  }}
+                >
+                  <FormikTextField
+                    label={t('form.first_name.label')}
+                    type="text"
+                    name="firstName"
+                    placeholder={t('form.first_name.placeholder')}
+                    className="w-full border border-gray-300 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-900"
+                  />
 
-                {/* Last Name */}
-                <FormikTextField
-                  label={t('form.last_name.label')}
-                  type="text"
-                  name="lastName"
-                  placeholder={t('form.last_name.placeholder')}
-                  className="w-full border border-gray-300 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-900"
-                />
+                  <FormikTextField
+                    label={t('form.last_name.label')}
+                    type="text"
+                    name="lastName"
+                    placeholder={t('form.last_name.placeholder')}
+                    className="w-full border border-gray-300 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-900"
+                  />
 
-                {/* Phone Number */}
-                <FormikTextField
-                  label={t('form.phone_number.label')}
-                  type="tel"
-                  name="phone"
-                  placeholder={t('form.phone_number.placeholder')}
-                  className="w-full border border-gray-300 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-900"
-                />
+                  <FormikTextField
+                    label={t('form.phone_number.label')}
+                    type="tel"
+                    name="phone"
+                    placeholder={t('form.phone_number.placeholder')}
+                    className="w-full border border-gray-300 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-900"
+                  />
 
-                {/* Referral ID */}
-                <FormikTextField
-                  label={t('form.referral_id.label')}
-                  type="text"
-                  name="referral"
-                  placeholder={t('form.referral_id.placeholder')}
-                  className="w-full border border-gray-300 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-900"
-                />
+                  <FormikTextField
+                    label={t('form.referral_id.label')}
+                    type="text"
+                    name="referral"
+                    placeholder={t('form.referral_id.placeholder')}
+                    className="w-full border border-gray-300 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-900"
+                  />
+                </motion.div>
 
-                {/* OTP Input - Now Formik Controlled */}
-                <FieldArray name="otp">
-                  {arrayHelpers => (
-                    <>
-                      <label className="block text-sm font-medium mb-1">
-                        {t('Auth.otp_verification')}
-                      </label>
-
-                      <div className="flex justify-between mt-4 mb-4">
-                        {values.otp.map((digit, index) => (
-                          <input
-                            key={index}
-                            id={`otp-${index}`}
-                            type="text"
-                            maxLength={1}
-                            value={digit}
-                            onChange={e => {
-                              const value = e.target.value
-                              if (/^[0-9]?$/.test(value)) {
-                                arrayHelpers.replace(index, value)
-
-                                // Auto move to next
-                                if (value && index < values.otp.length - 1) {
-                                  const nextInput = document.getElementById(
-                                    `otp-${index + 1}`,
-                                  )
-                                  nextInput?.focus()
+                {/* OTP */}
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 }}
+                >
+                  <FieldArray name="otp">
+                    {arrayHelpers => (
+                      <>
+                        <label className="block text-sm font-medium mb-1">
+                          {t('Auth.otp_verification')}
+                        </label>
+                        <div className="flex justify-between mt-4 mb-4">
+                          {values.otp.map((digit, index) => (
+                            <motion.input
+                              key={index}
+                              id={`otp-${index}`}
+                              type="text"
+                              maxLength={1}
+                              value={digit}
+                              onChange={e => {
+                                const value = e.target.value
+                                if (/^[0-9]?$/.test(value)) {
+                                  arrayHelpers.replace(index, value)
+                                  if (value && index < values.otp.length - 1) {
+                                    const nextInput = document.getElementById(
+                                      `otp-${index + 1}`,
+                                    )
+                                    nextInput?.focus()
+                                  }
                                 }
-                              }
-                            }}
-                            className="w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-900"
-                          />
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </FieldArray>
+                              }}
+                              className="w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-900"
+                              whileFocus={{ scale: 1.1 }}
+                            />
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </FieldArray>
+                </motion.div>
 
                 {/* WhatsApp Button */}
-                <button
+                <motion.button
                   type="submit"
                   disabled={isSubmitting}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   className="w-full bg-[#2B1B12] text-white text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-[#3d2616] disabled:opacity-60 cursor-pointer"
                 >
                   <span>
                     {isSubmitting ? 'Submitting...' : t('Auth.whatapp_button')}
                   </span>
-                </button>
+                </motion.button>
 
                 {/* Login Link */}
-                <p className="text-center text-gray-600 text-xs">
+                <motion.p
+                  className="text-center text-gray-600 text-xs"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.7 }}
+                >
                   {t('Auth.signup_message')}{' '}
                   <a href="/login" className="font-semibold text-green-900">
                     {t('Auth.login')}
                   </a>
-                </p>
+                </motion.p>
 
                 {/* Divider */}
-                <div className="flex items-center justify-center space-x-2">
+                <motion.div
+                  className="flex items-center justify-center space-x-2"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8 }}
+                >
                   <div className="flex-1 border-t border-gray-300"></div>
                   <span className="text-gray-500 text-sm">OR</span>
                   <div className="flex-1 border-t border-gray-300"></div>
-                </div>
+                </motion.div>
 
                 {/* Continue with SMS */}
-                <button
+                <motion.button
                   type="button"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   className="w-full border border-gray-400 text-sm rounded-md py-2 flex items-center justify-center space-x-2 hover:bg-gray-50 cursor-pointer"
                 >
                   <MessageCircle size={20} />
                   <span>{t('Auth.continue_with_sms')}</span>
-                </button>
+                </motion.button>
               </Form>
             )}
           </Formik>
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   )
 }

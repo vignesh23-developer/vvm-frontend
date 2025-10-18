@@ -3,30 +3,11 @@
 import { Heart, Share } from 'lucide-react'
 import Stats from '../../Stats/Stats'
 import Image from 'next/image'
-
-interface AgentCardProps {
-  image: string
-  title: string
-  area: string
-  status: string
-  transaction: string
-  facing: string
-  description: string
-  agent: string
-  agentName: string
-  agentAddress: string
-  operatingSince: string
-  language: any
-}
+import { AgentCardProps } from '@/data/component/agentCardTypes'
 
 export default function AgentCard({
   image,
   title,
-  area,
-  status,
-  transaction,
-  facing,
-  description,
   agent,
   agentAddress,
   agentName,
