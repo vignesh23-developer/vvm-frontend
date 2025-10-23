@@ -12,6 +12,7 @@ import LanguageSwitch from '@/components/ui/CustomComponent/languageSwitch/langu
 export interface NavLink {
   label: string
   href: string
+  subMenu?: NavLink[]
 }
 
 interface NavbarProps {
@@ -46,6 +47,7 @@ export default function Navbar({
 
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
+  const [openSubMenu, setOpenSubMenu] = useState<string | null>(null)
 
   const handleLanguageChange = (lang: 'en' | 'ta') => {
     setLocale(lang)
@@ -76,17 +78,33 @@ export default function Navbar({
           />
         </Link>
 
-        {/* Desktop Navigation */}
+        {/* ✅ Desktop Navigation with Submenu */}
         <div className="hidden md:flex items-center gap-6 lg:gap-8 xl:gap-10">
-          {navLinks.map(({ label, href }) => (
-            <Link
-              key={href}
-              href={href}
-              className="relative group text-sm md:text-base font-medium hover:text-gray-300 transition"
-            >
-              {t(`Navbar.${label}`)}
-              <span className="absolute left-0 -bottom-1 h-[2px] w-0 bg-white group-hover:w-full transition-all duration-300"></span>
-            </Link>
+          {navLinks.map(({ label, href, subMenu }) => (
+            <div key={href} className="relative group">
+              <Link
+                href={href}
+                className="relative text-sm md:text-base font-medium hover:text-gray-300 transition"
+              >
+                {t(`Navbar.${label}`)}
+                <span className="absolute left-0 -bottom-1 h-[2px] w-0 bg-white group-hover:w-full transition-all duration-300"></span>
+              </Link>
+
+              {/* ✅ Show submenu on hover */}
+              {subMenu && subMenu.length > 0 && (
+                <div className="absolute left-0 top-full mt-2 bg-white text-[#3b1804] rounded-lg shadow-lg w-56 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 translate-y-2 transition-all duration-200 z-50">
+                  {subMenu.map(sub => (
+                    <Link
+                      key={sub.href}
+                      href={sub.href}
+                      className="block px-4 py-2 text-sm hover:bg-gray-100 transition"
+                    >
+                      {t(`Navbar.subMenus.${sub.label}`)}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
         </div>
 
@@ -165,15 +183,40 @@ export default function Navbar({
           style={{ backgroundColor: bgColor }}
           className="flex flex-col items-center px-6 py-6 shadow-md text-center"
         >
-          {navLinks.map(({ label, href }) => (
-            <Link
-              key={href}
-              href={href}
-              onClick={() => setIsMenuOpen(false)}
-              className="py-2 text-base font-medium hover:text-gray-300 transition"
-            >
-              {t(`Navbar.${label}`)}
-            </Link>
+          {navLinks.map(({ label, href, subMenu }) => (
+            <div key={href} className="w-full">
+              <button
+                onClick={() =>
+                  subMenu
+                    ? setOpenSubMenu(openSubMenu === label ? null : label)
+                    : setIsMenuOpen(false)
+                }
+                className="py-2 w-full text-base font-medium flex justify-between items-center hover:text-gray-300 transition"
+              >
+                <span>{t(`Navbar.${label}`)}</span>
+                {subMenu && (
+                  <span className="text-sm">
+                    {openSubMenu === label ? '▲' : '▼'}
+                  </span>
+                )}
+              </button>
+
+              {/* ✅ Expandable submenu */}
+              {subMenu && openSubMenu === label && (
+                <div className="flex flex-col ml-4">
+                  {subMenu.map(sub => (
+                    <Link
+                      key={sub.href}
+                      href={sub.href}
+                      onClick={() => setIsMenuOpen(false)}
+                      className="py-1 text-sm text-gray-200 hover:text-white transition"
+                    >
+                      {t(`Navbar.${sub.label}`)}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
 
           {/* Language Selector */}

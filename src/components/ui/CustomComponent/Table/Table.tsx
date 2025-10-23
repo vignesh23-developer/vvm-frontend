@@ -24,12 +24,12 @@ type TableProps<T> = {
   enableDateFilter?: boolean
   statusOptions?: string[]
   statusKey?: keyof T
-  dateKey?: keyof T & string
+  dateKey?: keyof T
   getRowKey?: (row: T, idx: number) => string
   onSelectionChange?: (selected: T[]) => void
 }
 
-export default function Table<T extends object>({
+export default function Table<T extends Record<string, any>>({
   columns,
   data,
   pageSize = 10,
@@ -50,13 +50,13 @@ export default function Table<T extends object>({
   const [sortBy, setSortBy] = useState<string>()
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const [selected, setSelected] = useState<Record<string, boolean>>({})
-  const [statusFilter, setStatusFilter] = useState<string>('')
-  const [dateFilter, setDateFilter] = useState<string>('')
+  const [statusFilter, setStatusFilter] = useState('')
+  const [dateFilter, setDateFilter] = useState('')
 
   const rowKey = (row: T, idx: number) =>
-    getRowKey?.(row, idx) ?? `${(row as any).id ?? idx}`
+    getRowKey?.(row, idx) ?? `${row.id ?? idx}`
 
-  /** Filtering */
+  /** ------------------ Filtering ------------------ **/
   const filtered = useMemo(() => {
     let result = data
 
@@ -64,7 +64,7 @@ export default function Table<T extends object>({
       const q = query.toLowerCase()
       result = result.filter(row =>
         columns.some(col => {
-          const val = col.accessor?.(row) ?? (row as any)[col.key]
+          const val = col.accessor?.(row) ?? row[col.key]
           return val && String(val).toLowerCase().includes(q)
         }),
       )
@@ -78,14 +78,12 @@ export default function Table<T extends object>({
       result = result.filter(row => {
         const val = row[dateKey]
         if (!val) return false
-
-        const d = val instanceof Date ? val : new Date(String(val))
-        if (isNaN(d.getTime())) return false
-
-        const rowDate = d.toISOString().split('T')[0]
-        return rowDate === dateFilter
+        const d = (val as any) instanceof Date ? val : new Date(String(val))
+        if (!(d instanceof Date) || isNaN(d.getTime())) return false
+        return d.toISOString().split('T')[0] === dateFilter
       })
     }
+
     return result
   }, [
     data,
@@ -100,37 +98,36 @@ export default function Table<T extends object>({
     dateKey,
   ])
 
-  /** Sorting */
+  /** ------------------ Sorting ------------------ **/
   const sorted = useMemo(() => {
     if (!enableSorting || !sortBy) return filtered
     const col = columns.find(c => c.key === sortBy)
     if (!col) return filtered
-    const accessor = col.accessor ?? ((r: T) => (r as any)[col.key])
+    const accessor = col.accessor ?? ((r: T) => r[col.key])
 
     return [...filtered].sort((a, b) => {
-      const va = accessor(a),
-        vb = accessor(b)
+      const va = accessor(a)
+      const vb = accessor(b)
       if (va == null || vb == null) return 0
-      return typeof va === 'number' && typeof vb === 'number'
-        ? sortDir === 'asc'
-          ? va - vb
-          : vb - va
-        : sortDir === 'asc'
+      if (typeof va === 'number' && typeof vb === 'number')
+        return sortDir === 'asc' ? va - vb : vb - va
+      return sortDir === 'asc'
         ? String(va).localeCompare(String(vb))
         : String(vb).localeCompare(String(va))
     })
   }, [filtered, sortBy, sortDir, columns, enableSorting])
 
-  /** Pagination */
+  /** ------------------ Pagination ------------------ **/
   const total = sorted.length
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
+
   const paginated = useMemo(() => {
     if (!enablePagination) return sorted
     const start = (page - 1) * pageSize
     return sorted.slice(start, start + pageSize)
   }, [sorted, page, pageSize, enablePagination])
 
-  /** Selection */
+  /** ------------------ Selection ------------------ **/
   useEffect(() => {
     if (!enableSelection || !onSelectionChange) return
     const selectedRows = data.filter((row, i) => selected[rowKey(row, i)])
@@ -155,6 +152,7 @@ export default function Table<T extends object>({
     )
   }
 
+  /** ------------------ UI ------------------ **/
   return (
     <div className="w-full">
       {/* Filters */}
@@ -277,9 +275,7 @@ export default function Table<T extends object>({
                       }`}
                     >
                       {col.render?.(row) ??
-                        String(
-                          col.accessor?.(row) ?? (row as any)[col.key] ?? '',
-                        )}
+                        String(col.accessor?.(row) ?? row[col.key] ?? '')}
                     </td>
                   ))}
                 </tr>
@@ -318,9 +314,7 @@ export default function Table<T extends object>({
                       </span>
                       <span className="text-gray-800">
                         {col.render?.(row) ??
-                          String(
-                            col.accessor?.(row) ?? (row as any)[col.key] ?? '',
-                          )}
+                          String(col.accessor?.(row) ?? row[col.key] ?? '')}
                       </span>
                     </div>
                   ))}

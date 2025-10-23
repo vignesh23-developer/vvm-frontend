@@ -12,23 +12,40 @@ export default function RootLayout({
     avatar: '/avatar.png',
   }
 
-  // const handleLogout = () => {
-  //   console.log('User logged out')
-  //   // Clear tokens or session here
-  // }
   return (
     <div>
       <header>
         <Navbar
           navLinks={[
-            { label: 'home', href: '/' },
+            { label: 'home', href: '/home' },
+            {
+              label: 'master',
+              href: '#',
+              subMenu: [
+                {
+                  label: 'property categories',
+                  href: '/admin/dashboard/property-category',
+                },
+                {
+                  label: 'feature categories',
+                  href: '/admin/dashboard/feature-category',
+                },
+                {
+                  label: 'feature options',
+                  href: '/admin/dashboard/feature-options',
+                },
+                {
+                  label: 'category mappings',
+                  href: '/admin/dashboard/category-mappings',
+                },
+              ],
+            },
             { label: 'properties', href: '/properties' },
             { label: 'leads', href: '/leads' },
             { label: 'users', href: '/users' },
             { label: 'support', href: '/support' },
           ]}
           user={user}
-          // onLogout={handleLogout}
         />
       </header>
       <main>{children}</main>

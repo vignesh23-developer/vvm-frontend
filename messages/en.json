@@ -45,12 +45,19 @@
     "about_us": "About Us",
     "help_center": "Help Center",
     "pricing": "Pricing",
+    "master": "Master",
     "properties" : "Properties",
     "leads" : "Leads",
     "users": "Users",
     "support" : "Support",
     "profile": "Profile",
-    "logout": "Logout"
+    "logout": "Logout",
+    "subMenus": {
+      "property categories": "Property Categories",
+      "feature categories": "Feature Categories",
+      "feature options": "Feature Options",
+      "category mappings": "Category Mappings"
+    }
   },
   "PopularProperties": {
     "title": "Our Popular Properties",

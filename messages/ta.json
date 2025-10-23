@@ -45,12 +45,19 @@
     "about_us": "எங்களைப் பற்றி",
     "help_center": "உதவி மையம்",
     "pricing": "விலை நிர்ணயம்",
+    "master": "மாஸ்டர்",
     "properties": "சொத்துகள்",
     "leads": "வழிநடத்துகிறது",
     "users": "பயனர்கள்",
     "support": "ஆதரவு",
     "profile": "சுயவிவரம்",
-    "logout": "வெளியேறுதல்"
+    "logout": "வெளியேறுதல்",
+    "subMenus": {
+      "property categories": "சொத்து வகைகள்",
+      "feature categories": "வசதி வகைகள்",
+      "feature options": "வசதி விருப்பங்கள்",
+      "category mappings": "வகை வரைபடங்கள்"
+    }
   },
   "PopularProperties": {
     "title": "எங்கள் பிரபலமான சொத்துகள்",
