@@ -145,22 +145,7 @@ export default function FormikIconPickerField({
           </div>
         )}
       </ErrorMessage>
-
-      {/* Debug info in development */}
-      {process.env.NODE_ENV === 'development' && (
-        <details className="text-xs text-gray-400">
-          <summary className="cursor-pointer">Debug Info</summary>
-          <pre className="mt-1 bg-gray-50 p-2 rounded text-xs overflow-x-auto">
-            {JSON.stringify({
-              name,
-              value: field.value,
-              error: meta.error,
-              touched: meta.touched,
-              hasError
-            }, null, 2)}
-          </pre>
-        </details>
-      )}
+      
     </div>
   );
 }
