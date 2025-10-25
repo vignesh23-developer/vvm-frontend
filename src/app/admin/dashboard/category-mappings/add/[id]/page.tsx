@@ -23,6 +23,7 @@ export interface Feature {
   mandatory: boolean
   filterable: boolean
   active: boolean
+  sortOrder?: number
 }
 
 export default function AddPropertyCategoryMapping() {
@@ -54,6 +55,7 @@ export default function AddPropertyCategoryMapping() {
             mandatory: f.isMandatory ?? false,
             filterable: f.isFilterable ?? false,
             active: true,
+            sortOrder: f.sortOrder ?? 0,
           }))
           setFeatures(formatted)
         }
@@ -93,7 +95,7 @@ export default function AddPropertyCategoryMapping() {
           features={features}
           onSuccess={() => {
             toast.success('Property category mapping saved successfully!')
-            router.push('/admin/dashboard/property-categories')
+            router.push('/admin/dashboard/property-category')
           }}
         />
       </div>
