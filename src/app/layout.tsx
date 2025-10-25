@@ -26,9 +26,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="font-sans">
-        {' '}
-        {/* ✅ Use font-sans (from Tailwind config) */}
+      <body suppressHydrationWarning={true} className="font-sans">
         <TranslationProvider>{children}</TranslationProvider>
       </body>
     </html>
