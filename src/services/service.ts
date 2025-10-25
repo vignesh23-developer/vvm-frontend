@@ -5,43 +5,50 @@ import { ResponseDTO } from '../components/dto/response_dto'
 /**
  * Generic HTTP GET wrapper
  */
+
 export async function getMethod<T = any>(
   url: string,
-  body?: any,
-): Promise<ResponseDTO> {
+  params?: Record<string, any>,
+): Promise<ResponseDTO<T>> {
   try {
-    const response = await axiosInstance.get<any>(url, body)
+    console.log('🌐 GET Request:', { url, params })
 
-    if (
-      response.data.data &&
-      typeof response.data.data === 'object' &&
-      'error' in response.data.data &&
-      (response.data.data as any).error === true
-    ) {
-      return new ResponseDTO(
+    const response = await axiosInstance.get(url, { params })
+
+    console.log('✅ GET Response:', response.data)
+
+    // Handle different API response formats
+    const data = response.data?.data ?? response.data
+
+    // If API uses `error: true`
+    if (data?.error === true) {
+      return new ResponseDTO<T>(
         true,
-        {},
-        (response.data as any).message || 'Remote Network error',
-        '',
+        {} as T,
+        data.message || 'Remote API error',
+        response.status.toString(),
       )
     }
 
-    return new ResponseDTO(false, response.data.data, '')
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const axiosErr = error as AxiosError<any>
-      // You can inspect status, response, etc.
-      const status = axiosErr.response?.status
-      const data = axiosErr.response?.data
+    return new ResponseDTO<T>(false, data as T, '', response.status.toString())
+  } catch (err: unknown) {
+    if (axios.isAxiosError(err)) {
+      const axiosErr = err as AxiosError<any>
+      console.error('❌ Axios Error:', axiosErr.message, axiosErr.response)
 
-      return new ResponseDTO(true, data, axiosErr.message, status?.toString())
-    } else {
-      return new ResponseDTO(
+      return new ResponseDTO<T>(
         true,
-        {},
-        error instanceof Error ? error.message : String(error),
+        axiosErr.response?.data ?? ({} as T),
+        axiosErr.message,
+        axiosErr.response?.status?.toString(),
       )
     }
+
+    // Non-Axios error fallback
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('❌ Unknown Error:', msg)
+
+    return new ResponseDTO<T>(true, {} as T, msg)
   }
 }
 
@@ -100,7 +107,7 @@ export async function putMethod<T = any>(
   headers?: any,
 ): Promise<ResponseDTO> {
   try {
-    const response = await axiosInstance.put<T>(url, body, { headers })
+    const response = await axiosInstance.patch<T>(url, body, { headers })
 
     if (
       response.data &&

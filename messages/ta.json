@@ -54,8 +54,8 @@
     "logout": "வெளியேறுதல்",
     "subMenus": {
       "property categories": "சொத்து வகைகள்",
-      "feature categories": "வசதி வகைகள்",
-      "feature options": "வசதி விருப்பங்கள்",
+      "feature categories": "அம்சம் வகைகள்",
+      "feature group": "அம்சம் குழு",
       "category mappings": "வகை வரைபடங்கள்"
     }
   },

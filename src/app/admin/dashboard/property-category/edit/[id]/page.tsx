@@ -2,18 +2,12 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import * as Yup from 'yup'
 import { appEnpoints } from '@/services/endpoints'
-import { getMethod } from '@/services/service'
-import PropertyCategoryForm from '@/components/admin/forms/PropertyCategoryForm'
-import { code } from 'framer-motion/client'
-
-interface FormValues {
-  name: string
-  description: string
-  sortOrder?: number
-  isActive?: boolean
-}
+import { getMethod, putMethod } from '@/services/service'
+import PropertyCategoryForm, {
+  FormValues,
+} from '@/components/admin/forms/PropertyCategoryForm'
+import toast from 'react-hot-toast'
 
 export default function EditPropertyCategory() {
   const router = useRouter()
@@ -22,13 +16,6 @@ export default function EditPropertyCategory() {
 
   const [initialValues, setInitialValues] = useState<FormValues | null>(null)
   const [loading, setLoading] = useState(true)
-
-  /** ✅ Validation schema */
-  const validationSchema = Yup.object({
-    name: Yup.string()
-      .min(2, 'Name must be at least 2 characters')
-      .required('Property category name is required'),
-  })
 
   /** 🔹 Fetch existing category data */
   useEffect(() => {
@@ -40,12 +27,11 @@ export default function EditPropertyCategory() {
         if (response) {
           // normalize payload: some APIs wrap data in a `data` field or return the object directly
           const payload = (response as any).data ?? response
-          const { name, description, sortOrder, isActive } = payload
+          const { name, description, sortOrder } = payload
           setInitialValues({
             name,
             description,
             sortOrder,
-            isActive,
           })
         }
       } catch (error) {
@@ -61,14 +47,33 @@ export default function EditPropertyCategory() {
   /** 🔹 Handle submit */
   const handleSubmit = async (values: FormValues) => {
     try {
-      await fetch(`${appEnpoints.updatePropertyCategory}/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
-      })
-      router.push('/property-category')
-    } catch (error) {
+      const payload = {
+        ...values,
+        sortOrder: values.sortOrder ?? 0,
+      }
+
+      const response = await putMethod(
+        `${appEnpoints.updatePropertyCategory(id as string)}`,
+        payload,
+      )
+
+      console.log('✅ Update Response:', response.data)
+
+      // Optional: if your API wraps result in ResponseDTO
+      if (response.data?.error) {
+        alert(response.data?.message || 'Failed to update category')
+        return
+      }
+
+      toast.success('Property category updated successfully')
+      router.push('/admin/dashboard/property-category')
+    } catch (error: any) {
       console.error('Update failed:', error)
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          'Something went wrong while updating category',
+      )
     }
   }
 
@@ -107,7 +112,6 @@ export default function EditPropertyCategory() {
 
         <PropertyCategoryForm
           initialValues={initialValues}
-          validationSchema={validationSchema}
           onSubmit={handleSubmit}
           submitLabel="Update Property Category"
           isEdit={true}

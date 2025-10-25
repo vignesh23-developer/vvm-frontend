@@ -1,49 +1,71 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import * as Yup from 'yup'
-import FeatureCategoryForm from '@/components/admin/forms/FeatureCategoryForm'
-import { code } from 'framer-motion/client'
+import FeatureCategoryForm, {
+  FeatureCategory,
+} from '@/components/admin/forms/FeatureCategoryForm'
+import { postMethod } from '@/services/service'
+import { appEnpoints } from '@/services/endpoints'
+import toast from 'react-hot-toast'
 
-interface FeatureFormValues {
-  code: string
-  name: string
-  description: string
-  input_type?: string
-  filterable?: boolean
-  mandatory?: boolean
-  sort_order?: number
-  is_active?: boolean
-}
-
-export default function AddPropertyCategory() {
+export default function AddFeatureCategory() {
   const router = useRouter()
 
-  // ✅ Validation schema
-  const validationSchema = Yup.object({
-    name: Yup.string()
-      .min(2, 'Name must be at least 2 characters')
-      .required('Property category name is required'),
-    code: Yup.string()
-      .min(2, 'Code must be at least 2 characters')
-      .required('Property category code is required'),
-  })
-
-  const initialValues: FeatureFormValues = {
+  const initialValues: FeatureCategory = {
     code: '',
     name: '',
     description: '',
-    input_type: '',
-    filterable: false,
-    mandatory: false,
-    sort_order: 10,
-    is_active: true,
+    featureGroupId: '',
+    inputType: '',
+    isFilterable: false,
+    isMandatory: false,
+    sortOrder: 1,
+    options: [{ name: '', value: '', icon: '', sortOrder: 1, isActive: true }],
   }
 
-  const handleSubmit = async (values: FeatureFormValues) => {
-    console.log('Form values:', values)
-    // ✅ Add your API call here
-    // router.push('/property-category')
+  // ✅ Handle form submit
+  const handleSubmit = async (values: FeatureCategory) => {
+    try {
+      console.log('Submitting values:', values)
+
+      // ✅ Prepare payload
+      const payload = {
+        ...values,
+        options:
+          values.inputType === 'text' || values.inputType === 'number'
+            ? [] // No options for text/number types
+            : values.options.map(opt => ({
+                name: opt.name,
+                value: opt.name, // fallback if value not set
+                icon: opt.icon || '',
+                sortOrder: opt.sortOrder,
+                isActive: opt.isActive,
+              })),
+      }
+
+      console.log('Prepared payload:', payload)
+
+      // ✅ API call using your helper
+      const res = await postMethod<FeatureCategory>(
+        appEnpoints.createFeatureCategory,
+        payload,
+      )
+
+      if (res.error) {
+        console.error('Failed to create feature category:', res.message)
+        toast.error(res.message || 'Failed to create feature category')
+        return
+      }
+
+      console.log('Feature category created:', res.data)
+      toast.success('Feature category created successfully!')
+
+      // ✅ Redirect to listing page
+      router.push('/admin/dashboard/feature-category')
+    } catch (error) {
+      console.error('Submit error:', error)
+      toast.error('Something went wrong while creating feature category')
+    }
   }
 
   return (
@@ -65,7 +87,6 @@ export default function AddPropertyCategory() {
 
         <FeatureCategoryForm
           initialValues={initialValues}
-          validationSchema={validationSchema}
           onSubmit={handleSubmit}
           submitLabel="Create Feature Category"
           isEdit={false}

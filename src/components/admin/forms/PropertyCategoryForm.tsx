@@ -4,8 +4,9 @@ import { Formik, Form } from 'formik'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
 import { useRouter } from 'next/navigation'
 import FormikCheckboxField from '@/components/ui/Formik/FormikCheckboxField/FormikCheckboxField'
+import propertyCategorySchema from '@/utils/validations/admin/propertyCategory/propertyCategoryValidation'
 
-interface FormValues {
+export interface FormValues {
   name: string
   description: string
   sortOrder?: number
@@ -13,12 +14,7 @@ interface FormValues {
 }
 
 interface PropertyCategoryFormProps {
-  /** Form initial values */
   initialValues: FormValues
-
-  /** Yup validation schema */
-  validationSchema: any
-
   /** Submit handler */
   onSubmit: (values: FormValues) => Promise<void>
 
@@ -31,7 +27,6 @@ interface PropertyCategoryFormProps {
 
 export default function PropertyCategoryForm({
   initialValues,
-  validationSchema,
   onSubmit,
   submitLabel,
   isEdit = false,
@@ -41,7 +36,7 @@ export default function PropertyCategoryForm({
   return (
     <Formik
       initialValues={initialValues}
-      validationSchema={validationSchema}
+      validationSchema={propertyCategorySchema}
       enableReinitialize
       onSubmit={onSubmit}
     >
@@ -78,17 +73,20 @@ export default function PropertyCategoryForm({
               className="w-full border-0 bg-gray-100 rounded-md px-4 py-3 text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-black focus:bg-white transition"
             />
           </div>
-
-          <div>
-            <FormikCheckboxField label="Is Active" name="isActive" />
-          </div>
+          {/* Is Active */}
+          {!isEdit && (
+            <div>
+              <FormikCheckboxField label="Is Active" name="isActive" />
+            </div>
+          )}
 
           {/* Buttons */}
           <div className="flex justify-end items-center gap-4 pt-4">
             <button
               type="button"
               onClick={() => router.back()}
-              className="px-6 py-2 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium transition"
+              className="px-6 py-2 rounded-md bg-gray-200 hover:bg-gray-300 cursor-pointer text-gray-800 font-medium transition"
+              title="cancel"
             >
               Cancel
             </button>
@@ -98,8 +96,9 @@ export default function PropertyCategoryForm({
               className={`px-6 py-2 rounded-md text-white font-medium transition ${
                 isSubmitting
                   ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-black hover:bg-gray-800'
+                  : 'bg-black hover:bg-gray-800 cursor-pointer'
               }`}
+              title="submit"
             >
               {isSubmitting
                 ? isEdit
