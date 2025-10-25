@@ -1,23 +1,15 @@
 'use client'
 
-import {
-  CheckCircle,
-  Home,
-  MapPin,
-  Star,
-  Camera,
-  Check,
-  ArrowRight,
-  ArrowLeft,
-} from 'lucide-react'
+import { CheckCircle, Home, MapPin, Star, Camera, Check, ArrowRight, ArrowLeft } from 'lucide-react'
 import { useState } from 'react'
 
 // Import step components
-import Step1BasicDetails from '../../../components/seller/BasicDetails'
-import Step2LocationPrice from '../../../components/seller/LocationPrice'
-import Step3FeaturesAmenities from '../../../components/seller/FeaturesAmenities'
-import Step4PhotosContact from '../../../components/seller/PhotosContact'
-import Step5ReviewSubmit from '../../../components/seller/ReviewSubmit'
+import Step1BasicDetails from './(components)/BasicDetails'
+import Step2LocationPrice from './(components)/LocationPrice'
+import Step3FeaturesAmenities from './(components)/FeaturesAmenities'
+import Step4PhotosContact from './(components)/PhotosContact'
+import Step5ReviewSubmit from './(components)/ReviewSubmit'
+import useLandRegistration from './(hook)/land_registration_hook'
 
 type PropertyType = 'Land' | 'Residential' | 'Commercial' | 'Plot'
 type PurposeType = 'Sale' | 'Rent' | 'Lease'
@@ -37,7 +29,7 @@ type FormData = {
 
 type FormErrors = Partial<Record<keyof FormData, string>>
 
-export default function ProgressSteps() {
+export default function LandRegistrationPage() {
   const steps: Step[] = [
     {
       title: 'Step 1',
@@ -65,6 +57,8 @@ export default function ProgressSteps() {
       icon: <Check className="w-5 h-5" />,
     },
   ]
+
+  const { propertyCategoryData, propertyCategoryFetchLoader, propertyCategoryFetchErr, propertyCategoryRefresh } = useLandRegistration()
 
   const [currentStep, setCurrentStep] = useState(1)
   const [formData, setFormData] = useState<FormData>({
@@ -123,11 +117,7 @@ export default function ProgressSteps() {
     unit: 'Sqft',
   })
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormDataStep2(prev => ({ ...prev, [name]: value }))
   }
@@ -207,9 +197,7 @@ export default function ProgressSteps() {
       {/* Progress Stepper */}
       <div className="flex flex-col items-center">
         {/* top text */}
-        <p className="mb-6 text-lg text-gray-500 text-center max-w-md">
-          Reach thousands of potential buyers and tenants
-        </p>
+        <p className="mb-6 text-lg text-gray-500 text-center max-w-md">Reach thousands of potential buyers and tenants</p>
         {/* Steps */}
         <div className="flex w-full max-w-5xl justify-between relative">
           {steps.map((step, idx) => {
@@ -218,10 +206,7 @@ export default function ProgressSteps() {
             const isLast = idx === steps.length - 1
 
             return (
-              <div
-                key={idx}
-                className="flex flex-col items-center flex-1 relative"
-              >
+              <div key={idx} className="flex flex-col items-center flex-1 relative">
                 {/* Circle with icon */}
                 <div
                   className={`w-10 h-12 flex items-center justify-center rounded-full border transition-all
@@ -238,30 +223,14 @@ export default function ProgressSteps() {
 
                 {/* Text */}
                 <div className="mt-2 text-center">
-                  <p
-                    className={`text-sm font-medium ${
-                      isActive ? 'text-gray-900' : 'text-gray-500'
-                    }`}
-                  >
-                    {step.title}
-                  </p>
-                  <p
-                    className={`text-xs ${
-                      isActive ? 'text-gray-700' : 'text-gray-400'
-                    }`}
-                  >
-                    {step.subtitle}
-                  </p>
+                  <p className={`text-sm font-medium ${isActive ? 'text-gray-900' : 'text-gray-500'}`}>{step.title}</p>
+                  <p className={`text-xs ${isActive ? 'text-gray-700' : 'text-gray-400'}`}>{step.subtitle}</p>
                 </div>
 
                 {/* Connector line */}
                 {!isLast && (
                   <div className="absolute top-6 left-full w-full">
-                    <div
-                      className={`h-0.5 w-full ${
-                        isCompleted ? 'bg-[#7B1E1E]' : 'bg-gray-300'
-                      }`}
-                    />
+                    <div className={`h-0.5 w-full ${isCompleted ? 'bg-[#7B1E1E]' : 'bg-gray-300'}`} />
                   </div>
                 )}
               </div>
@@ -271,27 +240,11 @@ export default function ProgressSteps() {
       </div>
 
       {/* Step Components */}
-      {currentStep === 1 && (
-        <Step1BasicDetails
-          formData={formData}
-          errors={errors}
-          updateFormData={updateFormData}
-        />
-      )}
+      {currentStep === 1 && <Step1BasicDetails data={propertyCategoryData} formData={formData} errors={errors} updateFormData={updateFormData} />}
 
-      {currentStep === 2 && (
-        <Step2LocationPrice
-          formDataStep2={formDataStep2}
-          handleChange={handleChange}
-        />
-      )}
+      {currentStep === 2 && <Step2LocationPrice formDataStep2={formDataStep2} handleChange={handleChange} />}
 
-      {currentStep === 3 && (
-        <Step3FeaturesAmenities
-          amenities={amenities}
-          setAmenities={setAmenities}
-        />
-      )}
+      {currentStep === 3 && <Step3FeaturesAmenities amenities={amenities} setAmenities={setAmenities} />}
 
       {currentStep === 4 && (
         <Step4PhotosContact
@@ -302,9 +255,7 @@ export default function ProgressSteps() {
         />
       )}
 
-      {currentStep === 5 && (
-        <Step5ReviewSubmit listingData={listingData} onSubmit={handleSubmit} />
-      )}
+      {currentStep === 5 && <Step5ReviewSubmit listingData={listingData} onSubmit={handleSubmit} />}
 
       {/* Navigation */}
       <div className="flex flex-col sm:flex-row justify-between gap-3 mt-8 pt-6 border-t border-gray-100 max-w-4xl mx-auto">
