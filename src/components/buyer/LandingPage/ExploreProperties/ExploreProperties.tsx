@@ -3,6 +3,8 @@
 import { motion, Variants } from 'framer-motion'
 import { Building2, Star } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import Button from '@/components/ui/CustomComponent/Button/Button'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 
 // Animation variants
@@ -26,6 +28,7 @@ const cardVariants: Variants = {
 
 export default function ExploreProperties() {
   const t = useTranslations()
+  const router = useRouter()
 
   const properties = [
     {
@@ -157,13 +160,17 @@ export default function ExploreProperties() {
           transition={{ delay: 0.4 }}
           viewport={{ once: true }}
         >
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="text-gray-800 font-medium hover:underline"
+          <Button
+            type="button"
+            size="small"
+            hover="hover:underline"
+            className="text-gray-800 font-medium"
+            onClick={() => {
+              router.push('/home/exploreByCategory')
+            }}
           >
             {t('ExploreProperties.more')}
-          </motion.button>
+          </Button>
         </motion.div>
       </div>
     </section>

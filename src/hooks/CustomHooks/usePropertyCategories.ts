@@ -16,6 +16,9 @@ export interface PropertyCategory {
   sortOrder?: number
 }
 
+interface CategoryMappingsProps {
+  id: number
+}
 // Custom hook for managing property categories
 export function usePropertyCategories() {
   const router = useRouter()
@@ -60,9 +63,12 @@ export function usePropertyCategories() {
     router.push('/admin/dashboard/property-category/add')
   }, [router])
 
-  const handleCategoryMapping = useCallback(() => {
-    router.push('/admin/dashboard/category-mappings/add')
-  }, [router])
+  const handleCategoryMapping = useCallback(
+    (id: number) => {
+      router.push(`/admin/dashboard/category-mappings/add/${id}`)
+    },
+    [router],
+  )
 
   const handleEdit = useCallback(
     (id: number) => {
