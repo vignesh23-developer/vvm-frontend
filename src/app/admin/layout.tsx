@@ -1,6 +1,6 @@
-import TranslationProvider from '../../hooks/Translation/TranslationProvider'
 import Navbar from '@/components/layout/Navbar/Navbar'
 import Footer from '@/components/layout/Footer/Footer'
+import { Toaster } from 'react-hot-toast'
 
 export default function RootLayout({
   children,
@@ -31,12 +31,8 @@ export default function RootLayout({
                   href: '/admin/dashboard/feature-category',
                 },
                 {
-                  label: 'feature options',
-                  href: '/admin/dashboard/feature-options',
-                },
-                {
-                  label: 'category mappings',
-                  href: '/admin/dashboard/category-mappings',
+                  label: 'feature group',
+                  href: '/admin/dashboard/feature-group',
                 },
               ],
             },
@@ -48,7 +44,10 @@ export default function RootLayout({
           user={user}
         />
       </header>
-      <main>{children}</main>
+      <main>
+        {children}
+        <Toaster position="top-right" reverseOrder={false} />
+      </main>
       <footer>
         <Footer />
       </footer>

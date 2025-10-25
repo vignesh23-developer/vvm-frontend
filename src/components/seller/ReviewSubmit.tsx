@@ -16,9 +16,9 @@ interface Step5ReviewSubmitProps {
   onSubmit?: (agreedToTerms: boolean) => void
 }
 
-export default function Step5ReviewSubmit({ 
-  listingData, 
-  onSubmit 
+export default function Step5ReviewSubmit({
+  listingData,
+  onSubmit,
 }: Step5ReviewSubmitProps) {
   const [agreedToTerms, setAgreedToTerms] = useState(false)
 

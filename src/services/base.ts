@@ -1,54 +1,57 @@
-'use server'
-import axios from 'axios';
-import { getLocalStorageItem, removeLocalStorageItem } from '../utils/local_storage/local_storage_handler';
-import { LOCAL_STORAGE_NAME } from '../utils/local_storage/local_storage_constant';
+import axios from 'axios'
+import {
+  getLocalStorageItem,
+  removeLocalStorageItem,
+} from '../utils/local_storage/local_storage_handler'
+import { LOCAL_STORAGE_NAME } from '../utils/local_storage/local_storage_constant'
 
 const axiosInstance = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL,
-    headers: {
-        // Accept: 'application/json',
-        'Content-Type': 'application/json',
-    },
-    withCredentials: false,
-});
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  headers: {
+    // Accept: 'application/json',
+    'Content-Type': 'application/json',
+  },
+  withCredentials: false,
+})
 
-axiosInstance.interceptors.request.use(async (config) => {
+axiosInstance.interceptors.request.use(async config => {
+  console.log('REQUEST INTERCEPTORS CALLED', config)
 
-    console.log('REQUEST INTERCEPTORS CALLED', config);
+  const localStoredToken = await getLocalStorageItem(
+    LOCAL_STORAGE_NAME.authToken,
+  )
 
-    const localStoredToken = await getLocalStorageItem(LOCAL_STORAGE_NAME.authToken);
+  // console.log('token:', localStoredToken);
 
-    // console.log('token:', localStoredToken);
+  if (localStoredToken) {
+    config.headers['Authorization'] = `Bearer ${localStoredToken}`
+  }
 
-    if (localStoredToken) {
-        config.headers['Authorization'] = `Bearer ${localStoredToken}`;
-    }
-
-    return config;
-});
+  return config
+})
 
 axiosInstance.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        console.log('ERROR ON interceptors response', error);
+  response => response,
+  error => {
+    console.log('ERROR ON interceptors response', error)
 
-        if (error.response?.status === 401) {
-            console.log('error from interceptors', error);
+    if (error.response?.status === 401) {
+      console.log('error from interceptors', error)
 
-            removeLocalStorageItem(LOCAL_STORAGE_NAME.authToken);
-            removeLocalStorageItem(LOCAL_STORAGE_NAME.userData);
+      removeLocalStorageItem(LOCAL_STORAGE_NAME.authToken)
+      removeLocalStorageItem(LOCAL_STORAGE_NAME.userData)
 
-            // if (window.location.pathname !== '/signin') {
+      // if (window.location.pathname !== '/signin') {
 
-            //     window.location.replace('/signin');
-            // }
+      //     window.location.replace('/signin');
+      // }
 
-            //   const navigate = useNavigate();
+      //   const navigate = useNavigate();
 
-            //   navigate('/login');
-        }
-        return Promise.reject(error);
+      //   navigate('/login');
     }
-);
+    return Promise.reject(error)
+  },
+)
 
-export default axiosInstance;
+export default axiosInstance

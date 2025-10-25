@@ -55,7 +55,7 @@
     "subMenus": {
       "property categories": "Property Categories",
       "feature categories": "Feature Categories",
-      "feature options": "Feature Options",
+      "feature group": "Feature Group",
       "category mappings": "Category Mappings"
     }
   },

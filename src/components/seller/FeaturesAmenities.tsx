@@ -14,9 +14,9 @@ interface Step3FeaturesAmenitiesProps {
   setAmenities: React.Dispatch<React.SetStateAction<Amenity[]>>
 }
 
-export default function Step3FeaturesAmenities({ 
-  amenities, 
-  setAmenities 
+export default function Step3FeaturesAmenities({
+  amenities,
+  setAmenities,
 }: Step3FeaturesAmenitiesProps) {
   const [customFeature, setCustomFeature] = useState('')
   const [showInput, setShowInput] = useState(false)

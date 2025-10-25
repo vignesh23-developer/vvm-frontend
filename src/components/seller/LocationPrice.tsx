@@ -11,12 +11,16 @@ interface FormDataStep2 {
 
 interface Step2LocationPriceProps {
   formDataStep2: FormDataStep2
-  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void
+  handleChange: (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => void
 }
 
-export default function Step2LocationPrice({ 
-  formDataStep2, 
-  handleChange 
+export default function Step2LocationPrice({
+  formDataStep2,
+  handleChange,
 }: Step2LocationPriceProps) {
   return (
     <div className="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow-md">
