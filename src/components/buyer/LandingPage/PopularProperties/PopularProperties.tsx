@@ -1,10 +1,12 @@
 'use client'
 
 import { MapPin, BedSingle, Ruler, IndianRupee } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import SwiperWrapper from '../../../ui/CustomComponent/Slider/SwipperSlider'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
+import Button from '@/components/ui/CustomComponent/Button/Button'
 
 // ✅ Define TypeScript type for property items
 interface PropertyItem {
@@ -18,6 +20,7 @@ interface PropertyItem {
 
 export default function PopularProperties() {
   const t = useTranslations()
+  const router = useRouter()
 
   const items: PropertyItem[] = [
     {
@@ -150,13 +153,23 @@ export default function PopularProperties() {
 
                   {/* Price & Button */}
                   <div className="flex justify-between items-center mt-auto">
-                    <motion.button
+                    <motion.div
                       whileHover={{ scale: 1.08 }}
                       whileTap={{ scale: 0.95 }}
-                      className="px-3 py-1.5 bg-black text-white rounded-md hover:bg-gray-800 transition text-xs sm:text-sm"
                     >
-                      {t('PopularProperties.see_more')}
-                    </motion.button>
+                      <Button
+                        type="button"
+                        variant="tertiary"
+                        size="small"
+                        className="px-3 py-1.5 bg-black text-white rounded-md"
+                        hover="hover:bg-gray-800 transition text-xs sm:text-sm"
+                        onClick={() => {
+                          router.push('/properties_list/agency')
+                        }}
+                      >
+                        {t('PopularProperties.see_more')}
+                      </Button>
+                    </motion.div>
 
                     <p className="flex items-center gap-1 font-bold text-sm sm:text-base text-gray-800">
                       <IndianRupee size={16} className="text-gray-700" />

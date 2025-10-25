@@ -32,7 +32,7 @@ export default function PropertyCategoryPage() {
         render: (row: PropertyCategory) => (
           <div className="flex items-center gap-4">
             <button
-              onClick={handleCategoryMapping}
+              onClick={() => handleCategoryMapping(row.id)}
               className="p-1.5 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50 cursor-pointer transition"
               title="Category Mappings"
             >

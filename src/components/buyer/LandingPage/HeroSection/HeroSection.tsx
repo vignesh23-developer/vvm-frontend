@@ -1,11 +1,14 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { MapPin, Home, ChevronDown, IndianRupee, Search } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { motion, Variants } from 'framer-motion'
+import Button from '@/components/ui/CustomComponent/Button/Button'
 
 export default function HeroSection() {
   const t = useTranslations()
+  const router = useRouter()
 
   const tabKeys: string[] = [
     'buy',
@@ -50,7 +53,7 @@ export default function HeroSection() {
           {/* Heading */}
           <motion.h1
             variants={itemVariants}
-            className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 leading-snug"
+            className="font-scans text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 leading-snug"
           >
             {t('Hero.title')}
           </motion.h1>
@@ -79,19 +82,28 @@ export default function HeroSection() {
             {/* Desktop Tabs */}
             <div className="hidden sm:flex flex-wrap justify-evenly gap-3 sm:gap-5 lg:gap-6 mb-6 sm:mb-10 text-sm sm:text-lg font-medium">
               {tabKeys.map((tab, idx) => (
-                <motion.button
+                <motion.div
                   key={tab}
                   variants={itemVariants}
                   whileHover={{ scale: 1.1, color: '#facc15' }} // yellow-400
                   whileTap={{ scale: 0.95 }}
-                  className={`${
-                    idx === 0
-                      ? 'text-yellow-400 border-b-2 border-yellow-400 pb-1'
-                      : 'hover:text-yellow-400 transition'
-                  }`}
                 >
-                  {t(`Hero.HeroMenu.${tab}`)}
-                </motion.button>
+                  <Button
+                    type="button"
+                    variant="tertiary"
+                    size="small"
+                    className={`${
+                      idx === 0
+                        ? 'text-yellow-400 border-b-2 border-yellow-400 pb-1'
+                        : 'hover:text-yellow-400 transition'
+                    }`}
+                    onClick={() => {
+                      router.push('/properties_list/explore_by_category')
+                    }}
+                  >
+                    {t(`Hero.HeroMenu.${tab}`)}
+                  </Button>
+                </motion.div>
               ))}
             </div>
           </motion.div>
@@ -186,15 +198,23 @@ export default function HeroSection() {
                 </span>
                 <ChevronDown className="w-4 h-4 text-gray-500" />
               </div>
-
-              <motion.button
+              <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="flex items-center justify-center gap-2 bg-black text-white px-5 sm:px-7 py-2.5 sm:py-3 rounded-xl hover:bg-gray-800 transition w-full sm:w-auto text-sm sm:text-base"
               >
-                <Search className="w-5 h-5" />
-                <span>{t('Hero.HeroMenu.search')}</span>
-              </motion.button>
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="large"
+                  onClick={() =>
+                    router.push('/properties_list/explore_by_category')
+                  }
+                  icon={<Search className="w-5 h-5" />}
+                  className="flex items-center justify-center gap-2 bg-black text-white px-5 sm:px-7 py-2.5 sm:py-3 rounded-xl hover:bg-gray-800 transition w-full sm:w-auto text-sm sm:text-base"
+                >
+                  <span>{t('Hero.HeroMenu.search')}</span>
+                </Button>
+              </motion.div>
             </div>
           </motion.div>
         </motion.div>

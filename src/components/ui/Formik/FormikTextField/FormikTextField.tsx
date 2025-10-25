@@ -9,6 +9,7 @@ interface TextFieldProps {
   as?: string
   placeholder?: string
   className?: string
+  disabled?: boolean
 }
 
 export default function FormikTextField({
@@ -17,6 +18,7 @@ export default function FormikTextField({
   type = 'text',
   as,
   placeholder,
+  disabled = false,
   className = 'w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none',
 }: TextFieldProps) {
   return (
@@ -31,6 +33,7 @@ export default function FormikTextField({
         as={as}
         placeholder={placeholder}
         className={className}
+        disabled={disabled}
       />
       <ErrorMessage
         name={name}
