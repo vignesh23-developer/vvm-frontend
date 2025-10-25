@@ -1,54 +1,166 @@
 'use client';
 
-import {ErrorMessage, useField} from 'formik';
-import IconPicker from './IconPicker';
-import {LucideIconName} from './LucideIconName';
+import React, { useState, useEffect } from 'react';
+import { ErrorMessage, useField } from 'formik';
+import { AlertCircle } from 'lucide-react';
+import { LucideIconName } from './LucideIconName';
+import WorkingIconPicker from './WorkingIconPicker';
 
-interface IconPickerFieldProps {
-    label: string;
-    name: string;
-    className?: string;
-    helpText?: string;
+export interface FormikIconPickerFieldProps {
+  /** The field name for Formik */
+  name: string;
+  /** Label text for the field */
+  label: string;
+  /** Optional help text shown below the field */
+  helpText?: string;
+  /** Placeholder text for the dropdown */
+  placeholder?: string;
+  /** Whether the field is required */
+  required?: boolean;
+  /** Whether the field is disabled */
+  disabled?: boolean;
+  /** Additional CSS classes for the container */
+  className?: string;
+  /** Additional CSS classes for the dropdown */
+  dropdownClassName?: string;
+  /** Maximum height for the dropdown menu */
+  maxHeight?: string;
+  /** Whether to show a loading state initially */
+  showLoadingInitially?: boolean;
 }
 
 export default function FormikIconPickerField({
-                                                  label,
-                                                  name,
-                                                  className = '',
-                                                  helpText,
-                                              }: IconPickerFieldProps) {
+  name,
+  label,
+  helpText,
+  placeholder = "Select an icon",
+  required = false,
+  disabled = false,
+  className = '',
+  dropdownClassName = '',
+  maxHeight = '320px',
+  showLoadingInitially = true
+}: FormikIconPickerFieldProps) {
+  // Formik field hook
+  const [field, meta, helpers] = useField<LucideIconName | null>(name);
+  
+  // Local state for client-side rendering
+  const [isClient, setIsClient] = useState(false);
+  
+  // Handle client-side mounting
+  useEffect(() => {
+    // Small delay to ensure proper hydration
+    const timer = setTimeout(() => {
+      setIsClient(true);
+    }, showLoadingInitially ? 100 : 0);
+    
+    return () => clearTimeout(timer);
+  }, [showLoadingInitially]);
 
-    const [field, meta, helpers] = useField<LucideIconName | null>(name);
+  // Handle value change
+  const handleChange = (iconName: LucideIconName) => {
+    helpers.setValue(iconName);
+  };
 
+  // Handle clearing the field
+  const handleClear = () => {
+    helpers.setValue(null);
+  };
 
-    const {setValue} = helpers;
-
-
-    const handleChange = (icon: LucideIconName) => {
-        setValue(icon);
-    };
-
+  // Determine if field has error
+  const hasError = Boolean(meta.touched && meta.error);
+  
+  // Show loading state during SSR or initial hydration
+  if (!isClient && showLoadingInitially) {
     return (
-        <div className="mb-4">
-            <label htmlFor={name} className="block text-sm font-medium mb-1">
-                {label}
-            </label>
-
-            <IconPicker
-                value={field.value}
-                onChange={handleChange}
-                className={className}
-            />
-
-            {helpText && (
-                <p className="text-gray-500 text-sm mt-1">{helpText}</p>
-            )}
-
-            <ErrorMessage
-                name={name}
-                component="p"
-                className="text-red-500 text-sm mt-1"
-            />
+      <div className={`space-y-2 ${className}`}>
+        {/* Label */}
+        <label className="block text-sm font-medium text-gray-700">
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+        
+        {/* Loading skeleton */}
+        <div className="animate-pulse">
+          <div className="h-10 bg-gray-200 rounded-md"></div>
         </div>
+        
+        {/* Help text placeholder */}
+        {helpText && (
+          <div className="h-4 bg-gray-100 rounded w-3/4 animate-pulse"></div>
+        )}
+      </div>
     );
+  }
+
+  return (
+    <div className={`space-y-2 ${className}`}>
+      {/* Label */}
+      <label 
+        htmlFor={name}
+        className="block text-sm font-medium text-gray-700"
+      >
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
+      </label>
+
+      {/* Icon Picker Dropdown */}
+      <div className="relative">
+        <WorkingIconPicker
+          value={field.value}
+          onChange={handleChange}
+          placeholder={placeholder}
+          disabled={disabled}
+          className={`${dropdownClassName} ${hasError ? 'border-red-300' : ''}`}
+        />
+        
+        {/* Clear button - shown when there's a value */}
+        {field.value && !disabled && (
+          <button
+            type="button"
+            onClick={handleClear}
+            className="absolute right-8 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded text-gray-400 hover:text-gray-600"
+            title="Clear selection"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
+      </div>
+
+      {/* Help text */}
+      {helpText && !hasError && (
+        <p className="text-sm text-gray-500">
+          {helpText}
+        </p>
+      )}
+
+      {/* Error message */}
+      <ErrorMessage name={name}>
+        {(error) => (
+          <div className="flex items-start gap-2 text-sm text-red-600">
+            <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+      </ErrorMessage>
+
+      {/* Debug info in development */}
+      {process.env.NODE_ENV === 'development' && (
+        <details className="text-xs text-gray-400">
+          <summary className="cursor-pointer">Debug Info</summary>
+          <pre className="mt-1 bg-gray-50 p-2 rounded text-xs overflow-x-auto">
+            {JSON.stringify({
+              name,
+              value: field.value,
+              error: meta.error,
+              touched: meta.touched,
+              hasError
+            }, null, 2)}
+          </pre>
+        </details>
+      )}
+    </div>
+  );
 }

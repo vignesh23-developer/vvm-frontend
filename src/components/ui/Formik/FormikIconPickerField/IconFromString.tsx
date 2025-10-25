@@ -3,6 +3,7 @@ import * as LucideIcons from 'lucide-react';
 import {LucideIcon} from 'lucide-react';
 import {LucideIconName} from "@/components/ui/Formik/FormikIconPickerField/LucideIconName";
 import {useEffect, useState} from "react";
+import dynamic from 'next/dynamic';
 
 interface IconFromStringProps {
     iconName: LucideIconName | null | undefined;
@@ -10,21 +11,20 @@ interface IconFromStringProps {
     fallback?: React.ReactNode;
 }
 
-
-export function IconFromString({
-                                   iconName,
-                                   className = 'h-5 w-5',
-                                   fallback = null
-                               }: IconFromStringProps) {
-    const [isClient, setIsClient] = useState(false);
+function IconFromStringComponent({
+                                     iconName,
+                                     className = 'h-5 w-5',
+                                     fallback = null
+                                 }: IconFromStringProps) {
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        setIsClient(true);
+        setMounted(true);
     }, []);
 
-    if (!isClient) {
-        // Return a minimal placeholder during server rendering
-        return <span className={className}></span>;
+    // Return placeholder during SSR/hydration
+    if (!mounted) {
+        return <span className={`${className} bg-gray-200 animate-pulse rounded`}></span>;
     }
 
     if (!iconName || !LucideIcons[iconName as keyof typeof LucideIcons]) {
@@ -35,3 +35,13 @@ export function IconFromString({
     const IconComponent = LucideIcons[iconName as keyof typeof LucideIcons] as LucideIcon;
     return <IconComponent className={className} />;
 }
+
+// Use dynamic import with ssr: false to prevent hydration issues
+const IconFromString = dynamic(() => Promise.resolve(IconFromStringComponent), {
+    ssr: false,
+    loading: () => (
+        <span className="h-5 w-5 bg-gray-200 animate-pulse rounded"></span>
+    )
+});
+
+export { IconFromString };
