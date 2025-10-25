@@ -25,7 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ta | en">
-      <body>
+      <body suppressHydrationWarning={true}>
         <TranslationProvider>{children}</TranslationProvider>
       </body>
     </html>
