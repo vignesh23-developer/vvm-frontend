@@ -10,6 +10,8 @@ interface TextFieldProps {
   placeholder?: string
   className?: string
   disabled?: boolean
+  maxLength?: number
+  rows?: number
 }
 
 export default function FormikTextField({
@@ -18,6 +20,8 @@ export default function FormikTextField({
   type = 'text',
   as,
   placeholder,
+  maxLength,
+  rows,
   disabled = false,
   className = 'w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none',
 }: TextFieldProps) {
@@ -33,6 +37,8 @@ export default function FormikTextField({
         as={as}
         placeholder={placeholder}
         className={className}
+        maxLength={maxLength}
+        rows={rows}
         disabled={disabled}
       />
       <ErrorMessage
