@@ -3,8 +3,8 @@
 import { useCallback } from 'react'
 import useSWR from 'swr'
 import { useRouter } from 'next/navigation'
-import { appEnpoints } from '@/services/endpoints'
-import { getMethod, putMethod } from '@/services/service'
+import { appEndpoints } from '@/services/endpoints'
+import { getMethod, patchMethod } from '@/services/service'
 import toast from 'react-hot-toast'
 
 // Strongly typed interface
@@ -50,7 +50,7 @@ export function useFeatureGroup() {
     error,
     isLoading,
     mutate: mutateCategories,
-  } = useSWR<FeatureGroup[]>(`${appEnpoints.getAllFeatureGroups}`, fetcher)
+  } = useSWR<FeatureGroup[]>(`${appEndpoints.getAllFeatureGroups}`, fetcher)
 
   // CRUD handlers
   const handleAdd = useCallback(() => {
@@ -66,9 +66,10 @@ export function useFeatureGroup() {
 
   const handleDelete = async (id: number, newStatus: boolean) => {
     try {
-      await putMethod(appEnpoints.updateFeatureGroupStatus(id.toString()), {
-        isActive: newStatus,
-      })
+      await patchMethod(
+        `${appEndpoints.updateFeatureGroupStatus(id.toString())}`,
+        false,
+      )
 
       // ✅ Revalidate data after update
       mutateCategories()

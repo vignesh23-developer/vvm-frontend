@@ -6,10 +6,12 @@ import { Formik, Form } from 'formik'
 import { MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 import { AuthSchema } from '@/utils/validations/auth/AuthValidationSchema'
+import { appEnpoints } from '@/services/endpoints'
 import Image from 'next/image'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { useTranslations } from 'next-intl'
 import LanguageSwitch from '@/components/ui/CustomComponent/languageSwitch/languageSwitch'
+import { postMethod } from '@/services/service'
 
 interface AuthFormValues {
   phone: string
@@ -19,14 +21,24 @@ const Login = () => {
   const t = useTranslations()
   const initialValues: AuthFormValues = { phone: '' }
 
-  const handleLoginSubmit = (
+  const handleLoginSubmit = async (
     values: AuthFormValues,
     setSubmitting: (isSubmitting: boolean) => void,
   ) => {
-    console.log('Form Submitted ✅', values)
-    setTimeout(() => {
+    try {
+      const payload = {
+        phoneNumber: values.phone,
+        otpTypes: ['sms_otp', 'whatsapp_otp'],
+      }
+      const response = await postMethod(appEnpoints.loginSendOtp, payload)
+
+      // const data = await response.js
+      console.log('Form Submitted ✅', payload, response)
+    } catch (error) {
+      console.error('Login error:', error)
+    } finally {
       setSubmitting(false)
-    }, 1000)
+    }
   }
 
   return (
@@ -142,7 +154,7 @@ const Login = () => {
                     <Button
                       type="submit"
                       disabled={isSubmitting}
-                      onClick={() => {}}
+                      onClick={() => 'WhatsApp Clicked'}
                       className="w-full bg-[#2B1B12] text-white text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-[#3d2616] disabled:opacity-60"
                     >
                       <span>
@@ -188,7 +200,7 @@ const Login = () => {
                   <motion.div whileTap={{ scale: 0.97 }}>
                     <Button
                       type="button"
-                      onClick={() => console.log('SMS Clicked')}
+                      onClick={() => 'SMS Clicked'}
                       className="w-full border border-gray-400 text-sm rounded-md py-2 flex items-center justify-center space-x-2 hover:bg-gray-50"
                     >
                       <MessageCircle size={20} />

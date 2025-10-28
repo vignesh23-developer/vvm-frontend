@@ -3,8 +3,8 @@
 import { useCallback } from 'react'
 import useSWR, { mutate } from 'swr'
 import { useRouter } from 'next/navigation'
-import { appEnpoints } from '@/services/endpoints'
-import { getMethod, putMethod } from '@/services/service'
+import { appEndpoints } from '@/services/endpoints'
+import { getMethod, patchMethod } from '@/services/service'
 import toast from 'react-hot-toast'
 
 // ✅ Define type
@@ -24,7 +24,17 @@ export interface FeatureCategory {
   code: string
   name: string
   description?: string
-  inputType: 'single_select' | 'multi_select' | 'text' | 'number' | string
+  featureGroupId: string
+  featureGroupName?: string
+  featureGroupSortOrder?: string
+  inputType:
+    | 'single_select'
+    | 'multi_select'
+    | 'text'
+    | 'numeric'
+    | 'boolean'
+    | 'units'
+    | string
   isFilterable: boolean
   isMandatory: boolean
   sortOrder: number
@@ -70,10 +80,11 @@ export function useFeatureCategories() {
     isLoading,
     mutate: mutateCategories,
   } = useSWR<FeatureCategory[]>(
-    `${appEnpoints.getAllFeatureCategories}?activeOnly=true`,
+    `${appEndpoints.getAllFeatureCategories}?activeOnly=true`,
     fetcher,
   )
 
+  console.log('useFeatureCategories - categories:', categories)
   // CRUD Operations
   const handleAdd = useCallback(() => {
     router.push('/admin/dashboard/feature-category/add')
@@ -87,15 +98,18 @@ export function useFeatureCategories() {
   )
 
   const handleRefresh = useCallback(() => {
-    mutate(appEnpoints.getAllFeatureCategories)
+    mutate(appEndpoints.getAllFeatureCategories)
   }, [])
 
   const handleDelete = async (id: number, newStatus: boolean) => {
     try {
       // ✅ Call your API helper
-      await putMethod(appEnpoints.updateFeatureCategoryStatus(id.toString()), {
-        isActive: newStatus,
-      })
+      await patchMethod(
+        `${appEndpoints.updateFeatureCategoryStatus(
+          id.toString(),
+        )}?isActive=${newStatus}`,
+        false,
+      )
 
       // ✅ Revalidate SWR data
       mutateCategories()

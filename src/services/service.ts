@@ -107,7 +107,7 @@ export async function putMethod<T = any>(
   headers?: any,
 ): Promise<ResponseDTO> {
   try {
-    const response = await axiosInstance.patch<T>(url, body, { headers })
+    const response = await axiosInstance.put<T>(url, body, { headers })
 
     if (
       response.data &&

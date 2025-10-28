@@ -3,8 +3,8 @@
 import { useCallback } from 'react'
 import useSWR from 'swr'
 import { useRouter } from 'next/navigation'
-import { appEnpoints } from '@/services/endpoints'
-import { deleteMethod, getMethod, putMethod } from '@/services/service'
+import { appEndpoints } from '@/services/endpoints'
+import { deleteMethod, getMethod, patchMethod } from '@/services/service'
 import toast from 'react-hot-toast'
 
 // Strongly typed interface
@@ -54,7 +54,7 @@ export function usePropertyCategories() {
     isLoading,
     mutate: mutateCategories,
   } = useSWR<PropertyCategory[]>(
-    `${appEnpoints.getAllPropertyCategories}?activeOnly=true`,
+    `${appEndpoints.getAllPropertyCategories}?activeOnly=true`,
     fetcher,
   )
 
@@ -102,9 +102,12 @@ export function usePropertyCategories() {
 
   const handleDelete = async (id: number, newStatus: boolean) => {
     try {
-      await putMethod(appEnpoints.updatePropertyCategoryStatus(id.toString()), {
-        isActive: newStatus,
-      })
+      await patchMethod(
+        `${appEndpoints.updatePropertyCategoryStatus(
+          id.toString(),
+        )}?isActive=${newStatus}`,
+        false,
+      )
 
       // ✅ Revalidate data after update
       mutateCategories()

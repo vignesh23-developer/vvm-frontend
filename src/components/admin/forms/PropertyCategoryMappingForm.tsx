@@ -1,124 +1,97 @@
 'use client'
 
 import { useState } from 'react'
-import { Formik, Form, Field } from 'formik'
+import { Formik, Form } from 'formik'
 import * as Yup from 'yup'
 import toast from 'react-hot-toast'
-import { postMethod } from '@/services/service'
-import { appEnpoints } from '@/services/endpoints'
-import { ChevronDown, ChevronRight } from 'lucide-react'
-import type {
-  Feature,
-  PropertyCategory,
-} from '../../../app/admin/dashboard/category-mappings/add/[id]/page'
+import { ChevronDown, ChevronRight, Check } from 'lucide-react'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
-
-interface FieldItem {
-  name: string
-  mandatory?: boolean
-  checked: boolean
-}
-
-type FieldGroups = Record<'area' | 'building' | 'property', FieldItem[]>
+import { patchMethod, postMethod } from '@/services/service'
+import { appEndpoints } from '@/services/endpoints'
+import type {
+  PropertyCategory,
+  FeatureGroup,
+} from '../../../app/admin/dashboard/category-mappings/add/[id]/page'
+import Button from '../../ui/CustomComponent/Button/Button'
 
 export interface FormValues {
   propertyCategory: string
-  features: Feature[]
-  fields: FieldGroups
+  featuresGrouped: FeatureGroup[]
 }
 
 interface Props {
   propertyCategory?: PropertyCategory
-  features: Feature[]
+  featuresGrouped: FeatureGroup[]
   onSuccess: () => void
 }
 
 const PropertyCategoryMappingForm = ({
   propertyCategory,
-  features,
+  featuresGrouped,
   onSuccess,
 }: Props) => {
-  const [collapsed, setCollapsed] = useState({
-    area: false,
-    building: false,
-    property: false,
-  })
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
 
-  const toggleCollapse = (key: keyof typeof collapsed) =>
-    setCollapsed(prev => ({ ...prev, [key]: !prev[key] }))
+  const toggleCollapse = (id: string) =>
+    setCollapsed(prev => ({ ...prev, [id]: !prev[id] }))
+
+  const initialValues: FormValues = {
+    propertyCategory: propertyCategory?.property_category_name || '',
+    featuresGrouped,
+  }
 
   const validationSchema = Yup.object({
     propertyCategory: Yup.string().required('Please select a category'),
   })
 
-  const initialValues: FormValues = {
-    propertyCategory: propertyCategory?.name || '',
-    features: features,
-    fields: {
-      area: [
-        { name: 'Carpet Area', mandatory: true, checked: true },
-        { name: 'Built-up Area', mandatory: false, checked: true },
-        { name: 'Plot Area', mandatory: false, checked: false },
-      ],
-      building: [
-        { name: 'Total Floors', mandatory: true, checked: true },
-        { name: 'Floor Number', mandatory: true, checked: true },
-        { name: 'Monthly Maintenance', mandatory: false, checked: true },
-      ],
-      property: [
-        { name: 'Property Age', checked: true },
-        { name: 'Corner Property', checked: false },
-        { name: 'Possession Status', checked: true },
-      ],
-    },
-  }
-
   const handleSubmit = async (values: FormValues, { setSubmitting }: any) => {
     try {
-      console.log('Submitting values:', values)
-
-      const payLoad = {
-        property_category_id: propertyCategory?.id,
-        property_category_name: values.propertyCategory,
-        mappings: values.features
-          .filter(f => f.active === true)
-          .map(f => ({
-            feature_category_id: f.id,
-            feature_category_name: f.name,
-            is_mandatory: f.mandatory,
-            is_filterable: f.filterable,
-            sort_order: f.sortOrder || 0,
-            is_active: f.active,
-          })),
-        // fields: {
-        //   area: values.fields.area
-        //     .filter(f => f.checked === true)
-        //     .map(f => ({
-        //       name: f.name,
-        //       mandatory: f.mandatory,
-        //       checked: f.checked,
-        //     })),
-        //   building: values.fields.building
-        //     .filter(f => f.checked === true)
-        //     .map(f => ({
-        //       name: f.name,
-        //       mandatory: f.mandatory,
-        //       checked: f.checked,
-        //     })),
-        //   property: values.fields.property
-        //     .filter(f => f.checked === true)
-        //     .map(f => ({ name: f.name, checked: f.checked })),
-        // },
+      // Ensure propertyCategory exists before accessing its properties
+      if (!propertyCategory) {
+        toast.error('Property category not found')
+        return
       }
 
-      const response = await postMethod(
-        appEnpoints.mapFeaturesToPropertyCategory,
-        payLoad,
-      )
-      if (response.data.error) {
+      // Prepare payload
+      const payload = {
+        property_category_id: propertyCategory.property_category_id,
+        property_category_name: values.propertyCategory,
+        mappings:
+          values.featuresGrouped
+            ?.flatMap(group => group.features || [])
+            .filter(feature => feature.isMapped)
+            .map(feature => ({
+              feature_category_id: feature.id,
+              feature_category_name: feature.name,
+              is_mandatory: !!feature.isMandatory,
+              is_filterable: !!feature.isFilterable,
+              sort_order: feature.sortOrder ?? 0,
+              is_active: true, // You’re already filtering by isMapped
+            })) ?? [],
+      }
+
+      if (!payload.mappings.length) {
+        toast.error('Please select at least one feature to map')
+        return
+      }
+
+      // Determine if it's an update or a new mapping
+      const isUpdate = propertyCategory?.mappings?.length > 0
+
+      const response = await (isUpdate
+        ? patchMethod(
+            appEndpoints.updatePropertyCategoryFeatureMapping,
+            false,
+            payload,
+          )
+        : postMethod(appEndpoints.mapFeaturesToPropertyCategory, payload))
+
+      // Validate response
+      if (response?.data?.error) {
         toast.error(response.data.message || 'Failed to save mapping')
       } else {
-        onSuccess()
+        toast.success('Mapping saved successfully')
+        onSuccess?.() // Use optional chaining in case onSuccess is undefined
       }
     } catch (err: any) {
       console.error(err)
@@ -128,6 +101,41 @@ const PropertyCategoryMappingForm = ({
     }
   }
 
+  const FeatureButton = ({
+    groupIdx,
+    featureIdx,
+    f,
+    values,
+    setFieldValue,
+  }: any) => {
+    const fieldPath = `featuresGrouped[${groupIdx}].features[${featureIdx}].isMapped`
+    const isSelected =
+      values.featuresGrouped[groupIdx].features[featureIdx].isMapped
+
+    const toggle = () => setFieldValue(fieldPath, !isSelected)
+
+    return (
+      <button
+        type="button"
+        onClick={toggle}
+        className={`border rounded-lg p-4 text-left transition-all duration-150 hover:cursor-pointer ${
+          isSelected
+            ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-200'
+            : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
+        }`}
+      >
+        <div className="flex items-center justify-between mb-1">
+          <span className="font-medium">{f.name}</span>
+          {isSelected && <Check size={18} className="text-blue-600" />}
+        </div>
+        <p className="text-sm text-gray-500">
+          {f.isMandatory ? 'Mandatory' : 'Optional'} •{' '}
+          {f.isFilterable ? 'Filterable' : 'Non-filterable'}
+        </p>
+      </button>
+    )
+  }
+
   return (
     <Formik
       initialValues={initialValues}
@@ -135,106 +143,85 @@ const PropertyCategoryMappingForm = ({
       onSubmit={handleSubmit}
       enableReinitialize
     >
-      {({ values, handleChange, isSubmitting }) => (
+      {({ values, setFieldValue, isSubmitting }) => (
         <Form>
-          {/* Property Category Dropdown */}
+          {/* Property Category */}
           <div className="mb-6 max-w-xs">
             <FormikTextField
               label="Property Category"
               name="propertyCategory"
               placeholder="Enter property category"
-              disabled={true}
+              disabled
             />
           </div>
 
-          {/* Features */}
-          <div className="mb-8">
-            <p className="font-semibold mb-2">
-              Uncategorize Features for:{' '}
-              <span className="text-gray-600 capitalize">
-                {values.propertyCategory}
-              </span>
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {values.features.map((f, idx) => (
-                <div
-                  key={f.id}
-                  className={`border rounded-md p-4 ${
-                    f.active ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
-                  }`}
-                >
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      name={`features[${idx}].active`}
-                      checked={f.active}
-                      onChange={handleChange}
-                    />
-                    <span className="font-medium">{f.name}</span>
-                  </label>
-                  <div className="text-sm text-gray-500 mt-1">
-                    {f.mandatory ? 'Mandatory' : 'Optional'} •{' '}
-                    {f.filterable ? 'Filterable' : 'Non-filterable'}
+          {values.featuresGrouped.map((group, gIdx) => {
+            if (group.featureGroupId === 'uncategorized') {
+              return (
+                <div key={group.featureGroupId} className="mb-8">
+                  <p className="font-semibold mb-2">Uncategorized Features</p>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    {group.features.map((f, i) => (
+                      <FeatureButton
+                        key={f.id}
+                        groupIdx={gIdx} // ✅ correct index from Formik values
+                        featureIdx={i}
+                        f={f}
+                        values={values}
+                        setFieldValue={setFieldValue}
+                      />
+                    ))}
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
+              )
+            }
 
-          {/* Property Fields */}
-          <div className="mb-8">
-            <p className="font-semibold mb-4">Categorize</p>
-            {(['area', 'building', 'property'] as const).map(section => (
-              <div key={section} className="border rounded-md mb-4">
+            // categorized groups
+            return (
+              <div key={group.featureGroupId} className="mb-8">
                 <button
                   type="button"
-                  onClick={() => toggleCollapse(section)}
-                  className="w-full flex items-center gap-2 p-3 bg-gray-50 font-medium"
+                  onClick={() =>
+                    toggleCollapse(group.featureGroupId.toString())
+                  }
+                  className="flex items-center gap-2 bg-gray-100 p-3 w-full text-left font-semibold rounded-md"
                 >
-                  {collapsed[section] ? (
+                  {collapsed[group.featureGroupId] ? (
                     <ChevronRight size={16} />
                   ) : (
                     <ChevronDown size={16} />
                   )}
-                  {section === 'area'
-                    ? 'Area Fields'
-                    : section === 'building'
-                    ? 'Building Fields'
-                    : 'Property Details'}
+                  {group.featureGroupName}
                 </button>
-                {!collapsed[section] && (
-                  <div className="p-4 space-y-2">
-                    {values.fields[section].map((f, i) => (
-                      <label key={i} className="flex items-center space-x-2">
-                        <Field
-                          type="checkbox"
-                          name={`fields.${section}[${i}].checked`}
-                        />
-                        <span>
-                          {f.name}{' '}
-                          {f.mandatory !== undefined && (
-                            <span className="text-gray-500 text-sm">
-                              ({f.mandatory ? 'Mandatory' : 'Optional'})
-                            </span>
-                          )}
-                        </span>
-                      </label>
+
+                {!collapsed[group.featureGroupId] && (
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-3">
+                    {group.features.map((f, i) => (
+                      <FeatureButton
+                        key={f.id}
+                        groupIdx={gIdx} // ✅ correct index
+                        featureIdx={i}
+                        f={f}
+                        values={values}
+                        setFieldValue={setFieldValue}
+                      />
                     ))}
                   </div>
                 )}
               </div>
-            ))}
-          </div>
+            )
+          })}
 
-          {/* Save */}
-          <div className="flex justify-end">
-            <button
+          {/* Submit */}
+          <div className="flex justify-end mt-6">
+            <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-[#7B1E1E] hover:bg-[#641717] cursor-pointer text-white px-5 py-2 rounded-md flex items-center gap-2"
+              onClick={() => {}}
+              className="bg-[#7B1E1E] hover:bg-[#641717] cursor-pointer text-white px-5 py-2 rounded-md"
             >
               {isSubmitting ? 'Saving...' : 'Save Configuration'}
-            </button>
+            </Button>
           </div>
         </Form>
       )}

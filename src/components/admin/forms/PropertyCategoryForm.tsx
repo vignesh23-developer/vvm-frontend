@@ -84,7 +84,7 @@ export default function PropertyCategoryForm({
           <div className="flex justify-end items-center gap-4 pt-4">
             <button
               type="button"
-              onClick={() => router.back()}
+              onClick={() => router.push('/admin/dashboard/property-category')}
               className="px-6 py-2 rounded-md bg-gray-200 hover:bg-gray-300 cursor-pointer text-gray-800 font-medium transition"
               title="cancel"
             >

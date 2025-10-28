@@ -1,6 +1,7 @@
 import Navbar from '@/components/layout/Navbar/Navbar'
 import Footer from '@/components/layout/Footer/Footer'
 import { Toaster } from 'react-hot-toast'
+import Breadcrumbs from '@/components/ui/CustomComponent/Breadcrumbs/Breadcrumbs'
 
 export default function RootLayout({
   children,
@@ -17,7 +18,7 @@ export default function RootLayout({
       <header>
         <Navbar
           navLinks={[
-            { label: 'home', href: '/home' },
+            { label: 'home', href: '/admin/dashboard' },
             {
               label: 'master',
               href: '#',
@@ -36,7 +37,7 @@ export default function RootLayout({
                 },
               ],
             },
-            { label: 'properties', href: '/properties' },
+            { label: 'properties', href: '/admin/dashboard/properties' },
             { label: 'leads', href: '/leads' },
             { label: 'users', href: '/users' },
             { label: 'support', href: '/support' },
@@ -45,6 +46,9 @@ export default function RootLayout({
         />
       </header>
       <main>
+        <div className="p-5 bg-gray-50 flex items-center justify-between">
+          <Breadcrumbs />
+        </div>
         {children}
         <Toaster position="top-right" reverseOrder={false} />
       </main>
