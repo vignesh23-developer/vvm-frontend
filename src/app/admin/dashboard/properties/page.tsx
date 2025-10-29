@@ -248,8 +248,8 @@ const PropertiesPage = () => {
                 key={key}
                 {...property}
                 language={t}
-                primaryActionLabel="Approve Property"
-                secondaryActionLabel="Reject Property"
+                primaryActionLabel="Approve"
+                secondaryActionLabel="Reject"
                 tertiaryActionText="Review before taking action"
                 onPrimaryAction={() => openModal(property, 'approve')}
                 onSecondaryAction={() => openModal(property, 'reject')}
