@@ -3,11 +3,16 @@ import { PropertyCategory } from '@/hooks/CustomHooks/usePropertyCategories'
 import { appEnpoints } from '@/services/endpoints'
 import { getMethod } from '@/services/service'
 import { data } from 'framer-motion/client'
-import useSWR from 'swr'
+import useSWR, { KeyedMutator } from 'swr'
+import { GetAllPropertyCategoryFeatureMappingDTO } from '../(dto)/land_registration_dto'
 
 const fetcher = async (endpoints: string) => {
   const result = await getMethod(endpoints)
   return result
+}
+
+export type PropertyCategoryFeatureMappingResponse = Omit<ResponseDTO, 'data'> & {
+  data: GetAllPropertyCategoryFeatureMappingDTO
 }
 
 export default function useLandRegistration() {
@@ -20,14 +25,19 @@ export default function useLandRegistration() {
 
   const propertyCategoryResult: Array<PropertyCategory> = propertyCategoryFetchVal?.data
 
+  async function onGetPropertyCategoryFeatureMapping(id: string): Promise<PropertyCategoryFeatureMappingResponse> {
+    const result: ResponseDTO<GetAllPropertyCategoryFeatureMappingDTO> = await getMethod(appEnpoints?.getPropertyCategoryFeatureMappingByID(id))
+
+    const data: GetAllPropertyCategoryFeatureMappingDTO = result?.data
+
+    return result as PropertyCategoryFeatureMappingResponse
+  }
+
   return {
     propertyCategoryData: propertyCategoryResult,
     propertyCategoryFetchLoader,
     propertyCategoryFetchErr,
     propertyCategoryRefresh,
-    // comments: data?.isError ? [] : data?.value,
-    // isCommentsLoading: !data && !error,
-    // commentsError: data && error,
-    // commentsMutate: mutate,
+    onGetPropertyCategoryFeatureMapping,
   }
 }

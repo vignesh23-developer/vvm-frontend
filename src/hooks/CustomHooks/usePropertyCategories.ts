@@ -9,7 +9,7 @@ import toast from 'react-hot-toast'
 
 // Strongly typed interface
 export interface PropertyCategory {
-  id: number
+  id: string
   name: string
   description?: string
   isActive?: boolean

@@ -22,44 +22,36 @@ export const appEnpoints = {
   // Property Category Endpoints
   createPropertyCategory: '/master/property-categories',
   getAllPropertyCategories: '/master/property-categories',
-  getPropertyCategoryByID: (categoryId: string) =>
-    `/master/property-categories/${categoryId}`,
-  updatePropertyCategory: (categoryId: string) =>
-    `/master/property-categories/${categoryId}`,
-  updatePropertyCategoryStatus: (categoryId: string) =>
-    `/master/property-categories/${categoryId}/status`,
-  deletePropertyCategory: (categoryId: string) =>
-    `/master/property-categories/${categoryId}`,
+  getPropertyCategoryByID: (categoryId: string) => `/master/property-categories/${categoryId}`,
+  updatePropertyCategory: (categoryId: string) => `/master/property-categories/${categoryId}`,
+  updatePropertyCategoryStatus: (categoryId: string) => `/master/property-categories/${categoryId}/status`,
+  deletePropertyCategory: (categoryId: string) => `/master/property-categories/${categoryId}`,
   // Feature Category Endpoints
   createFeatureCategory: '/master/feature-categories',
   getAllFeatureCategories: '/master/feature-categories',
-  getFeatureCategoryByID: (categoryId: string) =>
-    `/master/feature-categories/${categoryId}`,
-  updateFeatureCategory: (categoryId: string) =>
-    `/master/feature-categories/${categoryId}`,
-  updateFeatureCategoryStatus: (categoryId: string) =>
-    `/master/feature-categories/${categoryId}/status`,
-  getFeatureCategoryOptions: (categoryId: string) =>
-    `/master/feature-categories/${categoryId}/options`,
-  updateFeatureCategoryOptions: (categoryId: string) =>
-    `/master/feature-categories/${categoryId}/with-options`,
-  deleteFeatureCategory: (categoryId: string) =>
-    `/master/feature-categories/${categoryId}`,
+  getFeatureCategoryByID: (categoryId: string) => `/master/feature-categories/${categoryId}`,
+  updateFeatureCategory: (categoryId: string) => `/master/feature-categories/${categoryId}`,
+  updateFeatureCategoryStatus: (categoryId: string) => `/master/feature-categories/${categoryId}/status`,
+  getFeatureCategoryOptions: (categoryId: string) => `/master/feature-categories/${categoryId}/options`,
+  updateFeatureCategoryOptions: (categoryId: string) => `/master/feature-categories/${categoryId}/with-options`,
+  deleteFeatureCategory: (categoryId: string) => `/master/feature-categories/${categoryId}`,
   // Feature Group Endpoints
   createFeatureGroup: '/master/feature-groups',
   getAllFeatureGroups: '/master/feature-groups',
   getFeatureGroupByID: (groupId: string) => `/master/feature-groups/${groupId}`,
   updateFeatureGroup: (groupId: string) => `/master/feature-groups/${groupId}`,
-  updateFeatureGroupStatus: (groupId: string) =>
-    `/master/feature-groups/${groupId}/status`,
+  updateFeatureGroupStatus: (groupId: string) => `/master/feature-groups/${groupId}/status`,
   deleteFeatureGroup: (groupId: string) => `/master/feature-groups/${groupId}`,
   // Property Category Features Mapping Endpoints
   mapFeaturesToPropertyCategory: '/master/property-mapping/apply',
   getAllPropertyCategoryFeatureMappings: '/property-category/feature-mappings',
-  getPropertyCategoryFeatureMappingByID: (mappingId: string) =>
-    `/master/property-mapping/${mappingId}`,
-  updatePropertyCategoryFeatureMapping: (mappingId: string) =>
-    `/master/property-mapping/apply/${mappingId}`,
-  deletePropertyCategoryFeatureMapping: (mappingId: string) =>
-    `/property-category/feature-mappings/${mappingId}`,
+  getPropertyCategoryFeatureMappingByID: (mappingId: string) => `/master/property-mapping/${mappingId}`,
+  updatePropertyCategoryFeatureMapping: (mappingId: string) => `/master/property-mapping/apply/${mappingId}`,
+  deletePropertyCategoryFeatureMapping: (mappingId: string) => `/property-category/feature-mappings/${mappingId}`,
+
+  createProperties: (agentId: string) => `/properties/?ownerId=${agentId}`,
+  updateProperties: `/properties/`,
+
+  addPropertyMediaLink: (propertyId: string) => `/property-media/${propertyId}`,
+  addPropertyMediaLocal: (propertyId: string) => `/property-media/${propertyId}/`,
 }
