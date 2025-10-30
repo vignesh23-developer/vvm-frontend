@@ -30,7 +30,23 @@ interface NavbarProps {
 export default function Navbar({
   logoSrc = '/logo.png',
   navLinks = [
-    { label: 'home', href: '/home' },
+    {
+      label: 'home',
+      href: '/home',
+      subMenu: [
+        { label: 'agency_details', href: '/buyer/Agency/AgencyDetails' },
+        { label: 'feature_category', href: '/admin/dashboard/feature-category' },
+        { label: 'users', href: '/admin/dashboard/users' },
+        { label: 'role_management', href: '/admin/dashboard/role-management' },
+        { label: 'subscription', href: '/admin/dashboard/subscription' },
+        { label: 'saved_criteria', href: '/admin/dashboard/saved-criteria' },
+        { label: 'referral_management', href: '/admin/dashboard/referral-management' },
+        { label: 'notification', href: '/admin/dashboard/notification' },
+        { label: 'property_category', href: '/admin/dashboard/property-category' },
+        { label: 'feature_group', href: '/admin/dashboard/feature-group' },
+        { label: 'enquiry_listing', href: '/admin/dashboard/enquiry-listing' },
+      ],
+    },
     { label: 'services', href: '/services' },
     { label: 'about_us', href: '/about' },
     { label: 'help_center', href: '/help-center' },
@@ -92,16 +108,21 @@ export default function Navbar({
 
               {/* ✅ Show submenu on hover */}
               {subMenu && subMenu.length > 0 && (
-                <div className="absolute left-0 top-full mt-2 bg-white text-[#3b1804] rounded-lg shadow-lg w-56 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 translate-y-2 transition-all duration-200 z-50">
-                  {subMenu.map(sub => (
-                    <Link
-                      key={sub.href}
-                      href={sub.href}
-                      className="block px-4 py-2 text-sm hover:bg-gray-100 transition"
-                    >
-                      {t(`Navbar.subMenus.${sub.label}`)}
-                    </Link>
-                  ))}
+                <div className="absolute left-0 top-full mt-2 bg-white text-[#3b1804] rounded-xl shadow-2xl w-64 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 translate-y-2 transition-all duration-200 z-50 border border-gray-200">
+                  <div className="py-2">
+                    {subMenu.map((sub, idx) => (
+                      <Link
+                        key={sub.href}
+                        href={sub.href}
+                        className={`block px-5 py-2 text-sm font-medium transition-colors duration-150 hover:bg-[#f5e9e0] hover:text-[#7a3a0a] rounded-lg ${idx !== subMenu.length - 1 ? 'mb-1' : ''}`}
+                      >
+                        <span className="flex items-center gap-2">
+                          <span className="inline-block w-2 h-2 bg-[#eab308] rounded-full"></span>
+                          {t(`Navbar.subMenus.${sub.label}`)}
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
