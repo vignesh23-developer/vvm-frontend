@@ -1,0 +1,256 @@
+{
+  "Hero": {
+    "title": "Welcome back! Choose Premium House",
+    "HeroMenu" : {
+      "buy": "Buy",
+      "rent": "Rent",
+      "new_projects": "New Projects",
+      "pg": "PG",
+      "plots": "Plots",
+      "commercial": "Commercial",
+      "search" : "Search",
+      "budget" : "Budget",
+      "flat" : "Flat",
+      "add_more" : "Add more..."
+    }
+  },
+  "Auth": {
+    "login": "Login",
+    "login_description": "Sign In to Unlock Smarter Moves",
+    "login_message": "Don’t have an account?",
+    "signup": "Sign Up",
+    "signup_description": "Start Your Property Journey With Us",
+    "signup_message": "Already have an account?",
+    "hello": "Hello",
+    "welcome_back": "Welcome Back",
+    "forgot_password": "Forgot Your Password?",
+    "forgot_description": "We’ll Help You Find Your Way Back",
+    "forgot_message": "Check WhatsApp – we’ll send your OTP there",
+    "reset_password": "Reset Password",
+    "continue_with_sms": "Continue With SMS",
+    "otp_verification": "Verify Your OTP",
+    "otp_description": "Check your SMS for the 4-digit code.",
+    "verify": "Verify",
+    "profile_creation": "Introduce Yourself to the Platform",
+    "profile_description": "The right first impression starts with your profile.",
+    "submit": "Submit",
+    "back": "Back",
+    "resend_otp": "Resend OTP",
+    "to_get_started": "to Get Started",
+    "whatapp_button": "Verify Via What’s app"
+  },
+  "Navbar": {
+    "home": "Home",
+    "services": "Services",
+    "about_us": "About Us",
+    "help_center": "Help Center",
+    "pricing": "Pricing",
+    "master": "Master",
+    "properties" : "Properties",
+    "leads" : "Leads",
+    "users": "Users",
+    "support" : "Support",
+    "profile": "Profile",
+    "logout": "Logout",
+    "subMenus": {
+      "property categories": "Property Categories",
+      "feature categories": "Feature Categories",
+      "feature group": "Feature Group",
+      "category mappings": "Category Mappings"
+    }
+  },
+  "PopularProperties": {
+    "title": "Our Popular Properties",
+    "description": "Discover premium homes with modern amenities and prime locations.",
+    "location": "Location",
+    "bedrooms": "Bedrooms",
+    "area": "Area",
+    "price": "Price",
+    "see_more": "See More"
+  },
+  "ExploreProperties": {
+    "title": "Explore Your Dream Property in Tamil Nadu",
+    "viewDetails": "View Details",
+    "more": "More"
+  },
+  "Testimonials" : {
+    "title": "Our Testimonials",
+    "description": "Everything starts with building trust!"
+  },
+  "ExploreVideo": {
+    "title": "Explore Our Property Videos",
+    "description": "Virtual tours, market insights, and expert tips – all in one place.",
+    "watchVideo": "Watch Video"
+  },
+  "AppPromo": {
+    "title": "Check out our app too, don’t miss it!",
+    "description": "Find your dream home on the go with our mobile app.",
+    "message": "Don’t lose it when it comes out!",
+    "download": "Download Now",
+    "placeholder": "Your email",
+    "subscribe": "Subscribe"
+  },
+  "Footer": {
+    "our_story": "Our Story",
+    "careers": "Careers",
+    "our_team": "Our Team",
+    "resources": "Resources",
+    "faq": "FAQ",
+    "contact_us": "Contact Us",
+    "help_center": "Help Center",
+    "terms_of_service": "Terms of Service",
+    "instagram": "Instagram",
+    "facebook": "Facebook",
+    "twitter_(𝕏)": "Twitter (𝕏)",
+    "Headers" : {
+     "about": "About",
+     "support": "Support",
+     "our_services": "Our Services"
+  }
+},
+  
+  "PropertiesListCard": {
+     "agent" : "Agent",
+     "operating_since": "Operating Since",
+     "carpet_area": "Carpet Area",
+     "status" : "Status",
+     "ready_to_move": "Ready to Move",
+     "transaction": "Transaction",
+     "resale": "Resale",
+     "contact_agent": "Contact Agent",
+     "get_phone_number": "Get Phone No.",
+     "view_details": "View Details",
+     "check_affordability": "Check Affordability",
+     "per_sqft": "per sqft",
+     "builder_name":"Bulider Name",
+     "agent_name": "Agent Name",
+     "properties_for_sale": "Properties\nFor Sale",
+     "properties_for_rent": "Properties\nFor Rent",
+     "deals_closed": "Deals\nClosed",
+     "team_members": "Team\nMembers",
+     "next" : "Next",
+     "previous": "Prev"
+    },
+    "AgencyDetails": {
+    "enquire_now": "Enquire Now",
+    "enquire_description": "Let’s Start the Conversation",
+    "contact_owner": "Contact Owner"
+  },
+  "PropertiesDetails" : {
+    "name": "Name",
+    "contact_owner" : "Contact Owner",
+    "bed_rooms": "Bed Rooms",
+    "bath_rooms": "Bath Rooms",
+    "balcony" : "Balcony",
+    "semi_furnished" : "Semi Furnished",
+    "super_built_up_area" : "Super Built-up Area",
+    "floors": "Floors",
+    "parking": "Parking",
+    "age_of_building": "Age of Building",
+    "price" : "Price",
+    "booking_amount":"Booking_Amount",
+    "address": "Address",
+    "gated_security": "Gated Security",
+    "description" : "Description",
+    "amenities": "Amenities",
+    "agent" : "Agent"
+  },
+    "PropertiesFilter": {
+      "properties" : "Properties",
+      "sort_by": "Sort By",
+      "relevance": "Relevance",
+      "new_projects": "New Projects",
+      "top_agents": "Top Agents",
+      "all_localities": "All Localities",
+      "price_low_to_high": "Price: Low to High",
+      "price_high_to_low": "Price: High to Low",
+      "newest_listings": "Newest Listings"
+    },
+  "About": {
+    "title": "ABOUT US – Vaazhga Malamud Property Hub",
+    "header": "About Us – Vaazhga Malamud Property Hub",
+    "description": "Welcome to **Vaazhga Valamudan – Property Hub**, Tamil Nadu's most **smart, transparent, and people-first** real estate marketplace.\n\nWe are not just a listing platform; we are a **dedicated digital ecosystem** built for and by the people of Tamil Nadu. Our mission is simple: to make property dealings **easy, secure, and accessible** for everyone—from individual owners in rural villages to professional promoters managing large projects.\n\n## Our Commitment to You:\n\nWe connect property buyers, sellers, agents, and promoters on one trusted digital space where:\n\n* Every listing is **verified** using robust authentication tools (like Aadhaar for agents)\n* Every agent is **accountable**, providing quality information and professional service\n* Every search is **focused**, covering both major cities and underserved rural areas\n\nWhether you're an agent selling a single plot or a promoter managing multiple housing projects, **Vaazhga Valamudan** provides the tools you need to reach serious, verified buyers across the state and among the NRI community—without middlemen, confusion, or hidden costs.\n\nWe combine modern technology, verified data, and Tamil-friendly support to bring genuine opportunities to every user.\n\n### Our Motto:\n\n**\"Grow together, succeed together — Vaazhga Valamudan!\"**\n\n*(Our True Success is all of us Lives with Prosperity.)*",
+    "explore_more": "EXPLORE MORE"
+  },
+  "form": {
+    "first_name": {
+      "label": "First Name",
+      "placeholder": "Enter your first name",
+      "error": {
+        "required": "First name is required",
+        "minLength": "First name must be at least 2 characters",
+        "maxLength": "First name must be less than 50 characters"
+
+      }
+    },
+    "last_name": {
+      "label": "Last Name",
+      "placeholder": "Enter your last name",
+      "error": {
+        "required": "Last name is required",
+        "minLength": "Last name must be at least 2 characters",
+        "maxLength": "Last name must be less than 50 characters"
+      }
+    },
+    "email": {
+      "label": "Email",
+      "placeholder": "Enter your email",
+      "error": {
+        "required": "Email is required",
+        "pattern": "Invalid email format"
+      }
+    },
+    "phone_number": {
+      "label": "Phone Number",
+      "placeholder": "Enter your phone number",
+      "error": {
+        "required": "Phone number is required",
+        "pattern": "Phone number must be 10 digits"
+      }
+    },
+    "address": {
+      "label": "Address",
+      "placeholder": "Enter your address",
+      "error": {
+        "required": "Address is required",
+        "minLength": "Address must be at least 5 characters"
+      }
+    },
+    "land_mark": {
+      "label": "Land Mark",
+      "placeholder": "Enter your land mark",
+      "error": {
+        "required": "Land mark is required",
+        "maxLength": "Landmark must be less than 50 characters"
+      }
+    },
+    "post_code": {
+      "label": "Post Code",
+      "placeholder": "Enter your post code",
+      "error": {
+        "required": "Post code is required",
+        "pattern": "Postal code must be 6 digits"
+      }
+    },
+    "referral_id": {
+      "label": "Referral Id",
+      "placeholder": "Enter your referral id (optional)",
+      "error": {}
+    },
+    "name": {
+      "label": "Name",
+      "placeholder": "Enter your name",
+      "error": {
+        "required": "Name is required",
+        "minLength": "Name must be at least 2 characters",
+        "maxLength": "Name must be less than 50 characters"
+      }
+    },"message": {
+      "label": "Message",
+      "placeholder": "Enter your message",
+      "error": {
+        "required": "Message is required"
+      }
+  }
+  }
+}

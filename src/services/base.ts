@@ -1,66 +1,57 @@
-"use server";
-import { CookiesName } from "@/utils/cookies/cookiesConst";
-import { onDeleteCookies, onGetCookies } from "@/utils/cookies/cookiesHelper";
-import { redirect } from "next/navigation";
-import axios from "axios";
+import axios from 'axios'
+import {
+  getLocalStorageItem,
+  removeLocalStorageItem,
+} from '../utils/local_storage/local_storage_handler'
+import { LOCAL_STORAGE_NAME } from '../utils/local_storage/local_storage_constant'
 
-const apiInstance = axios.create({
-    baseURL: process.env.TES_URL,
-    headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-    },
-});
+const axiosInstance = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  headers: {
+    // Accept: 'application/json',
+    'Content-Type': 'application/json',
+  },
+  withCredentials: false,
+})
 
-apiInstance.interceptors.request.use(
-    async (config) => {
-        // console.log("Req Config Interceptors : ", config);
+axiosInstance.interceptors.request.use(async config => {
+  console.log('REQUEST INTERCEPTORS CALLED', config)
 
-        const cookies = await onGetCookies(CookiesName.userInfo);
-        // console.log("Req Get Cookies :", cookies);
+  const localStoredToken = await getLocalStorageItem(
+    LOCAL_STORAGE_NAME.authToken,
+  )
 
-        const accessToken = cookies.cookies?.access_token?.value?.token;
-        // console.log("Req Get Access Token :", accessToken);
+  // console.log('token:', localStoredToken);
 
-        if (accessToken) {
-            config.headers["Authorization"] = `Bearer ${accessToken}`;
-        }
-        else {
-            config.headers["Authorization"] = "";
-        }
+  if (localStoredToken) {
+    config.headers['Authorization'] = `Bearer ${localStoredToken}`
+  }
 
-        return config;
+  return config
+})
+
+axiosInstance.interceptors.response.use(
+  response => response,
+  error => {
+    console.log('ERROR ON interceptors response', error)
+
+    if (error.response?.status === 401) {
+      console.log('error from interceptors', error)
+
+      removeLocalStorageItem(LOCAL_STORAGE_NAME.authToken)
+      removeLocalStorageItem(LOCAL_STORAGE_NAME.userData)
+
+      // if (window.location.pathname !== '/signin') {
+
+      //     window.location.replace('/signin');
+      // }
+
+      //   const navigate = useNavigate();
+
+      //   navigate('/login');
     }
-);
+    return Promise.reject(error)
+  },
+)
 
-apiInstance.interceptors.response.use(
-    (response) => {
-        return response;
-    },
-    async (error) => {
-        // console.log("Res Status Interceptors :", error.response?.status); // Fix: Access status correctly
-        if (error.response?.status === 401) {
-            await onDeleteCookies(CookiesName.userInfo);
-            return Promise.reject(error);
-
-            // redirect("/signin");
-            // window.location.href = "/signin";
-        }
-
-        return Promise.reject(error); // Ensure error is thrown
-    }
-);
-
-// apiInstance.interceptors.response.use((config) => {
-//     return config;
-// },
-//     async (error) => {
-//         console.log("Res Status Interceptors :", error.status);
-//         if (error.status === 401) {
-//             await onDeleteCookies(CookiesName.userInfo);
-//             window.location.href = "/signin"
-//         }
-//     }
-// );
-
-export default apiInstance;
+export default axiosInstance
