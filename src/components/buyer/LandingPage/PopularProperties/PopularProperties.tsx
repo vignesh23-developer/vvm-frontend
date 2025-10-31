@@ -3,67 +3,19 @@
 import { MapPin, BedSingle, Ruler, IndianRupee } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import SwiperWrapper from '../../../ui/CustomComponent/Slider/SwipperSlider'
+import { PopularPropertyDto } from './dto/popularPropertiesDto'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import Button from '@/components/ui/CustomComponent/Button/Button'
+import { usePopularProperties } from './hooks/usePopularProperties'
 
 // ✅ Define TypeScript type for property items
-interface PropertyItem {
-  id: number
-  title: string
-  rooms: number
-  area: string
-  price: string
-  image: string
-}
 
 export default function PopularProperties() {
   const t = useTranslations()
   const router = useRouter()
-
-  const items: PropertyItem[] = [
-    {
-      id: 1,
-      title: 'Avenue 1, Ashok Nagar',
-      rooms: 4,
-      area: '3,500 sq ft',
-      price: '₹50,000',
-      image: '/pp1.png',
-    },
-    {
-      id: 2,
-      title: 'Avenue 2, Vadapalani',
-      rooms: 3,
-      area: '1,500 sq ft',
-      price: '₹50,000',
-      image: '/pp2.png',
-    },
-    {
-      id: 3,
-      title: 'Avenue 3, Anna Nagar',
-      rooms: 3,
-      area: '1,500 sq ft',
-      price: '₹50,000',
-      image: '/pp3.png',
-    },
-    {
-      id: 4,
-      title: 'Avenue 4, Anna Nagar',
-      rooms: 3,
-      area: '1,500 sq ft',
-      price: '₹50,000',
-      image: '/pp3.png',
-    },
-    {
-      id: 5,
-      title: 'Avenue 5, Anna Nagar',
-      rooms: 3,
-      area: '1,500 sq ft',
-      price: '₹50,000',
-      image: '/pp3.png',
-    },
-  ]
+  const { items, handleSeeMore } = usePopularProperties({ limit: 9 })
 
   return (
     <motion.section
@@ -106,7 +58,7 @@ export default function PopularProperties() {
               640: { slidesPerView: 2, spaceBetween: 16 },
               1024: { slidesPerView: 3, spaceBetween: 20 },
             }}
-            renderItem={(item: PropertyItem) => (
+            renderItem={(item: PopularPropertyDto) => (
               <motion.div
                 key={item.id}
                 whileHover={{ scale: 1.05, y: -5 }}
@@ -125,7 +77,7 @@ export default function PopularProperties() {
                     className="w-full h-full"
                   >
                     <Image
-                      src={item.image}
+                      src={'/pp1.png'}
                       alt={item.title}
                       fill
                       className="object-cover"
@@ -137,17 +89,17 @@ export default function PopularProperties() {
                 <div className="p-3 sm:p-5 bg-[#D9D9D9] flex flex-col flex-grow">
                   <h3 className="flex items-center gap-2 text-sm sm:text-base font-semibold text-gray-800 mb-2">
                     <MapPin size={16} className="text-gray-600 shrink-0" />
-                    <span className="truncate">{item.title}</span>
+                    <span className="truncate">{item.address_line}</span>
                   </h3>
 
                   <div className="flex items-center justify-between text-xs sm:text-sm text-gray-600 mb-3">
                     <span className="flex items-center gap-1">
                       <BedSingle size={14} className="text-gray-500" />
-                      {item.rooms} Rooms
+                      {item?.rooms ? item.rooms : 0} Rooms
                     </span>
                     <span className="flex items-center gap-1">
                       <Ruler size={14} className="text-gray-500" />
-                      {item.area}
+                      {item?.area ? item.area : 'N/A'}
                     </span>
                   </div>
 
@@ -164,7 +116,7 @@ export default function PopularProperties() {
                         className="px-3 py-1.5 bg-black text-white rounded-md"
                         hover="hover:bg-gray-800 transition text-xs sm:text-sm"
                         onClick={() => {
-                          router.push('/properties_list/agency')
+                          handleSeeMore(item.id)
                         }}
                       >
                         {t('PopularProperties.see_more')}

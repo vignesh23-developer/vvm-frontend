@@ -1,4 +1,6 @@
-export const appEnpoints = {
+import { get } from 'http'
+
+export const appEndpoints = {
   // Authentication Endpoints
   login: '/login',
   signUp: '/register',
@@ -19,6 +21,14 @@ export const appEnpoints = {
   getRoleByID: (roleId: string) => `/roles/${roleId}`,
   updateRole: (roleId: string) => `/roles/${roleId}`,
   deleteRole: (roleId: string) => `/roles/${roleId}`,
+  // Properties Endpoints
+  createProperty: '/properties',
+  getAllProperties: '/properties',
+  getPropertyByID: (propertyId: string) => `/properties/${propertyId}`,
+  updateProperty: (propertyId: string) => `/properties/${propertyId}`,
+  updatePropertyStatus: (propertyId: string) =>
+    `/properties/${propertyId}/status`,
+  deleteProperty: (propertyId: string) => `/properties/${propertyId}`,
   // Property Category Endpoints
   createPropertyCategory: '/master/property-categories',
   getAllPropertyCategories: '/master/property-categories',
@@ -44,6 +54,28 @@ export const appEnpoints = {
   deleteFeatureGroup: (groupId: string) => `/master/feature-groups/${groupId}`,
   // Property Category Features Mapping Endpoints
   mapFeaturesToPropertyCategory: '/master/property-mapping/apply',
+
+
+  // Property Approval Endpoints
+  getAllPropertyApprovals: '/property-approvals',
+  getPropertyApprovalByID: (propertyId: string) =>
+    `/property-approvals/${propertyId}`,
+  getAllPropertyApprovalStats: '/property-approvals/stats',
+  approveProperty: (propertyId: string) =>
+    `/property-approvals/${propertyId}/approve`,
+  rejectProperty: (propertyId: string) =>
+    `/property-approvals/${propertyId}/reject`,
+  requestChangesProperty: (propertyId: string) =>
+    `/property-approvals/${propertyId}/request-changes`,
+  // Property Reports Endpoints
+  createPropertyReport: (propertyId: string) =>
+    `/property-reports/${propertyId}`,
+  getAllPropertyReports: '/property-reports',
+  getPropertyReportByID: (reportId: string) => `/property-reports/${reportId}`,
+  updatePropertyReportResolve: (reportId: string) =>
+    `/property-reports/${reportId}/resolve`,
+  updatePropertyReportDismiss: (reportId: string) =>
+    `/property-reports/${reportId}/dismiss`,
   getAllPropertyCategoryFeatureMappings: '/property-category/feature-mappings',
   getPropertyCategoryFeatureMappingByID: (mappingId: string) => `/master/property-mapping/${mappingId}`,
   updatePropertyCategoryFeatureMapping: (mappingId: string) => `/master/property-mapping/apply/${mappingId}`,
