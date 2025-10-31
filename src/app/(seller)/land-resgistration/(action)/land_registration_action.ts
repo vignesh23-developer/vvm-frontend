@@ -1,16 +1,13 @@
 'use server'
 
 import { ResponseDTO } from '@/components/dto/response_dto'
-import { appEnpoints } from '@/services/endpoints'
+
 import { patchMethod, postMethod } from '@/services/service'
-import { LandRegistrationPayloadDTO } from '../(dto)/land_registration_dto'
-import { param } from 'framer-motion/client'
-import { getLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
-import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
+import { appEndpoints } from '@/services/endpoints'
 
 export async function onCreateProperty(prevState: ResponseDTO, payload: any): Promise<ResponseDTO> {
   try {
-    const response: ResponseDTO = await postMethod(appEnpoints.createProperties('cc98934f-d1f7-4e8d-8484-72d24f94b508'), payload)
+    const response: ResponseDTO = await postMethod(appEndpoints.createProperties('cc98934f-d1f7-4e8d-8484-72d24f94b508'), payload)
 
     console.log('log on property creation:', response)
 
@@ -58,7 +55,7 @@ export async function onAddPropertyMedia(
 ): Promise<ResponseDTO> {
   try {
     if (params?.uploadType === 'addViaLink') {
-      const response: ResponseDTO = await postMethod(appEnpoints.addPropertyMediaLink(params?.id), params?.payload)
+      const response: ResponseDTO = await postMethod(appEndpoints.addPropertyMediaLink(params?.id), params?.payload)
 
       console.log('log on add property media via link:', response)
 
@@ -69,7 +66,7 @@ export async function onAddPropertyMedia(
         data: response.data,
       }
     } else {
-      const response: ResponseDTO = await postMethod(appEnpoints.addPropertyMediaLocal(params?.id), params?.payload)
+      const response: ResponseDTO = await postMethod(appEndpoints.addPropertyMediaLocal(params?.id), params?.payload)
 
       console.log('log on add property choose from device:', response)
 
