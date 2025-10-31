@@ -15,28 +15,48 @@ export interface PropertyApproval {
   isActive?: boolean
   sortOrder?: number
 }
+
+interface UsePropertyApprovalsOptions {
+  page?: number
+  limit?: number
+  status?: string
+}
+
 // Custom hook for managing property approvals
-export function usePropertyApprovals() {
+export function usePropertyApprovals(
+  options: UsePropertyApprovalsOptions = {},
+) {
   const router = useRouter()
+
+  const { page = 1, limit = 10, status = 'PENDING' } = options
+
+  const queryParams = new URLSearchParams()
+  if (status) {
+    queryParams.set('status', status)
+  }
+  if (limit != null) {
+    queryParams.set('limit', String(limit))
+  }
+  if (page != null) {
+    queryParams.set('page', String(page))
+  }
+
+  const swrKey = `${
+    appEndpoints.getAllPropertyApprovals
+  }?${queryParams.toString()}`
 
   // Fetcher using our generic API helper
   const fetcher = async (url: string): Promise<PropertyApproval[]> => {
     try {
-      const response = await getMethod<PropertyApproval[]>(url)
-      console.log('Fetched property approvals ResponseDTO:', response)
+      const { data, error, message } = await getMethod<PropertyApproval[]>(url)
+      console.log('Fetched property approvals ResponseDTO:', data)
 
-      if (response.error) {
-        console.error('API error while fetching approvals:', response.message)
+      if (error) {
+        console.error('API error while fetching approvals:', message)
         return []
       }
 
-      // Safe extraction of data
-      if (Array.isArray(response.data)) {
-        return response.data
-      }
-
-      console.warn('Unexpected data format:', response.data)
-      return []
+      return Array.isArray(data) ? data : []
     } catch (error) {
       console.error('Failed to fetch property approvals:', error)
       return []
@@ -45,16 +65,11 @@ export function usePropertyApprovals() {
 
   // SWR handles caching, revalidation, and errors
   const {
-    data: approvals,
+    data,
     error,
     isLoading,
     mutate: mutateApprovals,
-  } = useSWR<PropertyApproval[]>(
-    `${
-      appEndpoints.getAllPropertyApprovals
-    }?status=PENDING&limit=${10}&page=${1}`,
-    fetcher,
-  )
+  } = useSWR<PropertyApproval[]>(swrKey, fetcher)
 
   // CRUD handlers
   const handleEdit = useCallback(
@@ -65,7 +80,8 @@ export function usePropertyApprovals() {
   )
 
   return {
-    approvals: approvals ?? [],
+    approvals: data ?? [],
+    total: data?.length ?? 0,
     error,
     isLoading,
     handleEdit,

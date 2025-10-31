@@ -7,7 +7,7 @@ const LanguageSwitch = () => {
   const { locale, setLocale } = useTranslationContext()
   const router = useRouter()
 
-  const handleLanguageChange = (newLang: 'en' | 'ta') => {
+  const handleLanguageChange = (newLang: 'ta' | 'en') => {
     setLocale(newLang)
     router.refresh()
   }
@@ -21,7 +21,7 @@ const LanguageSwitch = () => {
       </button>
       <select
         value={locale}
-        onChange={e => handleLanguageChange(e.target.value as 'en' | 'ta')}
+        onChange={e => handleLanguageChange(e.target.value as 'ta' | 'en')}
         className="absolute inset-0 opacity-0 cursor-pointer"
       >
         <option value="en" className="text-black">

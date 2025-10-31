@@ -5,44 +5,8 @@ import useSWR, { mutate } from 'swr'
 import { useRouter } from 'next/navigation'
 import { appEndpoints } from '@/services/endpoints'
 import { getMethod, patchMethod } from '@/services/service'
+import { FeatureCategory } from '@/app/admin/dashboard/(master)/feature-category/(dto)/featureCategoryType'
 import toast from 'react-hot-toast'
-
-// ✅ Define type
-export interface FeatureOption {
-  id: number
-  name: string
-  value: string
-  sortOrder: number
-  isActive: boolean
-  featureCategoryId: string
-  createdAt: string
-  updatedAt: string
-}
-
-export interface FeatureCategory {
-  id: number
-  code: string
-  name: string
-  description?: string
-  featureGroupId: string
-  featureGroupName?: string
-  featureGroupSortOrder?: string
-  inputType:
-    | 'single_select'
-    | 'multi_select'
-    | 'text'
-    | 'numeric'
-    | 'boolean'
-    | 'units'
-    | string
-  isFilterable: boolean
-  isMandatory: boolean
-  sortOrder: number
-  isActive: boolean
-  createdAt: string
-  updatedAt: string
-  options?: FeatureOption[]
-}
 
 // ✅ Custom Hook
 export function useFeatureCategories() {

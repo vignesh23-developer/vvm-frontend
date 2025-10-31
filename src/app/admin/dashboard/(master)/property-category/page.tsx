@@ -1,13 +1,13 @@
 'use client'
 
 import { Plus, Settings, Edit3, Trash2 } from 'lucide-react'
-import { useMemo } from 'react'
-import Table from '@/components/ui/CustomComponent/Table/Table'
-import {
-  usePropertyCategories,
-  PropertyCategory,
-} from '@/hooks/CustomHooks/usePropertyCategories'
-import Breadcrumbs from '@/components/ui/CustomComponent/Breadcrumbs/Breadcrumbs'
+import { useMemo, useCallback } from 'react'
+import { usePropertyCategories } from '@/app/admin/dashboard/(master)/property-category/(hooks)/usePropertyCategories'
+import { PropertyCategory } from '@/app/admin/dashboard/(master)/property-category/(dto)/propertyCategoryType'
+import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
+import Button from '@/components/ui/CustomComponent/Button/Button'
+
+type PropertyCategoryTableRow = PropertyCategory & Record<string, unknown>
 
 export default function PropertyCategoryPage() {
   const {
@@ -18,47 +18,72 @@ export default function PropertyCategoryPage() {
     handleCategoryMapping,
     handleEdit,
     handleDelete,
-    mutateCategories, // ✅ now included
+    mutateCategories,
   } = usePropertyCategories()
 
   // ✅ Columns definition
+
   const columns = useMemo(
     () => [
-      { key: 'name', header: 'Property Category' },
-      { key: 'description', header: 'Description' },
-      { key: 'sortOrder', header: 'Sort Order' },
       {
-        key: 'actions',
-        header: 'Actions',
-        render: (row: PropertyCategory) => (
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => handleCategoryMapping(row.id)}
-              className="p-1.5 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50 cursor-pointer transition"
-              title="Category Mappings"
-            >
-              <Settings size={16} />
-            </button>
-            <button
-              onClick={() => handleEdit(row.id)}
-              className="p-1.5 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50 cursor-pointer transition"
-              title="Edit"
-            >
-              <Edit3 size={16} />
-            </button>
-            <button
-              onClick={() => handleDelete(row.id, !row.isActive)}
-              className="p-1.5 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50 cursor-pointer transition"
-              title="Delete"
-            >
-              <Trash2 size={16} />
-            </button>
-          </div>
-        ),
+        field: 'name',
+        title: 'Property Category',
+        sortable: true,
+        filterable: true,
+      },
+      {
+        field: 'description',
+        title: 'Description',
+        sortable: true,
+        filterable: true,
+      },
+      {
+        field: 'sortOrder',
+        title: 'Sort Order',
+        sortable: true,
+        filterable: true,
       },
     ],
-    [handleEdit, handleDelete, handleCategoryMapping], // ✅ added missing dependency
+    [],
   )
+
+  const actions = useMemo(
+    () => [
+      {
+        label: 'Settings',
+        icon: Settings,
+        onClick: (row: PropertyCategoryTableRow) =>
+          handleCategoryMapping(row.id),
+        color: '#1e6897',
+      },
+      {
+        label: 'Edit',
+        icon: Edit3,
+        onClick: (row: PropertyCategoryTableRow) => {
+          void handleEdit(row.id)
+        },
+        color: '#1e6897',
+      },
+      {
+        label: 'Delete',
+        icon: Trash2,
+        onClick: (row: PropertyCategoryTableRow) => {
+          void handleDelete(row.id, !row.isActive)
+        },
+        color: '#e02424',
+      },
+    ],
+    [handleDelete, handleEdit, handleCategoryMapping],
+  )
+
+  const fetchCategories = useCallback(async () => {
+    const latestCategories = (categories ?? []) as PropertyCategoryTableRow[]
+
+    return {
+      data: latestCategories,
+      totalItems: latestCategories.length,
+    }
+  }, [categories])
 
   // ✅ Handle loading and error states
   if (error)
@@ -82,18 +107,23 @@ export default function PropertyCategoryPage() {
         <h1 className="text-xl font-semibold text-gray-800">
           Property Categories
         </h1>
-        <button
+        <Button
+          type="button"
           onClick={handleAdd}
-          className="flex items-center gap-2 bg-[#7B1E1E] hover:bg-[#641717] cursor-pointer text-white px-4 py-2 rounded-md text-sm font-medium shadow-md transition"
+          className="flex items-center gap-2 bg-[#7B1E1E] px-4 py-2 text-sm font-medium text-white rounded-md shadow-md hover:bg-[#641717] transition"
         >
-          <Plus size={16} /> Add Category
-        </button>
+          <Plus size={16} /> Add Property Category
+        </Button>
       </div>
-
-      {/* Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-        <Table<PropertyCategory> columns={columns} data={categories} />
-      </div>
+      <DataTable<PropertyCategoryTableRow>
+        columns={columns}
+        actions={actions}
+        fetchData={fetchCategories}
+        loading={isLoading}
+        allowExport
+        allowGrouping
+        allowRefresh
+      />
     </div>
   )
 }

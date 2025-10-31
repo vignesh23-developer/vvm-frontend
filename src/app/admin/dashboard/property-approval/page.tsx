@@ -1,41 +1,61 @@
 'use client'
 
-import { Plus, Settings, Edit3, Trash2 } from 'lucide-react'
-import { useMemo } from 'react'
-import Table from '@/components/ui/CustomComponent/Table/Table'
+import { Edit3 } from 'lucide-react'
+import { useCallback, useMemo } from 'react'
 import {
   usePropertyApprovals,
   PropertyApproval,
 } from '@/hooks/CustomHooks/usePropertyApproval'
+import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
 
+type PropertyApprovalTableRow = PropertyApproval & Record<string, unknown>
 export default function PropertyApprovalPage() {
-  const { approvals, error, isLoading, handleEdit, mutateApprovals } =
+  const { approvals, total, error, isLoading, handleEdit } =
     usePropertyApprovals()
 
-  // ✅ Columns definition
   const columns = useMemo(
     () => [
-      { key: 'name', header: 'Property Category' },
-      { key: 'description', header: 'Description' },
-      { key: 'sortOrder', header: 'Sort Order' },
       {
-        key: 'actions',
-        header: 'Actions',
-        render: (row: PropertyApproval) => (
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => handleEdit(row.id)}
-              className="p-1.5 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50 cursor-pointer transition"
-              title="Edit"
-            >
-              <Edit3 size={16} />
-            </button>
-          </div>
-        ),
+        field: 'name',
+        title: 'Property Category',
+        sortable: true,
+        filterable: true,
+      },
+      {
+        field: 'description',
+        title: 'Description',
+        sortable: true,
+        filterable: true,
+      },
+      {
+        field: 'sortOrder',
+        title: 'Sort Order',
+        sortable: true,
+        filterable: true,
+      },
+    ],
+    [],
+  )
+
+  const actions = useMemo(
+    () => [
+      {
+        label: 'Edit',
+        icon: Edit3,
+        onClick: (row: PropertyApprovalTableRow) => handleEdit(row.id),
+        color: '#1e6897',
       },
     ],
     [handleEdit],
   )
+  const fetchApprovals = useCallback(async () => {
+    const latestApprovals = (approvals ?? []) as PropertyApprovalTableRow[]
+
+    return {
+      data: latestApprovals,
+      totalItems: latestApprovals.length,
+    }
+  }, [approvals])
 
   // ✅ Handle loading and error states
   if (error)
@@ -62,7 +82,15 @@ export default function PropertyApprovalPage() {
 
       {/* Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-        <Table<PropertyApproval> columns={columns} data={approvals} />
+        <DataTable<PropertyApprovalTableRow>
+          columns={columns}
+          actions={actions}
+          fetchData={fetchApprovals}
+          loading={isLoading}
+          allowExport
+          allowGrouping
+          allowRefresh
+        />
       </div>
     </div>
   )

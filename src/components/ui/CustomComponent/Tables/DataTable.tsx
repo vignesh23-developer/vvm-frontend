@@ -14,6 +14,12 @@ interface Html2PdfWorker {
 
 type Html2PdfFn = (options?: Partial<Html2PdfOptions>) => Html2PdfWorker
 
+declare global {
+  interface Window {
+    html2pdf?: Html2PdfFn
+  }
+}
+
 type RowData = Record<string, unknown>
 
 interface Column<T extends RowData = RowData> {
@@ -74,6 +80,7 @@ interface DataTableProps<T extends RowData = RowData> {
   initialSort?: SortConfig
   initialFilters?: Record<string, string>
   colors?: DataTableColors
+  onRefresh?: () => Promise<void> | void
 }
 
 // Utility helpers for exporting data
@@ -278,11 +285,7 @@ const exportToPDF = async (
   document.body.appendChild(element)
 
   try {
-    const html2pdfModule = await import('html2pdf.js')
-    const html2pdf: Html2PdfFn =
-      (html2pdfModule as { default?: Html2PdfFn }).default ??
-      (html2pdfModule as unknown as Html2PdfFn)
-
+    const html2pdf = await loadHtml2Pdf()
     await html2pdf().from(element).set(opt).save()
   } catch (error) {
     // Surface errors so callers can decide how to notify users.
@@ -293,6 +296,50 @@ const exportToPDF = async (
   } finally {
     document.body.removeChild(element)
   }
+}
+
+const loadHtml2Pdf = async (): Promise<Html2PdfFn> => {
+  if (typeof window === 'undefined') {
+    throw new Error('html2pdf can only be loaded in the browser')
+  }
+
+  if (window.html2pdf) {
+    return window.html2pdf
+  }
+
+  await new Promise<void>((resolve, reject) => {
+    const existingScript = document.querySelector(
+      'script[data-html2pdf="true"]',
+    ) as HTMLScriptElement | null
+
+    if (existingScript) {
+      existingScript.addEventListener('load', () => resolve(), {
+        once: true,
+      })
+      existingScript.addEventListener('error', () =>
+        reject(new Error('Failed to load html2pdf library')),
+      )
+      return
+    }
+
+    const script = document.createElement('script')
+    script.src =
+      'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
+    script.async = true
+    script.dataset.html2pdf = 'true'
+
+    script.onload = () => resolve()
+    script.onerror = () =>
+      reject(new Error('Failed to load html2pdf library from CDN'))
+
+    document.body.appendChild(script)
+  })
+
+  if (!window.html2pdf) {
+    throw new Error('html2pdf library failed to initialize')
+  }
+
+  return window.html2pdf
 }
 
 const defaultColors: DataTableColors = {
@@ -314,7 +361,7 @@ const DataTable = <T extends RowData = RowData>({
   columns: initialColumns,
   fetchData,
   actions = [],
-  loading: externalLoading = false,
+  loading: externalLoading = true,
   initialPage = 1,
   pageSize = 10,
   pageSizeOptions = [5, 10, 25, 50, 100],
@@ -332,6 +379,7 @@ const DataTable = <T extends RowData = RowData>({
   initialSort = { field: '', direction: 'asc' },
   initialFilters = {},
   colors = defaultColors,
+  onRefresh,
 }: DataTableProps<T>) => {
   // State for columns configuration
   const [columns, setColumns] = useState<Column<T>[]>(() => {
@@ -485,14 +533,10 @@ const DataTable = <T extends RowData = RowData>({
   )
 
   const loadData = useCallback(async () => {
-    if (!shouldReload) {
-      return
-    }
-
     setLoading(true)
     try {
       const result = await fetchData()
-      const rows = result.data ?? []
+      const rows = result?.data ?? []
 
       setAllData(rows)
       setError(undefined)
@@ -506,22 +550,30 @@ const DataTable = <T extends RowData = RowData>({
       }
     } finally {
       setLoading(false)
-      setShouldReload(false)
     }
   }, [
     applyFiltersAndSort,
     fetchData,
     filters,
     onError,
-    shouldReload,
     sortDirection,
     sortField,
   ])
 
-  // Effects to handle data loading and processing
   useEffect(() => {
-    loadData()
-  }, [loadData])
+    if (!shouldReload) {
+      return
+    }
+
+    void (async () => {
+      await loadData()
+      setShouldReload(false)
+    })()
+  }, [loadData, shouldReload])
+
+  useEffect(() => {
+    setShouldReload(true)
+  }, [fetchData])
 
   useEffect(() => {
     applyFiltersAndSort(allData, filters, sortField, sortDirection)
@@ -642,6 +694,9 @@ const DataTable = <T extends RowData = RowData>({
 
   // Refresh data
   const handleRefresh = () => {
+    // if (onRefresh) {
+    //   void onRefresh()
+    // }
     setShouldReload(true)
     loadData()
   }

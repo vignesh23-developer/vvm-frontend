@@ -155,6 +155,7 @@
     "gated_security": "வாயில் பாதுகாப்பு",
     "description": "விளக்கம்",
     "amenities": "வசதிகள்",
+    "report_property": "அறிக்கை",
     "agent": "முகவர்"
   },
   "PropertiesFilter": {

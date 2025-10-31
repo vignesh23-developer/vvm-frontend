@@ -1,55 +1,81 @@
 'use client'
 
 import { Plus, Edit3, Trash2 } from 'lucide-react'
-import { useMemo } from 'react'
-import Table from '@/components/ui/CustomComponent/Table/Table'
+import { useCallback, useMemo } from 'react'
+import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
 import {
   useFeatureGroup,
   FeatureGroup,
 } from '@/hooks/CustomHooks/useFeatureGroup'
 
+type FeatureGroupTableRow = FeatureGroup & Record<string, unknown>
+
 export default function FeatureGroupPage() {
   const {
-    categories,
+    groups,
     error,
     isLoading,
     handleAdd,
     handleEdit,
     handleDelete,
-    mutateCategories, // ✅ now included
+    mutateGroups, // ✅ now included
   } = useFeatureGroup()
 
   // ✅ Columns definition
+
   const columns = useMemo(
     () => [
-      { key: 'name', header: 'Name' },
-      { key: 'icon', header: 'Icon' },
-      { key: 'sortOrder', header: 'Sort Order' },
       {
-        key: 'actions',
-        header: 'Actions',
-        render: (row: FeatureGroup) => (
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => handleEdit(row.id)}
-              className="p-1.5 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50 cursor-pointer transition"
-              title="Edit"
-            >
-              <Edit3 size={16} />
-            </button>
-            <button
-              onClick={() => handleDelete(row.id, !row.isActive)}
-              className="p-1.5 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50 cursor-pointer transition"
-              title="Delete"
-            >
-              <Trash2 size={16} />
-            </button>
-          </div>
-        ),
+        field: 'name',
+        title: 'Feature Group',
+        sortable: true,
+        filterable: true,
+      },
+      {
+        field: 'icon',
+        title: 'Icon',
+        sortable: true,
+        filterable: true,
+      },
+      {
+        field: 'sortOrder',
+        title: 'Sort Order',
+        sortable: true,
+        filterable: true,
       },
     ],
-    [handleEdit, handleDelete], // ✅ added missing dependency
+    [],
   )
+
+  const actions = useMemo(
+    () => [
+      {
+        label: 'Edit',
+        icon: Edit3,
+        onClick: (row: FeatureGroupTableRow) => {
+          void handleEdit(row.id)
+        },
+        color: '#1e6897',
+      },
+      {
+        label: 'Delete',
+        icon: Trash2,
+        onClick: (row: FeatureGroupTableRow) => {
+          void handleDelete(row.id, !row.isActive)
+        },
+        color: '#e02424',
+      },
+    ],
+    [handleDelete, handleEdit],
+  )
+
+  const fetchGroups = useCallback(async () => {
+    const latestGroups = (groups ?? []) as FeatureGroupTableRow[]
+    return {
+      data: latestGroups,
+      totalItems: latestGroups.length,
+    }
+  }, [groups])
 
   // ✅ Handle loading and error states
   if (error)
@@ -78,7 +104,15 @@ export default function FeatureGroupPage() {
 
       {/* Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-        <Table<FeatureGroup> columns={columns} data={categories} />
+        <DataTable<FeatureGroupTableRow>
+          columns={columns}
+          actions={actions}
+          fetchData={fetchGroups}
+          loading={isLoading}
+          allowExport
+          allowGrouping
+          allowRefresh
+        />
       </div>
     </div>
   )

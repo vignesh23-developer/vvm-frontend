@@ -2,19 +2,40 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import FeatureCategoryForm, {
+import FeatureCategoryForm from '@/app/admin/dashboard/(master)/feature-category/(forms)/FeatureCategoryForm'
+import type {
   FeatureCategory,
-} from '@/components/admin/forms/FeatureCategoryForm'
+  FeatureCategoryFormValues,
+  FeatureInputType,
+} from '@/app/admin/dashboard/(master)/feature-category/(dto)/featureCategoryType'
 import { getMethod, patchMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import toast from 'react-hot-toast'
 
+const resolveInputType = (value?: string): FeatureInputType => {
+  const allowed: FeatureInputType[] = [
+    'single_select',
+    'multi_select',
+    'text',
+    'numeric',
+    'boolean',
+    'units',
+  ]
+
+  if (!value) {
+    return 'single_select'
+  }
+
+  return allowed.includes(value as FeatureInputType)
+    ? (value as FeatureInputType)
+    : 'single_select'
+}
+
 export default function EditFeatureCategory() {
   const router = useRouter()
   const { id } = useParams()
-  const [initialValues, setInitialValues] = useState<FeatureCategory | null>(
-    null,
-  )
+  const [initialValues, setInitialValues] =
+    useState<FeatureCategoryFormValues | null>(null)
   const [loading, setLoading] = useState(true)
 
   // ✅ Fetch existing feature category
@@ -29,39 +50,36 @@ export default function EditFeatureCategory() {
           return
         }
 
-        const data = res.data
-        // Ensure safe structure
+        const data = res.data as FeatureCategory
+
+        const sanitizedOptions: FeatureCategoryFormValues['options'] =
+          Array.isArray(data?.options) && data.options.length > 0
+            ? data.options.map((opt: any, index: number) => ({
+                id: opt?.id,
+                name: opt?.name ?? '',
+                value:
+                  opt?.value &&
+                  typeof opt.value === 'string' &&
+                  opt.value.trim()
+                    ? opt.value
+                    : opt?.name ?? '',
+                icon: opt?.icon ?? '',
+                sortOrder: opt?.sortOrder ?? index + 1,
+                isActive: opt?.isActive ?? true,
+              }))
+            : []
+
         setInitialValues({
-          id: data.id,
-          code: data.code || '',
-          name: data.name || '',
-          description: data.description || '',
-          featureGroupId: data.featureGroupId || '',
-          featureGroupName: data.featureGroupName || '',
-          featureGroupSortOrder: data.featureGroupSortOrder || '',
-          inputType: data.inputType || 'single_select',
-          isFilterable: data.isFilterable ?? false,
-          isMandatory: data.isMandatory ?? false,
-          sortOrder: data.sortOrder || 1,
-          options:
-            data.options && data.options.length > 0
-              ? data.options.map((opt: any) => ({
-                  id: opt.id,
-                  name: opt.name,
-                  value: opt.name,
-                  icon: opt.icon || '',
-                  sortOrder: opt.sortOrder,
-                  isActive: opt.isActive,
-                }))
-              : [
-                  {
-                    name: '',
-                    value: '',
-                    icon: '',
-                    sortOrder: 1,
-                    isActive: true,
-                  },
-                ],
+          id: data?.id,
+          code: data?.code ?? '',
+          name: data?.name ?? '',
+          description: data?.description ?? '',
+          featureGroupId: data?.featureGroupId ?? '',
+          inputType: resolveInputType(data?.inputType),
+          isFilterable: data?.isFilterable ?? false,
+          isMandatory: data?.isMandatory ?? false,
+          sortOrder: data?.sortOrder ?? 1,
+          options: sanitizedOptions,
         })
       } catch (error) {
         console.error('Fetch error:', error)
@@ -75,7 +93,7 @@ export default function EditFeatureCategory() {
   }, [id])
 
   // ✅ Handle form submit (UPDATE)
-  const handleSubmit = async (values: FeatureCategory) => {
+  const handleSubmit = async (values: FeatureCategoryFormValues) => {
     try {
       const payload = {
         name: values.name,
@@ -86,15 +104,19 @@ export default function EditFeatureCategory() {
         description: values.description,
         featureGroupId: values.featureGroupId,
         options:
-          values.inputType === 'text' || values.inputType === 'number'
+          values.inputType === 'text' ||
+          values.inputType === 'numeric' ||
+          values.inputType === 'boolean' ||
+          values.inputType === 'units'
             ? []
-            : values.options.map(opt => ({
-                id: opt.id,
-                name: opt.name,
-                value: opt.name,
-                icon: opt.icon || '',
-                sortOrder: opt.sortOrder,
-                isActive: opt.isActive,
+            : (values.options ?? []).map(opt => ({
+                id: opt?.id,
+                name: opt?.name ?? '',
+                value:
+                  opt?.value && opt.value.trim() ? opt.value : opt?.name ?? '',
+                icon: opt?.icon ?? '',
+                sortOrder: opt?.sortOrder ?? 1,
+                isActive: opt?.isActive ?? true,
               })),
       }
 

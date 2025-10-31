@@ -1,14 +1,12 @@
 'use client'
 
 import { Plus, Edit3, Trash2 } from 'lucide-react'
-import { useMemo, useState } from 'react'
-import Table from '@/components/ui/CustomComponent/Table/Table'
-import {
-  useFeatureCategories,
-  FeatureCategory,
-} from '@/hooks/CustomHooks/useFeatureCategories'
-// import IconPicker from '@/components/ui/CustomComponent/IconPicker/IconPicker'
+import { useCallback, useMemo, useState } from 'react'
+import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
+import { useFeatureCategories } from '@/app/admin/dashboard/(master)/feature-category/(hooks)/useFeatureCategories'
+import { FeatureCategory } from '@/app/admin/dashboard/(master)/feature-category/(dto)/featureCategoryType'
 
+type FeatureCategoryTableRow = FeatureCategory & Record<string, unknown>
 export default function FeatureCategoryPage() {
   const { categories, error, isLoading, handleAdd, handleEdit, handleDelete } =
     useFeatureCategories()
@@ -17,35 +15,52 @@ export default function FeatureCategoryPage() {
 
   const columns = useMemo(
     () => [
-      { key: 'code', header: 'Code' },
-      { key: 'name', header: 'Feature Category' },
       {
-        key: 'actions',
-        header: 'Actions',
-        render: (row: FeatureCategory) => (
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => handleEdit(row.id)}
-              className="p-1.5 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50 cursor-pointer transition"
-              aria-label={`Edit ${row.name}`}
-              title="Edit"
-            >
-              <Edit3 size={16} />
-            </button>
-            <button
-              onClick={() => handleDelete(row.id, !row.isActive)}
-              className="p-1.5 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50 cursor-pointer transition"
-              aria-label={`Delete ${row.name}`}
-              title="Delete"
-            >
-              <Trash2 size={16} />
-            </button>
-          </div>
-        ),
+        field: 'code',
+        title: 'Code',
+        sortable: true,
+        filterable: true,
+      },
+      {
+        field: 'name',
+        title: 'Feature Category',
+        sortable: true,
+        filterable: true,
       },
     ],
-    [handleEdit, handleDelete],
+    [],
   )
+
+  const actions = useMemo(
+    () => [
+      {
+        label: 'Edit',
+        icon: Edit3,
+        onClick: (row: FeatureCategoryTableRow) => {
+          void handleEdit(row.id)
+        },
+        color: '#1e6897',
+      },
+      {
+        label: 'Delete',
+        icon: Trash2,
+        onClick: (row: FeatureCategoryTableRow) => {
+          void handleDelete(row.id, !row.isActive)
+        },
+        color: '#e02424',
+      },
+    ],
+    [handleDelete, handleEdit],
+  )
+
+  const fetchCategories = useCallback(async () => {
+    const latestCategories = (categories ?? []) as FeatureCategoryTableRow[]
+
+    return {
+      data: latestCategories,
+      totalItems: latestCategories.length,
+    }
+  }, [categories])
 
   if (error)
     return (
@@ -65,14 +80,6 @@ export default function FeatureCategoryPage() {
         <h1 className="text-xl font-semibold text-gray-800">
           Feature Categories
         </h1>
-
-        {/* <div className="p-6">
-          <h1 className="text-lg font-semibold mb-4">
-            Lucide Icon Picker Demo
-          </h1>
-          <IconPicker value={icon} onChange={setIcon} />
-          {icon && <p className="mt-3 text-gray-700">Selected Icon: {icon}</p>}
-        </div> */}
         <button
           onClick={handleAdd}
           className="flex items-center gap-2 bg-[#7B1E1E] hover:bg-[#641717] cursor-pointer text-white px-4 py-2 rounded-md text-sm font-medium shadow-md transition"
@@ -83,7 +90,15 @@ export default function FeatureCategoryPage() {
 
       {/* Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-        <Table<FeatureCategory> columns={columns} data={categories} />
+        <DataTable<FeatureCategoryTableRow>
+          columns={columns}
+          actions={actions}
+          fetchData={fetchCategories}
+          loading={isLoading}
+          allowExport
+          allowGrouping
+          allowRefresh
+        />
       </div>
     </div>
   )

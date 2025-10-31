@@ -21,7 +21,7 @@ export const appEndpoints = {
   getRoleByID: (roleId: string) => `/roles/${roleId}`,
   updateRole: (roleId: string) => `/roles/${roleId}`,
   deleteRole: (roleId: string) => `/roles/${roleId}`,
-  // Property Endpoints
+  // Properties Endpoints
   createProperty: '/properties',
   getAllProperties: '/properties',
   getPropertyByID: (propertyId: string) => `/properties/${propertyId}`,

@@ -1,7 +1,7 @@
 import React from 'react'
 import FormikTextField from '../../ui/Formik/FormikTextField/FormikTextField'
 import { useFormikContext } from 'formik'
-import { usePropertyCategories } from '@/hooks/CustomHooks/usePropertyCategories'
+import { usePropertyCategories } from '@/app/admin/dashboard/(master)/property-category/(hooks)/usePropertyCategories'
 
 const BasicDetailsStep1 = () => {
   const { values, errors, setFieldValue } = useFormikContext<any>()

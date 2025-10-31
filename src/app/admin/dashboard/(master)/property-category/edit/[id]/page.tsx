@@ -6,7 +6,7 @@ import { appEndpoints } from '@/services/endpoints'
 import { getMethod, patchMethod } from '@/services/service'
 import PropertyCategoryForm, {
   FormValues,
-} from '@/components/admin/forms/PropertyCategoryForm'
+} from '@/app/admin/dashboard/(master)/property-category/(forms)/PropertyCategoryForm'
 import toast from 'react-hot-toast'
 
 export default function EditPropertyCategory() {

@@ -1,41 +1,74 @@
 'use client'
 
+import { useState } from 'react'
 import { Formik, Form, FieldArray } from 'formik'
 import { useTranslations } from 'next-intl'
 import { MessageCircle } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { appEndpoints } from '@/services/endpoints'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
 import LanguageSwitch from '@/components/ui/CustomComponent/languageSwitch/languageSwitch'
 import { SignupSchema } from '@/utils/validations/auth/AuthValidationSchema'
+import { postMethod } from '@/services/service'
+import toast from 'react-hot-toast'
 
 interface SignupFormValues {
   firstName: string
   lastName: string
   phone: string
-  referral: string
+  email: string
   otp: string[]
 }
 
 export default function SignupPage() {
   const t = useTranslations()
+  const [buttonType, setButtonType] = useState<'sms' | 'whatsapp'>('sms')
 
   const initialValues: SignupFormValues = {
     firstName: '',
     lastName: '',
     phone: '',
-    referral: '',
+    email: '',
     otp: ['', '', '', '', '', ''],
   }
 
-  const handleSignupSubmit = (
+  const handleSignupSubmit = async (
     values: SignupFormValues,
     setSubmitting: (isSubmitting: boolean) => void,
+    buttonType: 'sms' | 'whatsapp',
   ) => {
     const otpValue = values.otp.join('')
-    console.log('Formik Submitted:', { ...values, otpValue })
-    setTimeout(() => setSubmitting(false), 1000)
+    console.log('Formik Submitted:', { ...values, otpValue, buttonType })
+
+    const payload = {
+      firstName: values.firstName,
+      lastName: values.lastName,
+      phoneNumber: values.phone,
+      email: values.email,
+      otp: otpValue,
+      otpType: buttonType === 'whatsapp' ? 'whatsapp_otp' : 'sms_otp',
+    }
+
+    try {
+      const response = await postMethod(appEndpoints.signUp, payload)
+
+      if (response.error) {
+        toast.error(response.message || 'Registration failed')
+        return
+      }
+
+      const message =
+        (response.data as { message?: string })?.message ??
+        'Registration successful'
+      toast.success(message)
+    } catch (error) {
+      console.error('Signup Error:', error)
+      toast.error('Registration failed')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -113,9 +146,9 @@ export default function SignupPage() {
           <Formik
             initialValues={initialValues}
             validationSchema={SignupSchema(t)}
-            onSubmit={(values, { setSubmitting }) =>
-              handleSignupSubmit(values, setSubmitting)
-            }
+            onSubmit={(values, { setSubmitting }) => {
+              handleSignupSubmit(values, setSubmitting, buttonType)
+            }}
           >
             {({ values, isSubmitting }) => (
               <Form className="mt-4 space-y-4">
@@ -157,10 +190,10 @@ export default function SignupPage() {
                   />
 
                   <FormikTextField
-                    label={t('form.referral_id.label')}
-                    type="text"
-                    name="referral"
-                    placeholder={t('form.referral_id.placeholder')}
+                    label={t('form.email.label')}
+                    type="email"
+                    name="email"
+                    placeholder={t('form.email.placeholder')}
                     className="w-full border border-gray-300 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-900"
                   />
                 </motion.div>

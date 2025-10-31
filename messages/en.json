@@ -153,6 +153,7 @@
     "gated_security": "Gated Security",
     "description" : "Description",
     "amenities": "Amenities",
+    "report_property": "Report",
     "agent" : "Agent"
   },
     "PropertiesFilter": {

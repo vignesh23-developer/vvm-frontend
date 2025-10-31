@@ -3,7 +3,6 @@
 import { Formik, Form, FieldArray } from 'formik'
 import { Trash2, GripVertical } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import * as Yup from 'yup'
 import useSWR from 'swr'
 import { useState } from 'react'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
@@ -12,101 +11,54 @@ import FormikSelectField from '@/components/ui/Formik/FormikSelectField/FormikSe
 import { getMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import FormikIconPickerField from '@/components/ui/Formik/FormikIconPickerField/FormikIconPickerField'
-
-/* ================================
-   ✅ Interfaces
-================================== */
-export interface FeatureOption {
-  id?: number
-  name: string
-  value: string
-  icon: string
-  sortOrder: number
-  isActive: boolean
-  featureCategoryId?: string
-}
-
-export interface FeatureCategory {
-  id?: number
-  code: string
-  name: string
-  description?: string
-  featureGroupId?: string
-  featureGroupName?: string
-  featureGroupSortOrder?: string
-  inputType:
-    | 'single_select'
-    | 'multi_select'
-    | 'text'
-    | 'numeric'
-    | 'boolean'
-    | 'units'
-    | string
-  isFilterable: boolean
-  isMandatory: boolean
-  sortOrder: number
-  options: FeatureOption[] // Always required as array
-}
-
-export interface FeatureGroup {
-  id: string
-  name: string
-}
-
-const validationSchema = Yup.object({
-  code: Yup.string().required('Code is required'),
-  name: Yup.string().required('Name is required'),
-  inputType: Yup.string().required('Input type is required'),
-  // options: Yup.array()
-  //   .of(
-  //     Yup.object({
-  //       name: Yup.string().required('Option name is required'),
-  //       value: Yup.string().required('Option value is required'),
-  //       sortOrder: Yup.number().required('Sort order is required'),
-  //       isActive: Yup.boolean(),
-  //     }),
-  //   )
-  //   .min(1, 'At least one option is required'),
-})
+import {
+  FeatureGroup,
+  FeatureCategoryFormValues,
+  FeatureOptionFormValue,
+} from '@/app/admin/dashboard/(master)/feature-category/(dto)/featureCategoryType'
+import { FeatureCategoryValidationSchema } from './FeatureCategoryValidation'
 
 export interface FeatureCategoryFormProps {
-  initialValues: FeatureCategory
-  onSubmit: (values: FeatureCategory) => Promise<void>
+  initialValues: FeatureCategoryFormValues
+  onSubmit: (values: FeatureCategoryFormValues) => Promise<void>
   submitLabel?: string
   isEdit?: boolean
 }
 
 const ensureOptionsArray = (
-  options: FeatureOption[] | undefined | null,
-): FeatureOption[] => {
-  if (options === null || options === undefined) {
+  options: FeatureCategoryFormValues['options'],
+): FeatureOptionFormValue[] => {
+  if (!Array.isArray(options) || options.length === 0) {
     return []
   }
 
-  if (!Array.isArray(options)) {
-    return []
-  }
-
-  return options
+  return options.map((option, index) => ({
+    id: option?.id,
+    name: option?.name ?? '',
+    value: option?.value ?? option?.name ?? '',
+    icon: option?.icon ?? '',
+    sortOrder: option?.sortOrder ?? index + 1,
+    isActive: option?.isActive ?? true,
+  }))
 }
 
 const createSafeInitialValues = (
-  initialValues: FeatureCategoryFormProps['initialValues'],
-): FeatureCategory => {
-  const safeValues: FeatureCategory = {
-    id: initialValues.id,
-    code: initialValues.code || '',
-    name: initialValues.name || '',
-    description: initialValues.description || '',
-    featureGroupId: initialValues.featureGroupId || '',
-    inputType: initialValues.inputType || '',
-    isFilterable: initialValues.isFilterable || false,
-    isMandatory: initialValues.isMandatory || false,
-    sortOrder: initialValues.sortOrder || 1,
-    options: ensureOptionsArray(initialValues.options),
-  }
+  initialValues: FeatureCategoryFormValues,
+): FeatureCategoryFormValues => {
+  const sanitizedOptions = ensureOptionsArray(initialValues.options)
 
-  return safeValues
+  return {
+    id: initialValues.id,
+    code: initialValues.code ?? '',
+    name: initialValues.name ?? '',
+    description: initialValues.description ?? '',
+    featureGroupId: initialValues.featureGroupId ?? '',
+    inputType: initialValues.inputType ?? '',
+    isFilterable: initialValues.isFilterable ?? false,
+    isMandatory: initialValues.isMandatory ?? false,
+    sortOrder: initialValues.sortOrder ?? 1,
+    options: sanitizedOptions,
+  }
 }
 
 export default function FeatureCategoryForm({
@@ -116,29 +68,23 @@ export default function FeatureCategoryForm({
   isEdit = false,
 }: FeatureCategoryFormProps) {
   const router = useRouter()
-
-  // Ensure options is always an array using factory function
   const safeInitialValues = createSafeInitialValues(initialValues)
-
-  // Drag and drop state - moved to component level
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
 
-  // Drag handlers - moved to component level
-  const handleDragStart = (e: React.DragEvent, index: number) => {
+  const handleDragStart = (event: React.DragEvent, index: number) => {
     setDraggedIndex(index)
-    e.dataTransfer.effectAllowed = 'move'
+    event.dataTransfer.effectAllowed = 'move'
   }
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.dataTransfer.dropEffect = 'move'
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault()
+    event.dataTransfer.dropEffect = 'move'
   }
 
   const handleDragEnd = () => {
     setDraggedIndex(null)
   }
 
-  // Fetcher using our generic API helper
   const fetcher = async (url: string): Promise<FeatureGroup[]> => {
     try {
       const response = await getMethod<FeatureGroup[]>(url)
@@ -152,7 +98,6 @@ export default function FeatureCategoryForm({
         return []
       }
 
-      // Safe extraction of data
       if (Array.isArray(response.data)) {
         return response.data
       }
@@ -165,7 +110,6 @@ export default function FeatureCategoryForm({
     }
   }
 
-  // ✅ Fetch Feature Groups
   const {
     data: featureGroups,
     error: groupError,
@@ -191,9 +135,9 @@ export default function FeatureCategoryForm({
   ]
 
   return (
-    <Formik
+    <Formik<FeatureCategoryFormValues>
       initialValues={safeInitialValues}
-      validationSchema={validationSchema}
+      validationSchema={FeatureCategoryValidationSchema}
       enableReinitialize
       onSubmit={onSubmit}
     >
@@ -304,7 +248,20 @@ export default function FeatureCategoryForm({
                         )
                       }
 
-                      const optionsArray = values.options
+                      const optionsArray: FeatureOptionFormValue[] =
+                        values.options ?? []
+
+                      const syncSortOrders = () => {
+                        if (!values.options) {
+                          return
+                        }
+
+                        values.options.forEach((option, idx) => {
+                          if (option) {
+                            option.sortOrder = idx + 1
+                          }
+                        })
+                      }
 
                       // Handle drop logic
                       const handleDrop = (
@@ -320,11 +277,7 @@ export default function FeatureCategoryForm({
                           move(draggedIndex, dropIndex)
 
                           // Update sort orders
-                          setTimeout(() => {
-                            optionsArray.forEach((_, idx) => {
-                              values.options[idx].sortOrder = idx + 1
-                            })
-                          }, 0)
+                          setTimeout(syncSortOrders, 0)
                         }
                         setDraggedIndex(null)
                       }
@@ -410,12 +363,7 @@ export default function FeatureCategoryForm({
                                     onClick={() => {
                                       remove(index)
                                       // Update sort orders after removal
-                                      setTimeout(() => {
-                                        values.options.forEach((_, idx) => {
-                                          values.options[idx].sortOrder =
-                                            idx + 1
-                                        })
-                                      }, 0)
+                                      setTimeout(syncSortOrders, 0)
                                     }}
                                     className="p-2 text-gray-400 hover:text-red-600 hover:bg-gray-100 rounded-lg transition-colors group"
                                     title="Remove option"

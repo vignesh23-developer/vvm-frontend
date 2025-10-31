@@ -46,10 +46,10 @@ export function useFeatureGroup() {
 
   // SWR handles caching, revalidation, and errors
   const {
-    data: categories,
+    data: groups,
     error,
     isLoading,
-    mutate: mutateCategories,
+    mutate: mutateGroups,
   } = useSWR<FeatureGroup[]>(`${appEndpoints.getAllFeatureGroups}`, fetcher)
 
   // CRUD handlers
@@ -72,7 +72,7 @@ export function useFeatureGroup() {
       )
 
       // ✅ Revalidate data after update
-      mutateCategories()
+      mutateGroups()
 
       toast.success(`Category ${newStatus ? 'activated' : 'deactivated'}!`)
     } catch (err) {
@@ -82,12 +82,12 @@ export function useFeatureGroup() {
   }
 
   return {
-    categories: categories ?? [],
+    groups: groups ?? [],
     error,
     isLoading,
     handleAdd,
     handleEdit,
     handleDelete,
-    mutateCategories,
+    mutateGroups,
   }
 }

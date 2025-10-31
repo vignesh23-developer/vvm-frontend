@@ -15,8 +15,8 @@ import ta from '../../../messages/ta.json'
 const messagesMap: Record<string, any> = { en, ta }
 
 type TranslationContextType = {
-  locale: 'en' | 'ta'
-  setLocale: (locale: 'en' | 'ta') => void
+  locale: 'ta' | 'en'
+  setLocale: (locale: 'ta' | 'en') => void
 }
 
 const TranslationContext = createContext<TranslationContextType | undefined>(
@@ -37,16 +37,16 @@ export default function TranslationProvider({
 }: {
   children: ReactNode
 }) {
-  const [locale, setLocaleState] = useState<'en' | 'ta'>('ta')
+  const [locale, setLocaleState] = useState<'ta' | 'en'>('ta')
   const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
-    const savedLocale = (localStorage.getItem('locale') as 'en' | 'ta') || 'ta'
+    const savedLocale = (localStorage.getItem('locale') as 'ta' | 'en') || 'ta'
     setLocaleState(savedLocale)
     setIsClient(true)
   }, [])
 
-  const setLocale = (newLocale: 'en' | 'ta') => {
+  const setLocale = (newLocale: 'ta' | 'en') => {
     setLocaleState(newLocale)
     localStorage.setItem('locale', newLocale)
   }

@@ -8,7 +8,7 @@ import RoleManagementForm, {
   FormValues,
 } from '@/components/admin/forms/RoleManagementForm'
 import toast from 'react-hot-toast'
-import PropertyCategoryForm from '@/components/admin/forms/PropertyCategoryForm'
+import PropertyCategoryForm from '@/app/admin/dashboard/(master)/property-category/(forms)/PropertyCategoryForm'
 
 export default function EditRoleManagement() {
   const router = useRouter()

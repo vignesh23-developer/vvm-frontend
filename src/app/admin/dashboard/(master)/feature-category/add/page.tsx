@@ -1,9 +1,11 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import FeatureCategoryForm, {
+import FeatureCategoryForm from '@/app/admin/dashboard/(master)/feature-category/(forms)/FeatureCategoryForm'
+import type {
   FeatureCategory,
-} from '@/components/admin/forms/FeatureCategoryForm'
+  FeatureCategoryFormValues,
+} from '@/app/admin/dashboard/(master)/feature-category/(dto)/featureCategoryType'
 import { postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import toast from 'react-hot-toast'
@@ -11,7 +13,7 @@ import toast from 'react-hot-toast'
 export default function AddFeatureCategory() {
   const router = useRouter()
 
-  const initialValues: FeatureCategory = {
+  const initialValues: FeatureCategoryFormValues = {
     code: '',
     name: '',
     description: '',
@@ -24,7 +26,7 @@ export default function AddFeatureCategory() {
   }
 
   // ✅ Handle form submit
-  const handleSubmit = async (values: FeatureCategory) => {
+  const handleSubmit = async (values: FeatureCategoryFormValues) => {
     try {
       // ✅ Prepare payload
       const payload = {
@@ -35,12 +37,13 @@ export default function AddFeatureCategory() {
           values.inputType === 'boolean' ||
           values.inputType === 'units'
             ? [] // No options for text/number types
-            : values.options.map(opt => ({
-                name: opt.name,
-                value: opt.name, // fallback if value not set
-                icon: opt.icon || '',
-                sortOrder: opt.sortOrder,
-                isActive: opt.isActive,
+            : (values.options ?? []).map(opt => ({
+                name: opt?.name ?? '',
+                value:
+                  opt?.value && opt.value.trim() ? opt.value : opt?.name ?? '',
+                icon: opt?.icon ?? '',
+                sortOrder: opt?.sortOrder ?? 1,
+                isActive: opt?.isActive ?? true,
               })),
       }
 

@@ -1,11 +1,22 @@
 'use client'
 
+import { useState } from 'react'
 import Image from 'next/image'
-import { Heart, Share2, BedDouble, Bath, Building, Sofa } from 'lucide-react'
-import Amenities from '../../../../components/buyer/Amenities/Amenities'
+import { useParams } from 'next/navigation'
+import {
+  Heart,
+  Share2,
+  BedDouble,
+  Bath,
+  Building,
+  Sofa,
+  Flag,
+} from 'lucide-react'
+import Amenities from '@/components/buyer/Amenities/Amenities'
 import { useTranslations } from 'next-intl'
 import { motion, Variants } from 'framer-motion'
-
+import Button from '@/components/ui/CustomComponent/Button/Button'
+import ReportPropertyModal from './modal/ReportPropertyModal'
 // Reusable animation variants
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 40 },
@@ -24,7 +35,11 @@ const staggerContainer: Variants = {
 
 const page = () => {
   const t = useTranslations()
+  const params = useParams()
+  const propertyId = params.id
+  const [reportModalOpen, setReportModalOpen] = useState(false)
 
+  console.log('Property ID:', propertyId)
   return (
     <motion.main
       initial="hidden"
@@ -256,16 +271,41 @@ const page = () => {
               {t('PropertiesDetails.name')}: Shankar
             </p>
             <p className="text-gray-700 mb-4">+91 1234567890</p>
-            <motion.button
-              whileHover={{
-                scale: 1.05,
-                backgroundColor: '#241810',
-              }}
-              transition={{ duration: 0.3 }}
-              className="w-full bg-[#3A2A20] text-white px-4 py-2 rounded-lg shadow-md transition font-medium"
-            >
-              {t('PropertiesDetails.contact_owner')}
-            </motion.button>
+
+            <div className="space-y-3">
+              <motion.div
+                whileHover={{
+                  scale: 1.05,
+                  backgroundColor: '#3B2B2A',
+                }}
+                transition={{ duration: 0.3 }}
+              >
+                <Button
+                  type="button"
+                  onClick={() => {}}
+                  className="w-full bg-[#4E3B39] text-white px-4 py-2 rounded-lg shadow-md transition font-medium"
+                >
+                  {t('PropertiesDetails.contact_owner')}
+                </Button>
+              </motion.div>
+
+              <motion.div
+                whileHover={{
+                  scale: 1.05,
+                  backgroundColor: '#C53030',
+                }}
+                transition={{ duration: 0.3 }}
+              >
+                <Button
+                  type="button"
+                  onClick={() => setReportModalOpen(true)}
+                  className="w-full bg-[#A21B1B] text-white px-4 py-2 rounded-lg shadow-md transition font-medium"
+                >
+                  <Flag size={18} className="inline mr-2" />
+                  {t('PropertiesDetails.report_property') || 'Report'}
+                </Button>
+              </motion.div>
+            </div>
           </motion.div>
 
           {/* Agents */}
@@ -292,6 +332,11 @@ const page = () => {
             ))}
           </motion.div>
         </motion.aside>
+        <ReportPropertyModal
+          reportModalOpen={reportModalOpen}
+          setReportModalOpen={setReportModalOpen}
+          propertyId={String(propertyId)}
+        />
       </div>
     </motion.main>
   )

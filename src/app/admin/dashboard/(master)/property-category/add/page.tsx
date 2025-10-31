@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import PropertyCategoryForm, {
   FormValues,
-} from '@/components/admin/forms/PropertyCategoryForm'
+} from '@/app/admin/dashboard/(master)/property-category/(forms)/PropertyCategoryForm'
 import { appEndpoints } from '@/services/endpoints'
 import { postMethod } from '@/services/service'
 import toast from 'react-hot-toast'
