@@ -43,10 +43,7 @@ export function useFeatureCategories() {
     error,
     isLoading,
     mutate: mutateCategories,
-  } = useSWR<FeatureCategory[]>(
-    `${appEndpoints.getAllFeatureCategories}?activeOnly=true`,
-    fetcher,
-  )
+  } = useSWR<FeatureCategory[]>(`${appEndpoints.getAllFeatureCategories}?activeOnly=true`, fetcher)
 
   console.log('useFeatureCategories - categories:', categories)
   // CRUD Operations
@@ -68,12 +65,7 @@ export function useFeatureCategories() {
   const handleDelete = async (id: number, newStatus: boolean) => {
     try {
       // ✅ Call your API helper
-      await patchMethod(
-        `${appEndpoints.updateFeatureCategoryStatus(
-          id.toString(),
-        )}?isActive=${newStatus}`,
-        false,
-      )
+      await patchMethod(`${appEndpoints.updateFeatureCategoryStatus(id.toString())}?isActive=${newStatus}`)
 
       // ✅ Revalidate SWR data
       mutateCategories()

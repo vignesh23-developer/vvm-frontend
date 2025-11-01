@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation'
 import { useTranslationContext } from '@/hooks/Translation/TranslationProvider'
 import { useTranslations } from 'next-intl'
 import LanguageSwitch from '@/components/ui/CustomComponent/languageSwitch/languageSwitch'
+import { removeLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
+import Button from '@/components/ui/CustomComponent/Button/Button'
 
 export interface NavLink {
   label: string
@@ -55,15 +57,13 @@ export default function Navbar({
   }
 
   const handleLogout = () => {
-    console.log('User logged out')
+    // Clear auth token and redirect to login
+    removeLocalStorageItem('authToken')
     router.push('/login')
   }
 
   return (
-    <nav
-      className="sticky top-0 z-50 shadow-md text-white transition-colors duration-300"
-      style={{ backgroundColor: bgColor }}
-    >
+    <nav className="sticky top-0 z-50 shadow-md text-white transition-colors duration-300" style={{ backgroundColor: bgColor }}>
       <div className="flex items-center justify-between px-4 sm:px-6 md:px-8 lg:px-12 py-3 md:py-4">
         {/* Logo */}
         <Link href="/home" className="flex items-center">
@@ -82,10 +82,7 @@ export default function Navbar({
         <div className="hidden md:flex items-center gap-6 lg:gap-8 xl:gap-10">
           {navLinks.map(({ label, href, subMenu }) => (
             <div key={href} className="relative group">
-              <Link
-                href={href}
-                className="relative text-sm md:text-base font-medium hover:text-gray-300 transition"
-              >
+              <Link href={href} className="relative text-sm md:text-base font-medium hover:text-gray-300 transition">
                 {t(`Navbar.${label}`)}
                 <span className="absolute left-0 -bottom-1 h-[2px] w-0 bg-white group-hover:w-full transition-all duration-300"></span>
               </Link>
@@ -94,11 +91,7 @@ export default function Navbar({
               {subMenu && subMenu.length > 0 && (
                 <div className="absolute left-0 top-full mt-2 bg-white text-[#3b1804] rounded-lg shadow-lg w-56 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 translate-y-2 transition-all duration-200 z-50">
                   {subMenu.map(sub => (
-                    <Link
-                      key={sub.href}
-                      href={sub.href}
-                      className="block px-4 py-2 text-sm hover:bg-gray-100 transition"
-                    >
+                    <Link key={sub.href} href={sub.href} className="block px-4 py-2 text-sm hover:bg-gray-100 transition">
                       {t(`Navbar.subMenus.${sub.label}`)}
                     </Link>
                   ))}
@@ -118,34 +111,20 @@ export default function Navbar({
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
                 className="flex items-center gap-2 bg-white text-[#3b1804] p-1.5 rounded-full hover:bg-gray-200 transition"
               >
-                <Image
-                  src={user.avatar || '/default-avatar.png'}
-                  alt="User Avatar"
-                  width={32}
-                  height={32}
-                  className="rounded-full"
-                />
+                <Image src={user.avatar || '/default-avatar.png'} alt="User Avatar" width={32} height={32} className="rounded-full" />
               </button>
 
               {isProfileOpen && (
                 <div className="absolute right-0 mt-2 bg-white text-[#3b1804] rounded-lg shadow-lg w-44 py-2 z-50">
                   <div className="px-4 py-2 border-b border-gray-200">
-                    <span className="font-semibold text-sm truncate block">
-                      {user.name}
-                    </span>
+                    <span className="font-semibold text-sm truncate block">{user.name}</span>
                   </div>
-                  <Link
-                    href="/profile"
-                    className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition"
-                  >
+                  <Link href="/profile" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
                     <User size={16} /> {t('Navbar.profile')}
                   </Link>
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-gray-100 text-sm transition"
-                  >
+                  <Button onClick={handleLogout} className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-gray-100 text-sm transition">
                     <LogOut size={16} /> {t('Navbar.logout')}
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
@@ -174,31 +153,18 @@ export default function Navbar({
       {/* Mobile / Tablet Menu */}
       <div
         className={`md:hidden transition-all duration-300 ease-in-out overflow-hidden ${
-          isMenuOpen
-            ? 'max-h-[500px] opacity-100 translate-y-0'
-            : 'max-h-0 opacity-0 -translate-y-3'
+          isMenuOpen ? 'max-h-[500px] opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-3'
         }`}
       >
-        <div
-          style={{ backgroundColor: bgColor }}
-          className="flex flex-col items-center px-6 py-6 shadow-md text-center"
-        >
+        <div style={{ backgroundColor: bgColor }} className="flex flex-col items-center px-6 py-6 shadow-md text-center">
           {navLinks.map(({ label, href, subMenu }) => (
             <div key={href} className="w-full">
               <button
-                onClick={() =>
-                  subMenu
-                    ? setOpenSubMenu(openSubMenu === label ? null : label)
-                    : setIsMenuOpen(false)
-                }
+                onClick={() => (subMenu ? setOpenSubMenu(openSubMenu === label ? null : label) : setIsMenuOpen(false))}
                 className="py-2 w-full text-base font-medium flex justify-between items-center hover:text-gray-300 transition"
               >
                 <span>{t(`Navbar.${label}`)}</span>
-                {subMenu && (
-                  <span className="text-sm">
-                    {openSubMenu === label ? '▲' : '▼'}
-                  </span>
-                )}
+                {subMenu && <span className="text-sm">{openSubMenu === label ? '▲' : '▼'}</span>}
               </button>
 
               {/* ✅ Expandable submenu */}
@@ -225,9 +191,7 @@ export default function Navbar({
               <Globe size={18} />
               <select
                 value={locale}
-                onChange={e =>
-                  handleLanguageChange(e.target.value as 'en' | 'ta')
-                }
+                onChange={e => handleLanguageChange(e.target.value as 'en' | 'ta')}
                 className="bg-transparent border border-white text-white rounded-md px-2 py-1 text-sm focus:outline-none"
               >
                 <option value="en">EN</option>
@@ -246,7 +210,7 @@ export default function Navbar({
               >
                 <User size={18} /> {t('Navbar.profile')}
               </Link>
-              <button
+              <Button
                 onClick={() => {
                   setIsMenuOpen(false)
                   handleLogout()
@@ -254,7 +218,7 @@ export default function Navbar({
                 className="flex items-center justify-center gap-2 bg-white text-[#3b1804] px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition"
               >
                 <LogOut size={18} /> {t('Navbar.logout')}
-              </button>
+              </Button>
             </div>
           ) : (
             showLoginButton && (

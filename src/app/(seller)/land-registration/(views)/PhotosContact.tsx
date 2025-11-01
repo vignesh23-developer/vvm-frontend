@@ -722,11 +722,11 @@ import { Plus, Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 // 1. Remove old state props. The component only needs Formik.
-interface Step4PhotosContactProps {
+interface Step5PhotosContactProps {
   formik: FormikProps<PropertyCreationFormValues>
 }
 
-export default function Step4PhotosContact({ formik }: Step4PhotosContactProps) {
+export default function Step5PhotosContact({ formik }: Step5PhotosContactProps) {
   const { values, errors, touched, handleChange, setFieldValue, setFieldTouched, handleBlur } = formik
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)

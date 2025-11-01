@@ -5,41 +5,13 @@ import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextFi
 import { useRouter } from 'next/navigation'
 import FormikCheckboxField from '@/components/ui/Formik/FormikCheckboxField/FormikCheckboxField'
 import featureGroupSchema from '@/utils/validations/admin/featureGroupValidation'
+import type { FeatureGroupFormProps } from '@/app/admin/dashboard/(master)/feature-group/(dto)/FeatureGroupType'
 
-export interface FormValues {
-  name: string
-  icon: string
-  sortOrder?: number
-  isActive?: boolean
-}
-
-interface FeatureGroupFormProps {
-  initialValues: FormValues
-  /** Submit handler */
-  onSubmit: (values: FormValues) => Promise<void>
-
-  /** Optional — Change button label dynamically */
-  submitLabel?: string
-
-  /** Optional — Change button state for add/edit */
-  isEdit?: boolean
-}
-
-export default function FeatureGroupForm({
-  initialValues,
-  onSubmit,
-  submitLabel,
-  isEdit = false,
-}: FeatureGroupFormProps) {
+export default function FeatureGroupForm({ initialValues, onSubmit, submitLabel, isEdit = false }: FeatureGroupFormProps) {
   const router = useRouter()
 
   return (
-    <Formik
-      initialValues={initialValues}
-      validationSchema={featureGroupSchema}
-      enableReinitialize
-      onSubmit={onSubmit}
-    >
+    <Formik initialValues={initialValues} validationSchema={featureGroupSchema} enableReinitialize onSubmit={onSubmit}>
       {({ isSubmitting }) => (
         <Form className="space-y-6">
           {/* Property Category Name */}
@@ -93,17 +65,10 @@ export default function FeatureGroupForm({
               type="submit"
               disabled={isSubmitting}
               className={`px-6 py-2 rounded-md text-white font-medium transition ${
-                isSubmitting
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-black hover:bg-gray-800 cursor-pointer'
+                isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-black hover:bg-gray-800 cursor-pointer'
               }`}
             >
-              {isSubmitting
-                ? isEdit
-                  ? 'Updating...'
-                  : 'Creating...'
-                : submitLabel ||
-                  (isEdit ? 'Update Feature Group' : 'Create Feature Group')}
+              {isSubmitting ? (isEdit ? 'Updating...' : 'Creating...') : submitLabel || (isEdit ? 'Update Feature Group' : 'Create Feature Group')}
             </button>
           </div>
         </Form>

@@ -73,9 +73,10 @@ type MapViewProps = {
   zoom: number
   markers: LatLng[]
   onMapClick?: (lat: number, lng: number) => void
+  ifTextSearch?: boolean
 }
 
-export default function MapView({ center, zoom, markers, onMapClick }: MapViewProps) {
+export default function MapView({ center, zoom, markers, onMapClick, ifTextSearch }: MapViewProps) {
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
     libraries: ['places'],
@@ -132,7 +133,7 @@ export default function MapView({ center, zoom, markers, onMapClick }: MapViewPr
 
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-      <input ref={inputRef} placeholder="Start typing address…" className="w-full p-2 border border-gray-300 rounded-md mb-2.5" />
+      {ifTextSearch && <input ref={inputRef} placeholder="Start typing address…" className="w-full p-2 border border-gray-300 rounded-md mb-2.5" />}
 
       <GoogleMap
         mapContainerStyle={{ width: '100%', height: '85%' }}

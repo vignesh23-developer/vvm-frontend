@@ -6,7 +6,7 @@ import { data } from 'framer-motion/client'
 import useSWR, { KeyedMutator } from 'swr'
 import { GetAllPropertyCategoryFeatureMappingDTO } from '../(dto)/land_registration_dto'
 import { appEndpoints } from '@/services/endpoints'
-import { PropertyCategory } from '@/components/seller/forms/LandRegistrationForm'
+import { PropertyCategory } from '@/app/(seller)/land-registration/(dto)/land_registration_dto'
 
 const fetcher = async (endpoints: string) => {
   const result = await getMethod(endpoints)

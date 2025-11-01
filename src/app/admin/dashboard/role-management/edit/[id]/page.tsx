@@ -4,9 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { appEndpoints } from '@/services/endpoints'
 import { getMethod, patchMethod } from '@/services/service'
-import RoleManagementForm, {
-  FormValues,
-} from '@/components/admin/forms/RoleManagementForm'
+import RoleManagementForm, { FormValues } from '@/components/admin/forms/RoleManagementForm'
 import toast from 'react-hot-toast'
 import PropertyCategoryForm from '@/app/admin/dashboard/(master)/property-category/(forms)/PropertyCategoryForm'
 
@@ -22,9 +20,7 @@ export default function EditRoleManagement() {
   useEffect(() => {
     const fetchRole = async () => {
       try {
-        const response = await getMethod(
-          `${appEndpoints.getRoleByID(id as string)}`,
-        )
+        const response = await getMethod(`${appEndpoints.getRoleByID(id as string)}`)
         if (response) {
           // normalize payload: some APIs wrap data in a `data` field or return the object directly
           const payload = (response as any).data ?? response
@@ -51,44 +47,20 @@ export default function EditRoleManagement() {
         ...values,
       }
 
-      const response = await patchMethod(
-        `${appEndpoints.updateRole(id as string)}`,
-        false,
-        payload,
-      )
-
-      // Optional: if your API wraps result in ResponseDTO
-      if (response.data?.error) {
-        toast.error(response.data?.message || 'Failed to update role')
-        return
-      }
+      const response = await patchMethod(`${appEndpoints.updateRole(id as string)}`, payload)
 
       toast.success('Role updated successfully')
       router.push('/admin/dashboard/role-management')
     } catch (error: any) {
       console.error('Update failed:', error)
-      toast.error(
-        error.response?.data?.message ||
-          error.message ||
-          'Something went wrong while updating role',
-      )
+      toast.error(error.response?.data?.message || error.message || 'Something went wrong while updating role')
     }
   }
 
   /** 🔹 Loading / error states */
-  if (loading)
-    return (
-      <div className="min-h-screen flex items-center justify-center text-gray-600">
-        Loading role details...
-      </div>
-    )
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-600">Loading role details...</div>
 
-  if (!initialValues)
-    return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500">
-        Role not found.
-      </div>
-    )
+  if (!initialValues) return <div className="min-h-screen flex items-center justify-center text-gray-500">Role not found.</div>
 
   /** ✅ Render Form */
   return (
@@ -96,12 +68,7 @@ export default function EditRoleManagement() {
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-8 max-w-3xl mx-auto">
         <h2 className="text-2xl font-semibold text-gray-900 mb-8">Edit Role</h2>
 
-        <RoleManagementForm
-          initialValues={initialValues}
-          onSubmit={handleSubmit}
-          submitLabel="Update Role"
-          isEdit={true}
-        />
+        <RoleManagementForm initialValues={initialValues} onSubmit={handleSubmit} submitLabel="Update Role" isEdit={true} />
       </div>
     </div>
   )

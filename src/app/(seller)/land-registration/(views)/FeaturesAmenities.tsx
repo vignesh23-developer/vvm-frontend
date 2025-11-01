@@ -6,14 +6,14 @@ import { PropertyCreationFormValues } from '../page'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
 import toast from 'react-hot-toast'
 
-interface Step3FeaturesAmenitiesProps {
+interface Step4FeaturesAmenitiesProps {
   amenities: FeatureMappingDTO[]
   formik: FormikProps<PropertyCreationFormValues>
   setInputFeatureData: Dispatch<SetStateAction<Array<FeaturePayloadDTO> | null>>
   inputFeatureData: FeaturePayloadDTO[] | null
 }
 
-export default function Step3FeaturesAmenities({ amenities, formik, setInputFeatureData, inputFeatureData }: Step3FeaturesAmenitiesProps) {
+export default function Step4FeaturesAmenities({ amenities, formik, setInputFeatureData, inputFeatureData }: Step4FeaturesAmenitiesProps) {
   const { values, errors, touched, handleChange, setFieldValue } = formik
 
   const toggleFeatureMappingDTO = (id: string) => {

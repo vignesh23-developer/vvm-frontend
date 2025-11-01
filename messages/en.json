@@ -29,7 +29,7 @@
     "reset_password": "Reset Password",
     "continue_with_sms": "Continue With SMS",
     "otp_verification": "Verify Your OTP",
-    "otp_description": "Check your SMS for the 4-digit code.",
+    "otp_description": "Check your SMS for the 6-digit code.",
     "verify": "Verify",
     "profile_creation": "Introduce Yourself to the Platform",
     "profile_description": "The right first impression starts with your profile.",
@@ -154,7 +154,9 @@
     "description" : "Description",
     "amenities": "Amenities",
     "report_property": "Report",
-    "agent" : "Agent"
+    "agent" : "Agent",
+    "loading": "Loading...",
+    "more_photos": "More Photos"
   },
     "PropertiesFilter": {
       "properties" : "Properties",

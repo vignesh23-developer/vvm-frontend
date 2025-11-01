@@ -1,8 +1,5 @@
 import axios from 'axios'
-import {
-  getLocalStorageItem,
-  removeLocalStorageItem,
-} from '../utils/local_storage/local_storage_handler'
+import { getLocalStorageItem, removeLocalStorageItem } from '../utils/local_storage/local_storage_handler'
 import { LOCAL_STORAGE_NAME } from '../utils/local_storage/local_storage_constant'
 
 const axiosInstance = axios.create({
@@ -14,14 +11,15 @@ const axiosInstance = axios.create({
   withCredentials: false,
 })
 
+console.log('API URL:', process.env.NEXT_PUBLIC_API_URL)
+
 axiosInstance.interceptors.request.use(async config => {
   console.log('REQUEST INTERCEPTORS CALLED', config)
 
-  const localStoredToken = await getLocalStorageItem(
-    LOCAL_STORAGE_NAME.authToken,
-  )
+  const localStoredToken = await getLocalStorageItem(LOCAL_STORAGE_NAME.authToken)
+  // const localStoredToken = localStorage.getItem(LOCAL_STORAGE_NAME.authToken)
 
-  // console.log('token:', localStoredToken);
+  // console.log('token:', localStoredToken)
 
   if (localStoredToken) {
     config.headers['Authorization'] = `Bearer ${localStoredToken}`

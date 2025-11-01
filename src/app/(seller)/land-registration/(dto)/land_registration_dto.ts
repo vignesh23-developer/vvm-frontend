@@ -237,6 +237,9 @@ export class FeaturePayloadDTO {
 }
 
 export class LandRegistrationPayloadDTO {
+  contact_name: string
+  contact_phone: string
+  contact_email: string
   title: string
   description: string
   property_category_id: string
@@ -259,6 +262,9 @@ export class LandRegistrationPayloadDTO {
   features: FeaturePayloadDTO[]
 
   constructor(init: Partial<LandRegistrationPayloadDTO>) {
+    this.contact_name = init.contact_name ?? ''
+    this.contact_phone = init.contact_phone ?? ''
+    this.contact_email = init.contact_email ?? ''
     this.title = init.title ?? ''
     this.description = init.description ?? ''
     this.property_category_id = init.property_category_id ?? ''
@@ -283,6 +289,9 @@ export class LandRegistrationPayloadDTO {
 
   toObject(): Record<string, any> {
     return {
+      contact_name: this.contact_name,
+      contact_phone: this.contact_phone,
+      contact_email: this.contact_email,
       title: this.title,
       description: this.description,
       property_category_id: this.property_category_id,
@@ -323,4 +332,14 @@ export class AddPropertyMediaViaLink {
     this.url = init?.url ?? ''
     this.is_primary = init?.is_primary ?? false
   }
+}
+
+export interface PropertyCategory {
+  id: string
+  name: string
+  description: string
+  parent_id: string | null
+  is_active: boolean
+  created_at: Date
+  updated_at: Date
 }

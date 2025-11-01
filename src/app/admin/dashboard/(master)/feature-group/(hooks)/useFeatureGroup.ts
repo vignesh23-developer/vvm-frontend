@@ -5,16 +5,8 @@ import useSWR from 'swr'
 import { useRouter } from 'next/navigation'
 import { appEndpoints } from '@/services/endpoints'
 import { getMethod, patchMethod } from '@/services/service'
+import { FeatureGroup } from '@/app/admin/dashboard/(master)/feature-group/(dto)/FeatureGroupType'
 import toast from 'react-hot-toast'
-
-// Strongly typed interface
-export interface FeatureGroup {
-  id: number
-  name: string
-  icon: string
-  sortOrder: number
-  isActive: boolean
-}
 
 // Custom hook for managing property categories
 export function useFeatureGroup() {
@@ -45,12 +37,7 @@ export function useFeatureGroup() {
   }
 
   // SWR handles caching, revalidation, and errors
-  const {
-    data: groups,
-    error,
-    isLoading,
-    mutate: mutateGroups,
-  } = useSWR<FeatureGroup[]>(`${appEndpoints.getAllFeatureGroups}`, fetcher)
+  const { data: groups, error, isLoading, mutate: mutateGroups } = useSWR<FeatureGroup[]>(`${appEndpoints.getAllFeatureGroups}`, fetcher)
 
   // CRUD handlers
   const handleAdd = useCallback(() => {
@@ -66,10 +53,7 @@ export function useFeatureGroup() {
 
   const handleDelete = async (id: number, newStatus: boolean) => {
     try {
-      await patchMethod(
-        `${appEndpoints.updateFeatureGroupStatus(id.toString())}`,
-        false,
-      )
+      await patchMethod(`${appEndpoints.updateFeatureGroupStatus(id.toString())}`)
 
       // ✅ Revalidate data after update
       mutateGroups()

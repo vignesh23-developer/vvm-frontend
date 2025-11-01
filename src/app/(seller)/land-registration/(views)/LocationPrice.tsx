@@ -7,7 +7,7 @@ import MapView from '@/components/ui/map/MapView'
 import LocationPickerModal, { AddressParts } from '@/components/ui/map/LocationPickerModal'
 import { useState } from 'react'
 
-interface Step2LocationPriceProps {
+interface Step3LocationPriceProps {
   formik: FormikProps<PropertyCreationFormValues>
 }
 
@@ -87,7 +87,7 @@ const districtToCities: Record<string, string[]> = {
   Virudhunagar: ['Virudhunagar', 'Kovilpatti', 'Sivakasi'],
 }
 
-export default function Step2LocationPrice({ formik }: Step2LocationPriceProps) {
+export default function Step3LocationPrice({ formik }: Step3LocationPriceProps) {
   const { values, errors, touched, handleChange, setFieldValue } = formik
 
   const [isMapView, setIsMapView] = useState<boolean>(false)

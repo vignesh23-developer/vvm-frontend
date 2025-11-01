@@ -13,6 +13,8 @@ import LanguageSwitch from '@/components/ui/CustomComponent/languageSwitch/langu
 import { SignupSchema } from '@/utils/validations/auth/AuthValidationSchema'
 import { postMethod } from '@/services/service'
 import toast from 'react-hot-toast'
+import { useRouter } from 'next/navigation'
+import { setLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
 
 interface SignupFormValues {
   firstName: string
@@ -24,6 +26,7 @@ interface SignupFormValues {
 
 export default function SignupPage() {
   const t = useTranslations()
+  const router = useRouter()
   const [buttonType, setButtonType] = useState<'sms' | 'whatsapp'>('sms')
 
   const initialValues: SignupFormValues = {
@@ -34,35 +37,38 @@ export default function SignupPage() {
     otp: ['', '', '', '', '', ''],
   }
 
-  const handleSignupSubmit = async (
-    values: SignupFormValues,
-    setSubmitting: (isSubmitting: boolean) => void,
-    buttonType: 'sms' | 'whatsapp',
-  ) => {
+  const handleSignupSubmit = async (values: SignupFormValues, setSubmitting: (isSubmitting: boolean) => void, buttonType: 'sms' | 'whatsapp') => {
     const otpValue = values.otp.join('')
     console.log('Formik Submitted:', { ...values, otpValue, buttonType })
 
     const payload = {
-      firstName: values.firstName,
-      lastName: values.lastName,
       phoneNumber: values.phone,
-      email: values.email,
       otp: otpValue,
-      otpType: buttonType === 'whatsapp' ? 'whatsapp_otp' : 'sms_otp',
+      user: {
+        firstName: values.firstName,
+        lastName: values.lastName,
+        email: values.email,
+      },
+      // otpType: buttonType === 'whatsapp' ? 'whatsapp_otp' : 'sms_otp',
     }
-
+    console.log('Signup Payload:', payload)
     try {
-      const response = await postMethod(appEndpoints.signUp, payload)
+      const response = await postMethod<{
+        accessToken?: string
+        refreshToken?: string
+        message?: string
+      }>(appEndpoints.loginVerifyOtp, payload)
 
-      if (response.error) {
-        toast.error(response.message || 'Registration failed')
-        return
+      const token = response.data?.accessToken
+      console.log('Received Token:', token)
+      if (token) {
+        setLocalStorageItem('authToken', token)
       }
 
-      const message =
-        (response.data as { message?: string })?.message ??
-        'Registration successful'
-      toast.success(message)
+      const successMessage = response.data?.message || response.message || 'OTP verified successfully'
+      toast.success(successMessage)
+
+      router.push('/home')
     } catch (error) {
       console.error('Signup Error:', error)
       toast.error('Registration failed')
@@ -72,19 +78,9 @@ export default function SignupPage() {
   }
 
   return (
-    <motion.div
-      className="min-h-screen flex relative"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
+    <motion.div className="min-h-screen flex relative" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
       {/* Language Switch */}
-      <motion.div
-        className="absolute top-4 right-4"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-      >
+      <motion.div className="absolute top-4 right-4" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
         <LanguageSwitch />
       </motion.div>
 
@@ -96,17 +92,8 @@ export default function SignupPage() {
         transition={{ duration: 0.8 }}
       >
         <Link href="/home">
-          <motion.div
-            className="max-w-xs hover:cursor-pointer"
-            whileHover={{ scale: 1.05 }}
-          >
-            <Image
-              src="/footer_logo.png"
-              alt="Vaazhga Valamudan Logo"
-              width={400}
-              height={300}
-              className="mt-6"
-            />
+          <motion.div className="max-w-xs hover:cursor-pointer" whileHover={{ scale: 1.05 }}>
+            <Image src="/footer_logo.png" alt="Vaazhga Valamudan Logo" width={400} height={300} className="mt-6" />
           </motion.div>
         </Link>
       </motion.div>
@@ -118,12 +105,7 @@ export default function SignupPage() {
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.8 }}
       >
-        <motion.div
-          className="w-full max-w-md"
-          initial={{ scale: 0.95, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.5 }}
-        >
+        <motion.div className="w-full max-w-md" initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.5 }}>
           <motion.h2
             className="text-2xl font-bold text-gray-800"
             initial={{ y: -20, opacity: 0 }}
@@ -199,17 +181,11 @@ export default function SignupPage() {
                 </motion.div>
 
                 {/* OTP */}
-                <motion.div
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 }}
-                >
+                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
                   <FieldArray name="otp">
                     {arrayHelpers => (
                       <>
-                        <label className="block text-sm font-medium mb-1">
-                          {t('Auth.otp_verification')}
-                        </label>
+                        <label className="block text-sm font-medium mb-1">{t('Auth.otp_verification')}</label>
                         <div className="flex justify-between mt-4 mb-4">
                           {values.otp.map((digit, index) => (
                             <motion.input
@@ -223,9 +199,7 @@ export default function SignupPage() {
                                 if (/^[0-9]?$/.test(value)) {
                                   arrayHelpers.replace(index, value)
                                   if (value && index < values.otp.length - 1) {
-                                    const nextInput = document.getElementById(
-                                      `otp-${index + 1}`,
-                                    )
+                                    const nextInput = document.getElementById(`otp-${index + 1}`)
                                     nextInput?.focus()
                                   }
                                 }
@@ -248,18 +222,11 @@ export default function SignupPage() {
                   whileTap={{ scale: 0.98 }}
                   className="w-full bg-[#2B1B12] text-white text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-[#3d2616] disabled:opacity-60 cursor-pointer"
                 >
-                  <span>
-                    {isSubmitting ? 'Submitting...' : t('Auth.whatapp_button')}
-                  </span>
+                  <span>{isSubmitting ? 'Submitting...' : t('Auth.whatapp_button')}</span>
                 </motion.button>
 
                 {/* Login Link */}
-                <motion.p
-                  className="text-center text-gray-600 text-xs"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.7 }}
-                >
+                <motion.p className="text-center text-gray-600 text-xs" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
                   {t('Auth.signup_message')}{' '}
                   <a href="/login" className="font-semibold text-green-900">
                     {t('Auth.login')}
