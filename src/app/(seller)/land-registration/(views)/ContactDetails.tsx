@@ -5,11 +5,11 @@ import { FormikProps } from 'formik'
 import { PropertyCreationFormValues } from '../page'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
 
-interface Step1ContactDetailsProps {
+interface Step3ContactDetailsProps {
   formik: FormikProps<PropertyCreationFormValues>
 }
 
-export default function Step1ContactDetails({ formik }: Step1ContactDetailsProps) {
+export default function Step3ContactDetails({ formik }: Step3ContactDetailsProps) {
   const { values, errors, touched, handleChange, setFieldValue } = formik
 
   return (

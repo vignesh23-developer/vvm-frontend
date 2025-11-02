@@ -63,11 +63,7 @@ export async function postMethod<T = unknown>(url: string, body?: any, headers?:
   try {
     console.log('🌐 POST Request:', { url, body, headers })
 
-    const response = await axiosInstance.post<ApiResponseWrapper<T>>(url, body, {
-      headers: {
-        Authorization: 'Bearer ' + (await getLocalStorageItem(LOCAL_STORAGE_NAME.authToken)),
-      },
-    })
+    const response = await axiosInstance.post<ApiResponseWrapper<T>>(url, body)
     console.log('✅ POST Response:', response.data)
 
     const payload = response.data

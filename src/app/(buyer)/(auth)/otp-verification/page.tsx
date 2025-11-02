@@ -24,6 +24,7 @@ export default function OtpVerification() {
   type OtpValues = {
     otp: string[]
   }
+
   // ✅ Validation Schema
   const OtpSchema = Yup.object().shape({
     otp: Yup.array()
@@ -64,6 +65,7 @@ export default function OtpVerification() {
         accessToken?: string
         refreshToken?: string
         message?: string
+        user?: any
       }>(appEndpoints.loginVerifyOtp, payload)
 
       if (response.error) {
@@ -75,6 +77,7 @@ export default function OtpVerification() {
       console.log('Received Token:', token)
       if (token) {
         setLocalStorageItem(LOCAL_STORAGE_NAME.authToken, token)
+        setLocalStorageItem(LOCAL_STORAGE_NAME.userData, response.data?.user || '')
       }
 
       const successMessage = response.data?.message || response.message || 'OTP verified successfully'

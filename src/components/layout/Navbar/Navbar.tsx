@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation'
 import { useTranslationContext } from '@/hooks/Translation/TranslationProvider'
 import { useTranslations } from 'next-intl'
 import LanguageSwitch from '@/components/ui/CustomComponent/languageSwitch/languageSwitch'
-import { removeLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
+import { getLocalStorageItem, removeLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 
 export interface NavLink {
@@ -29,7 +29,7 @@ interface NavbarProps {
   } | null
 }
 
-export default function Navbar({
+export default async function Navbar({
   logoSrc = '/logo.png',
   navLinks = [
     { label: 'home', href: '/home' },
@@ -50,8 +50,19 @@ export default function Navbar({
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [openSubMenu, setOpenSubMenu] = useState<string | null>(null)
+  // const [userValue, setUserValue] = useState<any>(null)
+  // const authToken = await getLocalStorageItem('authToken')
+  // const userData = await getLocalStorageItem('userData')
 
-  const handleLanguageChange = (lang: 'en' | 'ta') => {
+  // if (authToken) {
+  //   let user = {
+  //     name: userData?.firstName + ' ' + userData?.lastName,
+  //     email: userData?.email,
+  //   }
+  //   setUserValue(user)
+  // }
+
+  const handleLanguageChange = (lang: 'ta' | 'en') => {
     setLocale(lang)
     router.refresh()
   }

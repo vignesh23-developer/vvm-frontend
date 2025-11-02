@@ -285,9 +285,9 @@ import { Formik, Form, FormikHelpers } from 'formik'
 import * as Yup from 'yup'
 
 // Step components
-import Step1ContactDetails from './(views)/ContactDetails'
-import Step2BasicDetails from './(views)/BasicDetails'
-import Step3LocationPrice from './(views)/LocationPrice'
+import Step3ContactDetails from './(views)/ContactDetails'
+import Step1BasicDetails from './(views)/BasicDetails'
+import Step2LocationPrice from './(views)/LocationPrice'
 import Step4FeaturesAmenities from './(views)/FeaturesAmenities'
 import Step5PhotosContact from './(views)/PhotosContact'
 import Step6ReviewSubmit from './(views)/ReviewSubmit'
@@ -308,16 +308,12 @@ type PurposeType = 'Sale' | 'Rent' | 'Lease'
 // Types for your combined form data (include all steps)
 export interface PropertyCreationFormValues {
   // Step 1
-  contactName: string
-  contactNumber: string
-  contactEmail: string
-  // Step 2
   propertyTitle: string
   propertyType: string
   purpose: string
   description: string
 
-  // Step 3
+  // Step 2
   door_number: string
   street_name: string
   address_line: string
@@ -331,6 +327,11 @@ export interface PropertyCreationFormValues {
   unit: string
   latitude: number
   longitude: number
+
+  // Step 3
+  contactName: string
+  contactNumber: string
+  contactEmail: string
 
   // Step 4
   option_ids: Array<string>
@@ -363,9 +364,9 @@ export interface PropertyCreationFormValues {
 
 export default function LandRegistrationPage() {
   const steps = [
-    { title: 'Step 1', subtitle: 'Contact Details', icon: <ContactRound className="w-5 h-5" /> },
-    { title: 'Step 2', subtitle: 'Basic Details', icon: <Home className="w-5 h-5" /> },
-    { title: 'Step 3', subtitle: 'Location & Price', icon: <MapPin className="w-5 h-5" /> },
+    { title: 'Step 1', subtitle: 'Basic Details', icon: <Home className="w-5 h-5" /> },
+    { title: 'Step 2', subtitle: 'Location & Price', icon: <MapPin className="w-5 h-5" /> },
+    { title: 'Step 3', subtitle: 'Contact Details', icon: <ContactRound className="w-5 h-5" /> },
     { title: 'Step 4', subtitle: 'Features & Amenities', icon: <Star className="w-5 h-5" /> },
     { title: 'Step 5', subtitle: 'Photos', icon: <Camera className="w-5 h-5" /> },
     { title: 'Step 6', subtitle: 'Review & Submit', icon: <Check className="w-5 h-5" /> },
@@ -470,25 +471,14 @@ export default function LandRegistrationPage() {
   const validationSchemas: { [key: number]: Yup.ObjectSchema<any, Yup.AnyObject, any> | any } = {
     // STEP 1: (Correct - No changes)
     1: Yup.object().shape({
-      contactName: Yup.string().trim().required('Contact name is required'),
-      contactNumber: Yup.string()
-        .trim()
-        .required('Contact number is required')
-        .matches(/^[0-9]{10}$/, 'Please enter a valid 10-digit contact number'),
-      // .matches(/^\+?[1-9]\d{1,14}$/, 'Please enter a valid phone number'),
-      contactEmail: Yup.string().email('Invalid email address').required('Contact email is required'),
-    }),
-
-    // STEP 2: (Correct - No changes)
-    2: Yup.object().shape({
       propertyTitle: Yup.string().trim().required('Property title is required'),
       propertyType: Yup.string().required('Property type is required'),
       purpose: Yup.string().required('Purpose is required'),
       description: Yup.string().trim().required('Property description is required'),
     }),
 
-    // STEP 3: (Corrected - Contact rules removed)
-    3: Yup.object().shape({
+    // STEP 2: (Correct - No changes)
+    2: Yup.object().shape({
       // door_number: Yup.string().trim().required('Door number is required'),
       // street_name: Yup.string().trim().required('Street name is required'),
       door_number: Yup.string().trim().optional().notRequired(),
@@ -507,6 +497,18 @@ export default function LandRegistrationPage() {
       unit: Yup.string().trim().required('Unit is required'),
       latitude: Yup.number().optional().notRequired(),
       longitude: Yup.number().optional().notRequired(),
+    }),
+
+    // STEP 3: (Corrected - Contact rules removed)
+
+    3: Yup.object().shape({
+      contactName: Yup.string().trim().required('Contact name is required'),
+      contactNumber: Yup.string()
+        .trim()
+        .required('Contact number is required')
+        .matches(/^[0-9]{10}$/, 'Please enter a valid 10-digit contact number'),
+      // .matches(/^\+?[1-9]\d{1,14}$/, 'Please enter a valid phone number'),
+      contactEmail: Yup.string().email('Invalid email address').required('Contact email is required'),
     }),
 
     // STEP 4: (Correct - No changes)
@@ -860,16 +862,16 @@ export default function LandRegistrationPage() {
 
           return (
             <Form>
-              {currentStep === 1 && <Step1ContactDetails formik={formik} />}
-              {currentStep === 2 && (
-                <Step2BasicDetails
+              {currentStep === 1 && (
+                <Step1BasicDetails
                   data={propertyCategoryData}
                   formik={formik}
                   onGetPropertyCategoryFeatureMapping={onGetPropertyCategoryFeatureMapping}
                   setFeatureData={setFeatureData}
                 />
               )}
-              {currentStep === 3 && <Step3LocationPrice formik={formik} />}
+              {currentStep === 2 && <Step2LocationPrice formik={formik} />}
+              {currentStep === 3 && <Step3ContactDetails formik={formik} />}
               {currentStep === 4 && (
                 <Step4FeaturesAmenities
                   inputFeatureData={inputFeatureData}

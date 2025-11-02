@@ -9,14 +9,14 @@ import { Dispatch, SetStateAction } from 'react'
 import { FeatureMappingDTO } from '../(dto)/land_registration_dto'
 import { PropertyCategoryFeatureMappingResponse } from '../(hook)/land_registration_hook'
 
-interface Step2BasicDetailsProps {
+interface Step1BasicDetailsProps {
   formik: FormikProps<PropertyCreationFormValues>
   data: Array<PropertyCategory>
   setFeatureData: Dispatch<SetStateAction<Array<FeatureMappingDTO> | null>>
   onGetPropertyCategoryFeatureMapping: (id: string) => Promise<PropertyCategoryFeatureMappingResponse>
 }
 
-export default function Step2BasicDetails({ formik, data, onGetPropertyCategoryFeatureMapping, setFeatureData }: Step2BasicDetailsProps) {
+export default function Step1BasicDetails({ formik, data, onGetPropertyCategoryFeatureMapping, setFeatureData }: Step1BasicDetailsProps) {
   const { values, errors, touched, handleChange, setFieldValue } = formik
 
   async function onSelectPropertyHandler(id: string) {
