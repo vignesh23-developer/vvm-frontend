@@ -34,7 +34,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
         {/* Left - Logo */}
         <div>
-          <Link href={'/home'}>
+          <Link href={'/'}>
             <Image
               src="/footer_logo.png"
               alt="Logo"
@@ -51,16 +51,11 @@ export default function Footer() {
           <FooterColumn title={t('Footer.Headers.about')} links={aboutLinks} />
 
           {/* Support */}
-          <FooterColumn
-            title={t('Footer.Headers.support')}
-            links={supportLinks}
-          />
+          <FooterColumn title={t('Footer.Headers.support')} links={supportLinks} />
 
           {/* Social */}
           <div>
-            <h3 className="font-semibold text-lg mb-4">
-              {t('Footer.Headers.our_services')}
-            </h3>
+            <h3 className="font-semibold text-lg mb-4">{t('Footer.Headers.our_services')}</h3>
             <ul className="space-y-3 text-gray-300">
               {socialLinks.map(({ label, icon: Icon, href }) => (
                 <li key={label} className="flex items-center gap-2">

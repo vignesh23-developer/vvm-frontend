@@ -83,7 +83,7 @@ export default function OtpVerification() {
       const successMessage = response.data?.message || response.message || 'OTP verified successfully'
       toast.success(successMessage)
 
-      router.push('/home')
+      router.push('/')
     } catch (error) {
       console.error('OTP verification failed:', error)
       toast.error('Unable to verify OTP right now. Please try again.')

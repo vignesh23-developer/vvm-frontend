@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Menu, X, Globe, User, LogOut, ArrowRight } from 'lucide-react'
+import { Menu, X, Globe, User, LogOut, ArrowRight, Shield, Home, Building2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTranslationContext } from '@/hooks/Translation/TranslationProvider'
 import { useTranslations } from 'next-intl'
@@ -38,7 +38,7 @@ interface userData {
 export default function Navbar({
   logoSrc = '/logo.png',
   navLinks = [
-    { label: 'home', href: '/home' },
+    { label: 'home', href: '/' },
     { label: 'services', href: '/services' },
     { label: 'about_us', href: '/about' },
     { label: 'help_center', href: '/help-center' },
@@ -82,6 +82,7 @@ export default function Navbar({
   const handleLogout = () => {
     // Clear auth token and redirect to login
     removeLocalStorageItem('authToken')
+    removeLocalStorageItem('userData')
     router.push('/login')
   }
 
@@ -89,7 +90,7 @@ export default function Navbar({
     <nav className="sticky top-0 z-50 shadow-md text-white transition-colors duration-300" style={{ backgroundColor: bgColor }}>
       <div className="flex items-center justify-between px-4 sm:px-6 md:px-8 lg:px-12 py-3 md:py-4">
         {/* Logo */}
-        <Link href="/home" className="flex items-center">
+        <Link href="/" className="flex items-center">
           <Image
             src={logoSrc}
             alt="Logo"
@@ -130,12 +131,12 @@ export default function Navbar({
 
           {userValue ? (
             <div className="relative">
-              <button
+              <Button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
                 className="flex items-center gap-2 bg-white text-[#3b1804] p-1.5 rounded-full hover:bg-gray-200 transition"
               >
                 <Image src={'/avatar.png'} alt="" width={32} height={32} className="rounded-full" />
-              </button>
+              </Button>
 
               {isProfileOpen && (
                 <div className="absolute right-0 mt-2 bg-white text-[#3b1804] rounded-lg shadow-lg w-44 py-2 z-50">
@@ -147,14 +148,14 @@ export default function Navbar({
                   <Link href="/profile" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
                     <User size={16} /> {t('Navbar.profile')}
                   </Link>
-                  <Link href="/home" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
-                    <User size={16} /> {t('Navbar.home')}
+                  <Link href="/" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
+                    <Home size={16} /> {t('Navbar.home')}
                   </Link>
                   <Link href="/properties" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
-                    <User size={16} /> {t('Navbar.seller')}
+                    <Building2 size={16} /> {t('Navbar.seller')}
                   </Link>
                   <Link href="/admin/dashboard/property-category" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
-                    <User size={16} /> {t('Navbar.admin')}
+                    <Shield size={16} /> {t('Navbar.admin')}
                   </Link>
                   <Button onClick={handleLogout} className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-gray-100 text-sm transition">
                     <LogOut size={16} /> {t('Navbar.logout')}
@@ -175,13 +176,13 @@ export default function Navbar({
         </div>
 
         {/* Mobile Menu Toggle */}
-        <button
+        <Button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           className="md:hidden p-2 rounded-md hover:bg-[#4b2410] transition"
           aria-label="Toggle menu"
         >
           {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        </Button>
       </div>
 
       {/* Mobile / Tablet Menu */}
@@ -211,7 +212,7 @@ export default function Navbar({
                       onClick={() => setIsMenuOpen(false)}
                       className="py-1 text-sm text-gray-200 hover:text-white transition"
                     >
-                      {t(`Navbar.${sub.label}`)}
+                      {t(`Navbar.subMenus.${sub.label}`)}
                     </Link>
                   ))}
                 </div>
@@ -235,33 +236,64 @@ export default function Navbar({
           )}
 
           {/* Auth Buttons */}
-          {user ? (
-            <div className="flex flex-col gap-3 mt-4 w-full">
+          {userValue ? (
+            <div className="mt-4 w-full flex flex-col items-center gap-2 bg-white/95 rounded-2xl shadow-lg p-3 backdrop-blur-sm transition-all">
               <Link
                 href="/profile"
                 onClick={() => setIsMenuOpen(false)}
-                className="flex items-center justify-center gap-2 bg-white text-[#3b1804] px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition"
+                className="flex w-full items-center justify-center gap-2 px-4 py-3 text-[#3b1804] font-medium rounded-xl hover:bg-gray-100 active:scale-[0.98] transition"
               >
-                <User size={18} /> {t('Navbar.profile')}
+                <User size={18} />
+                <span>{t('Navbar.profile')}</span>
               </Link>
-              <Button
+
+              <Link
+                href="/"
+                onClick={() => setIsMenuOpen(false)}
+                className="flex w-full items-center justify-center gap-2 px-4 py-3 text-[#3b1804] font-medium rounded-xl hover:bg-gray-100 active:scale-[0.98] transition"
+              >
+                <Home size={18} />
+                <span>{t('Navbar.home')}</span>
+              </Link>
+
+              <Link
+                href="/properties"
+                onClick={() => setIsMenuOpen(false)}
+                className="flex w-full items-center justify-center gap-2 px-4 py-3 text-[#3b1804] font-medium rounded-xl hover:bg-gray-100 active:scale-[0.98] transition"
+              >
+                <Building2 size={18} />
+                <span>{t('Navbar.seller')}</span>
+              </Link>
+
+              <Link
+                href="/admin/dashboard/property-category"
+                onClick={() => setIsMenuOpen(false)}
+                className="flex w-full items-center justify-center gap-2 px-4 py-3 text-[#3b1804] font-medium rounded-xl hover:bg-gray-100 active:scale-[0.98] transition"
+              >
+                <Shield size={18} />
+                <span>{t('Navbar.admin')}</span>
+              </Link>
+
+              <button
                 onClick={() => {
                   setIsMenuOpen(false)
                   handleLogout()
                 }}
-                className="flex items-center justify-center gap-2 bg-white text-[#3b1804] px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition"
+                className="flex w-full items-center justify-center gap-2 px-4 py-3 text-[#3b1804] font-medium rounded-xl hover:bg-red-100 active:scale-[0.98] transition"
               >
-                <LogOut size={18} /> {t('Navbar.logout')}
-              </Button>
+                <LogOut size={18} />
+                <span>{t('Navbar.logout')}</span>
+              </button>
             </div>
           ) : (
             showLoginButton && (
               <Link
                 href="/login"
                 onClick={() => setIsMenuOpen(false)}
-                className="flex items-center justify-center gap-2 bg-white text-[#3b1804] px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition mt-4"
+                className="mt-4 flex w-full items-center justify-center gap-2 px-4 py-3 text-[#3b1804] font-medium rounded-xl bg-white/95 hover:bg-gray-100 shadow-md transition"
               >
-                {t('Auth.login')} <ArrowRight size={18} />
+                <span>{t('Auth.login')}</span>
+                <ArrowRight size={18} />
               </Link>
             )
           )}

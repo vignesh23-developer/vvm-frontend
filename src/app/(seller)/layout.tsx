@@ -1,3 +1,7 @@
+'use client'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { getLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
 import Navbar from '@/components/layout/Navbar/Navbar'
 import Footer from '@/components/layout/Footer/Footer'
 
@@ -6,15 +10,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  // const user = {
-  //   name: 'Farooq',
-  //   avatar: '/images/avatar.jpg',
-  // }
-
-  // const handleLogout = () => {
-  //   console.log('User logged out')
-  //   // Clear tokens or session here
-  // }
+  const router = useRouter()
+  const authToken = getLocalStorageItem('authToken')
+  useEffect(() => {
+    if (!authToken) {
+      router.push('/login')
+    }
+  }, [])
   return (
     <div>
       <header>
@@ -26,8 +28,6 @@ export default function RootLayout({
             { label: 'users', href: '/users' },
             { label: 'support', href: '/support' },
           ]}
-          // user={user}
-          // onLogout={handleLogout}
         />
       </header>
       <main>{children}</main>

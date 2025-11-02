@@ -423,21 +423,16 @@ const DataTable = <T extends RowData = RowData>({
   const hasVisibleActions = useCallback(() => actions.some(action => action.isVisible !== false), [actions])
 
   const applyFiltersAndSort = useCallback(
-    (dataArray: T[], currentFilters: Record<string, string>, field: string | undefined, direction: 'asc' | 'desc') => {
-      let filteredData = [...dataArray]
+    (dataArray: T[] | undefined | null, currentFilters: Record<string, string>, field?: string, direction: 'asc' | 'desc' = 'asc') => {
+      const safeData = Array.isArray(dataArray) ? dataArray : []
+      let filteredData = [...safeData]
 
       if (Object.keys(currentFilters)?.length > 0) {
-        filteredData = filteredData?.filter(item => {
+        filteredData = filteredData.filter(item => {
           return Object.entries(currentFilters).every(([filterField, filterValue]) => {
-            if (!filterValue.trim()) {
-              return true
-            }
-
+            if (!filterValue.trim()) return true
             const itemValue = (item as Record<string, unknown>)[filterField]
-            if (itemValue === undefined || itemValue === null) {
-              return false
-            }
-
+            if (itemValue === undefined || itemValue === null) return false
             return String(itemValue).toLowerCase().includes(filterValue.toLowerCase())
           })
         })
@@ -451,15 +446,11 @@ const DataTable = <T extends RowData = RowData>({
           const aValue = (a as Record<string, unknown>)[field]
           const bValue = (b as Record<string, unknown>)[field]
 
-          const normalizedA = aValue === undefined || aValue === null ? '' : String(aValue)
-          const normalizedB = bValue === undefined || bValue === null ? '' : String(bValue)
+          const normalizedA = aValue == null ? '' : String(aValue)
+          const normalizedB = bValue == null ? '' : String(bValue)
 
-          if (normalizedA < normalizedB) {
-            return direction === 'asc' ? -1 : 1
-          }
-          if (normalizedA > normalizedB) {
-            return direction === 'asc' ? 1 : -1
-          }
+          if (normalizedA < normalizedB) return direction === 'asc' ? -1 : 1
+          if (normalizedA > normalizedB) return direction === 'asc' ? 1 : -1
           return 0
         })
       }
