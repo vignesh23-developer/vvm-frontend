@@ -8,10 +8,7 @@ import { ChevronDown, ChevronRight, Check } from 'lucide-react'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
 import { patchMethod, postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
-import type {
-  PropertyCategory,
-  FeatureGroup,
-} from '../../../app/admin/dashboard/category-mappings/add/[id]/page'
+import type { PropertyCategory, FeatureGroup } from '@/app/admin/dashboard/(master)/category-mappings/add/[id]/page'
 import Button from '../../ui/CustomComponent/Button/Button'
 
 export interface FormValues {
@@ -25,15 +22,10 @@ interface Props {
   onSuccess: () => void
 }
 
-const PropertyCategoryMappingForm = ({
-  propertyCategory,
-  featuresGrouped,
-  onSuccess,
-}: Props) => {
+const PropertyCategoryMappingForm = ({ propertyCategory, featuresGrouped, onSuccess }: Props) => {
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
 
-  const toggleCollapse = (id: string) =>
-    setCollapsed(prev => ({ ...prev, [id]: !prev[id] }))
+  const toggleCollapse = (id: string) => setCollapsed(prev => ({ ...prev, [id]: !prev[id] }))
 
   const initialValues: FormValues = {
     propertyCategory: propertyCategory?.property_category_name || '',
@@ -79,20 +71,13 @@ const PropertyCategoryMappingForm = ({
       const isUpdate = propertyCategory?.mappings?.length > 0
 
       const response = await (isUpdate
-        ? patchMethod(
-            appEndpoints.updatePropertyCategoryFeatureMapping,
-            false,
-            payload,
-          )
+        ? patchMethod(appEndpoints.updatePropertyCategoryFeatureMapping, payload)
         : postMethod(appEndpoints.mapFeaturesToPropertyCategory, payload))
 
       // Validate response
-      if (response?.data?.error) {
-        toast.error(response.data.message || 'Failed to save mapping')
-      } else {
-        toast.success('Mapping saved successfully')
-        onSuccess?.() // Use optional chaining in case onSuccess is undefined
-      }
+
+      toast.success('Mapping saved successfully')
+      onSuccess?.() // Use optional chaining in case onSuccess is undefined
     } catch (err: any) {
       console.error(err)
       toast.error(err?.message || 'Something went wrong')
@@ -101,16 +86,9 @@ const PropertyCategoryMappingForm = ({
     }
   }
 
-  const FeatureButton = ({
-    groupIdx,
-    featureIdx,
-    f,
-    values,
-    setFieldValue,
-  }: any) => {
+  const FeatureButton = ({ groupIdx, featureIdx, f, values, setFieldValue }: any) => {
     const fieldPath = `featuresGrouped[${groupIdx}].features[${featureIdx}].isMapped`
-    const isSelected =
-      values.featuresGrouped[groupIdx].features[featureIdx].isMapped
+    const isSelected = values.featuresGrouped[groupIdx].features[featureIdx].isMapped
 
     const toggle = () => setFieldValue(fieldPath, !isSelected)
 
@@ -119,9 +97,7 @@ const PropertyCategoryMappingForm = ({
         type="button"
         onClick={toggle}
         className={`border rounded-lg p-4 text-left transition-all duration-150 hover:cursor-pointer ${
-          isSelected
-            ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-200'
-            : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
+          isSelected ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-200' : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
         }`}
       >
         <div className="flex items-center justify-between mb-1">
@@ -129,30 +105,19 @@ const PropertyCategoryMappingForm = ({
           {isSelected && <Check size={18} className="text-blue-600" />}
         </div>
         <p className="text-sm text-gray-500">
-          {f.isMandatory ? 'Mandatory' : 'Optional'} •{' '}
-          {f.isFilterable ? 'Filterable' : 'Non-filterable'}
+          {f.isMandatory ? 'Mandatory' : 'Optional'} • {f.isFilterable ? 'Filterable' : 'Non-filterable'}
         </p>
       </button>
     )
   }
 
   return (
-    <Formik
-      initialValues={initialValues}
-      validationSchema={validationSchema}
-      onSubmit={handleSubmit}
-      enableReinitialize
-    >
+    <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit} enableReinitialize>
       {({ values, setFieldValue, isSubmitting }) => (
         <Form>
           {/* Property Category */}
           <div className="mb-6 max-w-xs">
-            <FormikTextField
-              label="Property Category"
-              name="propertyCategory"
-              placeholder="Enter property category"
-              disabled
-            />
+            <FormikTextField label="Property Category" name="propertyCategory" placeholder="Enter property category" disabled />
           </div>
 
           {values.featuresGrouped.map((group, gIdx) => {
@@ -181,16 +146,10 @@ const PropertyCategoryMappingForm = ({
               <div key={group.featureGroupId} className="mb-8">
                 <button
                   type="button"
-                  onClick={() =>
-                    toggleCollapse(group.featureGroupId.toString())
-                  }
+                  onClick={() => toggleCollapse(group.featureGroupId.toString())}
                   className="flex items-center gap-2 bg-gray-100 p-3 w-full text-left font-semibold rounded-md"
                 >
-                  {collapsed[group.featureGroupId] ? (
-                    <ChevronRight size={16} />
-                  ) : (
-                    <ChevronDown size={16} />
-                  )}
+                  {collapsed[group.featureGroupId] ? <ChevronRight size={16} /> : <ChevronDown size={16} />}
                   {group.featureGroupName}
                 </button>
 

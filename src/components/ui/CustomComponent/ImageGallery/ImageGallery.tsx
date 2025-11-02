@@ -1,116 +1,137 @@
 'use client'
+
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight } from 'lucide-react'
 
-// Interface for image data
-interface ImageData {
-  src: string
+interface ImageViewerProps {
+  images: string[]
 }
 
-// Image data array
-const images: ImageData[] = [
-  {
-    src: '/property1.png',
-  },
-  {
-    src: '/property2.png',
-  },
-  {
-    src: '/property3.png',
-  },
-]
+export default function ImageViewer({ images }: ImageViewerProps) {
+  const [selected, setSelected] = useState<number | null>(null)
 
-// const images = [
-//   '/property1.png', // replace with your actual images
-//   '/property2.png',
-//   '/property3.png',
-//   '/property4.png',
-// ]
-
-export default function ImageGallery() {
-  // State to keep track of the current image index
-  const [currentIndex, setCurrentIndex] = useState<number>(0)
-
-  // State to determine if the image is being hovered over
-  const [isHovered, setIsHovered] = useState<boolean>(false)
-
-  // Function to show the previous slide
-  const prevSlide = (): void => {
-    setCurrentIndex(
-      prevIndex => (prevIndex - 1 + images.length) % images.length,
-    )
-  }
-
-  // Function to show the next slide
-  const nextSlide = (): void => {
-    setCurrentIndex(prevIndex => (prevIndex + 1) % images.length)
-  }
-
-  // useEffect hook to handle automatic slide transition
+  // Keyboard navigation
   useEffect(() => {
-    // Start interval for automatic slide change if not hovered
-    if (!isHovered) {
-      const interval = setInterval(() => {
-        nextSlide()
-      }, 3000)
-
-      // Cleanup the interval on component unmount
-      return () => {
-        clearInterval(interval)
-      }
+    const handleKey = (e: KeyboardEvent) => {
+      if (selected === null) return
+      if (e.key === 'Escape') setSelected(null)
+      if (e.key === 'ArrowRight') setSelected(prev => (prev! + 1) % images.length)
+      if (e.key === 'ArrowLeft') setSelected(prev => (prev! - 1 + images.length) % images.length)
     }
-  }, [isHovered])
-
-  // Handle mouse over event
-  const handleMouseOver = (): void => {
-    setIsHovered(true)
-  }
-
-  // Handle mouse leave event
-  const handleMouseLeave = (): void => {
-    setIsHovered(false)
-  }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [selected, images.length])
 
   return (
-    <div className="relative w-full mx-auto mt-4">
-      <div
-        className="relative h-[460px] mx-12 group hover:-translate-y-2"
-        onMouseOver={handleMouseOver}
-        onMouseLeave={handleMouseLeave}
-      >
-        <Image
-          src={images[currentIndex].src}
-          alt={`Slider Image ${currentIndex + 1}`}
-          layout="fill"
-          objectFit="cover"
-          className="rounded-xl transition-all duration-500 ease-in-out cursor-pointer"
-        />
+    <>
+      {/* ✅ Thumbnail layout (main + small preview) */}
+      <div className="flex gap-2">
+        {/* Main large image */}
+        <div className="relative w-[70%] cursor-pointer overflow-hidden rounded-xl" onClick={() => setSelected(0)}>
+          <Image
+            src={images[0]}
+            alt="Main Image"
+            width={800}
+            height={450}
+            className="h-48 w-full object-cover rounded-xl transition-transform hover:scale-105"
+          />
+        </div>
+
+        {/* Right side image with overlay */}
+        {images[1] && (
+          <div className="relative w-[30%] cursor-pointer overflow-hidden rounded-xl" onClick={() => setSelected(1)}>
+            <Image
+              src={images[1]}
+              alt="Preview Image"
+              width={400}
+              height={300}
+              className="h-48 w-full object-cover rounded-xl transition-transform hover:scale-105"
+            />
+
+            {images.length > 2 && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-white font-semibold text-lg rounded-xl">
+                +{images.length - 1} Photos
+              </div>
+            )}
+          </div>
+        )}
       </div>
-      <button
-        className="absolute left-0 top-1/2 transform h-[459px] rounded-xl hover:bg-[#1a222f] mx-1 -mt-[10px] -translate-y-1/2 bg-[#111927] text-white p-2 group"
-        onClick={prevSlide}
-      >
-        <ChevronLeft className="text-gray-400 group-hover:text-white" />
-      </button>
-      <button
-        className="absolute right-0 top-1/2 transform h-[459px] rounded-xl hover:bg-[#1a222f] mx-1 -mt-[10px] -translate-y-1/2 bg-[#111927] text-white p-2 group"
-        onClick={nextSlide}
-      >
-        <ChevronRight className="text-gray-400 group-hover:text-white" />
-      </button>
-      <div className="flex justify-center mt-4">
-        {images.map((_, index) => (
+
+      {/* 🖼️ Fullscreen Viewer Modal */}
+      {selected !== null && (
+        <div
+          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/95 p-4"
+          onClick={() => setSelected(null)} // Allow click outside to close
+        >
+          {/* Prevent scroll in background */}
+          <style jsx global>{`
+            body {
+              overflow: hidden;
+            }
+          `}</style>
+
+          {/* Close Button */}
+          <button
+            className="absolute top-5 right-5 text-white hover:text-gray-300 transition"
+            onClick={e => {
+              e.stopPropagation()
+              setSelected(null)
+            }}
+            aria-label="Close Image Viewer"
+          >
+            <X size={32} />
+          </button>
+
+          {/* Previous Button */}
+          {images.length > 1 && (
+            <button
+              className="absolute left-5 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition"
+              onClick={e => {
+                e.stopPropagation()
+                setSelected(prev => (prev! - 1 + images.length) % images.length)
+              }}
+              aria-label="Previous Image"
+            >
+              <ChevronLeft size={40} />
+            </button>
+          )}
+
+          {/* Fullscreen Image */}
           <div
-            key={index}
-            className={`h-1 w-10 mx-1 ${
-              index === currentIndex
-                ? 'bg-[#beff46] rounded-xl'
-                : 'bg-gray-300 rounded-xl'
-            } transition-all duration-500 ease-in-out`}
-          ></div>
-        ))}
-      </div>
-    </div>
+            className="relative flex w-full max-w-6xl justify-center"
+            onClick={e => e.stopPropagation()} // prevent closing when clicking image
+          >
+            <Image
+              src={images[selected]}
+              alt={`Full Image ${selected + 1}`}
+              width={1600}
+              height={900}
+              priority
+              className="max-h-[90vh] w-auto object-contain rounded-lg select-none"
+            />
+          </div>
+
+          {/* Image Counter */}
+          <p className="mt-4 text-sm text-gray-300 select-none">
+            {selected + 1} / {images.length}
+          </p>
+
+          {/* Next Button */}
+          {images.length > 1 && (
+            <button
+              className="absolute right-5 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition"
+              onClick={e => {
+                e.stopPropagation()
+                setSelected(prev => (prev! + 1) % images.length)
+              }}
+              aria-label="Next Image"
+            >
+              <ChevronRight size={40} />
+            </button>
+          )}
+        </div>
+      )}
+    </>
   )
 }

@@ -2,10 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import FeatureCategoryForm from '@/app/admin/dashboard/(master)/feature-category/(forms)/FeatureCategoryForm'
-import type {
-  FeatureCategory,
-  FeatureCategoryFormValues,
-} from '@/app/admin/dashboard/(master)/feature-category/(dto)/featureCategoryType'
+import type { FeatureCategory, FeatureCategoryFormValues } from '@/app/admin/dashboard/(master)/feature-category/(dto)/featureCategoryType'
 import { postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import toast from 'react-hot-toast'
@@ -32,15 +29,11 @@ export default function AddFeatureCategory() {
       const payload = {
         ...values,
         options:
-          values.inputType === 'text' ||
-          values.inputType === 'numeric' ||
-          values.inputType === 'boolean' ||
-          values.inputType === 'units'
+          values.inputType === 'text' || values.inputType === 'numeric' || values.inputType === 'boolean' || values.inputType === 'units'
             ? [] // No options for text/number types
             : (values.options ?? []).map(opt => ({
                 name: opt?.name ?? '',
-                value:
-                  opt?.value && opt.value.trim() ? opt.value : opt?.name ?? '',
+                value: opt?.value && opt.value.trim() ? opt.value : opt?.name ?? '',
                 icon: opt?.icon ?? '',
                 sortOrder: opt?.sortOrder ?? 1,
                 isActive: opt?.isActive ?? true,
@@ -48,10 +41,7 @@ export default function AddFeatureCategory() {
       }
 
       // ✅ API call using your helper
-      const res = await postMethod<FeatureCategory>(
-        appEndpoints.createFeatureCategory,
-        payload,
-      )
+      const res = await postMethod<FeatureCategory>(appEndpoints.createFeatureCategory, payload)
 
       if (res.error) {
         console.error('Failed to create feature category:', res.message)
@@ -72,16 +62,9 @@ export default function AddFeatureCategory() {
     <div className="min-h-screen bg-gray-50 p-8">
       {/* Form Card */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-8 max-w-3xl mx-auto">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-8">
-          Add Feature Category
-        </h2>
+        <h2 className="text-2xl font-semibold text-gray-900 mb-8">Add Feature Category</h2>
 
-        <FeatureCategoryForm
-          initialValues={initialValues}
-          onSubmit={handleSubmit}
-          submitLabel="Create Feature Category"
-          isEdit={false}
-        />
+        <FeatureCategoryForm initialValues={initialValues} onSubmit={handleSubmit} submitLabel="Create Feature Category" isEdit={false} />
       </div>
     </div>
   )

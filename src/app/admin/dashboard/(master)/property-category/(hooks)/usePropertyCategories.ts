@@ -30,43 +30,21 @@ export function usePropertyCategories() {
   }
 
   // 🔹 SWR data hook
-  const {
-    data: categories = [],
-    error,
-    isLoading,
-    mutate,
-  } = useSWR(
-    `${appEndpoints.getAllPropertyCategories}?activeOnly=true`,
-    fetcher,
-  )
+  const { data: categories = [], error, isLoading, mutate } = useSWR(`${appEndpoints.getAllPropertyCategories}?activeOnly=true`, fetcher)
 
   // 🔹 Handlers
   const navigate = useCallback((path: string) => router.push(path), [router])
 
-  const handleAdd = useCallback(
-    () => navigate('/admin/dashboard/property-category/add'),
-    [navigate],
-  )
+  const handleAdd = useCallback(() => navigate('/admin/dashboard/property-category/add'), [navigate])
 
-  const handleEdit = useCallback(
-    (id: number) => navigate(`/admin/dashboard/property-category/edit/${id}`),
-    [navigate],
-  )
+  const handleEdit = useCallback((id: number) => navigate(`/admin/dashboard/property-category/edit/${id}`), [navigate])
 
-  const handleCategoryMapping = useCallback(
-    (id: number) => navigate(`/admin/dashboard/category-mappings/add/${id}`),
-    [navigate],
-  )
+  const handleCategoryMapping = useCallback((id: number) => navigate(`/admin/dashboard/category-mappings/add/${id}`), [navigate])
 
   const handleDelete = useCallback(
     async (id: number, newStatus: boolean) => {
       try {
-        await patchMethod(
-          `${appEndpoints.updatePropertyCategoryStatus(
-            id.toString(),
-          )}?isActive=${newStatus}`,
-          false,
-        )
+        await patchMethod(`${appEndpoints.updatePropertyCategoryStatus(id.toString())}?isActive=${newStatus}`)
 
         await mutate()
         toast.success(`Category ${newStatus ? 'activated' : 'deactivated'}!`)

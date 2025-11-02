@@ -1,22 +1,19 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import { useParams } from 'next/navigation'
-import {
-  Heart,
-  Share2,
-  BedDouble,
-  Bath,
-  Building,
-  Sofa,
-  Flag,
-} from 'lucide-react'
+import { Heart, Share2, BedDouble, Bath, Building, Sofa, Flag } from 'lucide-react'
 import Amenities from '@/components/buyer/Amenities/Amenities'
 import { useTranslations } from 'next-intl'
 import { motion, Variants } from 'framer-motion'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import ReportPropertyModal from './modal/ReportPropertyModal'
+import usePropertiesDetail from '../(hooks)/usePropertiesHook'
+import MapView from '@/components/ui/map/MapView'
+import ImageViewer from '@/components/ui/CustomComponent/ImageGallery/ImageGallery'
+const DEFAULT_MAIN_IMAGE = '/villa.png'
+const DEFAULT_THUMB_IMAGE = '/agency.png'
 // Reusable animation variants
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 40 },
@@ -33,22 +30,54 @@ const staggerContainer: Variants = {
   },
 }
 
+const imagesValue = [
+  { src: '/villa.png', alt: 'Villa Image 1' },
+  { src: '/property2.png', alt: 'Property Image 2' },
+  { src: '/property3.png', alt: 'Property Image 3' },
+  { src: '/property1.png', alt: 'Property Image 1' },
+]
+
 const page = () => {
   const t = useTranslations()
-  const params = useParams()
-  const propertyId = params.id
+  const params = useParams<{ id: string | string[] }>()
+  const propertyIdParam = params?.id
+  const propertyId = Array.isArray(propertyIdParam) ? propertyIdParam[0] : propertyIdParam
   const [reportModalOpen, setReportModalOpen] = useState(false)
+  const { propertyDetailsData, propertyDetailsFetchLoader, propertyDetailsFetchErr } = usePropertiesDetail({ id: propertyId })
 
-  console.log('Property ID:', propertyId)
+  if (propertyDetailsFetchLoader) {
+    return (
+      <main className="flex min-h-[50vh] items-center justify-center bg-gray-50">
+        <p className="text-gray-600 text-sm md:text-base">{t('PropertiesDetails.loading', { defaultValue: 'Loading property details…' })}</p>
+      </main>
+    )
+  }
+
+  if (propertyDetailsFetchErr) {
+    return (
+      <main className="flex min-h-[50vh] items-center justify-center bg-gray-50">
+        <p className="text-red-600 text-sm md:text-base">
+          {t('PropertiesDetails.load_error', {
+            defaultValue: 'Unable to load property details right now. Please try again later.',
+          })}
+        </p>
+      </main>
+    )
+  }
+
+  if (!propertyDetailsData) {
+    return (
+      <main className="flex min-h-[50vh] items-center justify-center bg-gray-50">
+        <p className="text-gray-600 text-sm md:text-base">{t('PropertiesDetails.not_found', { defaultValue: 'Property details not available.' })}</p>
+      </main>
+    )
+  }
+
   return (
-    <motion.main
-      initial="hidden"
-      animate="visible"
-      variants={staggerContainer}
-      className="w-full bg-gray-50 py-8 px-4 md:px-10"
-    >
+    <motion.main initial="hidden" animate="visible" variants={staggerContainer} className="w-full bg-gray-50 py-8 px-4 md:px-10">
       <div className="max-w-7xl mx-auto grid lg:grid-cols-3 gap-8">
         {/* Left Content */}
+
         <motion.div variants={fadeInUp} className="lg:col-span-2 space-y-8">
           {/* Property Card */}
           <motion.div
@@ -59,79 +88,31 @@ const page = () => {
           >
             {/* Header */}
             <div className="flex justify-between items-start p-5">
-              <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6 }}
-              >
-                <h2 className="text-xl font-semibold">₹ 9.10 Cr</h2>
+              <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }}>
+                <h2 className="text-xl font-semibold">₹ {propertyDetailsData?.price}</h2>
                 <p className="text-sm text-gray-500">₹19,465 per sqft</p>
-                <p className="text-gray-800 mt-2 font-medium">
-                  4 BHK Villa for Sale in Whitefield Chennai
-                </p>
+                <p className="text-gray-800 mt-2 font-medium">{propertyDetailsData?.title}</p>
               </motion.div>
 
-              <motion.div
-                className="flex gap-3"
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6 }}
-              >
-                <motion.button
-                  whileHover={{ scale: 1.2, color: '#ef4444' }}
-                  className="p-2 rounded-full hover:bg-gray-100 transition"
-                >
+              <motion.div className="flex gap-3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }}>
+                <motion.button whileHover={{ scale: 1.2, color: '#ef4444' }} className="p-2 rounded-full hover:bg-gray-100 transition">
                   <Heart size={20} />
                 </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.2, color: '#2563eb' }}
-                  className="p-2 rounded-full hover:bg-gray-100 transition"
-                >
+                <motion.button whileHover={{ scale: 1.2, color: '#2563eb' }} className="p-2 rounded-full hover:bg-gray-100 transition">
                   <Share2 size={20} />
                 </motion.button>
               </motion.div>
             </div>
 
-            {/* Image Carousel */}
-            <motion.div
-              className="relative w-full h-60 flex gap-3 px-5"
-              variants={fadeInUp}
-            >
-              {/* Main Image */}
-              <motion.div
-                whileHover={{ scale: 1.03 }}
-                className="relative flex-1 rounded-xl overflow-hidden"
-              >
-                <Image
-                  src="/villa.png"
-                  alt="Property"
-                  fill
-                  className="object-cover"
-                />
-              </motion.div>
-
-              {/* Side Image */}
-              <motion.div
-                whileHover={{ scale: 1.03 }}
-                className="relative w-40 rounded-xl overflow-hidden"
-              >
-                <Image
-                  src="/agency.png"
-                  alt="Interior"
-                  fill
-                  className="object-cover"
-                />
-                <span className="absolute inset-0 bg-black/40 flex items-center justify-center text-white font-medium text-sm">
-                  +5 Photos
-                </span>
-              </motion.div>
-            </motion.div>
+            {/* Image Gallery */}
+            {/* <motion.div className="relative w-full flex gap-3 px-5 py-4" variants={fadeInUp}> */}
+            {/* <motion.div transition={{ duration: 0.25 }} className="relative flex-1 rounded-xl overflow-hidden shadow-sm"> */}
+            <ImageViewer images={imagesValue.map(img => img.src)} />
+            {/* </motion.div> */}
+            {/* </motion.div> */}
 
             {/* Property Info */}
-            <motion.div
-              variants={fadeInUp}
-              className="flex flex-wrap items-center justify-between mt-4 bg-gray-100 rounded-lg p-2 text-sm"
-            >
+            <motion.div variants={fadeInUp} className="flex flex-wrap items-center justify-between mt-4 bg-gray-100 rounded-lg p-2 text-sm">
               {[
                 {
                   icon: <BedDouble className="w-4 h-4" />,
@@ -150,11 +131,7 @@ const page = () => {
                   label: t('PropertiesDetails.semi_furnished'),
                 },
               ].map((item, idx) => (
-                <motion.div
-                  key={idx}
-                  whileHover={{ scale: 1.05 }}
-                  className="flex items-center gap-2 px-3 border-r border-gray-300 last:border-none"
-                >
+                <motion.div key={idx} whileHover={{ scale: 1.05 }} className="flex items-center gap-2 px-3 border-r border-gray-300 last:border-none">
                   {item.icon}
                   <span>{item.label}</span>
                 </motion.div>
@@ -162,18 +139,15 @@ const page = () => {
             </motion.div>
 
             {/* Details Section */}
-            <motion.div
-              variants={fadeInUp}
-              className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 p-6 text-sm"
-            >
+            <motion.div variants={fadeInUp} className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 p-6 text-sm">
               {[
                 [t('PropertiesDetails.super_built_up_area'), '2000sqft'],
                 [t('PropertiesDetails.floors'), 'Ground (Out of 3 Floors)'],
                 [t('PropertiesDetails.parking'), 'Bike and Car'],
                 [t('PropertiesDetails.age_of_building'), '>10 years'],
-                [t('PropertiesDetails.price'), '₹ 9.10 Cr'],
+                [t('PropertiesDetails.price'), `₹ ${propertyDetailsData?.price}`],
                 [t('PropertiesDetails.booking_amount'), '₹ 80,000'],
-                [t('PropertiesDetails.address'), 'Chennai, Guindy'],
+                [t('PropertiesDetails.address'), `${propertyDetailsData?.address_line || ''}`],
                 [t('PropertiesDetails.gated_security'), 'Yes'],
               ].map(([label, value], idx) => (
                 <motion.div key={idx} whileHover={{ scale: 1.03 }}>
@@ -184,34 +158,14 @@ const page = () => {
             </motion.div>
 
             {/* Description */}
-            <motion.div
-              variants={fadeInUp}
-              className="bg-white rounded-xl shadow-md p-6"
-            >
-              <h2 className="text-lg font-semibold mb-3">
-                {t('PropertiesDetails.description')}
-              </h2>
-              <p className="text-gray-700 leading-relaxed text-justify text-sm">
-                Spacious 4 BHK Villa for Sale in Whitefield, Chennai
-                <br />
-                <br />
-                This semi-furnished villa offers a super built-up area of 2000
-                sq.ft with 3 bedrooms, 3 bathrooms, and 1 balcony. Located on
-                the ground floor of a 3-floor building, it comes with bike and
-                car parking, gated security, and modern amenities. Situated in
-                Guindy, Chennai, this property is over 10 years old and priced
-                at ₹9.10 Cr with a booking amount of ₹80,000.
-              </p>
+            <motion.div variants={fadeInUp} className="bg-white rounded-xl shadow-md p-6">
+              <h2 className="text-lg font-semibold mb-3">{t('PropertiesDetails.description')}</h2>
+              <p className="text-gray-700 leading-relaxed text-justify text-sm">{propertyDetailsData?.description}</p>
             </motion.div>
           </motion.div>
 
           {/* Amenities */}
-          <motion.div
-            variants={fadeInUp}
-            whileInView={{ opacity: 1, y: 0 }}
-            initial={{ opacity: 0, y: 40 }}
-            transition={{ duration: 0.6 }}
-          >
+          <motion.div variants={fadeInUp} whileInView={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 40 }} transition={{ duration: 0.6 }}>
             <Amenities title={t('PropertiesDetails.amenities')} />
           </motion.div>
 
@@ -232,22 +186,14 @@ const page = () => {
           </motion.div>
 
           {/* Map Section */}
-          <motion.div
-            variants={fadeInUp}
-            whileInView={{ opacity: 1, y: 0 }}
-            initial={{ opacity: 0, y: 40 }}
-            transition={{ duration: 0.6 }}
-            className="bg-white shadow-md rounded-xl overflow-hidden"
-          >
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3888.919802768646!2d80.22096687507835!3d12.917747717126711!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a525f5f6c4e8a67%3A0x3db9b4e2d79c7c5c!2sChennai!5e0!3m2!1sen!2sin!4v1675092345678"
-              width="100%"
-              height="300"
-              style={{ border: 0 }}
-              allowFullScreen
-              loading="lazy"
-              className="rounded-lg"
-            ></iframe>
+          <motion.div variants={fadeInUp} whileInView={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 40 }} transition={{ duration: 0.6 }}>
+            <div className="w-full h-100 rounded-xl overflow-hidden">
+              <MapView
+                center={{ lat: Number(propertyDetailsData?.latitude) || 12.9177477, lng: Number(propertyDetailsData?.longitude) || 80.2209669 }}
+                zoom={14}
+                markers={[{ lat: Number(propertyDetailsData?.latitude) || 12.9177477, lng: Number(propertyDetailsData?.longitude) || 80.2209669 }]}
+              />
+            </div>
           </motion.div>
         </motion.div>
 
@@ -260,17 +206,12 @@ const page = () => {
           transition={{ duration: 0.6, delay: 0.3 }}
         >
           {/* Contact Owner */}
-          <motion.div
-            whileHover={{ scale: 1.03 }}
-            className="bg-white shadow-md rounded-xl p-6"
-          >
-            <h3 className="text-lg font-bold mb-2">
-              {t('PropertiesDetails.contact_owner')}
-            </h3>
+          <motion.div whileHover={{ scale: 1.03 }} className="bg-white shadow-md rounded-xl p-6">
+            <h3 className="text-lg font-bold mb-2">{t('PropertiesDetails.contact_owner')}</h3>
             <p className="text-gray-700 font-medium">
-              {t('PropertiesDetails.name')}: Shankar
+              {t('PropertiesDetails.name')}: {propertyDetailsData?.contact_name || 'Unknown'}
             </p>
-            <p className="text-gray-700 mb-4">+91 1234567890</p>
+            <p className="text-gray-700 mb-4">{propertyDetailsData?.contact_phone || 'Unknown'}</p>
 
             <div className="space-y-3">
               <motion.div
@@ -309,24 +250,13 @@ const page = () => {
           </motion.div>
 
           {/* Agents */}
-          <motion.div
-            whileHover={{ scale: 1.03 }}
-            className="bg-white shadow-md rounded-xl p-6"
-          >
+          <motion.div whileHover={{ scale: 1.03 }} className="bg-white shadow-md rounded-xl p-6">
             {[
               ['SD', t('PropertiesDetails.agent') + ' 1', 'bg-blue-500'],
               ['S', t('PropertiesDetails.agent') + ' 2', 'bg-indigo-500'],
             ].map(([initials, name, color], idx) => (
-              <motion.div
-                key={idx}
-                className={`flex items-center space-x-3 mb-4 last:mb-0`}
-                whileHover={{ x: 5 }}
-              >
-                <div
-                  className={`w-10 h-10 rounded-full ${color} flex items-center justify-center text-white font-bold`}
-                >
-                  {initials}
-                </div>
+              <motion.div key={idx} className={`flex items-center space-x-3 mb-4 last:mb-0`} whileHover={{ x: 5 }}>
+                <div className={`w-10 h-10 rounded-full ${color} flex items-center justify-center text-white font-bold`}>{initials}</div>
                 <p className="font-medium text-gray-700">{name}</p>
               </motion.div>
             ))}
@@ -335,7 +265,7 @@ const page = () => {
         <ReportPropertyModal
           reportModalOpen={reportModalOpen}
           setReportModalOpen={setReportModalOpen}
-          propertyId={String(propertyId)}
+          propertyId={propertyId ? String(propertyId) : ''}
         />
       </div>
     </motion.main>

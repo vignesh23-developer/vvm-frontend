@@ -26,8 +26,7 @@ export const appEndpoints = {
   getAllProperties: '/properties',
   getPropertyByID: (propertyId: string) => `/properties/${propertyId}`,
   updateProperty: (propertyId: string) => `/properties/${propertyId}`,
-  updatePropertyStatus: (propertyId: string) =>
-    `/properties/${propertyId}/status`,
+  updatePropertyStatus: (propertyId: string) => `/properties/${propertyId}/status`,
   deleteProperty: (propertyId: string) => `/properties/${propertyId}`,
   // Property Category Endpoints
   createPropertyCategory: '/master/property-categories',
@@ -54,36 +53,27 @@ export const appEndpoints = {
   deleteFeatureGroup: (groupId: string) => `/master/feature-groups/${groupId}`,
   // Property Category Features Mapping Endpoints
   mapFeaturesToPropertyCategory: '/master/property-mapping/apply',
-
+  getPropertyCategoryFeatureMappingByID: (mappingId: string) => `/master/property-mapping/${mappingId}`,
+  updatePropertyCategoryFeatureMapping: `/master/property-mapping/apply`,
 
   // Property Approval Endpoints
   getAllPropertyApprovals: '/property-approvals',
-  getPropertyApprovalByID: (propertyId: string) =>
-    `/property-approvals/${propertyId}`,
+  getPropertyApprovalByID: (propertyId: string) => `/property-approvals/${propertyId}`,
   getAllPropertyApprovalStats: '/property-approvals/stats',
-  approveProperty: (propertyId: string) =>
-    `/property-approvals/${propertyId}/approve`,
-  rejectProperty: (propertyId: string) =>
-    `/property-approvals/${propertyId}/reject`,
-  requestChangesProperty: (propertyId: string) =>
-    `/property-approvals/${propertyId}/request-changes`,
+  approveProperty: (propertyId: string) => `/property-approvals/property/${propertyId}/approve`,
+  rejectProperty: (propertyId: string) => `/property-approvals/property/${propertyId}/reject`,
+  requestChangesProperty: (propertyId: string) => `/property-approvals/${propertyId}/request-changes`,
   // Property Reports Endpoints
-  createPropertyReport: (propertyId: string) =>
-    `/property-reports/${propertyId}`,
+  createPropertyReport: (propertyId: string) => `/property-reports/${propertyId}`,
   getAllPropertyReports: '/property-reports',
   getPropertyReportByID: (reportId: string) => `/property-reports/${reportId}`,
-  updatePropertyReportResolve: (reportId: string) =>
-    `/property-reports/${reportId}/resolve`,
-  updatePropertyReportDismiss: (reportId: string) =>
-    `/property-reports/${reportId}/dismiss`,
+  updatePropertyReportResolve: (reportId: string) => `/property-reports/${reportId}/resolve`,
+  updatePropertyReportDismiss: (reportId: string) => `/property-reports/${reportId}/dismiss`,
   getAllPropertyCategoryFeatureMappings: '/property-category/feature-mappings',
-  getPropertyCategoryFeatureMappingByID: (mappingId: string) => `/master/property-mapping/${mappingId}`,
-  updatePropertyCategoryFeatureMapping: (mappingId: string) => `/master/property-mapping/apply/${mappingId}`,
-  deletePropertyCategoryFeatureMapping: (mappingId: string) => `/property-category/feature-mappings/${mappingId}`,
 
   createProperties: (agentId: string) => `/properties/?ownerId=${agentId}`,
   updateProperties: `/properties/`,
 
   addPropertyMediaLink: (propertyId: string) => `/property-media/${propertyId}`,
-  addPropertyMediaLocal: (propertyId: string) => `/property-media/${propertyId}/`,
+  addPropertyMediaLocal: (propertyId: string) => `/property-media/${propertyId}/upload`,
 }

@@ -13,38 +13,26 @@ import { appEndpoints } from '@/services/endpoints'
 import toast from 'react-hot-toast'
 
 const resolveInputType = (value?: string): FeatureInputType => {
-  const allowed: FeatureInputType[] = [
-    'single_select',
-    'multi_select',
-    'text',
-    'numeric',
-    'boolean',
-    'units',
-  ]
+  const allowed: FeatureInputType[] = ['single_select', 'multi_select', 'text', 'numeric', 'boolean', 'units']
 
   if (!value) {
     return 'single_select'
   }
 
-  return allowed.includes(value as FeatureInputType)
-    ? (value as FeatureInputType)
-    : 'single_select'
+  return allowed.includes(value as FeatureInputType) ? (value as FeatureInputType) : 'single_select'
 }
 
 export default function EditFeatureCategory() {
   const router = useRouter()
   const { id } = useParams()
-  const [initialValues, setInitialValues] =
-    useState<FeatureCategoryFormValues | null>(null)
+  const [initialValues, setInitialValues] = useState<FeatureCategoryFormValues | null>(null)
   const [loading, setLoading] = useState(true)
 
   // ✅ Fetch existing feature category
   useEffect(() => {
     const fetchCategory = async () => {
       try {
-        const res = await getMethod(
-          `${appEndpoints.getFeatureCategoryByID(id as string)}`,
-        )
+        const res = await getMethod(`${appEndpoints.getFeatureCategoryByID(id as string)}`)
         if (res.error) {
           toast.error(res.message || 'Failed to load feature category')
           return
@@ -57,12 +45,7 @@ export default function EditFeatureCategory() {
             ? data.options.map((opt: any, index: number) => ({
                 id: opt?.id,
                 name: opt?.name ?? '',
-                value:
-                  opt?.value &&
-                  typeof opt.value === 'string' &&
-                  opt.value.trim()
-                    ? opt.value
-                    : opt?.name ?? '',
+                value: opt?.value && typeof opt.value === 'string' && opt.value.trim() ? opt.value : opt?.name ?? '',
                 icon: opt?.icon ?? '',
                 sortOrder: opt?.sortOrder ?? index + 1,
                 isActive: opt?.isActive ?? true,
@@ -104,27 +87,19 @@ export default function EditFeatureCategory() {
         description: values.description,
         featureGroupId: values.featureGroupId,
         options:
-          values.inputType === 'text' ||
-          values.inputType === 'numeric' ||
-          values.inputType === 'boolean' ||
-          values.inputType === 'units'
+          values.inputType === 'text' || values.inputType === 'numeric' || values.inputType === 'boolean' || values.inputType === 'units'
             ? []
             : (values.options ?? []).map(opt => ({
                 id: opt?.id,
                 name: opt?.name ?? '',
-                value:
-                  opt?.value && opt.value.trim() ? opt.value : opt?.name ?? '',
+                value: opt?.value && opt.value.trim() ? opt.value : opt?.name ?? '',
                 icon: opt?.icon ?? '',
                 sortOrder: opt?.sortOrder ?? 1,
                 isActive: opt?.isActive ?? true,
               })),
       }
 
-      const res = await patchMethod<FeatureCategory>(
-        `${appEndpoints.updateFeatureCategory(id as string)}/with-options`,
-        false,
-        payload,
-      )
+      const res = await patchMethod<FeatureCategory>(`${appEndpoints.updateFeatureCategory(id as string)}/with-options`, payload)
 
       if (res.error) {
         toast.error(res.message || 'Failed to update feature category')
@@ -141,23 +116,15 @@ export default function EditFeatureCategory() {
 
   if (loading) return <p className="text-center mt-10">Loading...</p>
 
-  if (!initialValues)
-    return <p className="text-center mt-10 text-red-500">Category not found</p>
+  if (!initialValues) return <p className="text-center mt-10 text-red-500">Category not found</p>
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       {/* Form Card */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-8 max-w-3xl mx-auto">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-8">
-          Edit Feature Category
-        </h2>
+        <h2 className="text-2xl font-semibold text-gray-900 mb-8">Edit Feature Category</h2>
 
-        <FeatureCategoryForm
-          initialValues={initialValues}
-          onSubmit={handleSubmit}
-          submitLabel="Update Feature Category"
-          isEdit={true}
-        />
+        <FeatureCategoryForm initialValues={initialValues} onSubmit={handleSubmit} submitLabel="Update Feature Category" isEdit={true} />
       </div>
     </div>
   )

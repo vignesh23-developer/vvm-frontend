@@ -3,7 +3,7 @@
 import { FormikProps } from 'formik'
 import { useState } from 'react'
 import { PropertyCreationFormValues } from '../page'
-import { PropertyCategory } from '@/hooks/CustomHooks/usePropertyCategories'
+import { PropertyCategory } from '@/app/(seller)/land-registration/(dto)/land_registration_dto'
 import { removeLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
 import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
 import { useRouter } from 'next/navigation'
@@ -17,14 +17,14 @@ interface ListingDetails {
   contact: string
 }
 
-interface Step5ReviewSubmitProps {
+interface Step6ReviewSubmitProps {
   listingData?: Partial<ListingDetails>
   onSubmit?: (agreedToTerms: boolean) => void
   formik: FormikProps<PropertyCreationFormValues>
   propertyCategoryData: PropertyCategory[]
 }
 
-export default function Step5ReviewSubmit({ listingData, onSubmit, formik, propertyCategoryData }: Step5ReviewSubmitProps) {
+export default function Step6ReviewSubmit({ listingData, onSubmit, formik, propertyCategoryData }: Step6ReviewSubmitProps) {
   const { values, errors, touched, handleChange, setFieldValue } = formik
 
   const [agreedToTerms, setAgreedToTerms] = useState(false)
@@ -45,11 +45,9 @@ export default function Step5ReviewSubmit({ listingData, onSubmit, formik, prope
   const listing = { ...defaultListing, ...listingData }
 
   const handleSubmit = () => {
-    
-      removeLocalStorageItem(LOCAL_STORAGE_NAME?.propertyId)
-      removeLocalStorageItem(LOCAL_STORAGE_NAME?.propertyDetails)
-      router.push('/properties')
-    
+    removeLocalStorageItem(LOCAL_STORAGE_NAME?.propertyId)
+    removeLocalStorageItem(LOCAL_STORAGE_NAME?.propertyDetails)
+    router.push('/properties')
   }
 
   const handleTermsChange = (e: React.ChangeEvent<HTMLInputElement>) => {

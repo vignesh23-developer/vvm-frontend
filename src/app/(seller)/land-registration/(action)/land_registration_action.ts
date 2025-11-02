@@ -1,7 +1,4 @@
-'use server'
-
 import { ResponseDTO } from '@/components/dto/response_dto'
-
 import { patchMethod, postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 

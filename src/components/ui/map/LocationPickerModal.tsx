@@ -133,6 +133,7 @@ export default function LocationPickerModal({ open, setOpen, initialLat, initial
               zoom={14}
               markers={[{ lat: selectedLat, lng: selectedLng }]}
               onMapClick={handleMapClick}
+              ifTextSearch={true}
             />
           </div>
         </div>

@@ -1,9 +1,8 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import FeatureGroupForm, {
-  FormValues,
-} from '@/components/admin/forms/FeatureGroupForm'
+import FeatureGroupForm from '@/app/admin/dashboard/(master)/feature-group/(forms)/FeatureGroupForm'
+import { FormValues } from '@/app/admin/dashboard/(master)/feature-group/(dto)/FeatureGroupType'
 import { appEndpoints } from '@/services/endpoints'
 import { postMethod } from '@/services/service'
 import toast from 'react-hot-toast'
@@ -28,15 +27,7 @@ export default function AddFeatureGroup() {
         isActive: values.isActive ?? true,
       }
 
-      const response = await postMethod(
-        appEndpoints.createFeatureGroup,
-        payload,
-      )
-
-      if (response.data.error) {
-        toast.error(response.data.message || 'Failed to create category')
-        return
-      }
+      const response = await postMethod(appEndpoints.createFeatureGroup, payload)
 
       toast.success('Feature Group created successfully!')
 
@@ -51,16 +42,9 @@ export default function AddFeatureGroup() {
     <div className="min-h-screen bg-gray-50 p-8">
       {/* Form Card */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-8 max-w-3xl mx-auto">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-8">
-          Add Feature Group
-        </h2>
+        <h2 className="text-2xl font-semibold text-gray-900 mb-8">Add Feature Group</h2>
 
-        <FeatureGroupForm
-          initialValues={initialValues}
-          onSubmit={handleSubmit}
-          submitLabel="Create Feature Group"
-          isEdit={false}
-        />
+        <FeatureGroupForm initialValues={initialValues} onSubmit={handleSubmit} submitLabel="Create Feature Group" isEdit={false} />
       </div>
     </div>
   )

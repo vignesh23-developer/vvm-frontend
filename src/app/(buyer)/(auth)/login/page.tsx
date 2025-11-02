@@ -26,11 +26,7 @@ const Login = () => {
   const router = useRouter()
   const initialValues: AuthFormValues = { phone: '' }
 
-  const handleLoginSubmit = async (
-    values: AuthFormValues,
-    setSubmitting: (isSubmitting: boolean) => void,
-    type: string,
-  ) => {
+  const handleLoginSubmit = async (values: AuthFormValues, setSubmitting: (isSubmitting: boolean) => void, type: string) => {
     try {
       const payload = {
         phoneNumber: values.phone,
@@ -54,17 +50,15 @@ const Login = () => {
       }
 
       const nestedData = responseData?.data
-      const isExistingUser =
-        nestedData?.isExistingUser ?? responseData?.isExistingUser
+      const isExistingUser = nestedData?.isExistingUser ?? responseData?.isExistingUser
 
-      const successMessage =
-        nestedData?.message || responseData?.message || 'OTP sent successfully'
+      const successMessage = nestedData?.message || responseData?.message || 'OTP sent successfully'
 
       toast.success(successMessage)
 
       if (typeof isExistingUser === 'boolean') {
         if (isExistingUser) {
-          router.push('/otp-verification')
+          router.push(`/otp-verification?phone=${encodeURIComponent(values.phone)}`)
         } else {
           router.push('/signup')
         }
@@ -87,12 +81,7 @@ const Login = () => {
       transition={{ duration: 0.6, ease: 'easeOut' }}
     >
       {/* Language Switch */}
-      <motion.div
-        className="absolute top-4 right-4"
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-      >
+      <motion.div className="absolute top-4 right-4" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
         <LanguageSwitch />
       </motion.div>
 
@@ -104,18 +93,8 @@ const Login = () => {
         transition={{ duration: 0.8, ease: 'easeOut' }}
       >
         <Link href="/home">
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            transition={{ type: 'spring', stiffness: 300 }}
-            className="max-w-xs cursor-pointer"
-          >
-            <Image
-              src="/footer_logo.png"
-              alt="Vaazhga Valamudan Logo"
-              width={400}
-              height={300}
-              className="mt-6"
-            />
+          <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }} className="max-w-xs cursor-pointer">
+            <Image src="/footer_logo.png" alt="Vaazhga Valamudan Logo" width={400} height={300} className="mt-6" />
           </motion.div>
         </Link>
       </motion.div>
@@ -150,10 +129,7 @@ const Login = () => {
             <span className="text-green-900">{t('Auth.welcome_back')}</span>
           </motion.h2>
 
-          <motion.p
-            className="text-gray-500 mt-2 text-xs"
-            variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
-          >
+          <motion.p className="text-gray-500 mt-2 text-xs" variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}>
             {t('Auth.login_description')}
           </motion.p>
 
@@ -195,34 +171,21 @@ const Login = () => {
                       onClick={() => setButtonType('whatsapp')}
                       className="w-full bg-[#2B1B12] text-white text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-[#3d2616] disabled:opacity-60"
                     >
-                      <span>
-                        {isSubmitting
-                          ? 'Verifying...'
-                          : t('Auth.whatapp_button')}
-                      </span>
+                      <span>{isSubmitting ? 'Verifying...' : t('Auth.whatapp_button')}</span>
                     </Button>
                   </motion.div>
                 </motion.div>
 
                 {/* Login Link */}
-                <motion.p
-                  className="text-center text-gray-600 text-xs"
-                  variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
-                >
+                <motion.p className="text-center text-gray-600 text-xs" variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}>
                   {t('Auth.login_message')}{' '}
-                  <a
-                    href="/signup"
-                    className="font-semibold text-green-900 hover:underline"
-                  >
+                  <a href="/signup" className="font-semibold text-green-900 hover:underline">
                     {t('Auth.signup')}
                   </a>
                 </motion.p>
 
                 {/* Divider */}
-                <motion.div
-                  className="flex items-center justify-center space-x-2"
-                  variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
-                >
+                <motion.div className="flex items-center justify-center space-x-2" variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}>
                   <div className="flex-1 border-t border-gray-300"></div>
                   <span className="text-gray-500 text-sm">OR</span>
                   <div className="flex-1 border-t border-gray-300"></div>

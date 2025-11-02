@@ -29,7 +29,7 @@
     "reset_password": "கடவுச்சொல்லை மீட்டமைக்கவும்",
     "continue_with_sms": "SMS உடன் தொடரவும்",
     "otp_verification": "உங்கள் OTPயைச் சரிபார்க்கவும்",
-    "otp_description": "4 இலக்கக் குறியீட்டிற்கு உங்கள் SMS ஐப் பார்க்கவும்.",
+    "otp_description": "6 இலக்கக் குறியீட்டிற்கு உங்கள் SMS ஐப் பார்க்கவும்.",
     "verify": "சரிபார்க்கவும்",
     "profile_creation": "தளத்திற்கு உங்களை அறிமுகப்படுத்திக் கொள்ளுங்கள்",
     "profile_description": "சரியான முதல் தோற்றம் உங்கள் சுயவிவரத்தில் இருந்து தொடங்குகிறது.",
@@ -167,7 +167,9 @@
     "description": "விளக்கம்",
     "amenities": "வசதிகள்",
     "report_property": "அறிக்கை",
-    "agent": "முகவர்"
+    "agent": "முகவர்",
+    "loading": "ஏற்றுகிறது...",
+    "more_photos": "மேலும் புகைப்படங்கள்"
   },
   "PropertiesFilter": {
     "properties": "சொத்துகள்",

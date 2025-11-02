@@ -40,9 +40,7 @@ export function useProperties(options: UsePropertiesOptions = {}) {
     queryParams.set('page', String(page))
   }
 
-  const swrKey = queryParams.toString()
-    ? `${appEndpoints.getAllProperties}?${queryParams.toString()}`
-    : appEndpoints.getAllProperties
+  const swrKey = queryParams.toString() ? `${appEndpoints.getAllProperties}?${queryParams.toString()}` : appEndpoints.getAllProperties
 
   // Fetcher using our generic API helper
   const fetcher = async (url: string): Promise<PropertiesFetcherResult> => {
@@ -60,12 +58,7 @@ export function useProperties(options: UsePropertiesOptions = {}) {
       if (Array.isArray(payload)) {
         return {
           items: payload,
-          total:
-            typeof metaTotal === 'number'
-              ? metaTotal
-              : typeof nestedTotal === 'number'
-              ? nestedTotal
-              : payload.length,
+          total: typeof metaTotal === 'number' ? metaTotal : typeof nestedTotal === 'number' ? nestedTotal : payload.length,
         }
       }
 
@@ -77,12 +70,7 @@ export function useProperties(options: UsePropertiesOptions = {}) {
     }
   }
   // SWR handles caching, revalidation, and errors
-  const {
-    data,
-    error,
-    isLoading,
-    mutate: mutateProperties,
-  } = useSWR<PropertiesFetcherResult>(swrKey, fetcher)
+  const { data, error, isLoading, mutate: mutateProperties } = useSWR<PropertiesFetcherResult>(swrKey, fetcher)
 
   // Function to approve or reject a property
   const handlePropertyAction = async (
@@ -91,17 +79,14 @@ export function useProperties(options: UsePropertiesOptions = {}) {
     action: 'approve' | 'reject',
     extraData?: { comment?: string; rejectReason?: string },
   ) => {
-    const endpoint =
-      action === 'approve'
-        ? appEndpoints.approveProperty(propertyId as string)
-        : appEndpoints.rejectProperty(propertyId as string)
+    const endpoint = action === 'approve' ? appEndpoints.approveProperty(propertyId as string) : appEndpoints.rejectProperty(propertyId as string)
 
     // status data to be sent in the request body
     let payload = {}
     if (action === 'approve' && extraData?.comment) {
       payload = {
         reviewer_id: reviewer_id,
-        comments: extraData.comment,
+        // comments: extraData.comment,
       }
     } else if (action === 'reject' && extraData?.rejectReason) {
       payload = {

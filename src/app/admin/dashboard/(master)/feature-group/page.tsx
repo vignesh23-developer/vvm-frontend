@@ -3,10 +3,8 @@
 import { Plus, Edit3, Trash2 } from 'lucide-react'
 import { useCallback, useMemo } from 'react'
 import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
-import {
-  useFeatureGroup,
-  FeatureGroup,
-} from '@/hooks/CustomHooks/useFeatureGroup'
+import { useFeatureGroup } from '@/app/admin/dashboard/(master)/feature-group/(hooks)/useFeatureGroup'
+import { FeatureGroup } from '@/app/admin/dashboard/(master)/feature-group/(dto)/FeatureGroupType'
 
 type FeatureGroupTableRow = FeatureGroup & Record<string, unknown>
 
@@ -78,15 +76,9 @@ export default function FeatureGroupPage() {
   }, [groups])
 
   // ✅ Handle loading and error states
-  if (error)
-    return <div className="p-6 text-red-600">Failed to load feature group.</div>
+  if (error) return <div className="p-6 text-red-600">Failed to load feature group.</div>
 
-  if (isLoading)
-    return (
-      <div className="p-6 text-gray-600 animate-pulse">
-        Loading feature group...
-      </div>
-    )
+  if (isLoading) return <div className="p-6 text-gray-600 animate-pulse">Loading feature group...</div>
 
   // ✅ Render UI
   return (
