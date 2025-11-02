@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { appEndpoints } from '@/services/endpoints'
 import { deleteMethod, getMethod } from '@/services/service'
 import toast from 'react-hot-toast'
+import { ResponseDTO } from '@/components/dto/response_dto'
 
 // Strongly typed interface
 export interface RoleManagement {
@@ -43,12 +44,7 @@ export function useRoleManagement() {
   }
 
   // SWR handles caching, revalidation, and errors
-  const {
-    data: roles,
-    error,
-    isLoading,
-    mutate: mutateRoles,
-  } = useSWR<RoleManagement[]>(`${appEndpoints.getAllRoles}`, fetcher)
+  const { data: roles, error, isLoading, mutate: mutateRoles } = useSWR<RoleManagement[]>(`${appEndpoints.getAllRoles}`, fetcher)
 
   // CRUD handlers
   const handleAdd = useCallback(() => {
@@ -67,9 +63,7 @@ export function useRoleManagement() {
       if (!window.confirm('Are you sure you want to delete this role?')) return
 
       try {
-        const res = await deleteMethod(
-          `${appEndpoints.deleteRole(id.toString())}`,
-        )
+        const res: ResponseDTO = await deleteMethod(`${appEndpoints.deleteRole(id.toString())}`)
 
         console.log('✅ Delete Response:', res.data)
 

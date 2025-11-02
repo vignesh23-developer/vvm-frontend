@@ -5,7 +5,7 @@ import { LOCAL_STORAGE_NAME } from '../utils/local_storage/local_storage_constan
 const isLocal = typeof window !== 'undefined' && window.location.hostname === 'localhost'
 
 const axiosInstance = axios.create({
-  baseURL: isLocal ? 'http://localhost:5000' : process.env.NEXT_PUBLIC_API_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
   headers: {
     // Accept: 'application/json',
     'Content-Type': 'application/json',
