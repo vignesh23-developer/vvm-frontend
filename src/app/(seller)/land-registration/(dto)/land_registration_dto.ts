@@ -1,5 +1,7 @@
 // types/property-listing.ts
 
+import { property } from 'zod'
+
 export interface FeatureOptionGroup {
   feature_category_id: string
   feature_group_id: string
@@ -244,7 +246,8 @@ export class LandRegistrationPayloadDTO {
   description: string
   property_category_id: string
   price: number
-  price_unit: string
+  property_size: number | string
+  property_size_unit: string
   listing_type: string
   status: string
   door_number: string
@@ -269,7 +272,8 @@ export class LandRegistrationPayloadDTO {
     this.description = init.description ?? ''
     this.property_category_id = init.property_category_id ?? ''
     this.price = init.price ?? 0
-    this.price_unit = init.price_unit ?? ''
+    this.property_size = init.property_size ?? 0
+    this.property_size_unit = init.property_size_unit ?? ''
     this.listing_type = init.listing_type ?? ''
     this.status = init.status ?? ''
     this.door_number = init.door_number ?? ''
@@ -296,7 +300,8 @@ export class LandRegistrationPayloadDTO {
       description: this.description,
       property_category_id: this.property_category_id,
       price: this.price,
-      price_unit: this.price_unit,
+      property_size: this.property_size,
+      property_size_unit: this.property_size_unit,
       listing_type: this.listing_type.toUpperCase(),
       status: 'AVAILABLE',
       door_number: this.door_number,

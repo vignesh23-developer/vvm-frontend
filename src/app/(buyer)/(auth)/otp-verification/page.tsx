@@ -74,16 +74,16 @@ export default function OtpVerification() {
       }
 
       const token = response.data?.accessToken
-      console.log('Received Token:', token)
+      const userData = response.data?.user
       if (token) {
         setLocalStorageItem(LOCAL_STORAGE_NAME.authToken, token)
-        setLocalStorageItem(LOCAL_STORAGE_NAME.userData, response.data?.user || '')
+        setLocalStorageItem(LOCAL_STORAGE_NAME.userData, userData || '')
       }
 
       const successMessage = response.data?.message || response.message || 'OTP verified successfully'
       toast.success(successMessage)
 
-      router.push('/admin/dashboard/property-category')
+      router.push('/home')
     } catch (error) {
       console.error('OTP verification failed:', error)
       toast.error('Unable to verify OTP right now. Please try again.')

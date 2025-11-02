@@ -5,6 +5,8 @@ export interface PropertyDetailsResponseDto {
   property_category_id: string
   price: string
   price_unit: string | null
+  property_size: string | number
+  property_size_unit: string | null
   listing_type: 'RENT' | 'SALE' | string
   status: 'AVAILABLE' | 'SOLD' | 'RENTED' | string
   door_number: string

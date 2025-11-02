@@ -24,6 +24,8 @@ export const appEndpoints = {
   // Properties Endpoints
   createProperty: '/properties',
   getAllProperties: '/properties',
+  getAllPropertiesList: '/properties/search/list',
+
   getPropertyByID: (propertyId: string) => `/properties/${propertyId}`,
   updateProperty: (propertyId: string) => `/properties/${propertyId}`,
   updatePropertyStatus: (propertyId: string) => `/properties/${propertyId}/status`,

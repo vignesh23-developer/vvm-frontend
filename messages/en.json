@@ -41,6 +41,8 @@
   },
   "Navbar": {
     "home": "Home",
+    "seller": "Seller",
+    "admin": "Admin",
     "services": "Services",
     "about_us": "About Us",
     "help_center": "Help Center",
@@ -144,6 +146,8 @@
     "balcony" : "Balcony",
     "semi_furnished" : "Semi Furnished",
     "super_built_up_area" : "Super Built-up Area",
+    "status" : "Status",
+    "purpose": "Purpose",
     "floors": "Floors",
     "parking": "Parking",
     "age_of_building": "Age of Building",

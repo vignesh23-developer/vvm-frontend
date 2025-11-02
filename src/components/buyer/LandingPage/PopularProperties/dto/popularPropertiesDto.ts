@@ -4,6 +4,9 @@ export interface PopularPropertyDto {
   address_line: string
   rooms: number
   area: string
+  property_size: string | number
+  property_size_unit: string | null
   price: string
   image: string
+  media: { url: string; alt?: string; is_primary: boolean }[]
 }

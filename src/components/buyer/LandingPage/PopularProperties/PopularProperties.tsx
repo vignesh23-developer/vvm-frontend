@@ -71,17 +71,10 @@ export default function PopularProperties() {
               >
                 {/* Image */}
                 <div className="relative w-full h-56 sm:h-64 overflow-hidden">
-                  <motion.div
-                    whileHover={{ scale: 1.08 }}
-                    transition={{ duration: 0.5 }}
-                    className="w-full h-full"
-                  >
-                    <Image
-                      src={'/pp1.png'}
-                      alt={item.title}
-                      fill
-                      className="object-cover"
-                    />
+                  <motion.div whileHover={{ scale: 1.08 }} transition={{ duration: 0.5 }} className="w-full h-full">
+                    {items.map(item => (
+                      <Image key={item.id} src={'/pp1.png'} alt={item.title} fill className="object-cover" />
+                    ))}
                   </motion.div>
                 </div>
 
@@ -99,16 +92,13 @@ export default function PopularProperties() {
                     </span>
                     <span className="flex items-center gap-1">
                       <Ruler size={14} className="text-gray-500" />
-                      {item?.area ? item.area : 'N/A'}
+                      {item?.property_size ? item.property_size + ' ' + item.property_size_unit : 'N/A'}
                     </span>
                   </div>
 
                   {/* Price & Button */}
                   <div className="flex justify-between items-center mt-auto">
-                    <motion.div
-                      whileHover={{ scale: 1.08 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
+                    <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }}>
                       <Button
                         type="button"
                         variant="tertiary"

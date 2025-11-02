@@ -41,6 +41,8 @@
   },
   "Navbar": {
     "home": "முகப்பு",
+    "seller": "விற்பனையாளர்",
+    "admin": "நிர்வாகி",
     "services": "சேவைகள்",
     "about_us": "எங்களைப் பற்றி",
     "help_center": "உதவி மையம்",
@@ -146,6 +148,8 @@
     "balcony": "மாடிப்படி",
     "semi_furnished": "பாதி உபகரணங்களுடன்",
     "super_built_up_area": "மொத்த கட்டிட பரப்பளவு",
+    "status": "நிலை",
+    "purpose": "நோக்கம்",
     "floors": "அடுக்குகள்",
     "parking": "வாகன நிறுத்தம்",
     "age_of_building": "கட்டிட வயது",

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Menu, X, Globe, User, LogOut, ArrowRight } from 'lucide-react'
@@ -25,11 +25,17 @@ interface NavbarProps {
   bgColor?: string
   user?: {
     name: string
-    avatar?: string
+    email?: string
   } | null
 }
 
-export default async function Navbar({
+interface userData {
+  firstName: string
+  lastName: string
+  email: string
+}
+
+export default function Navbar({
   logoSrc = '/logo.png',
   navLinks = [
     { label: 'home', href: '/home' },
@@ -50,17 +56,23 @@ export default async function Navbar({
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [openSubMenu, setOpenSubMenu] = useState<string | null>(null)
-  // const [userValue, setUserValue] = useState<any>(null)
-  // const authToken = await getLocalStorageItem('authToken')
-  // const userData = await getLocalStorageItem('userData')
+  const [userValue, setUserValue] = useState<any | null>(null)
 
-  // if (authToken) {
-  //   let user = {
-  //     name: userData?.firstName + ' ' + userData?.lastName,
-  //     email: userData?.email,
-  //   }
-  //   setUserValue(user)
-  // }
+  useEffect(() => {
+    const authToken = getLocalStorageItem('authToken')
+    const userData = getLocalStorageItem('userData') as userData
+
+    if (authToken && userData) {
+      const user = {
+        firstName: userData?.firstName,
+        lastName: userData?.lastName,
+        email: userData?.email,
+      }
+      setUserValue(user)
+    }
+  }, [])
+
+  console.log('User Value in Navbar:', userValue)
 
   const handleLanguageChange = (lang: 'ta' | 'en') => {
     setLocale(lang)
@@ -116,22 +128,33 @@ export default async function Navbar({
         <div className="hidden md:flex items-center gap-4 relative">
           {showLanguageSelector && <LanguageSwitch />}
 
-          {user ? (
+          {userValue ? (
             <div className="relative">
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
                 className="flex items-center gap-2 bg-white text-[#3b1804] p-1.5 rounded-full hover:bg-gray-200 transition"
               >
-                <Image src={user.avatar || '/default-avatar.png'} alt="User Avatar" width={32} height={32} className="rounded-full" />
+                <Image src={'/avatar.png'} alt="" width={32} height={32} className="rounded-full" />
               </button>
 
               {isProfileOpen && (
                 <div className="absolute right-0 mt-2 bg-white text-[#3b1804] rounded-lg shadow-lg w-44 py-2 z-50">
                   <div className="px-4 py-2 border-b border-gray-200">
-                    <span className="font-semibold text-sm truncate block">{user.name}</span>
+                    <span className="font-semibold text-sm truncate block">
+                      {userValue?.firstName} {userValue?.lastName}
+                    </span>
                   </div>
                   <Link href="/profile" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
                     <User size={16} /> {t('Navbar.profile')}
+                  </Link>
+                  <Link href="/home" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
+                    <User size={16} /> {t('Navbar.home')}
+                  </Link>
+                  <Link href="/properties" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
+                    <User size={16} /> {t('Navbar.seller')}
+                  </Link>
+                  <Link href="/admin/dashboard/property-category" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
+                    <User size={16} /> {t('Navbar.admin')}
                   </Link>
                   <Button onClick={handleLogout} className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-gray-100 text-sm transition">
                     <LogOut size={16} /> {t('Navbar.logout')}

@@ -15,6 +15,7 @@ import { postMethod } from '@/services/service'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
 import { setLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
+import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
 
 interface SignupFormValues {
   firstName: string
@@ -57,12 +58,14 @@ export default function SignupPage() {
         accessToken?: string
         refreshToken?: string
         message?: string
+        user?: any
       }>(appEndpoints.loginVerifyOtp, payload)
 
       const token = response.data?.accessToken
-      console.log('Received Token:', token)
+      const userData = response.data?.user
       if (token) {
-        setLocalStorageItem('authToken', token)
+        setLocalStorageItem(LOCAL_STORAGE_NAME.authToken, token)
+        setLocalStorageItem(LOCAL_STORAGE_NAME.userData, userData || '')
       }
 
       const successMessage = response.data?.message || response.message || 'OTP verified successfully'

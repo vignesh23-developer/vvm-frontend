@@ -609,7 +609,7 @@ export default function LandRegistrationPage() {
 
   const [UPPActionState, UPPAction, UPPIsPending] = useActionState<
     ResponseDTO<any>,
-    { id: string; payload: any; uploadType: 'chooseFromDevice' | 'addViaLink' }
+    { id: any; payload: any; uploadType: 'chooseFromDevice' | 'addViaLink' }
   >(onAddPropertyMedia, UPPActionInitState)
 
   useEffect(() => {
@@ -666,7 +666,8 @@ export default function LandRegistrationPage() {
             description: values?.description,
             property_category_id: values?.propertyType,
             price: values?.price as number,
-            // price_unit: values?.
+            property_size: values?.size as number,
+            property_size_unit: values?.unit,
             listing_type: values?.purpose,
             door_number: values?.door_number,
             street_name: values?.street_name,
@@ -701,7 +702,7 @@ export default function LandRegistrationPage() {
         }
 
         if (currentStep === 5) {
-          const propertyId = await getLocalStorageItem(LOCAL_STORAGE_NAME?.propertyId)
+          const propertyId = getLocalStorageItem(LOCAL_STORAGE_NAME?.propertyId)
           console.log(
             'photo payload',
             propertyId,

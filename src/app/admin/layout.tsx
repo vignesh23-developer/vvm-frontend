@@ -8,11 +8,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const user = {
-    name: 'Farooq',
-    avatar: '/avatar.png',
-  }
-
   return (
     <div>
       <header>
@@ -42,7 +37,6 @@ export default function RootLayout({
             { label: 'users', href: '/users' },
             { label: 'support', href: '/support' },
           ]}
-          user={user}
         />
       </header>
       <main>
