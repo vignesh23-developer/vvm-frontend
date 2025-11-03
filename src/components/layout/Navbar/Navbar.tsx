@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Menu, X, Globe, User, LogOut, ArrowRight, Shield, Home, Building2 } from 'lucide-react'
+import { Menu, X, Globe, User, LogOut, ArrowRight, ChevronUp, ChevronDown, Shield, Home, Building2, Grip } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTranslationContext } from '@/hooks/Translation/TranslationProvider'
 import { useTranslations } from 'next-intl'
@@ -54,6 +54,8 @@ export default function Navbar({
   const router = useRouter()
 
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
+  const [showSubmenu, setShowSubmenu] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [openSubMenu, setOpenSubMenu] = useState<string | null>(null)
   const [userValue, setUserValue] = useState<any | null>(null)
@@ -84,6 +86,11 @@ export default function Navbar({
     removeLocalStorageItem('authToken')
     removeLocalStorageItem('userData')
     router.push('/login')
+  }
+
+  const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value
+    if (value) router.push(value)
   }
 
   return (
@@ -129,13 +136,56 @@ export default function Navbar({
         <div className="hidden md:flex items-center gap-4 relative">
           {showLanguageSelector && <LanguageSwitch />}
 
+          <div className="relative grip-menu">
+            {/* Grip Icon */}
+            <button
+              onClick={() => setIsOpen(prev => !prev)}
+              className="cursor-pointer p-2 hover:bg-gray-400 rounded-md transition focus:outline-none focus:ring-2 focus:ring-primary-300"
+              title={'common:site_menu'}
+              aria-label={'common:site_menu'}
+            >
+              <Grip />
+            </button>
+
+            {/* Main Dropdown */}
+            {isOpen && (
+              <div className="absolute right-0 mt-2 bg-white text-[#3b1804] rounded-lg shadow-lg w-52 py-2 z-50">
+                <Link href="/" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
+                  <Home size={16} /> {t('Navbar.home')}
+                </Link>
+
+                <Link href="/properties" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
+                  <Building2 size={16} /> {t('Navbar.seller')}
+                </Link>
+
+                <div className="flex items-center gap-2 w-full px-4 py-2 text-sm">
+                  <Shield size={16} className="text-[#3b1804]" />
+                  <select
+                    onChange={handleSelect}
+                    defaultValue=""
+                    className="w-full text-[#3b1804] text-sm bg-transparent focus:outline-none cursor-pointer"
+                  >
+                    <option value="" disabled>
+                      {t('Navbar.master')}
+                    </option>
+                    <option value="/admin/dashboard/property-category">{t('Navbar.subMenus.property categories')}</option>
+                    <option value="/admin/dashboard/feature-category">{t('Navbar.subMenus.feature categories')}</option>
+                    <option value="/admin/dashboard/feature-group">{t('Navbar.subMenus.feature group')}</option>
+                    <option value="/admin/dashboard/feature-group">{t('Navbar.subMenus.properties')}</option>
+                  </select>
+                </div>
+              </div>
+            )}
+          </div>
+
           {userValue ? (
             <div className="relative">
               <Button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center gap-2 bg-white text-[#3b1804] p-1.5 rounded-full hover:bg-gray-200 transition"
+                className="flex items-center gap-2 bg-white text-[#3b1804] p-1 rounded-full hover:bg-gray-200 transition focus:outline-none focus:ring-2 focus:ring-primary-300"
+                aria-label={t('Navbar.profile')}
               >
-                <Image src={'/avatar.png'} alt="" width={32} height={32} className="rounded-full" />
+                <Image src={userValue?.image ?? '/avatar.png'} alt={userValue?.firstName ?? 'Avatar'} width={32} height={32} className="rounded-lg" />
               </Button>
 
               {isProfileOpen && (
@@ -147,15 +197,6 @@ export default function Navbar({
                   </div>
                   <Link href="/profile" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
                     <User size={16} /> {t('Navbar.profile')}
-                  </Link>
-                  <Link href="/" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
-                    <Home size={16} /> {t('Navbar.home')}
-                  </Link>
-                  <Link href="/properties" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
-                    <Building2 size={16} /> {t('Navbar.seller')}
-                  </Link>
-                  <Link href="/admin/dashboard/property-category" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
-                    <Shield size={16} /> {t('Navbar.admin')}
                   </Link>
                   <Button onClick={handleLogout} className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-gray-100 text-sm transition">
                     <LogOut size={16} /> {t('Navbar.logout')}
@@ -188,29 +229,33 @@ export default function Navbar({
       {/* Mobile / Tablet Menu */}
       <div
         className={`md:hidden transition-all duration-300 ease-in-out overflow-hidden ${
-          isMenuOpen ? 'max-h-[500px] opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-3'
+          isMenuOpen ? 'max-h-[600px] opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-3'
         }`}
       >
-        <div style={{ backgroundColor: bgColor }} className="flex flex-col items-center px-6 py-6 shadow-md text-center">
+        <div
+          style={{ backgroundColor: bgColor }}
+          className="flex flex-col items-center px-5 py-5 shadow-lg text-center rounded-b-2xl bg-opacity-95 backdrop-blur-md"
+        >
+          {/* Navigation Links */}
           {navLinks.map(({ label, href, subMenu }) => (
-            <div key={href} className="w-full">
+            <div key={href} className="w-full border-b border-white/20 last:border-0">
               <button
                 onClick={() => (subMenu ? setOpenSubMenu(openSubMenu === label ? null : label) : setIsMenuOpen(false))}
-                className="py-2 w-full text-base font-medium flex justify-between items-center hover:text-gray-300 transition"
+                className="py-3 w-full text-base font-medium flex justify-between items-center text-white hover:text-gray-300 transition-all"
               >
                 <span>{t(`Navbar.${label}`)}</span>
-                {subMenu && <span className="text-sm">{openSubMenu === label ? '▲' : '▼'}</span>}
+                {subMenu && <span className="text-sm transform transition-transform duration-200">{openSubMenu === label ? '▲' : '▼'}</span>}
               </button>
 
-              {/* ✅ Expandable submenu */}
+              {/* Submenu */}
               {subMenu && openSubMenu === label && (
-                <div className="flex flex-col ml-4">
+                <div className="flex flex-col ml-3 mb-2">
                   {subMenu.map(sub => (
                     <Link
                       key={sub.href}
                       href={sub.href}
                       onClick={() => setIsMenuOpen(false)}
-                      className="py-1 text-sm text-gray-200 hover:text-white transition"
+                      className="py-2 text-sm text-gray-200 hover:text-white transition"
                     >
                       {t(`Navbar.subMenus.${sub.label}`)}
                     </Link>
@@ -222,12 +267,12 @@ export default function Navbar({
 
           {/* Language Selector */}
           {showLanguageSelector && (
-            <div className="flex items-center gap-2 mt-4">
+            <div className="flex items-center gap-2 mt-4 text-white">
               <Globe size={18} />
               <select
                 value={locale}
                 onChange={e => handleLanguageChange(e.target.value as 'en' | 'ta')}
-                className="bg-transparent border border-white text-white rounded-md px-2 py-1 text-sm focus:outline-none"
+                className="bg-transparent border border-white/40 text-white rounded-md px-2 py-1 text-sm focus:outline-none focus:border-white"
               >
                 <option value="en">EN</option>
                 <option value="ta">TA</option>
@@ -235,65 +280,110 @@ export default function Navbar({
             </div>
           )}
 
+          {/* Mobile Grip / Main Dropdown */}
+          <div className="w-full mt-4">
+            {/* Toggle Button */}
+            <Button
+              onClick={() => setIsOpen(prev => !prev)}
+              className="w-full flex justify-between items-center py-3 px-4 bg-white/10 rounded-lg hover:bg-white/20 text-white text-sm font-medium transition"
+            >
+              {t('Navbar.master')}
+              <span className="text-sm">{isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}</span>
+            </Button>
+
+            {/* Dropdown Links */}
+            {isOpen && (
+              <div className="flex flex-col w-full bg-white text-[#3b1804] rounded-lg mt-1 shadow-md overflow-hidden">
+                <Link href="/" onClick={() => setIsOpen(false)} className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm">
+                  <Home size={16} /> {t('Navbar.home')}
+                </Link>
+
+                <Link href="/properties" onClick={() => setIsOpen(false)} className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm">
+                  <Building2 size={16} /> {t('Navbar.seller')}
+                </Link>
+
+                <div className="flex items-center gap-2 px-4 py-2">
+                  <Shield size={16} />
+                  <select
+                    onChange={handleSelect}
+                    defaultValue=""
+                    className="w-full bg-transparent text-[#3b1804] focus:outline-none cursor-pointer text-sm"
+                  >
+                    <option value="" disabled>
+                      {t('Navbar.master')}
+                    </option>
+                    <option value="/admin/dashboard/property-category">{t('Navbar.subMenus.property categories')}</option>
+                    <option value="/admin/dashboard/feature-category">{t('Navbar.subMenus.feature categories')}</option>
+                    <option value="/admin/dashboard/feature-group">{t('Navbar.subMenus.feature group')}</option>
+                    <option value="/admin/dashboard/feature-group">{t('Navbar.subMenus.properties')}</option>
+                  </select>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Auth Buttons */}
           {userValue ? (
-            <div className="mt-4 w-full flex flex-col items-center gap-2 bg-white/95 rounded-2xl shadow-lg p-3 backdrop-blur-sm transition-all">
-              <Link
-                href="/profile"
-                onClick={() => setIsMenuOpen(false)}
-                className="flex w-full items-center justify-center gap-2 px-4 py-3 text-[#3b1804] font-medium rounded-xl hover:bg-gray-100 active:scale-[0.98] transition"
+            <div className="relative mt-4">
+              {/* Avatar Button */}
+              <Button
+                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                className="flex items-center gap-2 bg-white text-[#3b1804] p-1 rounded-full hover:bg-gray-200 transition"
               >
-                <User size={18} />
-                <span>{t('Navbar.profile')}</span>
-              </Link>
+                <Image src={'/avatar.png'} alt="Avatar" width={30} height={30} className="rounded-full" />
+              </Button>
 
-              <Link
-                href="/"
-                onClick={() => setIsMenuOpen(false)}
-                className="flex w-full items-center justify-center gap-2 px-4 py-3 text-[#3b1804] font-medium rounded-xl hover:bg-gray-100 active:scale-[0.98] transition"
-              >
-                <Home size={18} />
-                <span>{t('Navbar.home')}</span>
-              </Link>
+              {/* Overlay for mobile (when open) */}
+              {isProfileOpen && (
+                <>
+                  <div className="fixed inset-0 bg-black/30 z-40 sm:hidden" onClick={() => setIsProfileOpen(false)}></div>
 
-              <Link
-                href="/properties"
-                onClick={() => setIsMenuOpen(false)}
-                className="flex w-full items-center justify-center gap-2 px-4 py-3 text-[#3b1804] font-medium rounded-xl hover:bg-gray-100 active:scale-[0.98] transition"
-              >
-                <Building2 size={18} />
-                <span>{t('Navbar.seller')}</span>
-              </Link>
+                  {/* Dropdown Menu */}
+                  <div
+                    className={`
+            absolute right-0 mt-2 bg-white text-[#3b1804] rounded-xl shadow-lg w-44 py-2 z-50
+            sm:right-0 sm:mt-2
+            max-sm:fixed max-sm:top-20 max-sm:right-4 max-sm:left-4 max-sm:w-auto 
+            max-sm:rounded-2xl max-sm:shadow-2xl max-sm:z-50
+          `}
+                  >
+                    {/* User Info */}
+                    <div className="px-4 py-3 border-b border-gray-200 text-center">
+                      <span className="font-semibold text-sm truncate block">
+                        {userValue?.firstName} {userValue?.lastName}
+                      </span>
+                    </div>
 
-              <Link
-                href="/admin/dashboard/property-category"
-                onClick={() => setIsMenuOpen(false)}
-                className="flex w-full items-center justify-center gap-2 px-4 py-3 text-[#3b1804] font-medium rounded-xl hover:bg-gray-100 active:scale-[0.98] transition"
-              >
-                <Shield size={18} />
-                <span>{t('Navbar.admin')}</span>
-              </Link>
-
-              <button
-                onClick={() => {
-                  setIsMenuOpen(false)
-                  handleLogout()
-                }}
-                className="flex w-full items-center justify-center gap-2 px-4 py-3 text-[#3b1804] font-medium rounded-xl hover:bg-red-100 active:scale-[0.98] transition"
-              >
-                <LogOut size={18} />
-                <span>{t('Navbar.logout')}</span>
-              </button>
+                    {/* Menu Links */}
+                    <div className="flex flex-col">
+                      <Link
+                        href="/profile"
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center gap-2 px-4 py-3 hover:bg-gray-100 text-sm transition"
+                      >
+                        <User size={16} /> {t('Navbar.profile')}
+                      </Link>
+                      <Button
+                        onClick={() => {
+                          setIsProfileOpen(false)
+                          handleLogout()
+                        }}
+                        className="flex items-center gap-2 w-full text-left px-4 py-3 hover:bg-gray-100 text-sm transition"
+                      >
+                        <LogOut size={16} /> {t('Navbar.logout')}
+                      </Button>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           ) : (
             showLoginButton && (
               <Link
                 href="/login"
-                onClick={() => setIsMenuOpen(false)}
-                className="mt-4 flex w-full items-center justify-center gap-2 px-4 py-3 text-[#3b1804] font-medium rounded-xl bg-white/95 hover:bg-gray-100 shadow-md transition"
+                className="flex items-center gap-2 bg-white text-[#3b1804] px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition text-sm md:text-base"
               >
-                <span>{t('Auth.login')}</span>
-                <ArrowRight size={18} />
+                {t('Auth.login')} <ArrowRight size={18} />
               </Link>
             )
           )}

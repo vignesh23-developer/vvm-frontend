@@ -71,7 +71,7 @@ const Login = () => {
         if (isExistingUser) {
           router.push(`/otp-verification?phone=${encodeURIComponent(values.phone)}`)
         } else {
-          router.push('/signup')
+          router.push(`/signup?phone=${encodeURIComponent(values.phone)}`)
         }
       }
 

@@ -2,9 +2,10 @@ import { ResponseDTO } from '@/components/dto/response_dto'
 import { patchMethod, postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 
-export async function onCreateProperty(prevState: ResponseDTO, payload: any): Promise<ResponseDTO> {
+export async function onCreateProperty(prevState: ResponseDTO, data: { payload: any; userId: string }): Promise<ResponseDTO> {
   try {
-    const response: ResponseDTO = await postMethod(appEndpoints.createProperties('cc98934f-d1f7-4e8d-8484-72d24f94b508'), payload)
+    console.log('log on action:', data)
+    const response: ResponseDTO = await postMethod(appEndpoints.createProperties(data.userId), data.payload)
 
     console.log('log on property creation:', response)
 
@@ -22,7 +23,7 @@ export async function onCreateProperty(prevState: ResponseDTO, payload: any): Pr
     }
   }
 }
-1
+
 export async function onUpdateProperty(prevState: ResponseDTO, data: { payload: any; localStroagePropertyId: string }): Promise<ResponseDTO> {
   console.log('log on action:', data)
 

@@ -22,31 +22,31 @@ export default function RootLayout({
     <div>
       <header>
         <Navbar
-          navLinks={[
-            { label: 'home', href: '/admin/dashboard' },
-            {
-              label: 'master',
-              href: '#',
-              subMenu: [
-                {
-                  label: 'property categories',
-                  href: '/admin/dashboard/property-category',
-                },
-                {
-                  label: 'feature categories',
-                  href: '/admin/dashboard/feature-category',
-                },
-                {
-                  label: 'feature group',
-                  href: '/admin/dashboard/feature-group',
-                },
-              ],
-            },
-            { label: 'properties', href: '/admin/dashboard/properties' },
-            { label: 'leads', href: '/leads' },
-            { label: 'users', href: '/users' },
-            { label: 'support', href: '/support' },
-          ]}
+        // navLinks={[
+        //   { label: 'home', href: '/admin/dashboard' },
+        //   {
+        //     label: 'master',
+        //     href: '#',
+        //     subMenu: [
+        //       {
+        //         label: 'property categories',
+        //         href: '/admin/dashboard/property-category',
+        //       },
+        //       {
+        //         label: 'feature categories',
+        //         href: '/admin/dashboard/feature-category',
+        //       },
+        //       {
+        //         label: 'feature group',
+        //         href: '/admin/dashboard/feature-group',
+        //       },
+        //     ],
+        //   },
+        //   { label: 'properties', href: '/admin/dashboard/properties' },
+        //   { label: 'leads', href: '/leads' },
+        //   { label: 'users', href: '/users' },
+        //   { label: 'support', href: '/support' },
+        // ]}
         />
       </header>
       <main>

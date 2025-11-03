@@ -13,10 +13,8 @@ export default function HeroSection() {
   const tabKeys: string[] = [
     'buy',
     'rent',
-    'new_projects',
-    'pg',
-    'plots',
-    'commercial',
+    'lease',
+    // 'commercial',
   ]
 
   // Animation variants
@@ -38,10 +36,7 @@ export default function HeroSection() {
   }
 
   return (
-    <main
-      className="relative min-h-[80vh] sm:min-h-screen w-full bg-cover bg-center"
-      style={{ backgroundImage: "url('/hero.png')" }}
-    >
+    <main className="relative min-h-[80vh] sm:min-h-screen w-full bg-cover bg-center" style={{ backgroundImage: "url('/hero.png')" }}>
       <div className="absolute inset-0 flex items-center justify-center px-4 py-8">
         {/* Motion Container */}
         <motion.div
@@ -51,10 +46,7 @@ export default function HeroSection() {
           animate="visible"
         >
           {/* Heading */}
-          <motion.h1
-            variants={itemVariants}
-            className="font-scans text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 leading-snug"
-          >
+          <motion.h1 variants={itemVariants} className="font-scans text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 leading-snug">
             {t('Hero.title')}
           </motion.h1>
 
@@ -69,9 +61,7 @@ export default function HeroSection() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className={`py-2 px-3 rounded-lg text-sm font-medium transition ${
-                    idx === 0
-                      ? 'bg-yellow-400 text-black'
-                      : 'bg-white/20 hover:bg-white/30'
+                    idx === 0 ? 'bg-yellow-400 text-black' : 'bg-white/20 hover:bg-white/30'
                   }`}
                 >
                   {t(`Hero.HeroMenu.${tab}`)}
@@ -92,11 +82,7 @@ export default function HeroSection() {
                     type="button"
                     variant="tertiary"
                     size="small"
-                    className={`${
-                      idx === 0
-                        ? 'text-yellow-400 border-b-2 border-yellow-400 pb-1'
-                        : 'hover:text-yellow-400 transition'
-                    }`}
+                    className={`${idx === 0 ? 'text-yellow-400 border-b-2 border-yellow-400 pb-1' : 'hover:text-yellow-400 transition'}`}
                     onClick={() => {
                       router.push('/properties_list/explore_by_category')
                     }}
@@ -119,43 +105,28 @@ export default function HeroSection() {
             {/* Mobile stacked */}
             <div className="flex flex-col gap-3 sm:hidden">
               {/* Location */}
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-              >
+              <motion.div whileHover={{ scale: 1.02 }} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div className="flex items-center space-x-2">
                   <MapPin className="w-5 h-5" />
                   <span className="font-medium">Chennai</span>
                 </div>
-                <span className="text-gray-500 text-sm">
-                  {t('Hero.HeroMenu.add_more')}
-                </span>
+                <span className="text-gray-500 text-sm">{t('Hero.HeroMenu.add_more')}</span>
               </motion.div>
 
               {/* Property Type */}
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-              >
+              <motion.div whileHover={{ scale: 1.02 }} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div className="flex items-center space-x-2">
                   <Home className="w-5 h-5" />
-                  <span className="font-medium">
-                    {t('Hero.HeroMenu.flat')} +1
-                  </span>
+                  <span className="font-medium">{t('Hero.HeroMenu.flat')} +1</span>
                 </div>
                 <ChevronDown className="w-4 h-4 text-gray-500" />
               </motion.div>
 
               {/* Budget */}
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-              >
+              <motion.div whileHover={{ scale: 1.02 }} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div className="flex items-center space-x-2">
                   <IndianRupee className="w-5 h-5" />
-                  <span className="font-medium">
-                    {t('Hero.HeroMenu.budget')}
-                  </span>
+                  <span className="font-medium">{t('Hero.HeroMenu.budget')}</span>
                 </div>
                 <ChevronDown className="w-4 h-4 text-gray-500" />
               </motion.div>
@@ -175,40 +146,27 @@ export default function HeroSection() {
             <div className="hidden sm:flex sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4">
               <div className="flex items-center space-x-2 flex-1 min-w-[140px] justify-center sm:justify-start">
                 <MapPin className="w-5 h-5" />
-                <span className="font-medium text-sm sm:text-base">
-                  Chennai
-                </span>
-                <span className="text-gray-500 hidden sm:inline text-sm">
-                  {t('Hero.HeroMenu.add_more')}
-                </span>
+                <span className="font-medium text-sm sm:text-base">Chennai</span>
+                <span className="text-gray-500 hidden sm:inline text-sm">{t('Hero.HeroMenu.add_more')}</span>
               </div>
 
               <div className="flex items-center space-x-2 flex-1 min-w-[140px] justify-center sm:justify-start">
                 <Home className="w-5 h-5" />
-                <span className="font-medium text-sm sm:text-base">
-                  {t('Hero.HeroMenu.flat')} +1
-                </span>
+                <span className="font-medium text-sm sm:text-base">{t('Hero.HeroMenu.flat')} +1</span>
                 <ChevronDown className="w-4 h-4 text-gray-500" />
               </div>
 
               <div className="flex items-center space-x-2 flex-1 min-w-[140px] justify-center sm:justify-start">
                 <IndianRupee className="w-5 h-5" />
-                <span className="font-medium text-sm sm:text-base">
-                  {t('Hero.HeroMenu.budget')}
-                </span>
+                <span className="font-medium text-sm sm:text-base">{t('Hero.HeroMenu.budget')}</span>
                 <ChevronDown className="w-4 h-4 text-gray-500" />
               </div>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button
                   type="button"
                   variant="primary"
                   size="large"
-                  onClick={() =>
-                    router.push('/properties_list/explore_by_category')
-                  }
+                  onClick={() => router.push('/properties_list/explore_by_category')}
                   icon={<Search className="w-5 h-5" />}
                   className="flex items-center justify-center gap-2 bg-black text-white px-5 sm:px-7 py-2.5 sm:py-3 rounded-xl hover:bg-gray-800 transition w-full sm:w-auto text-sm sm:text-base"
                 >

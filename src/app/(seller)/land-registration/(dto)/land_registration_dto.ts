@@ -3,8 +3,8 @@
 import { property } from 'zod'
 
 export interface FeatureOptionGroup {
-  feature_category_id: string
-  feature_group_id: string
+  feature_category_id: string | undefined
+  feature_group_id: string | undefined
   option_ids: string[]
 }
 
@@ -27,7 +27,7 @@ export class FetaureOptions {
 
 // DTO for feature mapping
 export class FeatureMappingDTO {
-  feature_category_id: string
+  feature_category_id?: string
   feature_category_name: string
   feature_category_code: string
   description: string

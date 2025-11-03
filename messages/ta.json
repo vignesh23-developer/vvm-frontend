@@ -4,6 +4,7 @@
     "HeroMenu": {
       "buy": "வாங்க",
       "rent": "வாடகைக்கு",
+      "lease": "லீஸ்",
       "new_projects": "புதிய திட்டங்கள்",
       "pg": "பி.ஜி",
       "plots": "திட்டங்கள்",
@@ -36,6 +37,7 @@
     "submit": "சமர்ப்பிக்கவும்",
     "back": "பின்செல்",
     "resend_otp": "OTP ஐ மீண்டும் அனுப்பவும்",
+    "resend_in": "மீண்டும் அனுப்பவும்",
     "to_get_started": "தொடங்குவதற்கு",
     "whatapp_button": "WhatsApp மூலம் சரிபார்க்கவும்"
   },
@@ -58,6 +60,7 @@
       "property categories": "சொத்து வகைகள்",
       "feature categories": "அம்சம் வகைகள்",
       "feature group": "அம்சம் குழு",
+      "properties": "சொத்துகள்",
       "category mappings": "வகை வரைபடங்கள்"
     }
   },

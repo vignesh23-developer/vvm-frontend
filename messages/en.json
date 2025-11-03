@@ -4,6 +4,7 @@
     "HeroMenu" : {
       "buy": "Buy",
       "rent": "Rent",
+      "lease": "Lease",
       "new_projects": "New Projects",
       "pg": "PG",
       "plots": "Plots",
@@ -36,6 +37,7 @@
     "submit": "Submit",
     "back": "Back",
     "resend_otp": "Resend OTP",
+    "resend_in": "Resend in",
     "to_get_started": "to Get Started",
     "whatapp_button": "Verify Via What’s app"
   },
@@ -58,6 +60,7 @@
       "property categories": "Property Categories",
       "feature categories": "Feature Categories",
       "feature group": "Feature Group",
+      "properties": "Properties",
       "category mappings": "Category Mappings"
     }
   },
