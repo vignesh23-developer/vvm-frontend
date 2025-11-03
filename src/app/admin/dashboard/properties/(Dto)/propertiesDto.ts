@@ -5,6 +5,8 @@ export interface PropertiesDto {
   property_category_id: string
   price: string
   price_unit: 'total' | 'per_sqft' | 'monthly' | string
+  property_size: string
+  property_size_unit: string
   listing_type: 'SALE' | 'RENT' | string
   status: 'AVAILABLE' | 'SOLD' | 'RENTED' | string
   door_number: string

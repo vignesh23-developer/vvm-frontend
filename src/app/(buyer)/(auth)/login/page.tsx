@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
 import { Formik, Form } from 'formik'
@@ -15,6 +15,7 @@ import LanguageSwitch from '@/components/ui/CustomComponent/languageSwitch/langu
 import { postMethod } from '@/services/service'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
+import { getLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
 
 interface AuthFormValues {
   phone: string
@@ -24,6 +25,16 @@ const Login = () => {
   const t = useTranslations()
   const [buttonType, setButtonType] = useState<'sms' | 'whatsapp'>('sms')
   const router = useRouter()
+  const token = getLocalStorageItem('authToken')
+
+  useEffect(() => {
+    if (token) {
+      router.push('/')
+    } else {
+      router.push('/login')
+    }
+  }, [token, router])
+
   const initialValues: AuthFormValues = { phone: '' }
 
   const handleLoginSubmit = async (values: AuthFormValues, setSubmitting: (isSubmitting: boolean) => void, type: string) => {

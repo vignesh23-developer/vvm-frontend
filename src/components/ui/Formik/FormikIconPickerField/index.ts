@@ -6,7 +6,7 @@ export { default as IconPickerDropdown, type IconPickerDropdownProps } from './I
 
 // Utility classes
 export { IconLoader } from './IconLoader';
-export { IconFromString } from './IconFromString';
+
 
 // TypeScript types
 export type { LucideIconName } from './LucideIconName';

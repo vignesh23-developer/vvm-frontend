@@ -1,4 +1,6 @@
-import React from 'react'
+'use client'
+
+import { useEffect, useState } from 'react'
 import ModalComponent from '@/components/ui/CustomComponent/Modal/ModalComponent'
 import { Formik, Form } from 'formik'
 import { toast } from 'react-hot-toast'
@@ -9,6 +11,8 @@ import FormikCheckboxField from '@/components/ui/Formik/FormikCheckboxField/Form
 import ReportPropertyValidation from '../validation/ReportPropertyValidation'
 import { postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
+import { getLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
+import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
 
 interface ReportPropertyModalProps {
   reportModalOpen: boolean
@@ -16,11 +20,24 @@ interface ReportPropertyModalProps {
   propertyId: string | number
 }
 
-const ReportPropertyModal = ({
-  reportModalOpen,
-  setReportModalOpen,
-  propertyId,
-}: ReportPropertyModalProps) => {
+interface ReportFormValues {
+  report_type: string
+  description: string
+  is_anonymous: boolean
+  evidenceLink: string
+  severity: number
+  reporter_id?: string | number | null
+}
+
+interface UserData {
+  id: string
+  firstName?: string
+  lastName?: string
+  email?: string
+  // add other fields if needed
+}
+
+const ReportPropertyModal = ({ reportModalOpen, setReportModalOpen, propertyId }: ReportPropertyModalProps) => {
   const options = [
     { value: 'FAKE_LISTING', label: 'Fake Listing' },
     { value: 'MISLEADING_INFO', label: 'Misleading Information' },
@@ -28,12 +45,15 @@ const ReportPropertyModal = ({
     { value: 'OTHER', label: 'Other' },
   ]
 
-  const initialValues = {
+  const userData: UserData | null = getLocalStorageItem<UserData>(LOCAL_STORAGE_NAME.userData)
+
+  const initialValues: ReportFormValues = {
     report_type: 'FAKE_LISTING',
     description: '',
     is_anonymous: false,
-    severity: 3,
     evidenceLink: '',
+    severity: 1,
+    reporter_id: userData ? userData.id : null,
   }
 
   const handleReportSubmit = async (values: any, { resetForm }: any) => {
@@ -48,10 +68,7 @@ const ReportPropertyModal = ({
     console.log('Report Payload:', payload)
 
     try {
-      await postMethod(
-        appEndpoints.createPropertyReport(propertyId as string),
-        payload,
-      )
+      await postMethod(appEndpoints.createPropertyReport(propertyId as string), payload)
       toast.success('Report submitted successfully!')
       resetForm()
       setReportModalOpen(false)
@@ -61,31 +78,15 @@ const ReportPropertyModal = ({
   }
   return (
     <div>
-      <ModalComponent
-        open={reportModalOpen}
-        title="Report Property"
-        onClose={() => setReportModalOpen(false)}
-        widthClass="max-w-md"
-        footer={null}
-      >
-        <Formik
-          initialValues={initialValues}
-          validationSchema={ReportPropertyValidation}
-          onSubmit={handleReportSubmit}
-        >
+      <ModalComponent open={reportModalOpen} title="Report Property" onClose={() => setReportModalOpen(false)} widthClass="max-w-md" footer={null}>
+        <Formik initialValues={initialValues} validationSchema={ReportPropertyValidation} onSubmit={handleReportSubmit}>
           {({ isSubmitting }) => (
             <Form className="space-y-4">
-              <p className="text-gray-700 font-medium">
-                Please specify the reason for reporting this property:
-              </p>
+              <p className="text-gray-700 font-medium">Please specify the reason for reporting this property:</p>
 
               {/* Report Type */}
               <div>
-                <FormikSelectField
-                  label="Report Type"
-                  name="report_type"
-                  options={options}
-                />
+                <FormikSelectField label="Report Type" name="report_type" options={options} />
               </div>
 
               {/* Description */}
@@ -101,11 +102,7 @@ const ReportPropertyModal = ({
 
               {/* Anonymous Option */}
               <div className="flex items-center space-x-2">
-                <FormikCheckboxField
-                  label="Submit anonymously"
-                  name="is_anonymous"
-                  className="rounded border-gray-300"
-                />
+                <FormikCheckboxField label="Submit anonymously" name="is_anonymous" className="rounded border-gray-300" />
               </div>
 
               {/* Evidence Links */}
@@ -121,12 +118,7 @@ const ReportPropertyModal = ({
 
               {/* Severity */}
               <div>
-                <FormikTextField
-                  type="number"
-                  label="Severity"
-                  name="severity"
-                  className="w-full border border-gray-300 rounded-md p-2 text-sm"
-                />
+                <FormikTextField type="number" label="Severity" name="severity" className="w-full border border-gray-300 rounded-md p-2 text-sm" />
               </div>
 
               {/* Buttons */}

@@ -25,11 +25,8 @@ const iconHover: Variants = {
   hover: { scale: 1.2, color: '#f59e0b', transition: { duration: 0.2 } },
 }
 
-const translate = (
-  translator: PropertiesCardProps['language'],
-  key: string,
-  fallback: string,
-) => (typeof translator === 'function' ? translator(key) : fallback)
+const translate = (translator: PropertiesCardProps['language'], key: string, fallback: string) =>
+  typeof translator === 'function' ? translator(key) : fallback
 
 export interface PropertiesCardProps {
   id: string
@@ -38,6 +35,8 @@ export interface PropertiesCardProps {
   property_category_id: string
   price: string
   price_unit: 'total' | 'per_sqft' | 'monthly' | string
+  property_size: string | number
+  property_size_unit: string
   listing_type: 'SALE' | 'RENT' | string
   status: 'AVAILABLE' | 'SOLD' | 'RENTED' | string
   door_number: string
@@ -97,6 +96,9 @@ export default function PropertyCard({
   transaction,
   facing,
   description,
+  approval_status,
+  property_size,
+  property_size_unit,
   agent,
   operatingSince,
   price,
@@ -113,41 +115,15 @@ export default function PropertyCard({
   const imageSrc = '/villa.png'
 
   const agentLabel = translate(language, 'PropertiesListCard.agent', 'Agent')
-  const operatingSinceLabel = translate(
-    language,
-    'PropertiesListCard.operating_since',
-    'Operating Since',
-  )
-  const carpetAreaLabel = translate(
-    language,
-    'PropertiesListCard.carpet_area',
-    'Carpet Area',
-  )
+  const operatingSinceLabel = translate(language, 'PropertiesListCard.operating_since', 'Operating Since')
+  const carpetAreaLabel = translate(language, 'PropertiesListCard.carpet_area', 'Carpet Area')
   const statusLabel = translate(language, 'PropertiesListCard.status', 'Status')
-  const transactionLabel = translate(
-    language,
-    'PropertiesListCard.transaction',
-    'Transaction',
-  )
+  const transactionLabel = translate(language, 'PropertiesListCard.transaction', 'Transaction')
 
   const buttonLabels = {
-    primary:
-      primaryActionLabel ??
-      translate(language, 'PropertiesListCard.contact_agent', 'Contact Agent'),
-    secondary:
-      secondaryActionLabel ??
-      translate(
-        language,
-        'PropertiesListCard.get_phone_number',
-        'Get Phone Number',
-      ),
-    tertiary:
-      tertiaryActionText ??
-      translate(
-        language,
-        'PropertiesListCard.check_affordability',
-        'Check Affordability',
-      ),
+    primary: primaryActionLabel ?? translate(language, 'PropertiesListCard.contact_agent', 'Contact Agent'),
+    secondary: secondaryActionLabel ?? translate(language, 'PropertiesListCard.get_phone_number', 'Get Phone Number'),
+    tertiary: tertiaryActionText ?? translate(language, 'PropertiesListCard.check_affordability', 'Check Affordability'),
   }
 
   const displayValues = {
@@ -158,21 +134,12 @@ export default function PropertyCard({
     status: status ?? 'N/A',
     transaction: transaction ?? 'N/A',
     facing: facing ?? 'N/A',
-    description:
-      description ??
-      translate(
-        language,
-        'PropertiesListCard.no_description',
-        'No details provided.',
-      ),
-    price:
-      price ??
-      translate(
-        language,
-        'PropertiesListCard.price_unavailable',
-        'Price on request',
-      ),
+    description: description ?? translate(language, 'PropertiesListCard.no_description', 'No details provided.'),
+    price: price ?? translate(language, 'PropertiesListCard.price_unavailable', 'Price on request'),
     pricePerSqft: pricePerSqft ?? '',
+    approval_status: approval_status ?? 'N/A',
+    property_size: property_size ?? 'N/A',
+    property_size_unit: property_size_unit ?? '',
   }
 
   return (
@@ -221,15 +188,10 @@ export default function PropertyCard({
           <div className="flex w-full flex-1 flex-col justify-between">
             <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
               <div>
-                <motion.h2
-                  className="text-lg font-semibold"
-                  whileHover={{ color: '#111827' }}
-                >
+                <motion.h2 className="text-lg font-semibold" whileHover={{ color: '#111827' }}>
                   {title}
                 </motion.h2>
-                <p className="text-[#747474] font-medium underline">
-                  {displayValues.subtitle}
-                </p>
+                <p className="text-[#747474] font-medium underline">{displayValues.subtitle}</p>
               </div>
 
               <div className="flex shrink-0 gap-3 text-gray-500">
@@ -251,13 +213,9 @@ export default function PropertyCard({
               <PropertyTag
                 icon={<Ruler size={18} className="text-gray-600" />}
                 label={carpetAreaLabel}
-                value={displayValues.area}
+                value={displayValues.property_size + displayValues.property_size_unit}
               />
-              <PropertyTag
-                icon={<Building2 size={18} className="text-gray-600" />}
-                label={statusLabel}
-                value={displayValues.status}
-              />
+              <PropertyTag icon={<Building2 size={18} className="text-gray-600" />} label={statusLabel} value={displayValues.status} />
               <PropertyTag
                 icon={<Home size={18} className="text-gray-600" />}
                 label={transactionLabel}
@@ -274,53 +232,42 @@ export default function PropertyCard({
             >
               <span className="text-green-600">●</span> {displayValues.facing}
             </motion.p>
-            <p className="mt-1 line-clamp-3 text-sm text-gray-500">
-              {displayValues.description}
-            </p>
+            <p className="mt-1 line-clamp-3 text-sm text-gray-500">{displayValues.description}</p>
           </div>
         </div>
       </Link>
 
       <div className="flex w-full flex-col justify-between bg-[#ECECEC] p-4 lg:w-[240px]">
-        <motion.div
-          className="text-left lg:text-right"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <h3 className="text-xl font-bold">{'₹ ' + displayValues.price}</h3>
-          <p className="text-sm text-gray-500">{displayValues.pricePerSqft}</p>
+        <motion.div className="text-left lg:text-right" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
+          <h3 className="text-xl font-bold">{'₹ ' + displayValues?.price}</h3>
+          <p className="text-sm text-gray-500">{displayValues?.property_size + displayValues?.property_size_unit}</p>
         </motion.div>
+        {displayValues?.approval_status === 'UNDER_REVIEW' ? (
+          <div className="mt-4 flex w-full flex-col gap-3">
+            {buttonLabels?.primary && (
+              <ActionButton label={buttonLabels.primary} variant="primary" onClick={onPrimaryAction} disabled={primaryActionDisabled} />
+            )}
 
-        <div className="mt-4 flex w-full flex-col gap-3">
-          {buttonLabels.primary && (
-            <ActionButton
-              label={buttonLabels.primary}
-              variant="primary"
-              onClick={onPrimaryAction}
-              disabled={primaryActionDisabled}
-            />
-          )}
-          {buttonLabels.secondary && (
-            <ActionButton
-              label={buttonLabels.secondary}
-              variant="secondary"
-              onClick={onSecondaryAction}
-              disabled={secondaryActionDisabled}
-            />
-          )}
+            {buttonLabels?.secondary && (
+              <ActionButton label={buttonLabels.secondary} variant="secondary" onClick={onSecondaryAction} disabled={secondaryActionDisabled} />
+            )}
 
-          {buttonLabels.tertiary && (
-            <motion.p
-              className="mt-2 text-center text-xs text-gray-500"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-            >
-              {buttonLabels.tertiary}
-            </motion.p>
-          )}
-        </div>
+            {buttonLabels?.tertiary && (
+              <motion.p
+                className="mt-2 text-center text-xs text-gray-500"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+              >
+                {buttonLabels.tertiary}
+              </motion.p>
+            )}
+          </div>
+        ) : (
+          <div className="mb-20 flex justify-center text-center text-sm font-medium italic text-gray-500">
+            This property is {displayValues?.approval_status?.replace(/_/g, ' ').toLowerCase()}.
+          </div>
+        )}
       </div>
     </motion.div>
   )
@@ -354,23 +301,11 @@ const ActionButton = ({
   </motion.button>
 )
 
-const PropertyTag = ({
-  icon,
-  label,
-  value,
-  suffix,
-}: {
-  icon: ReactNode
-  label: string
-  value?: string
-  suffix?: ReactNode
-}) => (
+const PropertyTag = ({ icon, label, value, suffix }: { icon: ReactNode; label: string; value?: string; suffix?: ReactNode }) => (
   <div className="flex flex-1 items-center gap-2 px-4 py-3">
     {icon}
     <div>
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-        {label}
-      </div>
+      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">{label}</div>
       <div className="flex items-center gap-1 text-[14px] font-bold text-gray-900">
         {value}
         {suffix}

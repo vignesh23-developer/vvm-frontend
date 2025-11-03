@@ -1,23 +1,23 @@
-const getLocalStorageItem = async (key: string): Promise<string | null> => {
-    if (typeof window === 'undefined') {
-        return null;
-    }
-    return localStorage.getItem(key);
-};
+const isBrowser = (): boolean => typeof window !== 'undefined'
 
-const setLocalStorageItem = async (key: string, value: string): Promise<void> => {
-    if (typeof window === 'undefined') {
-        return;
-    }
-    localStorage.setItem(key, value);
-};
+export const getLocalStorageItem = <T = unknown>(key: string): T | null => {
+  if (!isBrowser()) return null
+  const item = localStorage.getItem(key)
+  try {
+    return item ? JSON.parse(item) : null
+  } catch {
+    return item as T // fallback if it's a plain string
+  }
+}
 
-const removeLocalStorageItem = async (key: string): Promise<void> => {
-    if (typeof window === 'undefined') {
-        return;
-    }
-    localStorage.removeItem(key);
-};
+export const setLocalStorageItem = (key: string, value: any): void => {
+  if (isBrowser()) {
+    localStorage.setItem(key, JSON.stringify(value))
+  }
+}
 
-export { getLocalStorageItem, setLocalStorageItem, removeLocalStorageItem };
-
+export const removeLocalStorageItem = (key: string): void => {
+  if (isBrowser()) {
+    localStorage.removeItem(key)
+  }
+}

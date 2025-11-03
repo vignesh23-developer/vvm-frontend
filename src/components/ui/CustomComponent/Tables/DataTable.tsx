@@ -87,11 +87,7 @@ interface DataTableProps<T extends RowData = RowData> {
 type ExportColumn = Column<any>
 type ExportRow = RowData
 
-const exportToCSV = (
-  data: ExportRow[],
-  columns: ExportColumn[],
-  filename: string = 'export.csv',
-): void => {
+const exportToCSV = (data: ExportRow[], columns: ExportColumn[], filename: string = 'export.csv'): void => {
   // Only include visible columns
   const visibleColumns = columns.filter(col => col.visible !== false)
 
@@ -110,10 +106,7 @@ const exportToCSV = (
   )
 
   // Combine headers and rows
-  const csvContent: string = [
-    headers.join(','),
-    ...rows.map(row => row.join(',')),
-  ].join('\n')
+  const csvContent: string = [headers.join(','), ...rows.map(row => row.join(','))].join('\n')
 
   // Create download link
   const blob: Blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
@@ -127,11 +120,7 @@ const exportToCSV = (
   document.body.removeChild(link)
 }
 
-const exportToExcel = (
-  data: ExportRow[],
-  columns: ExportColumn[],
-  filename: string = 'export.xlsx',
-): void => {
+const exportToExcel = (data: ExportRow[], columns: ExportColumn[], filename: string = 'export.xlsx'): void => {
   // Only include visible columns
   const visibleColumns = columns.filter(col => col.visible !== false)
 
@@ -145,10 +134,7 @@ const exportToExcel = (
       if (col.render && cellValue !== undefined && cellValue !== null) {
         // Try to extract text content from rendered value
         const renderedValue = col.render(cellValue, item)
-        if (
-          typeof renderedValue === 'string' ||
-          typeof renderedValue === 'number'
-        ) {
+        if (typeof renderedValue === 'string' || typeof renderedValue === 'number') {
           rowData[col.title] = String(renderedValue)
         } else {
           // For complex rendered components, fall back to cell value
@@ -189,11 +175,7 @@ interface Html2PdfOptions {
   }
 }
 
-const exportToPDF = async (
-  data: ExportRow[],
-  columns: ExportColumn[],
-  filename: string = 'export.pdf',
-): Promise<void> => {
+const exportToPDF = async (data: ExportRow[], columns: ExportColumn[], filename: string = 'export.pdf'): Promise<void> => {
   if (typeof window === 'undefined') {
     return
   }
@@ -243,10 +225,7 @@ const exportToPDF = async (
 
       if (col.render && cellValue !== undefined && cellValue !== null) {
         const renderedValue = col.render(cellValue, item)
-        if (
-          typeof renderedValue === 'string' ||
-          typeof renderedValue === 'number'
-        ) {
+        if (typeof renderedValue === 'string' || typeof renderedValue === 'number') {
           td.textContent = String(renderedValue)
         } else {
           td.textContent = cellValue != null ? String(cellValue) : ''
@@ -290,9 +269,7 @@ const exportToPDF = async (
   } catch (error) {
     // Surface errors so callers can decide how to notify users.
     console.error('Failed to export PDF:', error)
-    throw error instanceof Error
-      ? error
-      : new Error('Failed to export PDF. Please try again.')
+    throw error instanceof Error ? error : new Error('Failed to export PDF. Please try again.')
   } finally {
     document.body.removeChild(element)
   }
@@ -308,29 +285,23 @@ const loadHtml2Pdf = async (): Promise<Html2PdfFn> => {
   }
 
   await new Promise<void>((resolve, reject) => {
-    const existingScript = document.querySelector(
-      'script[data-html2pdf="true"]',
-    ) as HTMLScriptElement | null
+    const existingScript = document.querySelector('script[data-html2pdf="true"]') as HTMLScriptElement | null
 
     if (existingScript) {
       existingScript.addEventListener('load', () => resolve(), {
         once: true,
       })
-      existingScript.addEventListener('error', () =>
-        reject(new Error('Failed to load html2pdf library')),
-      )
+      existingScript.addEventListener('error', () => reject(new Error('Failed to load html2pdf library')))
       return
     }
 
     const script = document.createElement('script')
-    script.src =
-      'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
     script.async = true
     script.dataset.html2pdf = 'true'
 
     script.onload = () => resolve()
-    script.onerror = () =>
-      reject(new Error('Failed to load html2pdf library from CDN'))
+    script.onerror = () => reject(new Error('Failed to load html2pdf library from CDN'))
 
     document.body.appendChild(script)
   })
@@ -411,14 +382,10 @@ const DataTable = <T extends RowData = RowData>({
 
   // State for sorting
   const [sortField, setSortField] = useState<string>(initialSort?.field ?? '')
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>(
-    initialSort?.direction === 'desc' ? 'desc' : 'asc',
-  )
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>(initialSort?.direction === 'desc' ? 'desc' : 'asc')
 
   // State for filters
-  const [filters, setFilters] = useState<Record<string, string>>(
-    initialFilters ?? {},
-  )
+  const [filters, setFilters] = useState<Record<string, string>>(initialFilters ?? {})
   const [filtersActive, setFiltersActive] = useState<boolean>(false)
   const [showAdvancedFilters, setShowAdvancedFilters] = useState<boolean>(false)
 
@@ -429,18 +396,13 @@ const DataTable = <T extends RowData = RowData>({
 
   // State for grouping
   const [groupByField, setGroupByField] = useState<string | null>(null)
-  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
-    {},
-  )
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({})
 
   // Flag to track if we need to reload data
   const [shouldReload, setShouldReload] = useState<boolean>(true)
 
   // Get visible columns
-  const visibleColumns = useMemo(
-    () => columns.filter(col => col.visible !== false),
-    [columns],
-  )
+  const visibleColumns = useMemo(() => columns.filter(col => col.visible !== false), [columns])
 
   // Filter actions based on visibility
   const getVisibleActions = useCallback(
@@ -458,38 +420,21 @@ const DataTable = <T extends RowData = RowData>({
   )
 
   // Check if any actions would be visible for this table
-  const hasVisibleActions = useCallback(
-    () => actions.some(action => action.isVisible !== false),
-    [actions],
-  )
+  const hasVisibleActions = useCallback(() => actions.some(action => action.isVisible !== false), [actions])
 
   const applyFiltersAndSort = useCallback(
-    (
-      dataArray: T[],
-      currentFilters: Record<string, string>,
-      field: string | undefined,
-      direction: 'asc' | 'desc',
-    ) => {
-      let filteredData = [...dataArray]
+    (dataArray: T[] | undefined | null, currentFilters: Record<string, string>, field?: string, direction: 'asc' | 'desc' = 'asc') => {
+      const safeData = Array.isArray(dataArray) ? dataArray : []
+      let filteredData = [...safeData]
 
-      if (Object.keys(currentFilters).length > 0) {
+      if (Object.keys(currentFilters)?.length > 0) {
         filteredData = filteredData.filter(item => {
-          return Object.entries(currentFilters).every(
-            ([filterField, filterValue]) => {
-              if (!filterValue.trim()) {
-                return true
-              }
-
-              const itemValue = (item as Record<string, unknown>)[filterField]
-              if (itemValue === undefined || itemValue === null) {
-                return false
-              }
-
-              return String(itemValue)
-                .toLowerCase()
-                .includes(filterValue.toLowerCase())
-            },
-          )
+          return Object.entries(currentFilters).every(([filterField, filterValue]) => {
+            if (!filterValue.trim()) return true
+            const itemValue = (item as Record<string, unknown>)[filterField]
+            if (itemValue === undefined || itemValue === null) return false
+            return String(itemValue).toLowerCase().includes(filterValue.toLowerCase())
+          })
         })
         setFiltersActive(true)
       } else {
@@ -501,26 +446,17 @@ const DataTable = <T extends RowData = RowData>({
           const aValue = (a as Record<string, unknown>)[field]
           const bValue = (b as Record<string, unknown>)[field]
 
-          const normalizedA =
-            aValue === undefined || aValue === null ? '' : String(aValue)
-          const normalizedB =
-            bValue === undefined || bValue === null ? '' : String(bValue)
+          const normalizedA = aValue == null ? '' : String(aValue)
+          const normalizedB = bValue == null ? '' : String(bValue)
 
-          if (normalizedA < normalizedB) {
-            return direction === 'asc' ? -1 : 1
-          }
-          if (normalizedA > normalizedB) {
-            return direction === 'asc' ? 1 : -1
-          }
+          if (normalizedA < normalizedB) return direction === 'asc' ? -1 : 1
+          if (normalizedA > normalizedB) return direction === 'asc' ? 1 : -1
           return 0
         })
       }
 
       setTotalItems(filteredData.length)
-      const pages =
-        currentPageSize > 0
-          ? Math.ceil(filteredData.length / currentPageSize)
-          : 0
+      const pages = currentPageSize > 0 ? Math.ceil(filteredData.length / currentPageSize) : 0
       setTotalPages(pages)
 
       setDisplayData(filteredData)
@@ -542,8 +478,7 @@ const DataTable = <T extends RowData = RowData>({
       setError(undefined)
       applyFiltersAndSort(rows, filters, sortField, sortDirection)
     } catch (err) {
-      const errorInstance =
-        err instanceof Error ? err : new Error('Error loading data')
+      const errorInstance = err instanceof Error ? err : new Error('Error loading data')
       setError(errorInstance.message)
       if (onError) {
         onError(errorInstance)
@@ -551,14 +486,7 @@ const DataTable = <T extends RowData = RowData>({
     } finally {
       setLoading(false)
     }
-  }, [
-    applyFiltersAndSort,
-    fetchData,
-    filters,
-    onError,
-    sortDirection,
-    sortField,
-  ])
+  }, [applyFiltersAndSort, fetchData, filters, onError, sortDirection, sortField])
 
   useEffect(() => {
     if (!shouldReload) {
@@ -577,20 +505,13 @@ const DataTable = <T extends RowData = RowData>({
 
   useEffect(() => {
     applyFiltersAndSort(allData, filters, sortField, sortDirection)
-  }, [
-    applyFiltersAndSort,
-    allData,
-    filters,
-    sortField,
-    sortDirection,
-    currentPageSize,
-  ])
+  }, [applyFiltersAndSort, allData, filters, sortField, sortDirection, currentPageSize])
 
   useEffect(() => {
-    if (displayData.length > 0) {
+    if (displayData?.length > 0) {
       const startIndex = Math.max(0, (page - 1) * currentPageSize)
       const endIndex = startIndex + currentPageSize
-      setData(displayData.slice(startIndex, endIndex))
+      setData(displayData?.slice(startIndex, endIndex))
     } else {
       setData([])
     }
@@ -644,13 +565,7 @@ const DataTable = <T extends RowData = RowData>({
 
   // Toggle column visibility
   const toggleColumnVisibility = (field: string) => {
-    setColumns(cols =>
-      cols.map(col =>
-        col.field === field
-          ? { ...col, visible: col.visible === false ? true : false }
-          : col,
-      ),
-    )
+    setColumns(cols => cols.map(col => (col.field === field ? { ...col, visible: col.visible === false ? true : false } : col)))
   }
 
   // Reset columns to default visibility
@@ -683,10 +598,7 @@ const DataTable = <T extends RowData = RowData>({
     const groups: Record<string, boolean> = {}
     displayData.forEach(item => {
       const rawValue = (item as Record<string, unknown>)[field]
-      const key =
-        rawValue === undefined || rawValue === null
-          ? 'Undefined'
-          : String(rawValue)
+      const key = rawValue === undefined || rawValue === null ? 'Undefined' : String(rawValue)
       groups[key] = true
     })
     setExpandedGroups(groups)
@@ -703,35 +615,20 @@ const DataTable = <T extends RowData = RowData>({
 
   // Export data functions
   const handleExportCSV = () => {
-    exportToCSV(
-      displayData,
-      columns,
-      `${tableName.replace(/\s+/g, '_')}_export.csv`,
-    )
+    exportToCSV(displayData, columns, `${tableName.replace(/\s+/g, '_')}_export.csv`)
     setShowTableOptions(false)
   }
 
   const handleExportExcel = () => {
-    exportToExcel(
-      displayData,
-      columns,
-      `${tableName.replace(/\s+/g, '_')}_export.xlsx`,
-    )
+    exportToExcel(displayData, columns, `${tableName.replace(/\s+/g, '_')}_export.xlsx`)
     setShowTableOptions(false)
   }
 
   const handleExportPDF = () => {
     setShowTableOptions(false)
 
-    void exportToPDF(
-      displayData,
-      columns,
-      `${tableName.replace(/\s+/g, '_')}_export.pdf`,
-    ).catch(error => {
-      const exportError =
-        error instanceof Error
-          ? error
-          : new Error('Failed to export PDF. Please try again.')
+    void exportToPDF(displayData, columns, `${tableName.replace(/\s+/g, '_')}_export.pdf`).catch(error => {
+      const exportError = error instanceof Error ? error : new Error('Failed to export PDF. Please try again.')
 
       if (onError) {
         onError(exportError)
@@ -754,10 +651,7 @@ const DataTable = <T extends RowData = RowData>({
     }
 
     const groupColumn = columns.find(col => col.field === groupByField)
-    const result: Record<
-      string,
-      { items: T[]; displayValue: string; rawValue: unknown }
-    > = {}
+    const result: Record<string, { items: T[]; displayValue: string; rawValue: unknown }> = {}
 
     data.forEach(item => {
       const rowRecord = item as Record<string, unknown>
@@ -768,10 +662,7 @@ const DataTable = <T extends RowData = RowData>({
         displayValue = 'Undefined'
       } else if (groupColumn?.render) {
         const renderedValue = groupColumn.render(rawValue, item)
-        if (
-          typeof renderedValue === 'string' ||
-          typeof renderedValue === 'number'
-        ) {
+        if (typeof renderedValue === 'string' || typeof renderedValue === 'number') {
           displayValue = String(renderedValue)
         } else {
           displayValue = String(rawValue)
@@ -830,12 +721,7 @@ const DataTable = <T extends RowData = RowData>({
 
       {/* Advanced Filters Component */}
       {showAdvancedFilters && isFilter && (
-        <AdvancedFilters
-          columns={columns}
-          filters={filters}
-          handleFilterChange={handleFilterChange}
-          clearFilters={clearFilters}
-        />
+        <AdvancedFilters columns={columns} filters={filters} handleFilterChange={handleFilterChange} clearFilters={clearFilters} />
       )}
 
       {/* Table Content Component */}

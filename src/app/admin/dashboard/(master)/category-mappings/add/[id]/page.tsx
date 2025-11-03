@@ -66,7 +66,7 @@ export default function AddPropertyCategoryMapping() {
             sortOrder: f.sortOrder ?? 0,
             featureGroupId: f.featureGroupId,
             featureGroupName: f.featureGroupName,
-            isMapped: propertyCategoryData?.mappings?.some((m: any) => m.feature_category_id === f.id),
+            isMapped: propertyCategoryData?.mappings?.some((m: any) => m.is_active === f.isActive),
           }))
 
           // Group by featureGroupId, with "Uncategorized" for null values

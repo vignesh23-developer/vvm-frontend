@@ -170,7 +170,7 @@ const PropertiesListing = ({ params }: { params: string }) => {
                 isLoading ? (
                   <SkeletonLoader key={index} />
                 ) : (
-                  <PropertyCard key={index} {...property} language={t} />
+                  <PropertyCard id={''} property_category_id={''} price_unit={''} property_size={''} property_size_unit={''} listing_type={''} door_number={''} street_name={''} address_line={''} city={''} district={''} state={''} postal_code={''} country={''} latitude={''} longitude={''} owner_id={''} agent_id={''} approval_status={''} is_published={false} is_verified={false} is_premium={false} is_featured={false} is_active={false} slug={null} meta_description={null} meta_keywords={null} view_count={0} favorite_count={0} contact_count={0} created_at={''} updated_at={''} published_at={null} approved_at={null} media={[]} key={index} {...property} language={t} />
                 ),
               )
             : params === 'agency'
