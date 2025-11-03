@@ -41,7 +41,7 @@ export async function getMethod<T = unknown>(url: string, params?: Record<string
   } catch (err: unknown) {
     if (axios.isAxiosError(err)) {
       const axiosErr = err as AxiosError<any>
-      console.error('❌ Axios Error:', axiosErr.message, axiosErr.response)
+      console.log('❌ Axios Error:', axiosErr.message, axiosErr.response)
       return new ResponseDTO<T>({
         error: true,
         data: axiosErr.response?.data ?? ({} as T),
@@ -50,7 +50,7 @@ export async function getMethod<T = unknown>(url: string, params?: Record<string
       })
     }
     const msg = err instanceof Error ? err.message : String(err)
-    console.error('❌ Unknown Error:', msg)
+    console.log('❌ Unknown Error:', msg)
     return new ResponseDTO<T>({
       error: true,
       data: {} as T,
@@ -89,7 +89,7 @@ export async function postMethod<T = unknown>(url: string, body?: any, headers?:
   } catch (err: unknown) {
     if (axios.isAxiosError(err)) {
       const axiosErr = err as AxiosError<any>
-      console.error('❌ Axios Error (POST):', axiosErr.message, axiosErr.response)
+      console.log('❌ Axios Error (POST):', axiosErr.message, axiosErr.response)
       return new ResponseDTO<T>({
         error: true,
         data: axiosErr.response?.data ?? ({} as T),
@@ -98,7 +98,7 @@ export async function postMethod<T = unknown>(url: string, body?: any, headers?:
       })
     }
     const msg = err instanceof Error ? err.message : String(err)
-    console.error('❌ Unknown Error (POST):', msg)
+    console.log('❌ Unknown Error (POST):', msg)
     return new ResponseDTO<T>({
       error: true,
       data: {} as T,
@@ -137,7 +137,7 @@ export async function putMethod<T = unknown>(url: string, body?: any, headers?: 
   } catch (err: unknown) {
     if (axios.isAxiosError(err)) {
       const axiosErr = err as AxiosError<any>
-      console.error('❌ Axios Error (PUT):', axiosErr.message, axiosErr.response)
+      console.log('❌ Axios Error (PUT):', axiosErr.message, axiosErr.response)
       return new ResponseDTO<T>({
         error: true,
         data: axiosErr.response?.data ?? ({} as T),
@@ -146,7 +146,7 @@ export async function putMethod<T = unknown>(url: string, body?: any, headers?: 
       })
     }
     const msg = err instanceof Error ? err.message : String(err)
-    console.error('❌ Unknown Error (PUT):', msg)
+    console.log('❌ Unknown Error (PUT):', msg)
     return new ResponseDTO<T>({
       error: true,
       data: {} as T,
@@ -185,7 +185,7 @@ export async function patchMethod<T = unknown>(url: string, body?: any, headers?
   } catch (err: unknown) {
     if (axios.isAxiosError(err)) {
       const axiosErr = err as AxiosError<any>
-      console.error('❌ Axios Error (PATCH):', axiosErr.message, axiosErr.response)
+      console.log('❌ Axios Error (PATCH):', axiosErr.message, axiosErr.response)
       return new ResponseDTO<T>({
         error: true,
         data: axiosErr.response?.data ?? ({} as T),
@@ -194,7 +194,7 @@ export async function patchMethod<T = unknown>(url: string, body?: any, headers?
       })
     }
     const msg = err instanceof Error ? err.message : String(err)
-    console.error('❌ Unknown Error (PATCH):', msg)
+    console.log('❌ Unknown Error (PATCH):', msg)
     return new ResponseDTO<T>({
       error: true,
       data: {} as T,
@@ -233,7 +233,7 @@ export async function deleteMethod<T = unknown>(url: string, headers?: Record<st
   } catch (err: unknown) {
     if (axios.isAxiosError(err)) {
       const axiosErr = err as AxiosError<any>
-      console.error('❌ Axios Error (DELETE):', axiosErr.message, axiosErr.response)
+      console.log('❌ Axios Error (DELETE):', axiosErr.message, axiosErr.response)
       return new ResponseDTO<T>({
         error: true,
         data: axiosErr.response?.data ?? ({} as T),
@@ -242,7 +242,7 @@ export async function deleteMethod<T = unknown>(url: string, headers?: Record<st
       })
     }
     const msg = err instanceof Error ? err.message : String(err)
-    console.error('❌ Unknown Error (DELETE):', msg)
+    console.log('❌ Unknown Error (DELETE):', msg)
     return new ResponseDTO<T>({
       error: true,
       data: {} as T,

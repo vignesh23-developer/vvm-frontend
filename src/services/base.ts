@@ -2,6 +2,8 @@ import axios from 'axios'
 import { getLocalStorageItem, removeLocalStorageItem } from '../utils/local_storage/local_storage_handler'
 import { LOCAL_STORAGE_NAME } from '../utils/local_storage/local_storage_constant'
 
+// const isLocal = typeof window !== 'undefined' && window.location.hostname === 'localhost'
+
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   headers: {
@@ -10,8 +12,6 @@ const axiosInstance = axios.create({
   },
   withCredentials: false,
 })
-
-console.log('API URL:', process.env.NEXT_PUBLIC_API_URL)
 
 axiosInstance.interceptors.request.use(async config => {
   console.log('REQUEST INTERCEPTORS CALLED', config)

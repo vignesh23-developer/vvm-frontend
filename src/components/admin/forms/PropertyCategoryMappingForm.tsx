@@ -51,14 +51,14 @@ const PropertyCategoryMappingForm = ({ propertyCategory, featuresGrouped, onSucc
         mappings:
           values.featuresGrouped
             ?.flatMap(group => group.features || [])
-            .filter(feature => feature.isMapped)
+            // .filter(feature => feature.isMapped)
             .map(feature => ({
               feature_category_id: feature.id,
               feature_category_name: feature.name,
               is_mandatory: !!feature.isMandatory,
               is_filterable: !!feature.isFilterable,
               sort_order: feature.sortOrder ?? 0,
-              is_active: true, // You’re already filtering by isMapped
+              is_active: feature.isMapped,
             })) ?? [],
       }
 

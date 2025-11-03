@@ -26,9 +26,7 @@ interface PopularPropertiesFetcherResult {
   total: number
 }
 
-const fetchPopularProperties = async (
-  url: string,
-): Promise<PopularPropertiesFetcherResult> => {
+const fetchPopularProperties = async (url: string): Promise<PopularPropertiesFetcherResult> => {
   try {
     const response = await getMethod<ApiResponse<PopularPropertyDto[]>>(url)
 
@@ -44,12 +42,7 @@ const fetchPopularProperties = async (
     if (Array.isArray(payload)) {
       return {
         items: payload,
-        total:
-          typeof metaTotal === 'number'
-            ? metaTotal
-            : typeof topLevelTotal === 'number'
-            ? topLevelTotal
-            : payload.length,
+        total: typeof metaTotal === 'number' ? metaTotal : typeof topLevelTotal === 'number' ? topLevelTotal : payload.length,
       }
     }
 
@@ -65,9 +58,7 @@ const fetchPopularProperties = async (
   }
 }
 
-export function usePopularProperties(
-  options: UsePopularPropertiesOptions = {},
-) {
+export function usePopularProperties(options: UsePopularPropertiesOptions = {}) {
   const router = useRouter()
   const { page = 1, limit = 6 } = options
 
@@ -81,14 +72,9 @@ export function usePopularProperties(
     queryParams.set('page', String(page))
   }
 
-  const swrKey = queryParams.toString()
-    ? `${appEndpoints.getAllProperties}?${queryParams.toString()}`
-    : appEndpoints.getAllProperties
+  const swrKey = queryParams.toString() ? `${appEndpoints.getAllPropertiesList}?${queryParams.toString()}` : appEndpoints.getAllPropertiesList
 
-  const { data, error, isLoading } = useSWR<PopularPropertiesFetcherResult>(
-    swrKey,
-    fetchPopularProperties,
-  )
+  const { data, error, isLoading } = useSWR<PopularPropertiesFetcherResult>(swrKey, fetchPopularProperties)
 
   const handleSeeMore = (id: number) => {
     router.push(`/propertyDetails/${id}`)

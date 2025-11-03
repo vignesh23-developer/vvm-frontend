@@ -5,6 +5,7 @@ import RoleManagementForm from '@/components/admin/forms/RoleManagementForm'
 import { appEndpoints } from '@/services/endpoints'
 import { postMethod } from '@/services/service'
 import { toast } from 'react-hot-toast/headless'
+import { ResponseDTO } from '@/components/dto/response_dto'
 
 interface FormValues {
   name: string
@@ -26,7 +27,7 @@ export default function AddRoleManagement() {
         description: values.description?.trim(),
       }
 
-      const response = await postMethod(appEndpoints.createRole, payload)
+      const response: ResponseDTO = await postMethod(appEndpoints.createRole, payload)
 
       if (response.data.error) {
         toast.error(response.data.message || 'Failed to create role')

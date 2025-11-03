@@ -10,16 +10,7 @@ import Button from '@/components/ui/CustomComponent/Button/Button'
 type PropertyCategoryTableRow = PropertyCategory & Record<string, unknown>
 
 export default function PropertyCategoryPage() {
-  const {
-    categories,
-    error,
-    isLoading,
-    handleAdd,
-    handleCategoryMapping,
-    handleEdit,
-    handleDelete,
-    mutateCategories,
-  } = usePropertyCategories()
+  const { categories, error, isLoading, handleAdd, handleCategoryMapping, handleEdit, handleDelete, mutateCategories } = usePropertyCategories()
 
   // ✅ Columns definition
 
@@ -52,8 +43,7 @@ export default function PropertyCategoryPage() {
       {
         label: 'Settings',
         icon: Settings,
-        onClick: (row: PropertyCategoryTableRow) =>
-          handleCategoryMapping(row.id),
+        onClick: (row: PropertyCategoryTableRow) => handleCategoryMapping(row.id),
         color: '#1e6897',
       },
       {
@@ -81,32 +71,20 @@ export default function PropertyCategoryPage() {
 
     return {
       data: latestCategories,
-      totalItems: latestCategories.length,
+      totalItems: latestCategories?.length,
     }
   }, [categories])
 
   // ✅ Handle loading and error states
-  if (error)
-    return (
-      <div className="p-6 text-red-600">
-        Failed to load property categories.
-      </div>
-    )
+  if (error) return <div className="p-6 text-red-600">Failed to load property categories.</div>
 
-  if (isLoading)
-    return (
-      <div className="p-6 text-gray-600 animate-pulse">
-        Loading property categories...
-      </div>
-    )
+  if (isLoading) return <div className="p-6 text-gray-600 animate-pulse">Loading property categories...</div>
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between mb-6">
-        <h1 className="text-xl font-semibold text-gray-800">
-          Property Categories
-        </h1>
+        <h1 className="text-xl font-semibold text-gray-800">Property Categories</h1>
         <Button
           type="button"
           onClick={handleAdd}

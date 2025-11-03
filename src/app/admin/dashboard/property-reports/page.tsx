@@ -7,8 +7,7 @@ import {
   usePropertyReports,
   PropertyReports,
 } from '@/hooks/CustomHooks/usePropertyReport'
-import Breadcrumbs from '@/components/ui/CustomComponent/Breadcrumbs/Breadcrumbs'
-import { PropertyCategory } from '../category-mappings/add/[id]/page'
+
 
 export default function PropertyReportsPage() {
   const {

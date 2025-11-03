@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import { useParams } from 'next/navigation'
-import { Heart, Share2, BedDouble, Bath, Building, Sofa, Flag } from 'lucide-react'
+import { Heart, Share2, BedDouble, Bath, Building, Sofa, Flag, MapPin } from 'lucide-react'
 import Amenities from '@/components/buyer/Amenities/Amenities'
 import { useTranslations } from 'next-intl'
 import { motion, Variants } from 'framer-motion'
@@ -111,44 +111,21 @@ const page = () => {
             {/* </motion.div> */}
             {/* </motion.div> */}
 
-            {/* Property Info */}
-            <motion.div variants={fadeInUp} className="flex flex-wrap items-center justify-between mt-4 bg-gray-100 rounded-lg p-2 text-sm">
-              {[
-                {
-                  icon: <BedDouble className="w-4 h-4" />,
-                  label: `3 ${t('PropertiesDetails.bed_rooms')}`,
-                },
-                {
-                  icon: <Bath className="w-4 h-4" />,
-                  label: `3 ${t('PropertiesDetails.bath_rooms')}`,
-                },
-                {
-                  icon: <Building className="w-4 h-4" />,
-                  label: `1 ${t('PropertiesDetails.balcony')}`,
-                },
-                {
-                  icon: <Sofa className="w-4 h-4" />,
-                  label: t('PropertiesDetails.semi_furnished'),
-                },
-              ].map((item, idx) => (
-                <motion.div key={idx} whileHover={{ scale: 1.05 }} className="flex items-center gap-2 px-3 border-r border-gray-300 last:border-none">
-                  {item.icon}
-                  <span>{item.label}</span>
-                </motion.div>
-              ))}
-            </motion.div>
+            {/* Address */}
+            <div className="mt-5 flex gap-6 items-center px-5 pb-4 text-gray-600">
+              <div className="flex items-center gap-2 bg-gray-100 px-2 py-1 rounded-full">
+                <MapPin size={18} className="text-gray-400" />
+                <p className="text-gray-800">{`${propertyDetailsData?.address_line || ''}`}</p>
+              </div>
+            </div>
 
             {/* Details Section */}
             <motion.div variants={fadeInUp} className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 p-6 text-sm">
               {[
-                [t('PropertiesDetails.super_built_up_area'), '2000sqft'],
-                [t('PropertiesDetails.floors'), 'Ground (Out of 3 Floors)'],
-                [t('PropertiesDetails.parking'), 'Bike and Car'],
-                [t('PropertiesDetails.age_of_building'), '>10 years'],
+                [t('PropertiesDetails.super_built_up_area'), `${propertyDetailsData?.property_size} ${propertyDetailsData?.property_size_unit}`],
+                [t('PropertiesDetails.status'), `${propertyDetailsData?.status}`],
+                [t('PropertiesDetails.purpose'), `${propertyDetailsData?.listing_type}`],
                 [t('PropertiesDetails.price'), `₹ ${propertyDetailsData?.price}`],
-                [t('PropertiesDetails.booking_amount'), '₹ 80,000'],
-                [t('PropertiesDetails.address'), `${propertyDetailsData?.address_line || ''}`],
-                [t('PropertiesDetails.gated_security'), 'Yes'],
               ].map(([label, value], idx) => (
                 <motion.div key={idx} whileHover={{ scale: 1.03 }}>
                   <p className="text-gray-600">{label}</p>
@@ -168,23 +145,6 @@ const page = () => {
           <motion.div variants={fadeInUp} whileInView={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 40 }} transition={{ duration: 0.6 }}>
             <Amenities title={t('PropertiesDetails.amenities')} />
           </motion.div>
-
-          {/* Video Section */}
-          <motion.div
-            variants={fadeInUp}
-            whileInView={{ opacity: 1, y: 0 }}
-            initial={{ opacity: 0, y: 40 }}
-            transition={{ duration: 0.6 }}
-            className="bg-white shadow-md rounded-xl overflow-hidden"
-          >
-            <iframe
-              className="w-full h-64 rounded-lg"
-              src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-              title="Property Video"
-              allowFullScreen
-            ></iframe>
-          </motion.div>
-
           {/* Map Section */}
           <motion.div variants={fadeInUp} whileInView={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 40 }} transition={{ duration: 0.6 }}>
             <div className="w-full h-100 rounded-xl overflow-hidden">
@@ -261,7 +221,23 @@ const page = () => {
               </motion.div>
             ))}
           </motion.div>
+          {/* Video Section */}
+          <motion.div
+            variants={fadeInUp}
+            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 40 }}
+            transition={{ duration: 0.6 }}
+            className="bg-white shadow-md rounded-xl overflow-hidden"
+          >
+            <iframe
+              className="w-full h-64 rounded-lg"
+              src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+              title="Property Video"
+              allowFullScreen
+            ></iframe>
+          </motion.div>
         </motion.aside>
+
         <ReportPropertyModal
           reportModalOpen={reportModalOpen}
           setReportModalOpen={setReportModalOpen}
