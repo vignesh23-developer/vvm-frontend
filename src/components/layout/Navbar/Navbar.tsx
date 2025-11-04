@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Menu, X, Globe, User, LogOut, ArrowRight, Shield, Home, Building2 } from 'lucide-react'
+import { Menu, X, Globe, User, LogOut, ArrowRight, Shield, Home, Building2, MegaphoneIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTranslationContext } from '@/hooks/Translation/TranslationProvider'
 import { useTranslations } from 'next-intl'
@@ -154,6 +154,9 @@ export default function Navbar({
                   <Link href="/properties" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
                     <Building2 size={16} /> {t('Navbar.seller')}
                   </Link>
+                  <Link href="/ads" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
+                    <MegaphoneIcon size={16} /> {t('Navbar.ads')}
+                  </Link>
                   <Link href="/admin/dashboard/property-category" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
                     <Shield size={16} /> {t('Navbar.admin')}
                   </Link>
@@ -263,6 +266,14 @@ export default function Navbar({
               >
                 <Building2 size={18} />
                 <span>{t('Navbar.seller')}</span>
+              </Link>
+              <Link
+                href="/ads"
+                onClick={() => setIsMenuOpen(false)}
+                className="flex w-full items-center justify-center gap-2 px-4 py-3 text-[#3b1804] font-medium rounded-xl hover:bg-gray-100 active:scale-[0.98] transition"
+              >
+                <MegaphoneIcon size={18} />
+                <span>{t('Navbar.ads')}</span>
               </Link>
 
               <Link
