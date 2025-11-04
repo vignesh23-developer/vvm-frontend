@@ -57,9 +57,9 @@ const page = () => {
     return (
       <main className="flex min-h-[50vh] items-center justify-center bg-gray-50">
         <p className="text-red-600 text-sm md:text-base">
-          {t('PropertiesDetails.load_error', {
+          {/* {t('PropertiesDetails.load_error', {
             defaultValue: 'Unable to load property details right now. Please try again later.',
-          })}
+          })} */}
         </p>
       </main>
     )

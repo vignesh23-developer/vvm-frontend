@@ -31,6 +31,15 @@ interface Amenity {
 
 type PurposeType = 'Sale' | 'Rent' | 'Lease'
 
+export type LocalPropertyPhotoPayloadItem = {
+  // metadata only (serializable) — the actual File objects live in localpropertyPhoto.files
+  is_primary: boolean
+  title: string
+  media_type: 'IMAGE' | 'VIDEO'
+  sort_order: number
+  media_category: string
+}
+
 // Types for your combined form data (include all steps)
 export interface PropertyCreationFormValues {
   // Step 1
@@ -73,13 +82,8 @@ export interface PropertyCreationFormValues {
   }>
 
   localpropertyPhoto: {
-    files: Array<any>
-    media_type: string
-    title: string
-    description: string
-    media_category: string
-    sort_order: string
-    is_primary: boolean
+    files: Array<File>
+    payload: Array<LocalPropertyPhotoPayloadItem>
   }
   boostListing: boolean
   uploadedFiles: File[] // maybe just store File[] or previews
@@ -203,12 +207,7 @@ export default function LandRegistrationPage() {
 
     localpropertyPhoto: {
       files: [],
-      media_type: '',
-      title: '',
-      description: '',
-      media_category: '',
-      sort_order: '',
-      is_primary: false,
+      payload: [],
     },
 
     boostListing: false,
@@ -280,8 +279,6 @@ export default function LandRegistrationPage() {
                 is_primary: Yup.boolean().transform((value, originalValue) => {
                   // Check if the incoming value is an array (like ["on"] or [])
 
-                  console.log('dsdsd', originalValue)
-
                   if (Array.isArray(originalValue)) {
                     // If it's ["on"], length is 1, returns true.
                     // If it's [], length is 0, returns false.
@@ -302,12 +299,6 @@ export default function LandRegistrationPage() {
         if (uploadTypeValue.includes('chooseFromDevice')) {
           return schema.shape({
             files: Yup.array().of(Yup.mixed().required('File is required')).min(1, 'At least one file is required'),
-            media_type: Yup.string().required('Media type is required'),
-            title: Yup.string().optional(),
-            description: Yup.string().optional(),
-            media_category: Yup.string().optional(),
-            sort_order: Yup.string().optional(),
-            is_primary: Yup.boolean().default(false).required('Is primary is required'),
           })
         }
         return schema.notRequired()
@@ -450,7 +441,7 @@ export default function LandRegistrationPage() {
 
           const localStroagePropertyId = await getLocalStorageItem(LOCAL_STORAGE_NAME?.propertyId)
 
-          console.log('log on data sss:', localStroagePropertyId, payload)
+          // console.log('log on data sss:', localStroagePropertyId, payload)
 
           if (localStroagePropertyId) {
             startTransition(async () => {
@@ -465,62 +456,85 @@ export default function LandRegistrationPage() {
         }
 
         if (currentStep === 5) {
-          const propertyId = getLocalStorageItem(LOCAL_STORAGE_NAME?.propertyId)
-          console.log(
-            'photo payload',
-            propertyId,
-            values?.uploadType === 'addViaLink'
-              ? values?.propertyPhoto.map(val => {
-                  val?.media_type, val?.title, val?.url
+          const propertyId = await getLocalStorageItem(LOCAL_STORAGE_NAME?.propertyId)
+          // console.log('Step 5 submit - propertyId:', propertyId, 'uploadType:', values?.uploadType)
+
+          if (!propertyId || !values?.uploadType) {
+            console.error('Missing propertyId or uploadType')
+            actions.setSubmitting(false)
+            return
+          }
+
+          if (values?.uploadType === 'chooseFromDevice' && values?.localpropertyPhoto?.payload) {
+            const localFiles = values?.localpropertyPhoto?.files || []
+            const payload = values?.localpropertyPhoto?.payload || []
+
+            if (localFiles.length === 0) {
+              console.warn('No files selected for upload')
+              actions.setSubmitting(false)
+              return
+            }
+
+            actions.setSubmitting(true)
+
+            try {
+              const uploadPromises = localFiles.map((file, index) => {
+                const meta = payload[index] || {}
+                const formData = new FormData()
+                formData.append('files', file)
+                formData.append('media_type', meta.media_type ?? '')
+                formData.append('title', meta.title ?? '')
+                formData.append('is_primary', String(meta.is_primary ?? false))
+                formData.append('media_category', meta.media_category ?? '')
+                formData.append('sort_order', String(meta.sort_order ?? index))
+
+                return new Promise<void>((resolve, reject) => {
+                  startTransition(() => {
+                    Promise.resolve(UPPAction({ id: propertyId, payload: formData, uploadType: 'chooseFromDevice' }))
+                      .then(() => {
+                        console.log(`File ${index + 1} uploaded successfully.`)
+                        resolve()
+                      })
+                      .catch(error => {
+                        console.error(`Error uploading file ${index + 1}:`, error)
+                        reject(error)
+                      })
+                  })
                 })
-              : values?.localpropertyPhoto,
-            values?.uploadType,
-          )
+              })
 
-          const localstoradImgData = values?.localpropertyPhoto
-          var formData = new FormData()
+              await Promise.all(uploadPromises)
+            } finally {
+              actions.setSubmitting(false)
+            }
+          } else if (values?.uploadType === 'addViaLink' && values?.propertyPhoto) {
+            const linkPayload = values.propertyPhoto
+            console.log('Uploading via addViaLink:', linkPayload)
 
-          formData?.append('files', JSON.stringify(localstoradImgData?.files))
+            actions.setSubmitting(true)
 
-          if (localstoradImgData?.media_type) {
-            formData?.append('media_type', JSON.stringify(localstoradImgData?.media_type))
+            try {
+              const linkPromise = new Promise<void>((resolve, reject) => {
+                startTransition(() => {
+                  Promise.resolve(UPPAction({ id: propertyId, payload: linkPayload, uploadType: 'addViaLink' }))
+                    .then(() => {
+                      console.log('Link-based upload successful.')
+                      resolve()
+                    })
+                    .catch(error => {
+                      console.error('Error uploading via addViaLink:', error)
+                      reject(error)
+                    })
+                })
+              })
+
+              await linkPromise
+            } finally {
+              actions.setSubmitting(false)
+            }
+          } else {
+            actions.setSubmitting(false)
           }
-
-          if (localstoradImgData?.title) {
-            formData?.append('title', JSON.stringify(localstoradImgData?.title))
-          }
-
-          if (localstoradImgData?.description) {
-            formData?.append('description', JSON.stringify(localstoradImgData?.description))
-          }
-
-          if (localstoradImgData?.is_primary) {
-            formData?.append('is_primary', JSON.stringify(localstoradImgData?.is_primary))
-          }
-
-          if (localstoradImgData?.media_category) {
-            formData?.append('media_category', JSON.stringify(localstoradImgData?.media_category))
-          }
-
-          if (localstoradImgData?.sort_order) {
-            formData?.append('sort_order', JSON.stringify(localstoradImgData?.sort_order))
-          }
-
-          formData?.append('files', JSON.stringify(values?.localpropertyPhoto?.files))
-
-          const payload =
-            values.uploadType === 'addViaLink'
-              ? values.propertyPhoto // already an array?
-              : formData
-
-          startTransition(async () => {
-            UPPAction({
-              id: propertyId ?? '',
-              payload: values.uploadType === 'addViaLink' ? (Array.isArray(payload) ? payload : [payload]) : payload,
-              uploadType: values?.uploadType as any,
-            })
-          })
-
           return
         }
 
@@ -546,6 +560,8 @@ export default function LandRegistrationPage() {
   }
 
   const router = useRouter()
+
+  console.log('render page currentStep:', currentStep)
 
   return (
     <div className="w-full px-4 py-6">
@@ -644,7 +660,7 @@ export default function LandRegistrationPage() {
                   amenities={featureData ?? []}
                 />
               )}
-              {currentStep === 5 && <Step5PhotosContact formik={formik} />}
+              {currentStep === 5 && <Step5PhotosContact formik={formik} uploadPending={UPPIsPending} />}
               {currentStep === 6 && <Step6ReviewSubmit propertyCategoryData={propertyCategoryData} formik={formik} />}
 
               {currentStep !== 6 && (
@@ -674,22 +690,24 @@ export default function LandRegistrationPage() {
                     </button>
                   )}
 
-                  <button
-                    type="submit"
-                    disabled={formik.isSubmitting}
-                    className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#7B1E1E] text-white hover:bg-[#641717] cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ${
-                      formik.isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
-                  >
-                    {' '}
-                    {!formik.isSubmitting ? (
-                      <>
-                        {isLastStep ? 'Submit' : currentStep === 4 ? 'Save Property' : 'Next Step'} <ArrowRight size={20} />
-                      </>
-                    ) : (
-                      'Loading'
-                    )}
-                  </button>
+                  {currentStep !== 5 && (
+                    <button
+                      type="submit"
+                      disabled={formik.isSubmitting || UPPIsPending}
+                      className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#7B1E1E] text-white hover:bg-[#641717] cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ${
+                        formik.isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                    >
+                      {!formik.isSubmitting ? (
+                        <>
+                          {isLastStep ? 'Submit' : currentStep === 4 ? 'Save Property' : 'Next Step'}
+                          <ArrowRight size={20} />
+                        </>
+                      ) : (
+                        'Loading'
+                      )}
+                    </button>
+                  )}
                 </div>
               )}
             </Form>

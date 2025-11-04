@@ -1,16 +1,24 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { use, useCallback, useEffect, useMemo, useState } from 'react'
 import PropertyCard from '@/components/buyer/PropertyCard/PropertyCard'
 import { useProperties } from '@/app/admin/dashboard/properties/(Hooks)/useProperties'
 import { useTranslations } from 'next-intl'
 import ModalComponent from '@/components/ui/CustomComponent/Modal/ModalComponent'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { PropertiesDto } from './(Dto)/propertiesDto'
+import { getLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
 
 type TabConfig = {
   key: string
   label: string
+}
+
+type UserData = {
+  id: string
+  firstName?: string
+  lastName?: string
+  email?: string
 }
 
 const PAGE_SIZE = 6
@@ -42,13 +50,18 @@ const PropertiesPage = () => {
     setSelectedProperty(null)
   }, [])
 
-  const reviewer_id = 'cc98934f-d1f7-4e8d-8484-72d24f94b508'
+  const [reviewerId, setReviewerId] = useState<string>('')
+  useEffect(() => {
+    const userData: UserData | null = getLocalStorageItem('userData')
+    const reviewer_id = userData?.id || ''
+    setReviewerId(reviewer_id)
+  }, [])
 
   const triggerPropertyAction = useCallback(
     async (propertyId: string, action: 'approve' | 'reject', extraData?: { comment?: string; rejectReason?: string }) => {
       try {
         setPendingActionPropertyId(propertyId)
-        await handlePropertyAction(propertyId, reviewer_id, action, extraData)
+        await handlePropertyAction(propertyId, reviewerId, action, extraData)
       } finally {
         setPendingActionPropertyId(null)
       }

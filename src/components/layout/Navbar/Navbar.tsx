@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Menu, X, Globe, User, LogOut, ArrowRight, ChevronUp, ChevronDown, Shield, Home, Building2, Grip } from 'lucide-react'
@@ -59,6 +59,8 @@ export default function Navbar({
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [openSubMenu, setOpenSubMenu] = useState<string | null>(null)
   const [userValue, setUserValue] = useState<any | null>(null)
+  const gripRef = useRef<HTMLDivElement | null>(null)
+  const profileRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     const authToken = getLocalStorageItem('authToken')
@@ -73,6 +75,49 @@ export default function Navbar({
       setUserValue(user)
     }
   }, [])
+
+  // Close grip and profile dropdowns when clicking outside or pressing Escape
+  useEffect(() => {
+    function onDocumentClick(e: MouseEvent | TouchEvent) {
+      const target = e.target as Node
+      if (gripRef.current && !gripRef.current.contains(target)) {
+        setIsOpen(false)
+      }
+      if (profileRef.current && !profileRef.current.contains(target)) {
+        setIsProfileOpen(false)
+      }
+    }
+
+    function onFocusIn(e: FocusEvent) {
+      const target = e.target as Node
+      // if focus moved outside grip/menu, close it
+      if (gripRef.current && !gripRef.current.contains(target)) {
+        setIsOpen(false)
+      }
+      if (profileRef.current && !profileRef.current.contains(target)) {
+        setIsProfileOpen(false)
+      }
+    }
+
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        setIsOpen(false)
+        setIsProfileOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', onDocumentClick)
+    document.addEventListener('touchstart', onDocumentClick)
+    document.addEventListener('focusin', onFocusIn)
+    document.addEventListener('keydown', onKey)
+
+    return () => {
+      document.removeEventListener('mousedown', onDocumentClick)
+      document.removeEventListener('touchstart', onDocumentClick)
+      document.removeEventListener('focusin', onFocusIn)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [gripRef, profileRef])
 
   console.log('User Value in Navbar:', userValue)
 
@@ -136,7 +181,7 @@ export default function Navbar({
         <div className="hidden md:flex items-center gap-4 relative">
           {showLanguageSelector && <LanguageSwitch />}
 
-          <div className="relative grip-menu">
+          <div className="relative grip-menu" ref={gripRef}>
             {/* Grip Icon */}
             <button
               onClick={() => setIsOpen(prev => !prev)}
@@ -171,7 +216,7 @@ export default function Navbar({
                     <option value="/admin/dashboard/property-category">{t('Navbar.subMenus.property categories')}</option>
                     <option value="/admin/dashboard/feature-category">{t('Navbar.subMenus.feature categories')}</option>
                     <option value="/admin/dashboard/feature-group">{t('Navbar.subMenus.feature group')}</option>
-                    <option value="/admin/dashboard/feature-group">{t('Navbar.subMenus.properties')}</option>
+                    <option value="/admin/dashboard/properties">{t('Navbar.subMenus.properties')}</option>
                   </select>
                 </div>
               </div>
@@ -179,7 +224,7 @@ export default function Navbar({
           </div>
 
           {userValue ? (
-            <div className="relative">
+            <div className="relative" ref={profileRef}>
               <Button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
                 className="flex items-center gap-2 bg-white text-[#3b1804] p-1 rounded-full hover:bg-gray-200 transition focus:outline-none focus:ring-2 focus:ring-primary-300"

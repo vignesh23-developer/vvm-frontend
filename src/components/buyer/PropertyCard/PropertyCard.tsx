@@ -100,6 +100,7 @@ export default function PropertyCard({
   property_size,
   property_size_unit,
   agent,
+  media,
   operatingSince,
   price,
   pricePerSqft,
@@ -112,8 +113,6 @@ export default function PropertyCard({
   primaryActionDisabled = false,
   secondaryActionDisabled = false,
 }: PropertiesCardProps) {
-  const imageSrc = '/villa.png'
-
   const agentLabel = translate(language, 'PropertiesListCard.agent', 'Agent')
   const operatingSinceLabel = translate(language, 'PropertiesListCard.operating_since', 'Operating Since')
   const carpetAreaLabel = translate(language, 'PropertiesListCard.carpet_area', 'Carpet Area')
@@ -129,6 +128,7 @@ export default function PropertyCard({
   const displayValues = {
     subtitle: subtitle ?? '',
     agent: agent ?? 'N/A',
+    media: media ?? [],
     operatingSince: operatingSince ?? 'N/A',
     area: area ?? 'N/A',
     status: status ?? 'N/A',
@@ -141,7 +141,7 @@ export default function PropertyCard({
     property_size: property_size ?? 'N/A',
     property_size_unit: property_size_unit ?? '',
   }
-
+  console.log('PropertyCard render - approval_status:', media)
   return (
     <motion.div
       variants={cardVariants}
@@ -162,7 +162,7 @@ export default function PropertyCard({
             <motion.div className="overflow-hidden rounded-md">
               <motion.div variants={imageVariants}>
                 <Image
-                  src={imageSrc}
+                  src={displayValues.media && displayValues.media.length > 0 ? displayValues.media[0].url : '/villa.png'}
                   alt={title ?? 'Property image'}
                   width={250}
                   height={150}

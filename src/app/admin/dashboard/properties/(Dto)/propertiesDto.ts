@@ -37,5 +37,12 @@ export interface PropertiesDto {
   updated_at: string
   published_at: string | null
   approved_at: string | null
-  media: any[]
+  media: Media[]
+}
+
+interface Media {
+  id: string
+  url: string
+  type: 'image' | 'video'
+  thumbnail: string
 }

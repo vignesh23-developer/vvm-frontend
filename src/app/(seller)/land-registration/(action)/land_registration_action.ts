@@ -1,6 +1,7 @@
 import { ResponseDTO } from '@/components/dto/response_dto'
 import { patchMethod, postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
+import { head } from 'framer-motion/client'
 
 export async function onCreateProperty(prevState: ResponseDTO, data: { payload: any; userId: string }): Promise<ResponseDTO> {
   try {
@@ -64,7 +65,9 @@ export async function onAddPropertyMedia(
         data: response.data,
       }
     } else {
-      const response: ResponseDTO = await postMethod(appEndpoints.addPropertyMediaLocal(params?.id), params?.payload)
+      const response: ResponseDTO = await postMethod(appEndpoints.addPropertyMediaLocal(params?.id), params?.payload, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
 
       console.log('log on add property choose from device:', response)
 

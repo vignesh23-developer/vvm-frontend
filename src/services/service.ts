@@ -59,11 +59,11 @@ export async function getMethod<T = unknown>(url: string, params?: Record<string
   }
 }
 
-export async function postMethod<T = unknown>(url: string, body?: any, headers?: Record<string, any>): Promise<ResponseDTO<T>> {
+export async function postMethod<T = unknown>(url: string, body?: any, headers?: Record<string, any>, isFormData?: boolean): Promise<ResponseDTO<T>> {
   try {
     console.log('🌐 POST Request:', { url, body, headers })
 
-    const response = await axiosInstance.post<ApiResponseWrapper<T>>(url, body)
+    const response = await axiosInstance.post<ApiResponseWrapper<T>>(url, body, { headers })
     console.log('✅ POST Response:', response.data)
 
     const payload = response.data

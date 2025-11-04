@@ -113,6 +113,13 @@ export function useProperties(options: UsePropertiesOptions = {}) {
   const properties = data?.items ?? []
   const total = data?.total ?? properties.length
 
+  console.log(
+    'useProperties - fetched properties count:',
+    data?.items?.map(item => item.media),
+    'total:',
+    total,
+  )
+
   return {
     properties: properties ?? [],
     total,
