@@ -78,4 +78,11 @@ export const appEndpoints = {
 
   addPropertyMediaLink: (propertyId: string) => `/property-media/${propertyId}`,
   addPropertyMediaLocal: (propertyId: string) => `/property-media/${propertyId}/upload`,
+  
+  // Ads Endpoints
+  createAd: '/ads',
+  getAllAds: '/ads',
+  getAdByID: (adId: string) => `/ads/${adId}`,
+  updateAd: (adId: string) => `/ads/${adId}`,
+  deleteAd: (adId: string) => `/ads/${adId}`,
 }
