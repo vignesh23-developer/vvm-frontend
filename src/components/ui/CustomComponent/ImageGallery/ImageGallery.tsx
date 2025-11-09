@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { X, ChevronLeft, ChevronRight } from 'lucide-react'
+import Button from '../Button/Button'
 
 interface ImageViewerProps {
   images: string[]
@@ -72,7 +73,7 @@ export default function ImageViewer({ images }: ImageViewerProps) {
           `}</style>
 
           {/* Close Button */}
-          <button
+          <Button
             className="absolute top-5 right-5 text-white hover:text-gray-300 transition"
             onClick={e => {
               e.stopPropagation()
@@ -81,11 +82,11 @@ export default function ImageViewer({ images }: ImageViewerProps) {
             aria-label="Close Image Viewer"
           >
             <X size={32} />
-          </button>
+          </Button>
 
           {/* Previous Button */}
           {images.length > 1 && (
-            <button
+            <Button
               className="absolute left-5 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition"
               onClick={e => {
                 e.stopPropagation()
@@ -94,7 +95,7 @@ export default function ImageViewer({ images }: ImageViewerProps) {
               aria-label="Previous Image"
             >
               <ChevronLeft size={40} />
-            </button>
+            </Button>
           )}
 
           {/* Fullscreen Image */}
@@ -119,7 +120,7 @@ export default function ImageViewer({ images }: ImageViewerProps) {
 
           {/* Next Button */}
           {images.length > 1 && (
-            <button
+            <Button
               className="absolute right-5 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition"
               onClick={e => {
                 e.stopPropagation()
@@ -128,7 +129,7 @@ export default function ImageViewer({ images }: ImageViewerProps) {
               aria-label="Next Image"
             >
               <ChevronRight size={40} />
-            </button>
+            </Button>
           )}
         </div>
       )}

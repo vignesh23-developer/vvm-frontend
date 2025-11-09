@@ -11,17 +11,81 @@ import Step2LocationPrice from './(views)/LocationPrice'
 import Step4FeaturesAmenities from './(views)/FeaturesAmenities'
 import Step5PhotosContact from './(views)/PhotosContact'
 import Step6ReviewSubmit from './(views)/ReviewSubmit'
-import useLandRegistration, { PropertyCategoryFeatureMappingResponse } from './(hook)/land_registration_hook'
-import { FeatureMappingDTO, FeaturePayloadDTO, LandRegistrationPayloadDTO } from './(dto)/land_registration_dto'
+import useLandRegistration, { PropertyCategoryFeatureMappingResponse } from './(hook)/properties_registration_hook'
+import { FeatureMappingDTO, FeaturePayloadDTO, LandRegistrationPayloadDTO } from './(dto)/properties_registration_dto'
 
 import toast from 'react-hot-toast'
 import { ResponseDTO } from '@/components/dto/response_dto'
-import { onAddPropertyMedia, onCreateProperty, onUpdateProperty } from './(action)/land_registration_action'
+import { onAddPropertyMedia, onCreateProperty, onUpdateProperty } from './(action)/properties_registration_action'
 import { getLocalStorageItem, removeLocalStorageItem, setLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
 import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
 import { useRouter } from 'next/navigation'
 import { title } from 'process'
 import { id } from 'zod/locales'
+import { getMethod } from '@/services/service'
+import { appEndpoints } from '@/services/endpoints'
+
+const mapFeatureValuesToPayload = (featureValues: any[] | undefined, mappings: FeatureMappingDTO[] | null): FeaturePayloadDTO[] => {
+  if (!Array.isArray(featureValues)) {
+    return []
+  }
+
+  return featureValues
+    .map(feature => {
+      const categoryId = feature?.feature_category?.id ?? feature?.feature_category_id ?? feature?.category_id
+
+      if (!categoryId) {
+        return null
+      }
+
+      const mapping = mappings?.find(m => m.feature_category_id === categoryId)
+      const inputType = mapping?.input_type ?? feature?.feature_category?.input_type ?? ''
+
+      let optionIds: string[] = []
+      let valueText: string | undefined
+      let valueNumber: number | undefined
+
+      if (inputType.includes('boolean')) {
+        const rawBoolean = feature?.value_boolean ?? feature?.value ?? feature?.display_value
+        let boolValue = false
+        if (typeof rawBoolean === 'boolean') {
+          boolValue = rawBoolean
+        } else if (typeof rawBoolean === 'string') {
+          boolValue = rawBoolean.toLowerCase() === 'true' || rawBoolean === '1'
+        } else if (typeof rawBoolean === 'number') {
+          boolValue = rawBoolean === 1
+        }
+        optionIds = [String(boolValue)]
+      } else if (inputType.includes('text')) {
+        const rawText = feature?.value_text ?? feature?.display_value ?? feature?.value
+        valueText = typeof rawText === 'string' ? rawText : rawText != null ? String(rawText) : ''
+      } else if (inputType.includes('numeric')) {
+        const rawNumber = feature?.value_number ?? feature?.display_value ?? feature?.value
+        const parsed = typeof rawNumber === 'number' ? rawNumber : Number(rawNumber)
+        valueNumber = Number.isFinite(parsed) ? parsed : undefined
+      } else {
+        if (Array.isArray(feature?.option_ids)) {
+          optionIds = feature.option_ids.map((id: any) => String(id))
+        } else if (Array.isArray(feature?.feature_options)) {
+          optionIds = feature.feature_options.map((opt: any) => String(opt?.id ?? opt?.option_id ?? opt))
+        } else if (feature?.option_id) {
+          optionIds = [String(feature.option_id)]
+        }
+      }
+
+      const groupId = feature?.feature_group?.id ?? feature?.feature_group_id ?? feature?.group_id ?? mapping?.feature_group_id ?? null
+
+      return new FeaturePayloadDTO({
+        feature_category_id: categoryId,
+        feature_group_id: groupId,
+        option_ids: optionIds,
+        value_text: valueText,
+        value_number: valueNumber,
+        is_mandator: mapping?.is_mandatory ?? feature?.is_mandatory ?? false,
+      })
+    })
+    .filter(Boolean) as FeaturePayloadDTO[]
+}
 
 interface Amenity {
   id: string
@@ -88,7 +152,7 @@ export interface PropertyCreationFormValues {
   boostListing: boolean
   uploadedFiles: File[] // maybe just store File[] or previews
 
-  features: Array<FeatureMappingDTO>
+  features: Array<FeaturePayloadDTO>
   // you could also include step5 review constraints
 }
 
@@ -99,7 +163,7 @@ interface userData {
   email: string
 }
 
-export default function LandRegistrationPage() {
+export default function PropertiesRegistrationPage({ propertiesId }: { propertiesId?: string }) {
   const steps = [
     { title: 'Step 1', subtitle: 'Basic Details', icon: <Home className="w-5 h-5" /> },
     { title: 'Step 2', subtitle: 'Location & Price', icon: <MapPin className="w-5 h-5" /> },
@@ -108,34 +172,6 @@ export default function LandRegistrationPage() {
     { title: 'Step 5', subtitle: 'Photos', icon: <Camera className="w-5 h-5" /> },
     { title: 'Step 6', subtitle: 'Review & Submit', icon: <Check className="w-5 h-5" /> },
   ]
-
-  const predefinedAmenities = [
-    'Parking',
-    'Garden',
-    'Swimming Pool',
-    'Gym',
-    'Security',
-    'Elevator',
-    'Power Backup',
-    'Water Supply',
-    'Internet',
-    'Club House',
-    'Children Play Area',
-    'Jogging Track',
-    'CCTV',
-    'Intercom',
-    'Maintenance Staff',
-    'Waste Management',
-  ]
-
-  const [amenities, setAmenities] = useState<Amenity[]>(
-    predefinedAmenities.map((name, i) => ({
-      id: `amenity-${i}`,
-      name,
-      selected: false,
-    })),
-  )
-
   const {
     propertyCategoryData,
     propertyCategoryFetchLoader,
@@ -160,12 +196,25 @@ export default function LandRegistrationPage() {
       setUserValue(user)
     }
   }, [])
+  const [valueData, setValueData] = useState<any>(null)
+  const fectchPropertiesById = async (id: string | undefined) => {
+    if (id) {
+      const res = (await getMethod(appEndpoints.getPropertiesByID(id as string))) as ResponseDTO<any>
+      console.log('property by id res:', res.data)
+      setValueData(res?.data)
+    }
+  }
+
+  useEffect(() => {
+    fectchPropertiesById(propertiesId)
+  }, [propertiesId])
 
   const [currentStep, setCurrentStep] = useState(1)
   const [featureData, setFeatureData] = useState<Array<FeatureMappingDTO> | null>(null)
   const [inputFeatureData, setInputFeatureData] = useState<Array<FeaturePayloadDTO> | null>(null)
 
   const [isEdit, setIsEdit] = useState<boolean>(false)
+  const [uploadCompleted, setUploadCompleted] = useState<boolean>(false)
 
   const initialValues: PropertyCreationFormValues = {
     contactName: '',
@@ -330,6 +379,8 @@ export default function LandRegistrationPage() {
     }
     if (ULRActionState?.success) {
       toast.success('Property Updated Successfully')
+      console.log('property id:', ULRActionState?.data?.id)
+      setLocalStorageItem(LOCAL_STORAGE_NAME.propertyId, ULRActionState?.data?.id)
       setCurrentStep(step => step + 1)
       setIsEdit(true)
     }
@@ -359,7 +410,8 @@ export default function LandRegistrationPage() {
     }
     if (UPPActionState?.success) {
       toast.success('Property Media Added Successfully')
-      setCurrentStep(step => step + 1)
+      // mark upload as completed so the Next button can be enabled
+      setUploadCompleted(true)
       setIsEdit(true)
     }
   }, [UPPActionState])
@@ -376,23 +428,24 @@ export default function LandRegistrationPage() {
       } else {
         // here for each step store the data on local
         if (currentStep === 1) {
-          setLocalStorageItem(LOCAL_STORAGE_NAME?.propertyDetails, JSON.stringify(values))
+          // setLocalStorageItem(LOCAL_STORAGE_NAME?.propertyDetails, JSON.stringify(values))
         } else if (currentStep === 2) {
-          setLocalStorageItem(LOCAL_STORAGE_NAME?.propertyDetails, JSON.stringify(values))
+          // setLocalStorageItem(LOCAL_STORAGE_NAME?.propertyDetails, JSON.stringify(values))
         } else if (currentStep === 3) {
-          setLocalStorageItem(LOCAL_STORAGE_NAME?.propertyDetails, JSON.stringify(values))
+          // setLocalStorageItem(LOCAL_STORAGE_NAME?.propertyDetails, JSON.stringify(values))
         } else if (currentStep === 4) {
-          setLocalStorageItem(LOCAL_STORAGE_NAME?.propertyDetails, JSON.stringify(values))
+          // setLocalStorageItem(LOCAL_STORAGE_NAME?.propertyDetails, JSON.stringify(values))
         }
 
         if (currentStep === 4 && featureData) {
           // Extract all mandatory feature category IDs
           const mandatoryFeatures = featureData.filter(val => val.is_mandatory)
           const mandatoryIds = mandatoryFeatures.map(f => f.feature_category_id)
+          const selectedFeatures = (values.features?.length ? values.features : inputFeatureData ?? []) as FeaturePayloadDTO[]
 
           // Find which mandatory features are filled by user
           const filledMandatory = mandatoryIds.filter(id => {
-            const feature = (inputFeatureData ?? []).find(f => f.feature_category_id === id)
+            const feature = selectedFeatures.find(f => f.feature_category_id === id)
             if (!feature) return false
 
             // Check if the value is actually filled depending on input type
@@ -411,6 +464,7 @@ export default function LandRegistrationPage() {
 
         if (currentStep === 4 && featureData) {
           // Proceed when mandatory selection requirement is satisfied
+          const selectedFeatures = (values.features?.length ? values.features : inputFeatureData ?? []) as FeaturePayloadDTO[]
           const LandRegistrationData: LandRegistrationPayloadDTO = new LandRegistrationPayloadDTO({
             contact_name: values?.contactName,
             contact_phone: values?.contactNumber,
@@ -434,18 +488,20 @@ export default function LandRegistrationPage() {
             longitude: values?.longitude,
             agent_id: userValue?.id || '',
             // Ensure each feature is an instance of FeaturePayloadDTO so `toObject()` exists at runtime.
-            features: (inputFeatureData ?? []).map(f => (f instanceof FeaturePayloadDTO ? f : new FeaturePayloadDTO(f as any))),
+            features: selectedFeatures.map((feature: FeaturePayloadDTO) =>
+              feature instanceof FeaturePayloadDTO ? feature : new FeaturePayloadDTO(feature as any),
+            ),
           })
 
           var payload = LandRegistrationData?.toObject()
 
-          const localStroagePropertyId = await getLocalStorageItem(LOCAL_STORAGE_NAME?.propertyId)
+          const localStroagePropertyId = (await getLocalStorageItem(LOCAL_STORAGE_NAME?.propertyId)) as any
 
-          // console.log('log on data sss:', localStroagePropertyId, payload)
+          console.log('log on data sss properties:', localStroagePropertyId, propertiesId)
 
-          if (localStroagePropertyId) {
+          if (localStroagePropertyId || propertiesId) {
             startTransition(async () => {
-              ULRAction({ payload, localStroagePropertyId })
+              ULRAction({ payload, propertiesId: propertiesId ? propertiesId : localStroagePropertyId })
             })
           } else {
             startTransition(async () => {
@@ -456,8 +512,10 @@ export default function LandRegistrationPage() {
         }
 
         if (currentStep === 5) {
-          const propertyId = await getLocalStorageItem(LOCAL_STORAGE_NAME?.propertyId)
-          // console.log('Step 5 submit - propertyId:', propertyId, 'uploadType:', values?.uploadType)
+          const localPropertyId = getLocalStorageItem(LOCAL_STORAGE_NAME?.propertyId) as any
+          console.log(localPropertyId, 'local')
+          const propertyId = propertiesId ? propertiesId : localPropertyId
+          console.log('Step 5 submit - propertyId:', propertyId, propertiesId, localPropertyId, 'uploadType:', values?.uploadType)
 
           if (!propertyId || !values?.uploadType) {
             console.error('Missing propertyId or uploadType')
@@ -475,35 +533,36 @@ export default function LandRegistrationPage() {
               return
             }
 
+            setUploadCompleted(false)
             actions.setSubmitting(true)
 
             try {
-              const uploadPromises = localFiles.map((file, index) => {
+              const formData = new FormData()
+
+              localFiles.forEach((file, index) => {
                 const meta = payload[index] || {}
-                const formData = new FormData()
+
                 formData.append('files', file)
                 formData.append('media_type', meta.media_type ?? '')
                 formData.append('title', meta.title ?? '')
                 formData.append('is_primary', String(meta.is_primary ?? false))
                 formData.append('media_category', meta.media_category ?? '')
                 formData.append('sort_order', String(meta.sort_order ?? index))
+              })
 
-                return new Promise<void>((resolve, reject) => {
-                  startTransition(() => {
-                    Promise.resolve(UPPAction({ id: propertyId, payload: formData, uploadType: 'chooseFromDevice' }))
-                      .then(() => {
-                        console.log(`File ${index + 1} uploaded successfully.`)
-                        resolve()
-                      })
-                      .catch(error => {
-                        console.error(`Error uploading file ${index + 1}:`, error)
-                        reject(error)
-                      })
-                  })
+              console.log('Uploading all files together...', propertyId)
+
+              startTransition(() => {
+                UPPAction({
+                  id: propertyId,
+                  payload: formData,
+                  uploadType: 'chooseFromDevice',
                 })
               })
 
-              await Promise.all(uploadPromises)
+              console.log('All files uploaded successfully!')
+            } catch (error) {
+              console.error('Error uploading files:', error)
             } finally {
               actions.setSubmitting(false)
             }
@@ -512,29 +571,17 @@ export default function LandRegistrationPage() {
             console.log('Uploading via addViaLink:', linkPayload)
 
             actions.setSubmitting(true)
-
             try {
-              const linkPromise = new Promise<void>((resolve, reject) => {
-                startTransition(() => {
-                  Promise.resolve(UPPAction({ id: propertyId, payload: linkPayload, uploadType: 'addViaLink' }))
-                    .then(() => {
-                      console.log('Link-based upload successful.')
-                      resolve()
-                    })
-                    .catch(error => {
-                      console.error('Error uploading via addViaLink:', error)
-                      reject(error)
-                    })
-                })
+              startTransition(() => {
+                UPPAction({ id: propertyId, payload: linkPayload, uploadType: 'addViaLink' })
               })
-
-              await linkPromise
+            } catch (error) {
+              console.error('Error uploading via link:', error)
             } finally {
               actions.setSubmitting(false)
             }
-          } else {
-            actions.setSubmitting(false)
           }
+
           return
         }
 
@@ -558,10 +605,6 @@ export default function LandRegistrationPage() {
       }
     }
   }
-
-  const router = useRouter()
-
-  console.log('render page currentStep:', currentStep)
 
   return (
     <div className="w-full px-4 py-6">
@@ -620,25 +663,111 @@ export default function LandRegistrationPage() {
       <Formik initialValues={initialValues} validationSchema={validationSchemas[currentStep]} onSubmit={handleSubmit}>
         {formik => {
           async function init() {
-            const localStoradData: any = await getLocalStorageItem(LOCAL_STORAGE_NAME.propertyDetails)
+            // 1) Check for local draft first
+            // const localStoradData: any = await getLocalStorageItem(LOCAL_STORAGE_NAME.propertyDetails)
 
-            console.log('localstorade val:', localStoradData)
+            // console.log('localstorad val:', localStoradData)
 
-            if (localStoradData) {
-              const storadPropertyData: PropertyCreationFormValues = JSON.parse(localStoradData)
-              console.log('localstorade val: st132ep 0002 ', storadPropertyData)
-              const featureResult = await onGetPropertyCategoryFeatureMapping(storadPropertyData?.propertyType)
+            // if (localStoradData) {
+            //   const storadPropertyData: PropertyCreationFormValues = JSON.parse(localStoradData)
+            //   console.log('localstorad val: st132ep 0002 ', storadPropertyData)
+            //   const featureResult = await onGetPropertyCategoryFeatureMapping(storadPropertyData?.propertyType)
+            //   const mappings = featureResult?.data?.mappings ?? null
 
-              setFeatureData(featureResult?.data?.mappings)
+            //   setFeatureData(mappings)
 
-              Object.entries(storadPropertyData)
-                .filter(([key, value]) => value !== '' || value !== null || value !== undefined)
+            //   Object.entries(storadPropertyData)
+            //     .filter(([key, value]) => key !== 'features' && (value !== '' || value !== null || value !== undefined))
+            //     .forEach(([key, value]) => formik.setFieldValue(key, value))
+
+            //   if (Array.isArray(storadPropertyData.features)) {
+            //     const restoredFeatures = storadPropertyData.features.map(feature => new FeaturePayloadDTO(feature as any))
+            //     formik.setFieldValue('features', restoredFeatures)
+            //     setInputFeatureData(restoredFeatures)
+            //   } else {
+            //     formik.setFieldValue('features', [])
+            //     setInputFeatureData([])
+            //   }
+            //   return
+            // }
+
+            // 2) If editing (propertiesId present and valueData fetched), populate with server data
+            if (propertiesId && valueData) {
+              console.log('Editing property with ID:', propertiesId)
+              console.log('Fetched valueData:', valueData)
+
+              // Map server data to form fields
+              const serverToForm: Partial<PropertyCreationFormValues> = {
+                contactName: valueData?.contact_name ?? '',
+                contactNumber: valueData?.contact_phone ?? '',
+                contactEmail: valueData?.contact_email ?? '',
+
+                propertyTitle: valueData?.title ?? '',
+                propertyType: valueData?.property_category_id ?? valueData?.property_category_id ?? '',
+                purpose: valueData?.listing_type ?? valueData?.listing_type ?? '',
+                description: valueData?.description ?? '',
+
+                door_number: valueData?.door_number ?? '',
+                street_name: valueData?.street_name ?? '',
+                address_line: valueData?.address_line ?? '',
+                city: valueData?.city ?? '',
+                district: valueData?.district ?? '',
+                state: valueData?.state ?? 'Tamil Nadu',
+                postal_code: valueData?.postal_code ?? '',
+                country: valueData?.country ?? 'India',
+                price: valueData?.price ?? '',
+                size: valueData?.property_size ?? '',
+                unit: valueData?.property_size_unit ?? 'Sqft',
+
+                latitude: valueData?.latitude ?? 0,
+                longitude: valueData?.longitude ?? 0,
+
+                option_ids: valueData?.option_ids ?? [],
+
+                uploadType: valueData?.media && Array.isArray(valueData.media) && valueData.media.length > 0 ? 'chooseFromDevice' : '',
+                propertyPhoto: [],
+
+                localpropertyPhoto: { files: [], payload: [] },
+                boostListing: false,
+                uploadedFiles: [],
+                features: [],
+              }
+
+              console.log('Mapped serverToForm:', serverToForm)
+
+              Object.entries(serverToForm)
+                .filter(([key]) => key !== 'features')
                 .forEach(([key, value]) => formik.setFieldValue(key, value))
+
+              // If server already has media, mark upload as completed so Next is enabled
+              if (Array.isArray(valueData?.media) && valueData.media.length > 0) {
+                setUploadCompleted(true)
+              } else {
+                setUploadCompleted(false)
+              }
+
+              // Fetch feature definitions
+              if (serverToForm.propertyType) {
+                const featureResult = await onGetPropertyCategoryFeatureMapping(serverToForm.propertyType as string)
+                const mappings = featureResult?.data?.mappings
+                setFeatureData(mappings)
+                console.log('Fetched mappings:', mappings)
+                const mappedFeatures = mapFeatureValuesToPayload(valueData?.feature_values, mappings ?? null)
+                formik.setFieldValue('features', mappedFeatures)
+                setInputFeatureData(mappedFeatures)
+              } else {
+                // If no propertyType, still try to map features without mappings
+                const mappedFeatures = mapFeatureValuesToPayload(valueData?.feature_values, null)
+                formik.setFieldValue('features', mappedFeatures)
+                setInputFeatureData(mappedFeatures)
+              }
+
+              setIsEdit(true)
             }
           }
           useEffect(() => {
             init()
-          }, [])
+          }, [valueData, propertiesId])
 
           return (
             <Form>
@@ -658,58 +787,76 @@ export default function LandRegistrationPage() {
                   setInputFeatureData={setInputFeatureData}
                   formik={formik}
                   amenities={featureData ?? []}
+                  hasInitialFeatureValues={Boolean(valueData?.feature_values?.length)}
                 />
               )}
               {currentStep === 5 && <Step5PhotosContact formik={formik} uploadPending={UPPIsPending} />}
               {currentStep === 6 && <Step6ReviewSubmit propertyCategoryData={propertyCategoryData} formik={formik} />}
 
-              {currentStep !== 6 && (
-                <div className="flex flex-col sm:flex-row justify-between gap-3 mt-8 pt-6 border-t border-gray-100 max-w-4xl mx-auto">
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep(s => Math.max(s - 1, 1))}
-                    disabled={currentStep === 1 || formik.isSubmitting}
-                    className="flex items-center gap-2 px-6 py-3 rounded-lg border text-gray-700 border-gray-300 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <ArrowLeft size={20} /> {localStorage.getItem(LOCAL_STORAGE_NAME?.propertyId) ? 'Edit' : 'Previous'}
-                  </button>
+              <div className="flex flex-col sm:flex-row justify-between gap-3 mt-8 pt-6 border-t border-gray-100 max-w-4xl mx-auto">
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(s => Math.max(s - 1, 1))}
+                  disabled={currentStep === 1 || formik.isSubmitting}
+                  className="flex items-center gap-2 px-6 py-3 rounded-lg border text-gray-700 border-gray-300 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ArrowLeft size={20} /> {localStorage.getItem(LOCAL_STORAGE_NAME?.propertyDetails) ? 'Edit' : 'Previous'}
+                </button>
+                {currentStep !== 6 && (
+                  <>
+                    {/* {localStorage.getItem(LOCAL_STORAGE_NAME?.propertyDetails) && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          removeLocalStorageItem(LOCAL_STORAGE_NAME.propertyDetails)
+                          removeLocalStorageItem(LOCAL_STORAGE_NAME.propertyId)
+                          formik?.setValues(initialValues)
+                          setCurrentStep(1)
+                          router?.push('/properties-registration')
+                        }}
+                        className="flex items-center gap-2 px-6 py-3 rounded-lg border text-gray-700 border-gray-300 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Unsave
+                      </button>
+                    )} */}
 
-                  {localStorage.getItem(LOCAL_STORAGE_NAME?.propertyDetails) && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        removeLocalStorageItem(LOCAL_STORAGE_NAME.propertyDetails)
-                        removeLocalStorageItem(LOCAL_STORAGE_NAME.propertyId)
-                        formik?.setValues(initialValues)
-                        setCurrentStep(1)
-                        router?.push('/land-registration')
-                      }}
-                      className="flex items-center gap-2 px-6 py-3 rounded-lg border text-gray-700 border-gray-300 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Unsave
-                    </button>
-                  )}
-
-                  {currentStep !== 5 && (
-                    <button
-                      type="submit"
-                      disabled={formik.isSubmitting || UPPIsPending}
-                      className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#7B1E1E] text-white hover:bg-[#641717] cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ${
-                        formik.isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-                      }`}
-                    >
-                      {!formik.isSubmitting ? (
-                        <>
-                          {isLastStep ? 'Submit' : currentStep === 4 ? 'Save Property' : 'Next Step'}
-                          <ArrowRight size={20} />
-                        </>
-                      ) : (
-                        'Loading'
-                      )}
-                    </button>
-                  )}
-                </div>
-              )}
+                    {currentStep !== 5 ? (
+                      <button
+                        type="submit"
+                        disabled={formik.isSubmitting || UPPIsPending}
+                        className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#7B1E1E] text-white hover:bg-[#641717] cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ${
+                          formik.isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                      >
+                        {!formik.isSubmitting ? (
+                          <>
+                            {isLastStep ? 'Submit' : currentStep === 4 ? 'Save Property' : 'Next Step'}
+                            <ArrowRight size={20} />
+                          </>
+                        ) : (
+                          'Loading'
+                        )}
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (uploadCompleted) {
+                            setCurrentStep(s => Math.min(s + 1, steps.length))
+                          }
+                        }}
+                        disabled={!uploadCompleted}
+                        className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#7B1E1E] text-white hover:bg-[#641717] transition disabled:opacity-50 disabled:cursor-not-allowed ${
+                          uploadCompleted ? 'cursor-pointer' : ''
+                        }`}
+                      >
+                        {uploadCompleted ? 'Next Step' : 'Upload files to enable'}
+                        <ArrowRight size={20} />
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
             </Form>
           )
         }}

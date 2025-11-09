@@ -2,8 +2,6 @@
 import axios, { AxiosError } from 'axios'
 import axiosInstance from './base' // your configured Axios instance
 import { ResponseDTO } from '@/components/dto/response_dto'
-import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
-import { getLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
 
 type ApiResponseWrapper<T> = {
   error?: boolean
@@ -45,7 +43,7 @@ export async function getMethod<T = unknown>(url: string, params?: Record<string
       return new ResponseDTO<T>({
         error: true,
         data: axiosErr.response?.data ?? ({} as T),
-        message: 'Server not reachable',
+        message: axiosErr.response?.data?.message || 'Server not reachable',
         status: axiosErr.response?.status?.toString(),
       })
     }
@@ -93,7 +91,7 @@ export async function postMethod<T = unknown>(url: string, body?: any, headers?:
       return new ResponseDTO<T>({
         error: true,
         data: axiosErr.response?.data ?? ({} as T),
-        message: 'Server not reachable',
+        message: axiosErr.response?.data?.message || 'Server not reachable',
         status: axiosErr.response?.status?.toString(),
       })
     }
@@ -141,7 +139,7 @@ export async function putMethod<T = unknown>(url: string, body?: any, headers?: 
       return new ResponseDTO<T>({
         error: true,
         data: axiosErr.response?.data ?? ({} as T),
-        message: 'Server not reachable',
+        message: axiosErr.response?.data?.message || 'Server not reachable',
         status: axiosErr.response?.status?.toString(),
       })
     }
@@ -189,7 +187,7 @@ export async function patchMethod<T = unknown>(url: string, body?: any, headers?
       return new ResponseDTO<T>({
         error: true,
         data: axiosErr.response?.data ?? ({} as T),
-        message: 'Server not reachable',
+        message: axiosErr.response?.data?.message || 'Server not reachable',
         status: axiosErr.response?.status?.toString(),
       })
     }
@@ -237,7 +235,7 @@ export async function deleteMethod<T = unknown>(url: string, headers?: Record<st
       return new ResponseDTO<T>({
         error: true,
         data: axiosErr.response?.data ?? ({} as T),
-        message: 'Server not reachable',
+        message: axiosErr.response?.data?.message || 'Server not reachable',
         status: axiosErr.response?.status?.toString(),
       })
     }

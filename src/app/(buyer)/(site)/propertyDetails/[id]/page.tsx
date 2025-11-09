@@ -1,9 +1,8 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import Image from 'next/image'
 import { useParams } from 'next/navigation'
-import { Heart, Share2, BedDouble, Bath, Building, Sofa, Flag, MapPin } from 'lucide-react'
+import { Heart, Share2, MessageSquare, Flag, MapPin } from 'lucide-react'
 import Amenities from '@/components/buyer/Amenities/Amenities'
 import { useTranslations } from 'next-intl'
 import { motion, Variants } from 'framer-motion'
@@ -12,8 +11,11 @@ import ReportPropertyModal from './modal/ReportPropertyModal'
 import usePropertiesDetail from '../(hooks)/usePropertiesHook'
 import MapView from '@/components/ui/map/MapView'
 import ImageViewer from '@/components/ui/CustomComponent/ImageGallery/ImageGallery'
-const DEFAULT_MAIN_IMAGE = '/villa.png'
-const DEFAULT_THUMB_IMAGE = '/agency.png'
+import FavoriteButton from '@/components/ui/CustomComponent/FavoriteButton/FavoriteButton'
+import { appEndpoints } from '@/services/endpoints'
+import { deleteMethod, postMethod } from '@/services/service'
+import EnquiryPropertyModal from './modal/EnquiryPropertyModal'
+
 // Reusable animation variants
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 40 },
@@ -42,8 +44,30 @@ const page = () => {
   const params = useParams<{ id: string | string[] }>()
   const propertyIdParam = params?.id
   const propertyId = Array.isArray(propertyIdParam) ? propertyIdParam[0] : propertyIdParam
+  const [favoritedProperties, setFavoritedProperties] = useState<Set<string>>(new Set())
   const [reportModalOpen, setReportModalOpen] = useState(false)
-  const { propertyDetailsData, propertyDetailsFetchLoader, propertyDetailsFetchErr } = usePropertiesDetail({ id: propertyId })
+  const [enquiryModalOpen, setEnquiryModalOpen] = useState(false)
+  const { propertyDetailsData, propertyDetailsFetchLoader, propertyDetailsFetchErr, propertyDetailsRefresh } = usePropertiesDetail({ id: propertyId })
+
+  const handleFavorite = async (propertyId: string) => {
+    const isFav = favoritedProperties.has(propertyId)
+    try {
+      const response = isFav
+        ? await deleteMethod(appEndpoints.deleteFavorite(propertyId))
+        : await postMethod(appEndpoints.toggleFavorite, { entity_type: 'property', entity_id: propertyId })
+
+      if (!response?.error) {
+        setFavoritedProperties(prev => {
+          const newSet = new Set(prev)
+          isFav ? newSet.delete(propertyId) : newSet.add(propertyId)
+          return newSet
+        })
+      }
+      propertyDetailsRefresh()
+    } catch (err) {
+      console.error('Error updating favorite:', err)
+    }
+  }
 
   if (propertyDetailsFetchLoader) {
     return (
@@ -80,24 +104,25 @@ const page = () => {
 
         <motion.div variants={fadeInUp} className="lg:col-span-2 space-y-8">
           {/* Property Card */}
-          <motion.div
-            variants={fadeInUp}
-            whileHover={{ scale: 1.01 }}
-            transition={{ type: 'spring', stiffness: 120 }}
-            className="bg-white shadow-md rounded-xl overflow-hidden"
-          >
+          <motion.div className="bg-white shadow-md rounded-xl overflow-hidden">
             {/* Header */}
             <div className="flex justify-between items-start p-5">
               <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }}>
-                <h2 className="text-xl font-semibold">₹ {propertyDetailsData?.price}</h2>
+                <h1 className="text-xl font-semibold">{propertyDetailsData?.title}</h1>
+                <p className="text-gray-800 mt-2">₹ {propertyDetailsData?.price}</p>
                 <p className="text-sm text-gray-500">₹19,465 per sqft</p>
-                <p className="text-gray-800 mt-2 font-medium">{propertyDetailsData?.title}</p>
               </motion.div>
 
               <motion.div className="flex gap-3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }}>
-                <motion.button whileHover={{ scale: 1.2, color: '#ef4444' }} className="p-2 rounded-full hover:bg-gray-100 transition">
-                  <Heart size={20} />
-                </motion.button>
+                <motion.div whileHover={{ scale: 1.2, color: '#ef4444' }} className="p-2 rounded-full hover:bg-gray-100 transition">
+                  <FavoriteButton
+                    propertyId={propertyId}
+                    isFavorited={favoritedProperties.has(propertyId)}
+                    onToggleFavorite={handleFavorite}
+                    size={25}
+                    favoriteCount={propertyDetailsData?.favorite_count}
+                  />
+                </motion.div>
                 <motion.button whileHover={{ scale: 1.2, color: '#2563eb' }} className="p-2 rounded-full hover:bg-gray-100 transition">
                   <Share2 size={20} />
                 </motion.button>
@@ -105,11 +130,11 @@ const page = () => {
             </div>
 
             {/* Image Gallery */}
-            {/* <motion.div className="relative w-full flex gap-3 px-5 py-4" variants={fadeInUp}> */}
-            {/* <motion.div transition={{ duration: 0.25 }} className="relative flex-1 rounded-xl overflow-hidden shadow-sm"> */}
-            <ImageViewer images={imagesValue.map(img => img.src)} />
-            {/* </motion.div> */}
-            {/* </motion.div> */}
+            <motion.div className="relative w-full flex gap-3 px-5" variants={fadeInUp}>
+              <motion.div transition={{ duration: 0.25 }} className="relative flex-1 rounded-xl overflow-hidden shadow-sm">
+                <ImageViewer images={imagesValue.map(img => img.src)} />
+              </motion.div>
+            </motion.div>
 
             {/* Address */}
             <div className="mt-5 flex gap-6 items-center px-5 pb-4 text-gray-600">
@@ -193,18 +218,27 @@ const page = () => {
               <motion.div
                 whileHover={{
                   scale: 1.05,
-                  backgroundColor: '#C53030',
                 }}
                 transition={{ duration: 0.3 }}
               >
-                <Button
-                  type="button"
-                  onClick={() => setReportModalOpen(true)}
-                  className="w-full bg-[#A21B1B] text-white px-4 py-2 rounded-lg shadow-md transition font-medium"
-                >
-                  <Flag size={18} className="inline mr-2" />
-                  {t('PropertiesDetails.report_property') || 'Report'}
-                </Button>
+                <div className="flex justify-between items-center gap-2 text-white px-4 py-2 rounded-lg shadow-md transition font-medium">
+                  <Button
+                    type="button"
+                    onClick={() => setReportModalOpen(true)}
+                    className="w-full bg-[#A21B1B] text-white px-4 py-2 rounded-lg shadow-md transition font-medium"
+                  >
+                    <Flag size={18} className="inline mr-2" />
+                    {t('PropertiesDetails.report_property') || 'Report'}
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => setEnquiryModalOpen(true)}
+                    className="w-full bg-[#2563EB] text-white px-4 py-2 rounded-lg shadow-md transition font-medium"
+                  >
+                    <MessageSquare size={18} className="inline mr-2" />
+                    {t('PropertiesDetails.enquire_property') || 'Enquire'}
+                  </Button>
+                </div>
               </motion.div>
             </div>
           </motion.div>
@@ -241,6 +275,12 @@ const page = () => {
         <ReportPropertyModal
           reportModalOpen={reportModalOpen}
           setReportModalOpen={setReportModalOpen}
+          propertyId={propertyId ? String(propertyId) : ''}
+        />
+
+        <EnquiryPropertyModal
+          EnquiryModalOpen={enquiryModalOpen}
+          setEnquiryModalOpen={setEnquiryModalOpen}
           propertyId={propertyId ? String(propertyId) : ''}
         />
       </div>

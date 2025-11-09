@@ -49,7 +49,11 @@
     "about_us": "எங்களைப் பற்றி",
     "help_center": "உதவி மையம்",
     "pricing": "விலை நிர்ணயம்",
-    "master": "மாஸ்டர்",
+    "Dashboard": "டாஷ்போர்டு",
+    "masters": "மாஸ்டர்கள்",
+    "ads": "விளம்பரங்கள்",
+    "subscription": "சந்தா",
+    "payments": "கட்டணங்கள்",
     "properties": "சொத்துகள்",
     "leads": "வழிநடத்துகிறது",
     "users": "பயனர்கள்",
@@ -61,7 +65,34 @@
       "feature categories": "அம்சம் வகைகள்",
       "feature group": "அம்சம் குழு",
       "properties": "சொத்துகள்",
-      "category mappings": "வகை வரைபடங்கள்"
+      "category mappings": "வகை வரைபடங்கள்",
+      
+  "properties management": "சொத்து மேலாண்மை",
+  "properties pending approval": "அனுமதி நிலுவையில் உள்ள சொத்துகள்",
+  "favourite properties": "பிடித்த சொத்துகள்",
+  "reported properties": "புகாரளிக்கப்பட்ட சொத்துகள்",
+  "view enquiries": "வினவல்களைப் பார்க்கவும்",
+  "saved searches": "சேமிக்கப்பட்ட தேடல்கள்",
+  "recently viewed properties": "சமீபத்தில் பார்வையிட்ட சொத்துகள்",
+  "contact requests": "தொடர்பு கோரிக்கைகள்",
+  
+  "ads management": "விளம்பர மேலாண்மை",
+  "ads pending approval": "அனுமதி நிலுவையில் உள்ள விளம்பரங்கள்",
+  "view recent ads": "சமீபத்திய விளம்பரங்களைப் பார்க்கவும்",
+  "favourite ads": "பிடித்த விளம்பரங்கள்",
+  "reported ads": "புகாரளிக்கப்பட்ட விளம்பரங்கள்",
+  "view enquiries ads": "விளம்பர வினவல்களைப் பார்க்கவும்",
+  
+  "subscription master": "சந்தா முதன்மை",
+  "my subscription": "என் சந்தா",
+  "user subscription": "பயனர் சந்தா",
+  
+  "view transactions": "பரிவர்த்தனைகளைப் பார்க்கவும்",
+  "payment reports / revenue summary": "கட்டண அறிக்கைகள் / வருமான சுருக்கம்",
+  "refund management": "பணத்தைத் திருப்பி வழங்கல் மேலாண்மை",
+  "promo usage reports": "ப்ரோமோ பயன்பாட்டு அறிக்கைகள்"
+
+
     }
   },
   "PopularProperties": {
@@ -163,6 +194,7 @@
     "description": "விளக்கம்",
     "amenities": "வசதிகள்",
     "report_property": "அறிக்கை",
+    "enquire_property": "விசாரிக்கவும்",
     "agent": "முகவர்",
     "loading": "ஏற்றுகிறது...",
     "more_photos": "மேலும் புகைப்படங்கள்"

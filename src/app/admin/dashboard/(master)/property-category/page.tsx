@@ -23,6 +23,12 @@ export default function PropertyCategoryPage() {
         filterable: true,
       },
       {
+        field: 'icon',
+        title: 'Icon',
+        sortable: true,
+        filterable: true,
+      },
+      {
         field: 'description',
         title: 'Description',
         sortable: true,

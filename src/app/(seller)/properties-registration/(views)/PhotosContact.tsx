@@ -1,6 +1,6 @@
 'use client'
 
-import { ChangeEvent, DragEvent, useEffect, useRef, useState } from 'react'
+import { ChangeEvent, DragEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { FormikProps, ErrorMessage } from 'formik'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
 import { LocalPropertyPhotoPayloadItem, PropertyCreationFormValues } from '../page'
@@ -31,6 +31,55 @@ export default function Step5PhotosContact({ formik, uploadPending }: Step5Photo
   const [primaryIndex, setPrimaryIndex] = useState<number | null>(null)
   const [isDraggingOverArea, setIsDraggingOverArea] = useState(false)
 
+  const resetLocalMedia = useCallback(() => {
+    setFieldValue('localpropertyPhoto.files', [], false)
+    setFieldValue('localpropertyPhoto.payload', [], false)
+    setFieldValue('localpropertyPhoto.media_type', '', false)
+    setFieldValue('localpropertyPhoto.media_category', '', false)
+    setFieldValue('localpropertyPhoto.title', '', false)
+    setFieldValue('localpropertyPhoto.is_primary', false, false)
+    setPrimaryIndex(null)
+  }, [setFieldValue])
+
+  const syncFormikMedia = useCallback(
+    (nextItems: UploadItem[], nextPrimary: number | null) => {
+      // Defer Formik updates to next microtask to avoid React "setState during render" warnings.
+      if (!nextItems.length) {
+        Promise.resolve().then(() => resetLocalMedia())
+        return
+      }
+
+      const resolvedPrimary = nextPrimary ?? 0
+      const clampedPrimary = resolvedPrimary >= nextItems.length ? 0 : resolvedPrimary
+      const primaryItem = nextItems[clampedPrimary] ?? nextItems[0]
+      const headFile = primaryItem.file
+      const mediaType = resolveMediaType(headFile)
+      const payload = buildPayload(nextItems, clampedPrimary)
+
+      if (primaryIndex === null || primaryIndex >= nextItems.length) {
+        setPrimaryIndex(clampedPrimary)
+      }
+
+      Promise.resolve().then(() => {
+        if (!values.uploadType || values.uploadType === 'addViaLink') {
+          setFieldValue('uploadType', 'chooseFromDevice', false)
+        }
+
+        setFieldValue(
+          'localpropertyPhoto.files',
+          nextItems.map(item => item.file),
+          false,
+        )
+        setFieldValue('localpropertyPhoto.payload', payload, false)
+        setFieldValue('localpropertyPhoto.media_type', mediaType, false)
+        setFieldValue('localpropertyPhoto.media_category', headFile.type, false)
+        setFieldValue('localpropertyPhoto.title', primaryItem.title ?? '', false)
+        setFieldValue('localpropertyPhoto.is_primary', Boolean(primaryItem), false)
+      })
+    },
+    [primaryIndex, resetLocalMedia, setFieldValue, setPrimaryIndex, values.uploadType],
+  )
+
   useEffect(() => {
     itemsRef.current = items
   }, [items])
@@ -51,38 +100,8 @@ export default function Step5PhotosContact({ formik, uploadPending }: Step5Photo
   }, [items.length, values.localpropertyPhoto?.files])
 
   useEffect(() => {
-    if (!items.length) {
-      setFieldValue('localpropertyPhoto.files', [], false)
-      setFieldValue('localpropertyPhoto.payload', [], false)
-      setFieldValue('localpropertyPhoto.media_type', '', false)
-      setFieldValue('localpropertyPhoto.media_category', '', false)
-      setFieldValue('localpropertyPhoto.title', '', false)
-      setFieldValue('localpropertyPhoto.is_primary', false, false)
-      setPrimaryIndex(null)
-      return
-    }
-
-    const filesOnly = items.map(item => item.file)
-    const primaryItem = primaryIndex !== null && items[primaryIndex] ? items[primaryIndex] : items[0]
-    const firstFile = items[0].file
-    const mediaType = firstFile.type.startsWith('image/') ? 'IMAGE' : 'VIDEO'
-    const payload = buildPayload(items, primaryIndex)
-
-    if (!values.uploadType || values.uploadType === 'addViaLink') {
-      setFieldValue('uploadType', 'chooseFromDevice', false)
-    }
-
-    setFieldValue('localpropertyPhoto.files', filesOnly, false)
-    setFieldValue('localpropertyPhoto.payload', payload, false)
-    setFieldValue('localpropertyPhoto.media_type', mediaType, false)
-    setFieldValue('localpropertyPhoto.media_category', firstFile.type, false)
-    setFieldValue('localpropertyPhoto.title', primaryItem?.title ?? '', false)
-    setFieldValue('localpropertyPhoto.is_primary', Boolean(primaryItem), false)
-
-    if (primaryIndex === null) {
-      setPrimaryIndex(0)
-    }
-  }, [items, primaryIndex, setFieldValue, values.uploadType])
+    syncFormikMedia(items, primaryIndex)
+  }, [items, primaryIndex, syncFormikMedia])
 
   const updateItems = (updater: (previous: UploadItem[]) => UploadItem[]) => {
     setItems(prev => {
@@ -94,7 +113,7 @@ export default function Step5PhotosContact({ formik, uploadPending }: Step5Photo
   }
 
   const handleFilesAdded = (incoming: File[]) => {
-    const valid = incoming.filter(file => file.type.startsWith('image/') || file.type.startsWith('video/'))
+    const valid = incoming.filter(isSupportedMedia)
 
     if (!valid.length) {
       toast.error('Please select image or video files.')
@@ -149,14 +168,22 @@ export default function Step5PhotosContact({ formik, uploadPending }: Step5Photo
   }
 
   const handleRemove = (index: number) => {
-    updateItems(prev => {
+    setItems(prev => {
       const next = prev.filter((_, i) => i !== index)
-      setPrimaryIndex(current => {
-        if (current === null) return next.length ? 0 : null
-        if (current === index) return next.length ? 0 : null
-        if (current > index) return current - 1
-        return current
-      })
+
+      // Adjust primary index safely
+      const nextPrimary = (() => {
+        if (primaryIndex === null) return next.length ? 0 : null
+        if (primaryIndex === index) return next.length ? 0 : null
+        if (primaryIndex > index) return primaryIndex - 1
+        return primaryIndex
+      })()
+
+      setPrimaryIndex(nextPrimary)
+
+      // Immediately sync Formik (prevents stale data)
+      syncFormikMedia(next, nextPrimary)
+
       return next
     })
   }
@@ -337,32 +364,34 @@ export default function Step5PhotosContact({ formik, uploadPending }: Step5Photo
         )}
 
         {values.uploadType === 'chooseFromDevice' && (
-          <div
-            className="max-w-4xl mx-auto p-6 bg-white"
-            onDragEnter={handleAreaDragEnter}
-            onDragOver={handleAreaDragOver}
-            onDragLeave={handleAreaDragLeave}
-            onDrop={handleAreaDrop}
-          >
-            <button
-              type="button"
+          <div className="space-y-6">
+            {/* Upload Drop Zone */}
+            <div
+              className={`relative w-full border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors duration-200
+        ${isDraggingOverArea ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:bg-gray-50'}`}
+              onDragEnter={handleAreaDragEnter}
+              onDragOver={handleAreaDragOver}
+              onDragLeave={handleAreaDragLeave}
+              onDrop={handleAreaDrop}
               onClick={() => fileInputRef.current?.click()}
-              className="w-full flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed rounded-lg hover:bg-gray-50 transition-colors"
             >
-              <Upload size={40} className="text-gray-400" />
-              <span className="text-gray-700 font-medium">Upload Images / Videos</span>
-              <span className="text-gray-500 text-sm">JPG, PNG or video files</span>
               <input ref={fileInputRef} type="file" multiple accept=".jpg,.jpeg,.png,video/*" onChange={handleFileInput} className="hidden" />
-            </button>
 
-            {isDraggingOverArea && (
-              <div className="mt-6 p-6 border-2 border-dashed border-blue-400 bg-blue-50 rounded-lg text-blue-500 text-center">
-                Drop files here to upload
-              </div>
-            )}
+              <Upload size={40} className="mx-auto text-gray-400 mb-2" />
+              <p className="text-gray-700 font-medium">Upload Images / Videos</p>
+              <p className="text-gray-500 text-sm">JPG, PNG, or video files</p>
 
-            {items.length > 0 && (
-              <div className="mt-6 border rounded-lg p-4 space-y-3">
+              {isDraggingOverArea && (
+                <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-blue-50 bg-opacity-70 text-blue-600 font-medium">
+                  Drop files here to upload
+                </div>
+              )}
+            </div>
+
+            {/* File List */}
+            {items.length > 0 ? (
+              <div className="border rounded-lg p-4 space-y-4">
+                {/* Header */}
                 <div className="flex justify-between items-center">
                   <h2 className="text-lg font-medium">Selected Files</h2>
                   <p className="text-sm text-gray-500">
@@ -370,25 +399,26 @@ export default function Step5PhotosContact({ formik, uploadPending }: Step5Photo
                   </p>
                 </div>
 
+                {/* File Items */}
                 {items.map((item, index) => {
                   const isPrimary = primaryIndex === index
-                  const kind = item.file.type.startsWith('image/') ? 'Image' : 'Video'
+                  const isImage = item.file.type.startsWith('image/')
                   const size = `${(item.file.size / 1024).toFixed(1)} KB`
 
                   return (
                     <div
                       key={item.preview}
-                      className={`flex items-center p-3 border rounded-lg transition ${
+                      className={`flex items-center p-3 border rounded-lg transition-colors duration-150 ${
                         isPrimary ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'
                       }`}
                       draggable
                       onDragStart={() => handleDragStart(index)}
-                      onDragOver={event => handleItemDragOver(event, index)}
+                      onDragOver={e => handleItemDragOver(e, index)}
                       onDragEnd={handleDragEnd}
                     >
                       <GripVertical className="mr-3 text-gray-400 cursor-move flex-shrink-0" size={20} />
 
-                      <div className="w-16 h-16 relative flex-shrink-0 overflow-hidden rounded-md bg-gray-100">
+                      <div className="w-16 h-16 relative overflow-hidden rounded-md bg-gray-100 flex-shrink-0">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={item.preview} alt={item.title || item.file.name} className="w-full h-full object-cover" />
                         {isPrimary && <CheckCircle className="absolute -top-1 -right-1 text-blue-500 bg-white rounded-full" size={16} />}
@@ -398,12 +428,12 @@ export default function Step5PhotosContact({ formik, uploadPending }: Step5Photo
                         <input
                           type="text"
                           value={item.title}
-                          onChange={event => handleTitleChange(index, event.target.value)}
+                          onChange={e => handleTitleChange(index, e.target.value)}
                           className="text-sm font-medium border-b border-gray-300 focus:border-blue-500 focus:outline-none w-full"
                           placeholder="Title"
                         />
                         <p className="text-xs text-gray-500 mt-1">
-                          {kind} • {size}
+                          {isImage ? 'Image' : 'Video'} • {size}
                         </p>
 
                         {isPrimary ? (
@@ -422,9 +452,10 @@ export default function Step5PhotosContact({ formik, uploadPending }: Step5Photo
                   )
                 })}
 
+                {/* Upload Button */}
                 <Button
                   type="button"
-                  onClick={() => submitForm()}
+                  onClick={submitForm}
                   disabled={isUploading || items.length === 0}
                   className={`w-full py-3 rounded-lg text-white font-medium flex items-center justify-center gap-2 ${
                     isUploading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#7B1E1E] hover:bg-[#641717]'
@@ -442,12 +473,8 @@ export default function Step5PhotosContact({ formik, uploadPending }: Step5Photo
                   )}
                 </Button>
               </div>
-            )}
-
-            {items.length === 0 && (
-              <p className="mt-6 text-sm text-gray-500 text-center">
-                No files selected yet. Use the button above or drag and drop files into this area.
-              </p>
+            ) : (
+              <p className="text-sm text-gray-500 text-center">No files selected yet. Use the button above or drag and drop files into this area.</p>
             )}
           </div>
         )}
@@ -465,6 +492,14 @@ function toTitle(file: File) {
   return candidate || name
 }
 
+function isSupportedMedia(file: File) {
+  return file.type.startsWith('image/') || file.type.startsWith('video/')
+}
+
+function resolveMediaType(file: File): 'IMAGE' | 'VIDEO' {
+  return file.type.startsWith('image/') ? 'IMAGE' : 'VIDEO'
+}
+
 function createItem(file: File): UploadItem {
   return {
     file,
@@ -479,7 +514,7 @@ function buildPayload(items: UploadItem[], primaryIndex: number | null): Array<L
     // metadata only; File objects are kept in localpropertyPhoto.files
     is_primary: resolvedPrimary === index,
     title: item.title || toTitle(item.file),
-    media_type: item.file.type.startsWith('image/') ? 'IMAGE' : 'VIDEO',
+    media_type: resolveMediaType(item.file),
     media_category: item.file.type,
     sort_order: index + 1,
   }))

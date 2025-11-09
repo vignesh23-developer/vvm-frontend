@@ -25,11 +25,11 @@ export async function onCreateProperty(prevState: ResponseDTO, data: { payload: 
   }
 }
 
-export async function onUpdateProperty(prevState: ResponseDTO, data: { payload: any; localStroagePropertyId: string }): Promise<ResponseDTO> {
+export async function onUpdateProperty(prevState: ResponseDTO, data: { payload: any; propertiesId: string }): Promise<ResponseDTO> {
   console.log('log on action:', data)
 
   try {
-    const response: ResponseDTO = await patchMethod(`properties/${data?.localStroagePropertyId}`, data?.payload)
+    const response: ResponseDTO = await patchMethod(`properties/${data?.propertiesId}`, data?.payload)
 
     console.log('log on property creation:', response)
 

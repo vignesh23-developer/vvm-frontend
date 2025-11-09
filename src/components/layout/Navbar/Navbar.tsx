@@ -3,7 +3,23 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Menu, X, Globe, User, LogOut, ArrowRight, ChevronUp, ChevronDown, Shield, Home, Building2, Grip } from 'lucide-react'
+import {
+  Menu,
+  X,
+  Globe,
+  User,
+  LogOut,
+  ArrowRight,
+  Building,
+  ChevronUp,
+  ChevronDown,
+  Shield,
+  Home,
+  Building2,
+  Grip,
+  Megaphone,
+  CreditCard,
+} from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTranslationContext } from '@/hooks/Translation/TranslationProvider'
 import { useTranslations } from 'next-intl'
@@ -55,24 +71,31 @@ export default function Navbar({
 
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
-  const [showSubmenu, setShowSubmenu] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [openSubMenu, setOpenSubMenu] = useState<string | null>(null)
   const [userValue, setUserValue] = useState<any | null>(null)
+  // track independently-open sections (desktop & mobile)
+  const [openSections, setOpenSections] = useState<Set<string>>(new Set())
   const gripRef = useRef<HTMLDivElement | null>(null)
   const profileRef = useRef<HTMLDivElement | null>(null)
+  const toggleSection = (key: string) =>
+    setOpenSections(prev => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
 
   useEffect(() => {
     const authToken = getLocalStorageItem('authToken')
     const userData = getLocalStorageItem('userData') as userData
 
     if (authToken && userData) {
-      const user = {
+      setUserValue({
         firstName: userData?.firstName,
         lastName: userData?.lastName,
         email: userData?.email,
-      }
-      setUserValue(user)
+      })
     }
   }, [])
 
@@ -119,7 +142,27 @@ export default function Navbar({
     }
   }, [gripRef, profileRef])
 
-  console.log('User Value in Navbar:', userValue)
+  // Lock body scroll when any menu/dropdown is open; allow the dropdown itself to scroll
+  // useEffect(() => {
+  //   if (typeof document === 'undefined') return
+
+  //   const originalOverflow = document.body.style.overflow
+  //   const anyOpen = isMenuOpen || isOpen || isProfileOpen || openSections.size > 0
+
+  //   // hide scroll when any overlay is open
+  //   if (anyOpen) {
+  //     document.body.style.overflow = 'hidden'
+  //   } else {
+  //     document.body.style.overflow = originalOverflow
+  //   }
+
+  //   // cleanup (always restore original)
+  //   return () => {
+  //     document.body.style.overflow = originalOverflow
+  //   }
+  // }, [isMenuOpen, isOpen, isProfileOpen, openSections])
+
+  // no debug logs in production code
 
   const handleLanguageChange = (lang: 'ta' | 'en') => {
     setLocale(lang)
@@ -194,31 +237,98 @@ export default function Navbar({
 
             {/* Main Dropdown */}
             {isOpen && (
-              <div className="absolute right-0 mt-2 bg-white text-[#3b1804] rounded-lg shadow-lg w-52 py-2 z-50">
+              <div className="absolute right-0 mt-2 bg-white text-[#3b1804] rounded-lg shadow-lg w-70 py-2 z-50 max-h-[70vh] overflow-y-auto">
                 <Link href="/" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
-                  <Home size={16} /> {t('Navbar.home')}
+                  <Home size={16} /> {t('Navbar.Dashboard')}
                 </Link>
 
-                <Link href="/properties" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
-                  <Building2 size={16} /> {t('Navbar.seller')}
-                </Link>
+                {[
+                  {
+                    key: 'masters',
+                    title: t('Navbar.masters'),
+                    icon: <Shield size={16} className="text-[#3b1804]" />,
+                    links: [
+                      ['/admin/dashboard/feature-group', t('Navbar.subMenus.feature group')],
+                      ['/admin/dashboard/feature-category', t('Navbar.subMenus.feature categories')],
+                      ['/admin/dashboard/property-category', t('Navbar.subMenus.property categories')],
+                      ['/admin/dashboard/ads-category', t('Navbar.subMenus.ads categories')],
+                      ['/admin/dashboard/promo-code', t('Navbar.subMenus.promo code')],
+                      ['/admin/dashboard/referral-management', t('Navbar.subMenus.referral management')],
+                    ],
+                  },
+                  {
+                    key: 'properties',
+                    title: t('Navbar.properties'),
+                    icon: <Building size={16} className="text-[#3b1804]" />,
+                    links: [
+                      ['/admin/dashboard', t('Navbar.subMenus.properties management')],
+                      ['/admin/dashboard/properties', t('Navbar.subMenus.properties pending approval')],
+                      ['/admin/dashboard/favourite-properties', t('Navbar.subMenus.favourite properties')],
+                      ['/admin/dashboard/reported-properties', t('Navbar.subMenus.reported properties')],
+                      ['/admin/dashboard/property-enquiry', t('Navbar.subMenus.view enquiries')],
+                      ['/admin/dashboard/saved-searches', t('Navbar.subMenus.saved searches')],
+                      ['/admin/dashboard/recently-viewed', t('Navbar.subMenus.recently viewed properties')],
+                      ['/admin/dashboard/contact-requests', t('Navbar.subMenus.contact requests')],
+                    ],
+                  },
+                  {
+                    key: 'ads',
+                    title: t('Navbar.ads'),
+                    icon: <Megaphone size={16} className="text-[#3b1804]" />,
+                    links: [
+                      ['/admin/dashboard/ads-management', t('Navbar.subMenus.ads management')],
+                      ['/admin/dashboard/ads-pending-approval', t('Navbar.subMenus.ads pending approval')],
+                      ['/admin/dashboard/recent-ads', t('Navbar.subMenus.view recent ads')],
+                      ['/admin/dashboard/favourite-ads', t('Navbar.subMenus.favourite ads')],
+                      ['/admin/dashboard/reported-ads', t('Navbar.subMenus.reported ads')],
+                      ['/admin/dashboard/ads-enquiries', t('Navbar.subMenus.view enquiries')],
+                    ],
+                  },
+                  {
+                    key: 'subscription',
+                    title: t('Navbar.subscription'),
+                    icon: <CreditCard size={16} className="text-[#3b1804]" />,
+                    links: [
+                      ['/admin/dashboard/subscription-master', t('Navbar.subMenus.subscription master')],
+                      ['/admin/dashboard/my-subscription', t('Navbar.subMenus.my subscription')],
+                      ['/admin/dashboard/user-subscription', t('Navbar.subMenus.user subscription')],
+                    ],
+                  },
+                  {
+                    key: 'payments',
+                    title: t('Navbar.payments'),
+                    icon: <CreditCard size={16} className="text-[#3b1804]" />,
+                    links: [
+                      ['/admin/dashboard/view-transactions', t('Navbar.subMenus.view transactions')],
+                      ['/admin/dashboard/payment-reports', t('Navbar.subMenus.payment reports / revenue summary')],
+                      ['/admin/dashboard/refund-management', t('Navbar.subMenus.refund management')],
+                      ['/admin/dashboard/promo-usage-reports', t('Navbar.subMenus.promo usage reports')],
+                    ],
+                  },
+                ].map(section => (
+                  <div key={section.key} className="border-t border-gray-100 mt-2 pt-2">
+                    <Button
+                      onClick={() => toggleSection(section.key)}
+                      className="flex items-center justify-between w-full px-4 py-2 text-sm font-semibold text-[#3b1804] hover:bg-gray-100 rounded-md transition"
+                    >
+                      <span className="flex items-center gap-2">
+                        {section.icon}
+                        {section.title}
+                      </span>
+                      {openSections.has(section.key) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    </Button>
 
-                <div className="flex items-center gap-2 w-full px-4 py-2 text-sm">
-                  <Shield size={16} className="text-[#3b1804]" />
-                  <select
-                    onChange={handleSelect}
-                    defaultValue=""
-                    className="w-full text-[#3b1804] text-sm bg-transparent focus:outline-none cursor-pointer"
-                  >
-                    <option value="" disabled>
-                      {t('Navbar.master')}
-                    </option>
-                    <option value="/admin/dashboard/property-category">{t('Navbar.subMenus.property categories')}</option>
-                    <option value="/admin/dashboard/feature-category">{t('Navbar.subMenus.feature categories')}</option>
-                    <option value="/admin/dashboard/feature-group">{t('Navbar.subMenus.feature group')}</option>
-                    <option value="/admin/dashboard/properties">{t('Navbar.subMenus.properties')}</option>
-                  </select>
-                </div>
+                    {openSections.has(section.key) && (
+                      <div className="flex flex-col pl-8 mt-1">
+                        {section.links.map(([href, label]) => (
+                          <Link key={String(href)} href={String(href)} className="py-1 hover:bg-gray-100 rounded-md text-sm transition">
+                            {label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -273,9 +383,10 @@ export default function Navbar({
 
       {/* Mobile / Tablet Menu */}
       <div
-        className={`md:hidden transition-all duration-300 ease-in-out overflow-hidden ${
-          isMenuOpen ? 'max-h-[600px] opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-3'
+        className={`md:hidden transition-all duration-300 ease-in-out ${
+          isMenuOpen ? 'max-h-[80vh] opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-3'
         }`}
+        style={{ overflow: isMenuOpen ? 'auto' : 'hidden' }}
       >
         <div
           style={{ backgroundColor: bgColor }}
@@ -284,13 +395,13 @@ export default function Navbar({
           {/* Navigation Links */}
           {navLinks.map(({ label, href, subMenu }) => (
             <div key={href} className="w-full border-b border-white/20 last:border-0">
-              <button
+              <Button
                 onClick={() => (subMenu ? setOpenSubMenu(openSubMenu === label ? null : label) : setIsMenuOpen(false))}
                 className="py-3 w-full text-base font-medium flex justify-between items-center text-white hover:text-gray-300 transition-all"
               >
                 <span>{t(`Navbar.${label}`)}</span>
                 {subMenu && <span className="text-sm transform transition-transform duration-200">{openSubMenu === label ? '▲' : '▼'}</span>}
-              </button>
+              </Button>
 
               {/* Submenu */}
               {subMenu && openSubMenu === label && (
@@ -332,7 +443,7 @@ export default function Navbar({
               onClick={() => setIsOpen(prev => !prev)}
               className="w-full flex justify-between items-center py-3 px-4 bg-white/10 rounded-lg hover:bg-white/20 text-white text-sm font-medium transition"
             >
-              {t('Navbar.master')}
+              {t('Navbar.masters')}
               <span className="text-sm">{isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}</span>
             </Button>
 
@@ -355,7 +466,7 @@ export default function Navbar({
                     className="w-full bg-transparent text-[#3b1804] focus:outline-none cursor-pointer text-sm"
                   >
                     <option value="" disabled>
-                      {t('Navbar.master')}
+                      {t('Navbar.masters')}
                     </option>
                     <option value="/admin/dashboard/property-category">{t('Navbar.subMenus.property categories')}</option>
                     <option value="/admin/dashboard/feature-category">{t('Navbar.subMenus.feature categories')}</option>
@@ -391,6 +502,7 @@ export default function Navbar({
             max-sm:fixed max-sm:top-20 max-sm:right-4 max-sm:left-4 max-sm:w-auto 
             max-sm:rounded-2xl max-sm:shadow-2xl max-sm:z-50
           `}
+                    style={{ maxHeight: '60vh', overflowY: 'auto' }}
                   >
                     {/* User Info */}
                     <div className="px-4 py-3 border-b border-gray-200 text-center">

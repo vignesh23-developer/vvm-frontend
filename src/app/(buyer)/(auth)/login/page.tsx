@@ -46,11 +46,6 @@ const Login = () => {
 
       const response = await postMethod(appEndpoints.loginSendOtp, payload)
 
-      if (response.error) {
-        toast.error(response.message || 'Failed to send OTP')
-        return
-      }
-
       const responseData = response.data as {
         message?: string
         data?: {

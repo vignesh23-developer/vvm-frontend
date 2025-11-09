@@ -1,4 +1,4 @@
-import { FeatureMappingDTO } from './(dto)/land_registration_dto'
+import { FeatureMappingDTO } from './(dto)/properties_registration_dto'
 import * as Yup from 'yup'
 
 export const generateDynamicSchema = (fields: FeatureMappingDTO[]) => {

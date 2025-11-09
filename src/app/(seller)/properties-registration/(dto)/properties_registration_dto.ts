@@ -40,6 +40,7 @@ export class FeatureMappingDTO {
   sort_order: number
   is_active: boolean
   options?: Array<FetaureOptions>
+  display_value?: string | number | boolean
 
   constructor(data: Partial<FeatureMappingDTO>) {
     this.feature_category_id = data.feature_category_id ?? ''
@@ -55,6 +56,7 @@ export class FeatureMappingDTO {
     this.sort_order = data.sort_order ?? 0
     this.is_active = data.is_active ?? false
     this.options = data.options ?? []
+    this.display_value = data.display_value ?? ''
   }
 }
 
@@ -342,6 +344,7 @@ export class AddPropertyMediaViaLink {
 export interface PropertyCategory {
   id: string
   name: string
+  icon: string
   description: string
   parent_id: string | null
   is_active: boolean

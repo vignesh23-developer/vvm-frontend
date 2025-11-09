@@ -2,7 +2,7 @@ import React from 'react'
 
 interface ButtonProps {
   children: React.ReactNode
-  onClick: () => void
+  onClick: (e: any) => void
   disabled?: boolean
   className?: string
   hover?: string
@@ -27,19 +27,13 @@ function Button({
 }: ButtonProps) {
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (!disabled) {
-      onClick()
+      onClick(e)
     }
   }
 
   return (
     <div>
-      <button
-        type={type}
-        onClick={handleClick}
-        disabled={disabled}
-        className={`${className} hover:cursor-pointer ${hover}`}
-        style={style}
-      >
+      <button type={type} onClick={handleClick} disabled={disabled} className={`${className} hover:cursor-pointer ${hover}`} style={style}>
         {icon && <span className="btn-icon">{icon}</span>}
         {children}
       </button>

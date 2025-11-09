@@ -2,12 +2,13 @@
 // Step1BasicDetails.tsx
 import { FormikProps } from 'formik'
 
-import { PropertyCategory } from '@/app/(seller)/land-registration/(dto)/land_registration_dto'
+import { PropertyCategory } from '@/app/(seller)/properties-registration/(dto)/properties_registration_dto'
 import { PropertyCreationFormValues } from '../page'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
 import { Dispatch, SetStateAction } from 'react'
-import { FeatureMappingDTO } from '../(dto)/land_registration_dto'
-import { PropertyCategoryFeatureMappingResponse } from '../(hook)/land_registration_hook'
+import { FeatureMappingDTO } from '../(dto)/properties_registration_dto'
+import { PropertyCategoryFeatureMappingResponse } from '../(hook)/properties_registration_hook'
+import LucideIconRenderer from '@/components/ui/CustomComponent/LucideIconRenderer/LucideIconRenderer'
 
 interface Step1BasicDetailsProps {
   formik: FormikProps<PropertyCreationFormValues>
@@ -64,6 +65,15 @@ export default function Step1BasicDetails({ formik, data, onGetPropertyCategoryF
                 className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all
                   ${values.propertyType === val.id ? 'border-[#7B1E1E] bg-red-50 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}
               >
+                {val.icon && (
+                  <div className="mb-2 flex justify-center">
+                    <LucideIconRenderer
+                      iconName={val.icon as any}
+                      size={20}
+                      color={values.propertyType === val.id ? 'text-[#7B1E1E]' : 'text-gray-700'}
+                    />
+                  </div>
+                )}
                 <span className="text-sm font-medium">{val.name}</span>
               </button>
             ))}
@@ -77,7 +87,7 @@ export default function Step1BasicDetails({ formik, data, onGetPropertyCategoryF
             Purpose <span className="text-red-500">*</span>
           </label>
           <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {(['Sale', 'Rent', 'Lease'] as const).map(p => (
+            {(['SALE', 'RENT', 'LEASE'] as const).map(p => (
               <button
                 key={p}
                 type="button"
@@ -86,7 +96,7 @@ export default function Step1BasicDetails({ formik, data, onGetPropertyCategoryF
                 className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all
                   ${values.purpose === p ? 'border-[#7B1E1E] bg-red-50 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}
               >
-                <span className="text-2xl mb-1">{p === 'Sale' ? '💰' : p === 'Rent' ? '🏠' : '📋'}</span>
+                <span className="text-2xl mb-1">{p === 'SALE' ? '💰' : p === 'RENT' ? '🏠' : '📋'}</span>
                 <span className="text-sm font-medium">{p}</span>
               </button>
             ))}

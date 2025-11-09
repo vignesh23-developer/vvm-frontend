@@ -3,7 +3,6 @@
 import { FormikProps } from 'formik'
 import { PropertyCreationFormValues } from '../page'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
-import MapView from '@/components/ui/map/MapView'
 import LocationPickerModal, { AddressParts } from '@/components/ui/map/LocationPickerModal'
 import { useState } from 'react'
 
