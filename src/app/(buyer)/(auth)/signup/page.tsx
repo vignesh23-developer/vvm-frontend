@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Formik, Form, FieldArray } from 'formik'
 import { useTranslations } from 'next-intl'
 import { MessageCircle } from 'lucide-react'
@@ -13,7 +13,7 @@ import LanguageSwitch from '@/components/ui/CustomComponent/languageSwitch/langu
 import { SignupSchema } from '@/utils/validations/auth/AuthValidationSchema'
 import { postMethod } from '@/services/service'
 import toast from 'react-hot-toast'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { setLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
 import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
 
@@ -28,12 +28,32 @@ interface SignupFormValues {
 export default function SignupPage() {
   const t = useTranslations()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const phone = searchParams.get('phone') || ''
+  const [timeLeft, setTimeLeft] = useState(120) // 2 minutes
+
+  useEffect(() => {
+    if (timeLeft <= 0) return
+    const timer = setInterval(() => setTimeLeft(s => s - 1), 1000)
+    return () => clearInterval(timer)
+  }, [timeLeft])
+
+  const handleResend = () => {
+    if (timeLeft > 0) return
+    console.log('Resending OTP...')
+    setTimeLeft(120)
+  }
+
+  const formatTime = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
+
+  const canResend = timeLeft <= 0
+
   const [buttonType, setButtonType] = useState<'sms' | 'whatsapp'>('sms')
 
   const initialValues: SignupFormValues = {
     firstName: '',
     lastName: '',
-    phone: '',
+    phone: phone,
     email: '',
     otp: ['', '', '', '', '', ''],
   }
@@ -43,7 +63,7 @@ export default function SignupPage() {
     console.log('Formik Submitted:', { ...values, otpValue, buttonType })
 
     const payload = {
-      phoneNumber: values.phone,
+      phoneNumber: phone,
       otp: otpValue,
       user: {
         firstName: values.firstName,
@@ -78,6 +98,10 @@ export default function SignupPage() {
     } finally {
       setSubmitting(false)
     }
+  }
+  const itemVariants = {
+    hidden: { opacity: 0, scale: 0.8 },
+    show: { opacity: 1, scale: 1, transition: { duration: 0.3 } },
   }
 
   return (
@@ -165,15 +189,6 @@ export default function SignupPage() {
                     placeholder={t('form.last_name.placeholder')}
                     className="w-full border border-gray-300 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-900"
                   />
-
-                  <FormikTextField
-                    label={t('form.phone_number.label')}
-                    type="tel"
-                    name="phone"
-                    placeholder={t('form.phone_number.placeholder')}
-                    className="w-full border border-gray-300 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-900"
-                  />
-
                   <FormikTextField
                     label={t('form.email.label')}
                     type="email"
@@ -216,7 +231,16 @@ export default function SignupPage() {
                     )}
                   </FieldArray>
                 </motion.div>
-
+                {/* Resend OTP */}
+                <motion.p
+                  whileHover={canResend ? { scale: 1.02, color: '#14532d' } : {}}
+                  onClick={handleResend}
+                  className={`text-right mt-4 text-xs transition cursor-pointer
+        ${canResend ? 'text-green-700 hover:underline' : 'text-gray-400 cursor-not-allowed'}
+      `}
+                >
+                  {canResend ? t('Auth.resend_otp') : `${t('Auth.resend_in')} ${formatTime(timeLeft)}`}
+                </motion.p>
                 {/* WhatsApp Button */}
                 <motion.button
                   type="submit"

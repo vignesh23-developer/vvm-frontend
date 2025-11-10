@@ -21,13 +21,13 @@ export default function RootLayout({
     <div>
       <header>
         <Navbar
-          navLinks={[
-            { label: 'home', href: '/' },
-            { label: 'properties', href: '/properties' },
-            { label: 'leads', href: '/leads' },
-            { label: 'users', href: '/users' },
-            { label: 'support', href: '/support' },
-          ]}
+        // navLinks={[
+        //   { label: 'home', href: '/' },
+        //   { label: 'properties', href: '/properties' },
+        //   { label: 'leads', href: '/leads' },
+        //   { label: 'users', href: '/users' },
+        //   { label: 'support', href: '/support' },
+        // ]}
         />
       </header>
       <main>{children}</main>

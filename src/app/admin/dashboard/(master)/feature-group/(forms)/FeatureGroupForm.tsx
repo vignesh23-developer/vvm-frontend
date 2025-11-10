@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation'
 import FormikCheckboxField from '@/components/ui/Formik/FormikCheckboxField/FormikCheckboxField'
 import featureGroupSchema from '@/utils/validations/admin/featureGroupValidation'
 import type { FeatureGroupFormProps } from '@/app/admin/dashboard/(master)/feature-group/(dto)/FeatureGroupType'
+import IconPicker from '@/components/ui/CustomComponent/IconPicker/IconPicker'
+import FormikIconPickerField from '@/components/ui/Formik/FormikIconPickerField/FormikIconPickerField'
 
 export default function FeatureGroupForm({ initialValues, onSubmit, submitLabel, isEdit = false }: FeatureGroupFormProps) {
   const router = useRouter()
@@ -27,13 +29,7 @@ export default function FeatureGroupForm({ initialValues, onSubmit, submitLabel,
 
           {/* Description */}
           <div>
-            <FormikTextField
-              label="Icon"
-              type="text"
-              name="icon"
-              placeholder="Enter icon"
-              className="w-full border-0 bg-gray-100 rounded-md px-4 py-3 text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-black focus:bg-white transition"
-            />
+            <FormikIconPickerField name="icon" label="Icon" helpText="" placeholder="Select an icon" className="w-full" />
           </div>
           {/* Sort Order */}
           <div>

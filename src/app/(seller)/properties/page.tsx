@@ -1,83 +1,15 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useProperties } from '@/app/(seller)/properties/(hooks)/useProperties'
 import { PropertiesDto } from '@/app/(seller)/properties/dto/PropertiesDto'
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { useRouter } from 'next/navigation'
 import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
-import { file } from 'zod'
 import Button from '@/components/ui/CustomComponent/Button/Button'
-
-// const properties = [
-//   {
-//     id: 'P002011',
-//     title: 'Luxury Villa in Mumbai',
-//     location: 'Mumbai',
-//     type: 'Villa',
-//     price: '$3,000',
-//     status: 'Available',
-//     agent: 'Auborn',
-//     date: 'Jan 14, 2022',
-//   },
-//   {
-//     id: 'P002126',
-//     title: 'Cancivilla',
-//     location: 'Coriitoci',
-//     type: 'Type',
-//     price: '$4,841',
-//     status: 'Sold',
-//     agent: 'Bangar',
-//     date: 'Mar 19, 2022',
-//   },
-//   {
-//     id: 'P002130',
-//     title: 'Pensmerie',
-//     location: 'Referral',
-//     type: 'Perarh',
-//     price: '$3,400',
-//     status: 'Rented',
-//     agent: 'Joardan',
-//     date: 'Jun 30, 2022',
-//   },
-//   {
-//     id: 'P000240',
-//     title: 'Livo Temka',
-//     location: 'Aucher',
-//     type: 'Car',
-//     price: '$3,000',
-//     status: 'Rented',
-//     agent: 'Augett',
-//     date: 'Apr 22, 2022',
-//   },
-//   {
-//     id: 'P000379',
-//     title: 'Smartoven',
-//     location: 'Baceroi',
-//     type: 'Land',
-//     price: '$2,002',
-//     status: 'Available',
-//     agent: 'Agrmos',
-//     date: 'Jun 26, 2022',
-//   },
-//   {
-//     id: 'P003136',
-//     title: 'Laiiana',
-//     location: 'Barnero',
-//     type: 'Port',
-//     price: '$3,000',
-//     status: 'Sold',
-//     agent: 'Balanca',
-//     date: 'Mar 21, 2022',
-//   },
-// ]
+import { ArrowRight, Edit3, Trash2 } from 'lucide-react'
 
 // Chart data
-const statusData = [
-  { name: 'Available', value: 2 },
-  { name: 'Sold', value: 2 },
-  { name: 'Rented', value: 2 },
-]
 
 const COLORS = ['#4ade80', '#f87171', '#fbbf24']
 
@@ -93,7 +25,7 @@ type PropertiesTableRow = PropertiesDto & Record<string, unknown>
 
 export default function PropertiesPage() {
   const router = useRouter()
-  const { properties, total, error, isLoading, mutateProperties, handlePropertyAction } = useProperties()
+  const { properties, handleEdit, handleDelete, total, error, isLoading, mutateProperties, handlePropertyAction } = useProperties()
 
   const columns = [
     {
@@ -140,6 +72,38 @@ export default function PropertiesPage() {
     },
   ]
 
+  const actions = useMemo(
+    () => [
+      {
+        label: 'Edit',
+        icon: Edit3,
+        onClick: (row: PropertiesTableRow) => {
+          void handleEdit(row.id)
+        },
+        color: '#1e6897',
+      },
+      {
+        label: 'Delete',
+        icon: Trash2,
+        onClick: (row: PropertiesTableRow) => {
+          void handleDelete(row.id)
+        },
+        color: '#e02424',
+      },
+    ],
+    [handleDelete, handleEdit],
+  )
+
+  const statusPieData = Object.values(
+    (properties ?? []).reduce<Record<string, { name: string; value: number }>>((acc, prop) => {
+      const status = String(prop.status ?? 'Unknown')
+      if (!acc[status]) acc[status] = { name: status, value: 0 }
+      acc[status].value += 1
+      return acc
+    }, {}),
+  )
+
+  console.log('statusPieData', statusPieData)
   const fetchProperties = useCallback(async (): Promise<{ data: PropertiesTableRow[]; totalItems: number }> => {
     const latestProperties = (properties ?? []) as PropertiesTableRow[]
     return {
@@ -158,10 +122,22 @@ export default function PropertiesPage() {
         </div>
         <Button
           type="button"
-          onClick={() => router.push('/land-registration')}
+          onClick={() => router.push('/properties-registration')}
           className="flex items-center gap-2 bg-[#7B1E1E] px-4 py-2 text-sm font-medium text-white rounded-md shadow-md hover:bg-[#641717] transition"
         >
-          Land Registration
+          Properties Registration
+          <ArrowRight size={16} />
+        </Button>
+      </div>
+
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <Button
+          type="button"
+          onClick={() => router.push('/admin/dashboard/properties')}
+          className="flex items-center gap-2 bg-[#7B1E1E] hover:bg-[#641717] text-white text-sm font-medium px-4 py-2 rounded-md shadow-md transition-colors"
+        >
+          View your pending properties
+          <ArrowRight size={16} />
         </Button>
       </div>
 
@@ -169,7 +145,7 @@ export default function PropertiesPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Table Section */}
         <div className="col-span-2 bg-white rounded-xl shadow p-4">
-          <DataTable columns={columns} fetchData={fetchProperties} loading={isLoading} />
+          <DataTable columns={columns} actions={actions} fetchData={fetchProperties} loading={isLoading} isPagination={true} />
         </div>
 
         {/* Sidebar */}
@@ -179,8 +155,8 @@ export default function PropertiesPage() {
             <h3 className="font-semibold mb-4 text-gray-700">Properties by Status</h3>
             <ResponsiveContainer width="100%" height={200}>
               <PieChart>
-                <Pie data={statusData} dataKey="value" nameKey="name" outerRadius={70} innerRadius={40}>
-                  {statusData.map((entry, index) => (
+                <Pie data={statusPieData} dataKey="value" nameKey="name" outerRadius={70} innerRadius={40}>
+                  {statusPieData.map((entry, index) => (
                     <Cell key={index} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
@@ -191,7 +167,7 @@ export default function PropertiesPage() {
           </div>
 
           {/* Bar Chart */}
-          <div className="bg-white rounded-xl shadow p-4">
+          {/* <div className="bg-white rounded-xl shadow p-4">
             <h3 className="font-semibold mb-4 text-gray-700">Properties Added Over Time</h3>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={monthlyData}>
@@ -201,17 +177,17 @@ export default function PropertiesPage() {
                 <Bar dataKey="count" fill="#3b82f6" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
-          </div>
+          </div> */}
 
           {/* Agents */}
-          <div className="bg-white rounded-xl shadow p-4">
+          {/* <div className="bg-white rounded-xl shadow p-4">
             <h3 className="font-semibold mb-4 text-gray-700">Top Performing Agents</h3>
             <ul className="space-y-2 text-gray-700">
               <li>🏆 Emnia Taylor</li>
               <li>🏆 Olivia Williams</li>
               <li>🏆 Noah Smith</li>
             </ul>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

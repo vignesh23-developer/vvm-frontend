@@ -8,8 +8,7 @@ import { FeatureCategory } from '@/app/admin/dashboard/(master)/feature-category
 
 type FeatureCategoryTableRow = FeatureCategory & Record<string, unknown>
 export default function FeatureCategoryPage() {
-  const { categories, error, isLoading, handleAdd, handleEdit, handleDelete } =
-    useFeatureCategories()
+  const { categories, error, isLoading, handleAdd, handleEdit, handleDelete } = useFeatureCategories()
 
   // const [icon, setIcon] = useState<string>('')
 
@@ -62,24 +61,14 @@ export default function FeatureCategoryPage() {
     }
   }, [categories])
 
-  if (error)
-    return (
-      <div className="p-6 text-red-600">Failed to load feature categories.</div>
-    )
-  if (isLoading)
-    return (
-      <div className="p-6 text-gray-600 animate-pulse">
-        Loading feature categories...
-      </div>
-    )
+  if (error) return <div className="p-6 text-red-600">Failed to load feature categories.</div>
+  if (isLoading) return <div className="p-6 text-gray-600 animate-pulse">Loading feature categories...</div>
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between mb-6">
-        <h1 className="text-xl font-semibold text-gray-800">
-          Feature Categories
-        </h1>
+        <h1 className="text-xl font-semibold text-gray-800">Feature Categories</h1>
         <button
           onClick={handleAdd}
           className="flex items-center gap-2 bg-[#7B1E1E] hover:bg-[#641717] cursor-pointer text-white px-4 py-2 rounded-md text-sm font-medium shadow-md transition"

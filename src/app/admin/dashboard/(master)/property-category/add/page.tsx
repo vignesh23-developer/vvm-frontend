@@ -12,6 +12,7 @@ export default function AddPropertyCategory() {
 
   const initialValues: FormValues = {
     name: '',
+    icon: '',
     description: '',
     sortOrder: 0,
     isActive: true,
@@ -22,6 +23,7 @@ export default function AddPropertyCategory() {
     try {
       const payload = {
         name: values.name.trim(),
+        icon: values.icon,
         description: values.description?.trim(),
         sortOrder: values.sortOrder ?? 0,
         isActive: values.isActive ?? true,

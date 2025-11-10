@@ -2,14 +2,8 @@ import axios from 'axios'
 import { getLocalStorageItem, removeLocalStorageItem } from '../utils/local_storage/local_storage_handler'
 import { LOCAL_STORAGE_NAME } from '../utils/local_storage/local_storage_constant'
 
-// const isLocal = typeof window !== 'undefined' && window.location.hostname === 'localhost'
-
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
-  headers: {
-    // Accept: 'application/json',
-    'Content-Type': 'application/json',
-  },
   withCredentials: false,
 })
 
@@ -17,14 +11,17 @@ axiosInstance.interceptors.request.use(async config => {
   console.log('REQUEST INTERCEPTORS CALLED', config)
 
   const localStoredToken = await getLocalStorageItem(LOCAL_STORAGE_NAME.authToken)
-  // const localStoredToken = localStorage.getItem(LOCAL_STORAGE_NAME.authToken)
-
-  // console.log('token:', localStoredToken)
 
   if (localStoredToken) {
     config.headers['Authorization'] = `Bearer ${localStoredToken}`
   }
 
+  // allow multipart/form-data payloads without forcing application/json
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type']
+  } else if (!config.headers['Content-Type']) {
+    config.headers['Content-Type'] = 'application/json'
+  }
   return config
 })
 

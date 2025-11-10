@@ -1,5 +1,3 @@
-import { get } from 'http'
-
 export const appEndpoints = {
   // Authentication Endpoints
   login: '/login',
@@ -25,6 +23,9 @@ export const appEndpoints = {
   createProperty: '/properties',
   getAllProperties: '/properties',
   getAllPropertiesList: '/properties/search/list',
+  getPropertiesByID: (propertyId: string) => `/properties/${propertyId}`,
+  updatePropertiesByID: (propertyId: string) => `/properties/${propertyId}`,
+  deletePropertiesByID: (propertyId: string) => `/properties/${propertyId}`,
 
   getPropertyByID: (propertyId: string) => `/properties/${propertyId}`,
   updateProperty: (propertyId: string) => `/properties/${propertyId}`,
@@ -85,4 +86,12 @@ export const appEndpoints = {
   getAdByID: (adId: string) => `/ads/${adId}`,
   updateAd: (adId: string) => `/ads/${adId}`,
   deleteAd: (adId: string) => `/ads/${adId}`,
+
+  // Favorite Endpoints
+  toggleFavorite: '/user-interactions/favorites/toggle',
+  deleteFavorite: (propertyId: string) => `/user-interactions/favorites/${propertyId}`,
+  // Enquiry
+  createPropertyEnquiry: '/user-interactions/enquiries',
+  getPropertyEnquiry: '/user-interactions/enquiries',
+
 }

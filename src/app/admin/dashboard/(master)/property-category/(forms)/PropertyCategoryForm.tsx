@@ -5,9 +5,11 @@ import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextFi
 import { useRouter } from 'next/navigation'
 import FormikCheckboxField from '@/components/ui/Formik/FormikCheckboxField/FormikCheckboxField'
 import propertyCategorySchema from '@/utils/validations/admin/propertyCategory/propertyCategoryValidation'
+import { FormikIconPickerField } from '@/components/ui/Formik/FormikIconPickerField'
 
 export interface FormValues {
   name: string
+  icon: string
   description: string
   sortOrder?: number
   isActive?: boolean
@@ -25,21 +27,11 @@ interface PropertyCategoryFormProps {
   isEdit?: boolean
 }
 
-export default function PropertyCategoryForm({
-  initialValues,
-  onSubmit,
-  submitLabel,
-  isEdit = false,
-}: PropertyCategoryFormProps) {
+export default function PropertyCategoryForm({ initialValues, onSubmit, submitLabel, isEdit = false }: PropertyCategoryFormProps) {
   const router = useRouter()
 
   return (
-    <Formik
-      initialValues={initialValues}
-      validationSchema={propertyCategorySchema}
-      enableReinitialize
-      onSubmit={onSubmit}
-    >
+    <Formik initialValues={initialValues} validationSchema={propertyCategorySchema} enableReinitialize onSubmit={onSubmit}>
       {({ isSubmitting }) => (
         <Form className="space-y-6">
           {/* Property Category Name */}
@@ -52,7 +44,8 @@ export default function PropertyCategoryForm({
               className="w-full border-0 bg-gray-100 rounded-md px-4 py-3 text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-black focus:bg-white transition"
             />
           </div>
-
+          {/* Icon Picker */}
+          <FormikIconPickerField name="icon" label="Icon" helpText="" placeholder="Select an icon" className="w-full" />
           {/* Description */}
           <div>
             <FormikTextField
@@ -94,9 +87,7 @@ export default function PropertyCategoryForm({
               type="submit"
               disabled={isSubmitting}
               className={`px-6 py-2 rounded-md text-white font-medium transition ${
-                isSubmitting
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-black hover:bg-gray-800 cursor-pointer'
+                isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-black hover:bg-gray-800 cursor-pointer'
               }`}
               title="submit"
             >
@@ -104,10 +95,7 @@ export default function PropertyCategoryForm({
                 ? isEdit
                   ? 'Updating...'
                   : 'Creating...'
-                : submitLabel ||
-                  (isEdit
-                    ? 'Update Property Category'
-                    : 'Create Property Category')}
+                : submitLabel || (isEdit ? 'Update Property Category' : 'Create Property Category')}
             </button>
           </div>
         </Form>

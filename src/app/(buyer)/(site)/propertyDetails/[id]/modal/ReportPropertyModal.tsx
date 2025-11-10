@@ -13,6 +13,7 @@ import { postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import { getLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
 import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
+import { ResponseDTO } from '@/components/dto/response_dto'
 
 interface ReportPropertyModalProps {
   reportModalOpen: boolean
@@ -68,8 +69,10 @@ const ReportPropertyModal = ({ reportModalOpen, setReportModalOpen, propertyId }
     console.log('Report Payload:', payload)
 
     try {
-      await postMethod(appEndpoints.createPropertyReport(propertyId as string), payload)
-      toast.success('Report submitted successfully!')
+      const response = (await postMethod(appEndpoints.createPropertyReport(propertyId as string), payload)) as ResponseDTO
+      if (Number(response.status) === 201) {
+        toast.success('Report submitted successfully!')
+      }
       resetForm()
       setReportModalOpen(false)
     } catch (error) {

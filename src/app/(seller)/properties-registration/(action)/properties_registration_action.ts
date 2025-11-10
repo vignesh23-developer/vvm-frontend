@@ -1,10 +1,12 @@
 import { ResponseDTO } from '@/components/dto/response_dto'
 import { patchMethod, postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
+import { head } from 'framer-motion/client'
 
-export async function onCreateProperty(prevState: ResponseDTO, payload: any): Promise<ResponseDTO> {
+export async function onCreateProperty(prevState: ResponseDTO, data: { payload: any; userId: string }): Promise<ResponseDTO> {
   try {
-    const response: ResponseDTO = await postMethod(appEndpoints.createProperties('cc98934f-d1f7-4e8d-8484-72d24f94b508'), payload)
+    console.log('log on action:', data)
+    const response: ResponseDTO = await postMethod(appEndpoints.createProperties(data.userId), data.payload)
 
     console.log('log on property creation:', response)
 
@@ -22,12 +24,12 @@ export async function onCreateProperty(prevState: ResponseDTO, payload: any): Pr
     }
   }
 }
-1
-export async function onUpdateProperty(prevState: ResponseDTO, data: { payload: any; localStroagePropertyId: string }): Promise<ResponseDTO> {
+
+export async function onUpdateProperty(prevState: ResponseDTO, data: { payload: any; propertiesId: string }): Promise<ResponseDTO> {
   console.log('log on action:', data)
 
   try {
-    const response: ResponseDTO = await patchMethod(`properties/${data?.localStroagePropertyId}`, data?.payload)
+    const response: ResponseDTO = await patchMethod(`properties/${data?.propertiesId}`, data?.payload)
 
     console.log('log on property creation:', response)
 
@@ -63,7 +65,9 @@ export async function onAddPropertyMedia(
         data: response.data,
       }
     } else {
-      const response: ResponseDTO = await postMethod(appEndpoints.addPropertyMediaLocal(params?.id), params?.payload)
+      const response: ResponseDTO = await postMethod(appEndpoints.addPropertyMediaLocal(params?.id), params?.payload, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
 
       console.log('log on add property choose from device:', response)
 

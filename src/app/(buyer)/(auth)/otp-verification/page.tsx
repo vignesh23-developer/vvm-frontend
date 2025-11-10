@@ -1,6 +1,7 @@
 'use client'
 
 import { Formik, Form, Field, type FormikHelpers } from 'formik'
+import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -20,6 +21,23 @@ export default function OtpVerification() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const phone = searchParams.get('phone')
+  const [timeLeft, setTimeLeft] = useState(120) // 2 minutes
+
+  useEffect(() => {
+    if (timeLeft <= 0) return
+    const timer = setInterval(() => setTimeLeft(s => s - 1), 1000)
+    return () => clearInterval(timer)
+  }, [timeLeft])
+
+  const handleResend = () => {
+    if (timeLeft > 0) return
+    console.log('Resending OTP...')
+    setTimeLeft(120)
+  }
+
+  const formatTime = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
+
+  const canResend = timeLeft <= 0
 
   type OtpValues = {
     otp: string[]
@@ -193,6 +211,17 @@ export default function OtpVerification() {
                   ))}
                 </motion.div>
 
+                {/* Resend OTP */}
+                <motion.p
+                  whileHover={canResend ? { scale: 1.02, color: '#14532d' } : {}}
+                  onClick={handleResend}
+                  className={`mt-4 text-right text-xs transition cursor-pointer
+    ${canResend ? 'text-green-700 hover:underline' : 'text-gray-400 cursor-not-allowed'}
+  `}
+                >
+                  {canResend ? t('Auth.resend_otp') : `${t('Auth.resend_in')} ${formatTime(timeLeft)}`}
+                </motion.p>
+
                 {/* Error Message */}
                 <motion.div variants={itemVariants}>
                   {errors.otp && touched.otp ? (
@@ -217,15 +246,6 @@ export default function OtpVerification() {
                 >
                   {isSubmitting ? 'Verifying...' : t('Auth.verify')}
                 </motion.button>
-
-                {/* Resend OTP */}
-                <motion.p
-                  variants={itemVariants}
-                  whileHover={{ scale: 1.02, color: '#14532d' }}
-                  className="text-right mt-4 text-xs text-gray-600 hover:underline cursor-pointer"
-                >
-                  {t('Auth.resend_otp')}
-                </motion.p>
               </Form>
             )}
           </Formik>

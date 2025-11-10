@@ -10,12 +10,23 @@ import { motion } from 'framer-motion'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { usePopularProperties } from './hooks/usePopularProperties'
 
-// ✅ Define TypeScript type for property items
+// Define TypeScript type for property items
 
 export default function PopularProperties() {
   const t = useTranslations()
   const router = useRouter()
   const { items, handleSeeMore } = usePopularProperties({ limit: 9 })
+  // filter only published items (guard for possible typo: is_pulished vs is_published)
+  const publishedItems = (items || []).filter(i => {
+    // Accept both `is_published` and common misspelling `is_pulished` if present
+    if (i == null) return false
+    if (typeof (i as any).is_published === 'boolean') return (i as any).is_published === true
+    if (typeof (i as any).is_pulished === 'boolean') return (i as any).is_pulished === true
+    // fallback: treat truthy values as published
+    return Boolean((i as any).is_published || (i as any).is_pulished)
+  })
+
+  console.log('PopularProperties render - publishedItems count:', publishedItems.length)
 
   return (
     <motion.section
@@ -51,7 +62,7 @@ export default function PopularProperties() {
         {/* Swiper Section */}
         <div className="mt-10 sm:mt-14">
           <SwiperWrapper
-            data={items}
+            data={publishedItems}
             slidesPerView={1}
             showNavigation
             breakpoints={{
@@ -72,9 +83,16 @@ export default function PopularProperties() {
                 {/* Image */}
                 <div className="relative w-full h-56 sm:h-64 overflow-hidden">
                   <motion.div whileHover={{ scale: 1.08 }} transition={{ duration: 0.5 }} className="w-full h-full">
-                    {items.map(item => (
-                      <Image key={item.id} src={'/pp1.png'} alt={item.title} fill className="object-cover" />
-                    ))}
+                    {item?.media && item.media.length > 0 && (
+                      // render only the current item's first media
+                      <Image
+                        key={item.id}
+                        src={item.media[0].url ? item.media[0].url : '/villa.png'}
+                        alt={item.title}
+                        fill
+                        className="object-cover"
+                      />
+                    )}
                   </motion.div>
                 </div>
 

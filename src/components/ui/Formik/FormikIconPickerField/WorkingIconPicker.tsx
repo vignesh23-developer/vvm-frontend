@@ -1,81 +1,81 @@
-'use client';
+'use client'
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Search, ChevronDown } from 'lucide-react';
-import { LucideIconName } from './LucideIconName';
-import { SimpleIconLoader } from './SimpleIconLoader';
+import React, { useState, useEffect, useRef } from 'react'
+import { Search, ChevronDown } from 'lucide-react'
+import { LucideIconName } from './LucideIconName'
+import { SimpleIconLoader } from './SimpleIconLoader'
 
 interface SimpleIconPickerProps {
-  value: LucideIconName | null;
-  onChange: (icon: LucideIconName) => void;
-  placeholder?: string;
-  disabled?: boolean;
-  className?: string;
+  value: LucideIconName | null
+  onChange: (icon: LucideIconName) => void
+  placeholder?: string
+  disabled?: boolean
+  className?: string
 }
 
 export default function SimpleIconPicker({
   value,
   onChange,
-  placeholder = "Select an icon",
+  placeholder = 'Select an icon',
   disabled = false,
-  className = ''
+  className = '',
 }: SimpleIconPickerProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [search, setSearch] = useState('');
-  const [icons, setIcons] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [justSelected, setJustSelected] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [isOpen, setIsOpen] = useState(false)
+  const [search, setSearch] = useState('')
+  const [icons, setIcons] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [justSelected, setJustSelected] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   // Load icons on mount
   useEffect(() => {
     const loadIcons = async () => {
-      console.log('🔄 SimpleIconPicker: Loading icons...');
-      const loader = SimpleIconLoader.getInstance();
-      const result = await loader.loadIcons();
-      
-      if (result.isLoaded) {
-        setIcons(result.icons);
-        console.log('✅ SimpleIconPicker: Loaded', result.icons.length, 'icons');
-      } else {
-        console.error('❌ SimpleIconPicker: Failed to load icons:', result.error);
-      }
-      
-      setIsLoading(false);
-    };
+      console.log('🔄 SimpleIconPicker: Loading icons...')
+      const loader = SimpleIconLoader.getInstance()
+      const result = await loader.loadIcons()
 
-    loadIcons();
-  }, []);
+      if (result.isLoaded) {
+        setIcons(result.icons)
+        console.log('✅ SimpleIconPicker: Loaded', result.icons.length, 'icons')
+      } else {
+        console.error('❌ SimpleIconPicker: Failed to load icons:', result.error)
+      }
+
+      setIsLoading(false)
+    }
+
+    loadIcons()
+  }, [])
 
   // Handle click outside to close
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
+        setIsOpen(false)
       }
-    };
+    }
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   // Filter icons based on search
-  const filteredIcons = icons.filter(icon =>
-    icon.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredIcons = icons.filter(icon => icon.name.toLowerCase().includes(search.toLowerCase()))
+  console.log('🔍 SimpleIconPicker: Filtered icons count:', filteredIcons)
 
   // Find selected icon
-  const selectedIcon = value ? icons.find(icon => icon.name === value) : null;
+  const selectedIcon = value ? icons.find(icon => icon.name === value) : null
+  console.log('🔍 SimpleIconPicker: Selected icon:', selectedIcon)
 
   const handleSelect = (iconName: LucideIconName) => {
-    onChange(iconName);
-    setIsOpen(false);
-    setSearch('');
-    
+    onChange(iconName)
+    setIsOpen(false)
+    setSearch('')
+
     // Show selection feedback
-    setJustSelected(true);
-    setTimeout(() => setJustSelected(false), 500);
-  };
+    setJustSelected(true)
+    setTimeout(() => setJustSelected(false), 500)
+  }
 
   return (
     <div ref={containerRef} className={`relative ${className}`}>
@@ -87,10 +87,7 @@ export default function SimpleIconPicker({
         className={`
           w-full p-3 border rounded-md bg-gray-100 text-left transition-all duration-200
           flex items-center justify-between min-h-[48px]
-          ${disabled 
-            ? 'cursor-not-allowed text-gray-400' 
-            : 'hover:bg-gray-200 cursor-pointer'
-          }
+          ${disabled ? 'cursor-not-allowed text-gray-400' : 'hover:bg-gray-200 cursor-pointer'}
           ${isOpen ? 'ring-2 ring-gray-300' : ''}
           ${justSelected ? 'ring-2 ring-green-300' : ''}
           ${className}
@@ -119,9 +116,7 @@ export default function SimpleIconPicker({
             </>
           )}
         </div>
-        <ChevronDown className={`h-5 w-5 text-gray-500 transition-transform duration-200 ${
-          isOpen ? 'rotate-180 text-gray-700' : ''
-        }`} />
+        <ChevronDown className={`h-5 w-5 text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180 text-gray-700' : ''}`} />
       </button>
 
       {/* Dropdown */}
@@ -135,7 +130,7 @@ export default function SimpleIconPicker({
                 type="text"
                 placeholder="Search icons..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={e => setSearch(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-gray-500 bg-white text-sm"
                 autoFocus
               />
@@ -164,17 +159,16 @@ export default function SimpleIconPicker({
                     className={`
                       p-3 rounded-lg border-2 transition-all duration-200 group
                       flex flex-col items-center gap-1 min-h-[70px]
-                      ${value === name
-                        ? 'border-gray-600 bg-gray-100 text-gray-800 shadow-sm'
-                        : 'border-gray-200 hover:border-gray-400 hover:bg-gray-50 hover:text-gray-700 hover:shadow-sm'
+                      ${
+                        value === name
+                          ? 'border-gray-600 bg-gray-100 text-gray-800 shadow-sm'
+                          : 'border-gray-200 hover:border-gray-400 hover:bg-gray-50 hover:text-gray-700 hover:shadow-sm'
                       }
                     `}
                     title={name}
                   >
                     <IconComponent className="h-5 w-5 flex-shrink-0" />
-                    <span className="text-xs font-medium truncate w-full text-center leading-tight">
-                      {name}
-                    </span>
+                    <span className="text-xs font-medium truncate w-full text-center leading-tight">{name}</span>
                   </button>
                 ))}
               </div>
@@ -184,12 +178,14 @@ export default function SimpleIconPicker({
           {/* Footer */}
           <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
             <div className="flex items-center justify-between text-xs text-gray-500">
-              <span>{filteredIcons.length} of {icons.length} icons</span>
+              <span>
+                {filteredIcons.length} of {icons.length} icons
+              </span>
               <span>Powered by Lucide</span>
             </div>
           </div>
         </div>
       )}
     </div>
-  );
+  )
 }

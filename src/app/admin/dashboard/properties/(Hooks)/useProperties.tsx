@@ -20,6 +20,7 @@ interface ApiResponse<T> {
 interface UsePropertiesOptions {
   page?: number
   limit?: number
+  approvalStatus?: string
 }
 
 interface PropertiesFetcherResult {
@@ -38,6 +39,9 @@ export function useProperties(options: UsePropertiesOptions = {}) {
   }
   if (page != null) {
     queryParams.set('page', String(page))
+  }
+  if (options.approvalStatus) {
+    queryParams.set('approval_status', options.approvalStatus)
   }
 
   const swrKey = queryParams.toString() ? `${appEndpoints.getAllProperties}?${queryParams.toString()}` : appEndpoints.getAllProperties
@@ -112,6 +116,13 @@ export function useProperties(options: UsePropertiesOptions = {}) {
   }
   const properties = data?.items ?? []
   const total = data?.total ?? properties.length
+
+  console.log(
+    'useProperties - fetched properties count:',
+    data?.items?.map(item => item.media),
+    'total:',
+    total,
+  )
 
   return {
     properties: properties ?? [],

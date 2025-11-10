@@ -14,6 +14,11 @@ const nextConfig: NextConfig = {
         hostname: 'cdn.example.com',
         pathname: '**',
       },
+      {
+        protocol: 'https',
+        hostname: 'youtube.com',
+        pathname: '**',
+      },
     ],
   },
 }

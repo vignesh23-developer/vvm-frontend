@@ -110,6 +110,13 @@ export function useProperties(options: UsePropertiesOptions = {}) {
       toast.error(`An error occurred while trying to ${action} the property`)
     }
   }
+
+  const handleEdit = (id: string) => {
+    router.push(`/properties-registration/${id}`)
+  }
+  const handleDelete = (id: string) => {
+    router.push(`/properties-registration`)
+  }
   const properties = data?.items ?? []
   const total = data?.total ?? properties.length
 
@@ -117,6 +124,8 @@ export function useProperties(options: UsePropertiesOptions = {}) {
     properties: properties ?? [],
     total,
     error,
+    handleEdit,
+    handleDelete,
     isLoading,
     mutateProperties,
     handlePropertyAction,

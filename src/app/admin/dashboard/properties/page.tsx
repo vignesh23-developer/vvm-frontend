@@ -7,28 +7,49 @@ import { useTranslations } from 'next-intl'
 import ModalComponent from '@/components/ui/CustomComponent/Modal/ModalComponent'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { PropertiesDto } from './(Dto)/propertiesDto'
-
-type TabConfig = {
-  key: string
-  label: string
-}
+import { getLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
+import { deleteMethod, postMethod } from '@/services/service'
+import { appEndpoints } from '@/services/endpoints'
+import Pagination from '@/components/ui/CustomComponent/Paginations/Pagination'
+import Loader from '@/components/ui/CustomComponent/Loader/Loader'
 
 const PAGE_SIZE = 6
-const MAX_PAGE_BUTTONS = 5
 
 const PropertiesPage = () => {
   const t = useTranslations()
-  const [activeTab, setActiveTab] = useState<string>('all')
-  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [activeTab, setActiveTab] = useState('pending')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [favoritedProperties, setFavoritedProperties] = useState<Set<string>>(new Set())
   const [pendingActionPropertyId, setPendingActionPropertyId] = useState<string | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedProperty, setSelectedProperty] = useState<PropertiesDto | null>(null)
   const [modalAction, setModalAction] = useState<'approve' | 'reject' | null>(null)
+  const [selectedProperty, setSelectedProperty] = useState<PropertiesDto | null>(null)
   const [comment, setComment] = useState('')
   const [rejectReason, setRejectReason] = useState('')
-  const { properties, total, isLoading, error, handlePropertyAction } = useProperties({ page: currentPage, limit: PAGE_SIZE })
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const openModal = (property: any, action: 'approve' | 'reject') => {
+  // Map UI tabs to API approval_status values
+  const approvalStatus = activeTab === 'pending' ? 'UNDER_REVIEW' : activeTab === 'rejected' ? 'REJECTED' : undefined
+
+  const { properties, total, isLoading, error, mutateProperties, handlePropertyAction } = useProperties({
+    page: currentPage,
+    limit: PAGE_SIZE,
+    approvalStatus,
+  })
+  const reviewerId = (getLocalStorageItem('userData') as { id?: string })?.id || ''
+
+  const tabs = useMemo(
+    () => [
+      { key: 'pending', label: 'Pending' },
+      { key: 'rejected', label: 'Rejected' },
+    ],
+    [],
+  )
+
+  const totalItems = total ?? 0
+  const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE))
+  const isEmpty = totalItems === 0
+
+  const openModal = (property: PropertiesDto, action: 'approve' | 'reject') => {
     setSelectedProperty(property)
     setModalAction(action)
     setComment('')
@@ -42,249 +63,149 @@ const PropertiesPage = () => {
     setSelectedProperty(null)
   }, [])
 
-  const reviewer_id = 'cc98934f-d1f7-4e8d-8484-72d24f94b508'
-
   const triggerPropertyAction = useCallback(
-    async (propertyId: string, action: 'approve' | 'reject', extraData?: { comment?: string; rejectReason?: string }) => {
+    async (propertyId: string, action: 'approve' | 'reject', data?: { comment?: string; rejectReason?: string }) => {
       try {
         setPendingActionPropertyId(propertyId)
-        await handlePropertyAction(propertyId, reviewer_id, action, extraData)
+        await handlePropertyAction(propertyId, reviewerId, action, data)
       } finally {
         setPendingActionPropertyId(null)
       }
     },
-    [handlePropertyAction],
+    [handlePropertyAction, reviewerId],
   )
 
-  const actionLabel = modalAction === 'approve' ? 'approve' : modalAction === 'reject' ? 'reject' : 'perform this action on'
+  const handleModalConfirm = useCallback(async () => {
+    if (!modalAction || !selectedProperty) return
+    await triggerPropertyAction(selectedProperty.id, modalAction, { comment, rejectReason })
+    closeModal()
+  }, [modalAction, selectedProperty, comment, rejectReason, triggerPropertyAction, closeModal])
 
-  const tabCounts = useMemo(() => {
-    const counts: Record<string, number> = {
-      all: total ?? properties.length,
-    }
+  const changePage = (page: number) => setCurrentPage(Math.max(1, Math.min(page, totalPages)))
 
-    properties.forEach(property => {
-      const type = property.listing_type?.toUpperCase()
-      if (!type) {
-        return
-      }
-      counts[type] = (counts[type] ?? 0) + 1
-    })
-
-    return counts
-  }, [properties, total])
-
-  const tabs = useMemo<TabConfig[]>(() => {
-    const uniqueListingTypes = Array.from(
-      new Set(properties.map(property => property.listing_type?.toUpperCase()).filter((type): type is string => Boolean(type))),
-    )
-
-    const formatTabLabel = (value: string) =>
-      value
-        .toLowerCase()
-        .split('_')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ')
-
-    const dynamicTabs = uniqueListingTypes.map(type => ({
-      key: type,
-      label: formatTabLabel(type),
-    }))
-
-    return [{ key: 'all', label: 'All Listings' }, ...dynamicTabs]
+  const { pendingCount, rejectedCount } = useMemo(() => {
+    const pending = properties?.filter(p => p.approval_status === 'UNDER_REVIEW').length || 0
+    const rejected = properties?.filter(p => p.approval_status === 'REJECTED').length || 0
+    return { pendingCount: pending, rejectedCount: rejected }
   }, [properties])
+  const isEmptyTab = (activeTab === 'pending' ? pendingCount : rejectedCount) === 0
 
-  useEffect(() => {
-    if (!tabs.some(tab => tab.key === activeTab)) {
-      setActiveTab('all')
-      setCurrentPage(1)
+  const handleFavorite = async (propertyId: string) => {
+    const isFav = favoritedProperties.has(propertyId)
+    try {
+      const response = isFav
+        ? await deleteMethod(appEndpoints.deleteFavorite(reviewerId))
+        : await postMethod(appEndpoints.toggleFavorite, { entity_type: 'property', entity_id: propertyId })
+
+      if (!response?.error) {
+        setFavoritedProperties(prev => {
+          const newSet = new Set(prev)
+          isFav ? newSet.delete(propertyId) : newSet.add(propertyId)
+          return newSet
+        })
+      }
+      mutateProperties()
+    } catch (err) {
+      console.error('Error updating favorite:', err)
     }
-  }, [tabs, activeTab])
-
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [activeTab])
-
-  const filteredProperties = useMemo(() => {
-    if (activeTab === 'all') {
-      return properties
-    }
-
-    return properties.filter(property => property.listing_type?.toUpperCase() === activeTab)
-  }, [activeTab, properties])
-
-  const totalItems = activeTab === 'all' ? total ?? 0 : filteredProperties.length
-  const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE))
-
-  useEffect(() => {
-    setCurrentPage(previous => Math.min(previous, totalPages))
-  }, [totalPages])
-
-  const startIndex = (currentPage - 1) * PAGE_SIZE
-  const paginatedProperties = activeTab === 'all' ? properties : filteredProperties.slice(startIndex, startIndex + PAGE_SIZE)
-
-  const startItem = totalItems === 0 ? 0 : startIndex + 1
-  const endItem = totalItems === 0 ? 0 : Math.min(startIndex + paginatedProperties.length, totalItems)
-
-  const visiblePages = useMemo(() => {
-    if (totalPages <= MAX_PAGE_BUTTONS) {
-      return Array.from({ length: totalPages }, (_, index) => index + 1)
-    }
-
-    const halfWindow = Math.floor(MAX_PAGE_BUTTONS / 2)
-    let startPage = Math.max(1, currentPage - halfWindow)
-    let endPage = startPage + MAX_PAGE_BUTTONS - 1
-
-    if (endPage > totalPages) {
-      endPage = totalPages
-      startPage = endPage - MAX_PAGE_BUTTONS + 1
-    }
-
-    return Array.from({ length: endPage - startPage + 1 }, (_, index) => startPage + index)
-  }, [currentPage, totalPages])
-
-  const isEmpty = totalItems === 0
-
-  const selectTab = (key: string) => {
-    setActiveTab(key)
   }
 
-  const changePage = (page: number) => {
-    setCurrentPage(Math.max(1, Math.min(page, totalPages)))
-  }
-
-  if (isLoading) return <div className="p-6 text-gray-600 animate-pulse">Loading properties...</div>
+  if (isLoading)
+    return (
+      <div className="p-6 text-gray-600 animate-pulse">
+        <Loader />
+      </div>
+    )
   if (error) return <div className="p-6 text-red-600">Failed to load properties.</div>
 
   return (
     <div className="w-full p-10">
-      <div className="mb-6">
-        <div className="flex flex-wrap items-center gap-2 border-b border-gray-200 pb-3">
-          {tabs.map(tab => {
-            const isActive = tab.key === activeTab
-            const count = tabCounts[tab.key] ?? 0
-
-            return (
-              <button
-                key={tab.key}
-                type="button"
-                onClick={() => selectTab(tab.key)}
-                className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                  isActive
-                    ? 'border-[#7B1E1E] bg-[#7B1E1E] text-white focus:ring-[#7B1E1E]'
-                    : 'border-gray-200 bg-white text-gray-700 hover:border-[#7B1E1E] hover:text-[#7B1E1E] focus:ring-gray-200'
-                }`}
-              >
-                <span>{tab.label}</span>
-                <span className={`rounded-full px-2 py-0.5 text-xs ${isActive ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}`}>
-                  {count}
-                </span>
-              </button>
-            )
-          })}
-        </div>
-
-        <div className="mt-4 text-sm text-gray-600">
-          {isEmpty ? 'No properties found for the selected filter.' : `Showing ${startItem} to ${endItem} of ${totalItems} properties`}
-        </div>
+      {/* Tabs */}
+      <div className="mb-6 border-b border-gray-200 pb-3 flex flex-wrap gap-2">
+        {tabs.map(tab => {
+          const isActive = tab.key === activeTab
+          return (
+            <Button
+              key={tab.key}
+              onClick={() => {
+                // When switching tabs, reset pagination to first page so results start from page 1
+                setActiveTab(tab.key)
+                setCurrentPage(1)
+              }}
+              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition focus:ring-2 focus:ring-offset-2 ${
+                isActive ? 'border-[#7B1E1E] bg-[#7B1E1E] text-white' : 'border-gray-200 text-gray-700 hover:text-[#7B1E1E]'
+              }`}
+            >
+              {tab.label === 'Pending' ? `Pending (${pendingCount ?? '...'})` : `Rejected (${rejectedCount ?? '...'})`}
+            </Button>
+          )
+        })}
       </div>
+
+      {/* Info Text */}
+      <div className="text-sm text-gray-600 mb-4 text-center">
+        {isEmpty ? (
+          'No properties found.'
+        ) : isEmptyTab ? (
+          'No properties found in this tab.'
+        ) : (
+          <span className="text-left block">
+            Showing {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, totalItems)} of {totalItems}
+          </span>
+        )}
+      </div>
+
+      {/* Property List */}
       {isEmpty ? (
-        <div className="rounded-md border border-dashed border-gray-200 bg-white p-12 text-center text-gray-500">
-          No properties available for the selected tab.
-        </div>
+        <div className="rounded-md border border-dashed border-gray-200 bg-white p-12 text-center text-gray-500">No properties available.</div>
       ) : (
         <div className="grid gap-6 md:grid-cols xl:grid-cols">
-          {paginatedProperties.map((property, index) => {
-            const key = property.id ?? property.slug ?? `property-${startIndex + index}`
-
-            return (
+          {properties
+            ?.filter(p => {
+              if (activeTab === 'pending') return p.approval_status === 'UNDER_REVIEW'
+              if (activeTab === 'rejected') return p.approval_status === 'REJECTED'
+              return true
+            })
+            .map((property, i) => (
               <PropertyCard
-                key={key}
+                key={property.id ?? i}
                 {...property}
                 language={t}
                 primaryActionLabel="Approve"
                 secondaryActionLabel="Reject"
-                tertiaryActionText="Review before taking action"
                 onPrimaryAction={() => openModal(property, 'approve')}
                 onSecondaryAction={() => openModal(property, 'reject')}
                 primaryActionDisabled={pendingActionPropertyId === property.id}
                 secondaryActionDisabled={pendingActionPropertyId === property.id}
+                handleFavorite={handleFavorite}
+                handleShare={() => console.log('Share', property.id)}
+                isFavorited={favoritedProperties.has(property.id)}
               />
-            )
-          })}
-        </div>
-      )}
-      {totalPages > 1 && (
-        <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-gray-200 pt-4 md:flex-row">
-          <div className="text-sm text-gray-600">
-            Page {currentPage} of {totalPages}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => changePage(currentPage - 1)}
-              disabled={currentPage === 1}
-              className={`rounded-md border px-3 py-1 text-sm font-medium transition ${
-                currentPage === 1
-                  ? 'cursor-not-allowed border-gray-200 text-gray-400'
-                  : 'border-gray-200 text-gray-700 hover:border-[#7B1E1E] hover:text-[#7B1E1E]'
-              }`}
-            >
-              Previous
-            </button>
-
-            {visiblePages.map(page => (
-              <button
-                key={page}
-                type="button"
-                onClick={() => changePage(page)}
-                className={`rounded-md px-3 py-1 text-sm font-medium transition ${
-                  page === currentPage
-                    ? 'bg-[#7B1E1E] text-white shadow'
-                    : 'border border-gray-200 text-gray-700 hover:border-[#7B1E1E] hover:text-[#7B1E1E]'
-                }`}
-              >
-                {page}
-              </button>
             ))}
-
-            <button
-              type="button"
-              onClick={() => changePage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className={`rounded-md border px-3 py-1 text-sm font-medium transition ${
-                currentPage === totalPages
-                  ? 'cursor-not-allowed border-gray-200 text-gray-400'
-                  : 'border-gray-200 text-gray-700 hover:border-[#7B1E1E] hover:text-[#7B1E1E]'
-              }`}
-            >
-              Next
-            </button>
-          </div>
         </div>
       )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-6 flex justify-center">
+          <Pagination totalItems={totalItems} itemsPerPage={PAGE_SIZE} currentPage={currentPage} onPageChange={changePage} />
+        </div>
+      )}
+
+      {/* Modal */}
       <ModalComponent
         open={isModalOpen}
         onClose={closeModal}
-        title={modalAction === 'approve' ? 'Approve Property' : modalAction === 'reject' ? 'Reject Property' : 'Confirm Action'}
+        title={modalAction === 'approve' ? 'Approve Property' : 'Reject Property'}
         footer={
           <>
-            <Button onClick={closeModal} className="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+            <Button onClick={closeModal} className="border px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
               Cancel
             </Button>
             <Button
-              onClick={async () => {
-                if (!modalAction || !selectedProperty) return
-
-                await triggerPropertyAction(selectedProperty.id, modalAction, {
-                  comment,
-                  rejectReason,
-                })
-                closeModal()
-              }}
-              disabled={!modalAction || !selectedProperty || pendingActionPropertyId === selectedProperty.id}
-              className="rounded-md bg-[#7B1E1E] px-4 py-2 text-sm text-white hover:bg-[#661919] disabled:cursor-not-allowed disabled:bg-gray-400"
+              onClick={handleModalConfirm}
+              disabled={!modalAction || !selectedProperty || pendingActionPropertyId === selectedProperty?.id}
+              className="bg-[#7B1E1E] px-4 py-2 text-sm text-white hover:bg-[#661919] disabled:bg-gray-400"
             >
               Confirm
             </Button>
@@ -293,52 +214,41 @@ const PropertiesPage = () => {
       >
         <div className="space-y-4 text-sm text-gray-600">
           <p>
-            Are you sure you want to <span className="font-semibold">{actionLabel}</span> the property{' '}
+            Are you sure you want to <span className="font-semibold">{modalAction}</span> the property{' '}
             <span className="font-semibold">{selectedProperty?.title ?? 'this listing'}</span>?
           </p>
 
-          {/* 🟩 Approve Comment Box */}
           {modalAction === 'approve' && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Add Comment (optional)</label>
+            <textarea
+              value={comment}
+              onChange={e => setComment(e.target.value)}
+              className="w-full rounded-md border px-3 py-2 text-sm focus:border-[#7B1E1E] focus:ring-[#7B1E1E]"
+              placeholder="Add approval notes (optional)..."
+              rows={3}
+            />
+          )}
+
+          {modalAction === 'reject' && (
+            <>
+              <select
+                value={rejectReason}
+                onChange={e => setRejectReason(e.target.value)}
+                className="w-full rounded-md border px-3 py-2 text-sm focus:border-[#7B1E1E] focus:ring-[#7B1E1E]"
+              >
+                <option value="">Select a reason</option>
+                <option value="incomplete_information">Incomplete Information</option>
+                <option value="invalid_documents">Invalid Documents</option>
+                <option value="property_not_eligible">Property Not Eligible</option>
+                <option value="other">Other</option>
+              </select>
+
               <textarea
                 value={comment}
                 onChange={e => setComment(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-[#7B1E1E] focus:ring-[#7B1E1E]"
-                placeholder="Add your approval notes..."
+                className="w-full rounded-md border px-3 py-2 text-sm focus:border-[#7B1E1E] focus:ring-[#7B1E1E]"
+                placeholder="Add rejection comments (optional)..."
                 rows={3}
               />
-            </div>
-          )}
-
-          {/* 🟥 Reject Form: Reason + Comment */}
-          {modalAction === 'reject' && (
-            <>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Select Reason for Rejection</label>
-                <select
-                  value={rejectReason}
-                  onChange={e => setRejectReason(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-[#7B1E1E] focus:ring-[#7B1E1E]"
-                >
-                  <option value="">Select a reason</option>
-                  <option value="incomplete_information">Incomplete Information</option>
-                  <option value="invalid_documents">Invalid Documents</option>
-                  <option value="property_not_eligible">Property Not Eligible</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Add Comment (optional)</label>
-                <textarea
-                  value={comment}
-                  onChange={e => setComment(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-[#7B1E1E] focus:ring-[#7B1E1E]"
-                  placeholder="Add reason details or remarks..."
-                  rows={3}
-                />
-              </div>
             </>
           )}
         </div>

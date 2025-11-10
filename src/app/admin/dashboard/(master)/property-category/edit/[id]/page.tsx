@@ -23,9 +23,10 @@ export default function EditPropertyCategory() {
         if (response) {
           // normalize payload: some APIs wrap data in a `data` field or return the object directly
           const payload = (response as any).data ?? response
-          const { name, description, sortOrder } = payload
+          const { name, description, icon, sortOrder } = payload
           setInitialValues({
             name,
+            icon,
             description,
             sortOrder,
           })
