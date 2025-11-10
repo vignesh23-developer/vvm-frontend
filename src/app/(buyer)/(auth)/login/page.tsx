@@ -14,7 +14,7 @@ import { useTranslations } from 'next-intl'
 import LanguageSwitch from '@/components/ui/CustomComponent/languageSwitch/languageSwitch'
 import { postMethod } from '@/services/service'
 import toast from 'react-hot-toast'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { getLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
 
 interface AuthFormValues {
@@ -25,15 +25,22 @@ const Login = () => {
   const t = useTranslations()
   const [buttonType, setButtonType] = useState<'sms' | 'whatsapp'>('sms')
   const router = useRouter()
+  const pathname = usePathname()
   const token = getLocalStorageItem('authToken')
 
   useEffect(() => {
-    if (token) {
-      router.push('/')
-    } else {
+    const publicRoutes = ['/', '/about', '/services', '/pricing', '/help-center', '/login', '/register']
+
+    // If user not logged in AND tries to access a protected route
+    if (!token && !publicRoutes.includes(pathname)) {
       router.push('/login')
     }
-  }, [token, router])
+
+    // If user is logged in AND tries to access login/register, redirect to home
+    if (token && ['/login', '/register'].includes(pathname)) {
+      router.push('/')
+    }
+  }, [token, pathname, router])
 
   const initialValues: AuthFormValues = { phone: '' }
 

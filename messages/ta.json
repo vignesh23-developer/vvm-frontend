@@ -62,11 +62,6 @@
     "profile": "சுயவிவரம்",
     "logout": "வெளியேறுதல்",
     "subMenus": {
-      "home": "முகப்பு",
-      "services": "சேவைகள்",
-      "about_us": "எங்களைப் பற்றி",
-      "help_center": "உதவி மையம்",
-      "pricing": "விலை நிர்ணயம்",
       "agency_details": "ஏஜென்சி விவரங்கள்",
       "feature_category": "அம்சம் வகை",
       "users": "பயனர்கள்",

@@ -24,6 +24,7 @@ import { title } from 'process'
 import { id } from 'zod/locales'
 import { getMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
+import Button from '@/components/ui/CustomComponent/Button/Button'
 
 const mapFeatureValuesToPayload = (featureValues: any[] | undefined, mappings: FeatureMappingDTO[] | null): FeaturePayloadDTO[] => {
   if (!Array.isArray(featureValues)) {
@@ -794,35 +795,20 @@ export default function PropertiesRegistrationPage({ propertiesId }: { propertie
               {currentStep === 6 && <Step6ReviewSubmit propertyCategoryData={propertyCategoryData} formik={formik} />}
 
               <div className="flex flex-col sm:flex-row justify-between gap-3 mt-8 pt-6 border-t border-gray-100 max-w-4xl mx-auto">
-                <button
+                <Button
                   type="button"
                   onClick={() => setCurrentStep(s => Math.max(s - 1, 1))}
                   disabled={currentStep === 1 || formik.isSubmitting}
                   className="flex items-center gap-2 px-6 py-3 rounded-lg border text-gray-700 border-gray-300 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ArrowLeft size={20} /> {localStorage.getItem(LOCAL_STORAGE_NAME?.propertyDetails) ? 'Edit' : 'Previous'}
-                </button>
+                </Button>
                 {currentStep !== 6 && (
                   <>
-                    {/* {localStorage.getItem(LOCAL_STORAGE_NAME?.propertyDetails) && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          removeLocalStorageItem(LOCAL_STORAGE_NAME.propertyDetails)
-                          removeLocalStorageItem(LOCAL_STORAGE_NAME.propertyId)
-                          formik?.setValues(initialValues)
-                          setCurrentStep(1)
-                          router?.push('/properties-registration')
-                        }}
-                        className="flex items-center gap-2 px-6 py-3 rounded-lg border text-gray-700 border-gray-300 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Unsave
-                      </button>
-                    )} */}
-
                     {currentStep !== 5 ? (
-                      <button
+                      <Button
                         type="submit"
+                        onClick={() => {}}
                         disabled={formik.isSubmitting || UPPIsPending}
                         className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#7B1E1E] text-white hover:bg-[#641717] cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ${
                           formik.isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
@@ -836,9 +822,9 @@ export default function PropertiesRegistrationPage({ propertiesId }: { propertie
                         ) : (
                           'Loading'
                         )}
-                      </button>
+                      </Button>
                     ) : (
-                      <button
+                      <Button
                         type="button"
                         onClick={() => {
                           if (uploadCompleted) {
@@ -852,7 +838,7 @@ export default function PropertiesRegistrationPage({ propertiesId }: { propertie
                       >
                         {uploadCompleted ? 'Next Step' : 'Upload files to enable'}
                         <ArrowRight size={20} />
-                      </button>
+                      </Button>
                     )}
                   </>
                 )}

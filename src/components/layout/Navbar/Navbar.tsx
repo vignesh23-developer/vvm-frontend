@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, type ReactNode } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -15,11 +15,16 @@ import {
   ChevronDown,
   Shield,
   Home,
-  Building2,
+  Wrench,
+  Info,
+  HelpCircle,
+  Tag,
   House,
+  CircleUserRound,
   Grip,
   Megaphone,
   CreditCard,
+  CircleSmall,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTranslationContext } from '@/hooks/Translation/TranslationProvider'
@@ -32,6 +37,7 @@ import { label } from 'framer-motion/client'
 export interface NavLink {
   label: string
   href: string
+  icon: React.ComponentType<{ size?: number }>
   subMenu?: NavLink[]
 }
 
@@ -53,15 +59,101 @@ interface userData {
   email: string
 }
 
+interface NavItem {
+  label: string
+  href: string
+  icon: ReactNode
+  subMenu?: { label: string; href: string; icon?: ReactNode }[]
+}
+
+const DEFAULT_LINKS = [
+  { label: 'home', href: '/', icon: Home },
+  { label: 'services', href: '/services', icon: Wrench },
+  { label: 'about_us', href: '/about', icon: Info },
+  { label: 'help_center', href: '/help-center', icon: HelpCircle },
+  { label: 'pricing', href: '/pricing', icon: Tag },
+]
+
+const DASHBOARD_SECTIONS: NavItem[] = [
+  {
+    label: 'masters',
+    href: '/admin/dashboard/masters',
+    icon: <Shield size={16} />,
+    subMenu: [
+      { label: 'feature group', href: '/admin/dashboard/feature-group' },
+      { label: 'feature categories', href: '/admin/dashboard/feature-category' },
+      { label: 'property categories', href: '/admin/dashboard/property-category' },
+      { label: 'ads categories', href: '/admin/dashboard/ads-category' },
+      { label: 'promo code', href: '/admin/dashboard/promo-code' },
+      { label: 'referral management', href: '/admin/dashboard/referral-management' },
+    ],
+  },
+  {
+    label: 'properties',
+    href: '/properties',
+    icon: <Building size={16} />,
+    subMenu: [
+      { label: 'properties management', href: '/properties' },
+      { label: 'properties pending approval', href: '/admin/dashboard/properties' },
+      { label: 'favourite properties', href: '/admin/dashboard/favourite-properties' },
+      { label: 'reported properties', href: '/admin/dashboard/property-reports' },
+      { label: 'view enquiries', href: '/admin/dashboard/property-enquiry' },
+      { label: 'saved searches', href: '/admin/dashboard/saved-searches' },
+      { label: 'recently viewed properties', href: '/admin/dashboard/recently-viewed' },
+      { label: 'contact requests', href: '/admin/dashboard/contact-requests' },
+    ],
+  },
+  {
+    label: 'ads',
+    href: '/ads/list',
+    icon: <Megaphone size={16} />,
+    subMenu: [
+      { label: 'ads management', href: '/ads/list' },
+      { label: 'ads pending approval', href: '/admin/dashboard/ads-pending-approval' },
+      { label: 'view recent ads', href: '/admin/dashboard/recent-ads' },
+      { label: 'favourite ads', href: '/admin/dashboard/favourite-ads' },
+      { label: 'reported ads', href: '/admin/dashboard/reported-ads' },
+      { label: 'view enquiries', href: '/admin/dashboard/ads-enquiries' },
+    ],
+  },
+  {
+    label: 'subscription',
+    href: '/admin/dashboard/subscription-master',
+    icon: <CreditCard size={16} />,
+    subMenu: [
+      { label: 'subscription master', href: '/admin/dashboard/subscription-master' },
+      { label: 'my subscription', href: '/admin/dashboard/my-subscription' },
+      { label: 'user subscription', href: '/admin/dashboard/user-subscription' },
+    ],
+  },
+  {
+    label: 'payments',
+    href: '/admin/dashboard/view-transactions',
+    icon: <CreditCard size={16} />,
+    subMenu: [
+      { label: 'view transactions', href: '/admin/dashboard/view-transactions' },
+      { label: 'payment reports / revenue summary', href: '/admin/dashboard/payment-reports' },
+      { label: 'refund management', href: '/admin/dashboard/refund-management' },
+      { label: 'promo usage reports', href: '/admin/dashboard/promo-usage-reports' },
+    ],
+  },
+]
+
+const PROFILE_SECTIONS: NavItem[] = [
+  {
+    label: 'profile',
+    href: '/profile/settings',
+    icon: <CircleUserRound size={16} />,
+    subMenu: [
+      { label: 'profile', href: '/profile', icon: <User size={16} /> },
+      { label: 'logout', href: '/logout' },
+    ],
+  },
+]
+
 export default function Navbar({
   logoSrc = '/logo.png',
-  navLinks = [
-    { label: 'home', href: '/' },
-    { label: 'services', href: '/services' },
-    { label: 'about_us', href: '/about' },
-    { label: 'help_center', href: '/help-center' },
-    { label: 'pricing', href: '/pricing' },
-  ],
+  navLinks = DEFAULT_LINKS,
   showLoginButton = true,
   showLanguageSelector = true,
   bgColor = '#3b1804',
@@ -94,8 +186,8 @@ export default function Navbar({
 
     if (authToken && userData) {
       setUserValue({
-        firstName: userData?.firstName,
-        lastName: userData?.lastName,
+        firstName: userData?.firstName ? userData.firstName.charAt(0).toUpperCase() + userData.firstName.slice(1) : '',
+        lastName: userData?.lastName ? userData.lastName.charAt(0).toUpperCase() + userData.lastName.slice(1) : '',
         email: userData?.email,
       })
     }
@@ -178,88 +270,6 @@ export default function Navbar({
     router.push('/login')
   }
 
-  const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value
-    if (value) router.push(value)
-  }
-
-  const mobileNavLinks = [
-    {
-      label: 'home',
-      href: '/',
-      icon: <House size={16} />,
-      subMenu: [
-        { label: 'home', href: '/' },
-        { label: 'services', href: '/services' },
-        { label: 'about_us', href: '/about' },
-        { label: 'help_center', href: '/help-center' },
-        { label: 'pricing', href: '/pricing' },
-      ],
-    },
-    {
-      label: 'masters',
-      href: '/admin/dashboard/masters',
-      icon: <Shield size={16} />,
-      subMenu: [
-        { label: 'feature group', href: '/admin/dashboard/feature-group' },
-        { label: 'feature categories', href: '/admin/dashboard/feature-category' },
-        { label: 'property categories', href: '/admin/dashboard/property-category' },
-        { label: 'ads categories', href: '/admin/dashboard/ads-category' },
-        { label: 'promo code', href: '/admin/dashboard/promo-code' },
-        { label: 'referral management', href: '/admin/dashboard/referral-management' },
-      ],
-    },
-    {
-      label: 'properties',
-      href: '/properties',
-      icon: <Building size={16} />,
-      subMenu: [
-        { label: 'properties management', href: '/properties' },
-        { label: 'properties pending approval', href: '/admin/dashboard/properties' },
-        { label: 'favourite properties', href: '/admin/dashboard/favourite-properties' },
-        { label: 'reported properties', href: '/admin/dashboard/property-reports' },
-        { label: 'view enquiries', href: '/admin/dashboard/property-enquiry' },
-        { label: 'saved searches', href: '/admin/dashboard/saved-searches' },
-        { label: 'recently viewed properties', href: '/admin/dashboard/recently-viewed' },
-        { label: 'contact requests', href: '/admin/dashboard/contact-requests' },
-      ],
-    },
-    {
-      label: 'ads',
-      href: '/ads/list',
-      icon: <Megaphone size={16} />,
-      subMenu: [
-        { label: 'ads management', href: '/ads/list' },
-        { label: 'ads pending approval', href: '/admin/dashboard/ads-pending-approval' },
-        { label: 'view recent ads', href: '/admin/dashboard/recent-ads' },
-        { label: 'favourite ads', href: '/admin/dashboard/favourite-ads' },
-        { label: 'reported ads', href: '/admin/dashboard/reported-ads' },
-        { label: 'view enquiries', href: '/admin/dashboard/ads-enquiries' },
-      ],
-    },
-    {
-      label: 'subscription',
-      href: '/admin/dashboard/subscription-master',
-      icon: <CreditCard size={16} />,
-      subMenu: [
-        { label: 'subscription master', href: '/admin/dashboard/subscription-master' },
-        { label: 'my subscription', href: '/admin/dashboard/my-subscription' },
-        { label: 'user subscription', href: '/admin/dashboard/user-subscription' },
-      ],
-    },
-    {
-      label: 'payments',
-      href: '/admin/dashboard/view-transactions',
-      icon: <CreditCard size={16} />,
-      subMenu: [
-        { label: 'view transactions', href: '/admin/dashboard/view-transactions' },
-        { label: 'payment reports / revenue summary', href: '/admin/dashboard/payment-reports' },
-        { label: 'refund management', href: '/admin/dashboard/refund-management' },
-        { label: 'promo usage reports', href: '/admin/dashboard/promo-usage-reports' },
-      ],
-    },
-  ]
-
   return (
     <nav className="sticky top-0 z-50 shadow-md text-white transition-colors duration-300" style={{ backgroundColor: bgColor }}>
       <div className="flex items-center justify-between px-4 sm:px-6 md:px-8 lg:px-12 py-3 md:py-4">
@@ -276,25 +286,14 @@ export default function Navbar({
           />
         </Link>
 
-        {/* ✅ Desktop Navigation with Submenu */}
+        {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-6 lg:gap-8 xl:gap-10">
-          {navLinks.map(({ label, href, subMenu }) => (
-            <div key={href} className="relative group">
-              <Link href={href} className="relative text-sm md:text-base font-medium hover:text-gray-300 transition">
-                {t(`Navbar.${label}`)}
+          {navLinks?.map((links: any) => (
+            <div key={links.href} className="relative group">
+              <Link href={links.href} className="relative text-sm md:text-base font-medium hover:text-gray-300 transition">
+                {t(`Navbar.${links.label}`)}
                 <span className="absolute left-0 -bottom-1 h-[2px] w-0 bg-white group-hover:w-full transition-all duration-300"></span>
               </Link>
-
-              {/* ✅ Show submenu on hover */}
-              {subMenu && subMenu.length > 0 && (
-                <div className="absolute left-0 top-full mt-2 bg-white text-[#3b1804] rounded-lg shadow-lg w-56 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 translate-y-2 transition-all duration-200 z-50">
-                  {subMenu.map(sub => (
-                    <Link key={sub.href} href={sub.href} className="block px-4 py-2 text-sm hover:bg-gray-100 transition">
-                      {t(`Navbar.subMenus.${sub.label}`)}
-                    </Link>
-                  ))}
-                </div>
-              )}
             </div>
           ))}
         </div>
@@ -303,141 +302,97 @@ export default function Navbar({
         <div className="hidden md:flex items-center gap-4 relative">
           {showLanguageSelector && <LanguageSwitch />}
 
-          <div className="relative grip-menu" ref={gripRef}>
-            {/* Grip Icon */}
-            <button
-              onClick={() => setIsOpen(prev => !prev)}
-              className="cursor-pointer p-2 hover:bg-gray-400 rounded-md transition focus:outline-none focus:ring-2 focus:ring-primary-300"
-              title={'common:site_menu'}
-              aria-label={'common:site_menu'}
-            >
-              <Grip />
-            </button>
-
-            {/* Main Dropdown */}
-            {isOpen && (
-              <div className="absolute right-0 mt-2 bg-white text-[#3b1804] rounded-lg shadow-lg w-70 py-2 z-50 max-h-[70vh] overflow-y-auto">
-                <Link href="/" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
-                  <Home size={16} /> {t('Navbar.Dashboard')}
-                </Link>
-
-                {[
-                  {
-                    key: 'masters',
-                    title: t('Navbar.masters'),
-                    icon: <Shield size={16} className="text-[#3b1804]" />,
-                    links: [
-                      ['/admin/dashboard/feature-group', t('Navbar.subMenus.feature group')],
-                      ['/admin/dashboard/feature-category', t('Navbar.subMenus.feature categories')],
-                      ['/admin/dashboard/property-category', t('Navbar.subMenus.property categories')],
-                      ['/admin/dashboard/ads-category', t('Navbar.subMenus.ads categories')],
-                      ['/admin/dashboard/promo-code', t('Navbar.subMenus.promo code')],
-                      ['/admin/dashboard/referral-management', t('Navbar.subMenus.referral management')],
-                    ],
-                  },
-                  {
-                    key: 'properties',
-                    title: t('Navbar.properties'),
-                    icon: <Building size={16} className="text-[#3b1804]" />,
-                    links: [
-                      ['/properties', t('Navbar.subMenus.properties management')],
-                      ['/admin/dashboard/properties', t('Navbar.subMenus.properties pending approval')],
-                      ['/admin/dashboard/favourite-properties', t('Navbar.subMenus.favourite properties')],
-                      ['/admin/dashboard/property-reports', t('Navbar.subMenus.reported properties')],
-                      ['/admin/dashboard/property-enquiry', t('Navbar.subMenus.view enquiries')],
-                      ['/admin/dashboard/saved-searches', t('Navbar.subMenus.saved searches')],
-                      ['/admin/dashboard/recently-viewed', t('Navbar.subMenus.recently viewed properties')],
-                      ['/admin/dashboard/contact-requests', t('Navbar.subMenus.contact requests')],
-                    ],
-                  },
-                  {
-                    key: 'ads',
-                    title: t('Navbar.ads'),
-                    icon: <Megaphone size={16} className="text-[#3b1804]" />,
-                    links: [
-                      ['/ads/list', t('Navbar.subMenus.ads management')],
-                      ['/admin/dashboard/ads-pending-approval', t('Navbar.subMenus.ads pending approval')],
-                      ['/admin/dashboard/recent-ads', t('Navbar.subMenus.view recent ads')],
-                      ['/admin/dashboard/favourite-ads', t('Navbar.subMenus.favourite ads')],
-                      ['/admin/dashboard/reported-ads', t('Navbar.subMenus.reported ads')],
-                      ['/admin/dashboard/ads-enquiries', t('Navbar.subMenus.view enquiries')],
-                    ],
-                  },
-                  {
-                    key: 'subscription',
-                    title: t('Navbar.subscription'),
-                    icon: <CreditCard size={16} className="text-[#3b1804]" />,
-                    links: [
-                      ['/admin/dashboard/subscription-master', t('Navbar.subMenus.subscription master')],
-                      ['/admin/dashboard/my-subscription', t('Navbar.subMenus.my subscription')],
-                      ['/admin/dashboard/user-subscription', t('Navbar.subMenus.user subscription')],
-                    ],
-                  },
-                  {
-                    key: 'payments',
-                    title: t('Navbar.payments'),
-                    icon: <CreditCard size={16} className="text-[#3b1804]" />,
-                    links: [
-                      ['/admin/dashboard/view-transactions', t('Navbar.subMenus.view transactions')],
-                      ['/admin/dashboard/payment-reports', t('Navbar.subMenus.payment reports / revenue summary')],
-                      ['/admin/dashboard/refund-management', t('Navbar.subMenus.refund management')],
-                      ['/admin/dashboard/promo-usage-reports', t('Navbar.subMenus.promo usage reports')],
-                    ],
-                  },
-                ].map(section => (
-                  <div key={section.key} className="border-t border-gray-100 mt-2 pt-2">
-                    <Button
-                      onClick={() => toggleSection(section.key)}
-                      className="flex items-center justify-between w-full px-4 py-2 text-sm font-semibold text-[#3b1804] hover:bg-gray-100 rounded-md transition"
-                    >
-                      <span className="flex items-center gap-2">
-                        {section.icon}
-                        {section.title}
-                      </span>
-                      {openSections.has(section.key) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                    </Button>
-
-                    {openSections.has(section.key) && (
-                      <div className="flex flex-col pl-8 mt-1">
-                        {section.links.map(([href, label]) => (
-                          <Link key={String(href)} href={String(href)} className="py-1 hover:bg-gray-100 rounded-md text-sm transition">
-                            {label}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
           {userValue ? (
-            <div className="relative" ref={profileRef}>
-              <Button
-                onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center gap-2 bg-white text-[#3b1804] p-1 rounded-full hover:bg-gray-200 transition focus:outline-none focus:ring-2 focus:ring-primary-300"
-                aria-label={t('Navbar.profile')}
-              >
-                <Image src={userValue?.image ?? '/avatar.png'} alt={userValue?.firstName ?? 'Avatar'} width={32} height={32} className="rounded-lg" />
-              </Button>
+            <>
+              <div className="relative grip-menu" ref={gripRef}>
+                {/* Grip Icon */}
+                <button
+                  onClick={() => setIsOpen(prev => !prev)}
+                  className="cursor-pointer p-2 hover:bg-gray-400 rounded-md transition focus:outline-none focus:ring-2 focus:ring-primary-300"
+                  title={'common:site_menu'}
+                  aria-label={'common:site_menu'}
+                >
+                  <Grip />
+                </button>
 
-              {isProfileOpen && (
-                <div className="absolute right-0 mt-2 bg-white text-[#3b1804] rounded-lg shadow-lg w-44 py-2 z-50">
-                  <div className="px-4 py-2 border-b border-gray-200">
-                    <span className="font-semibold text-sm truncate block">
-                      {userValue?.firstName} {userValue?.lastName}
-                    </span>
+                {/* Main Dropdown */}
+                {isOpen && (
+                  <div className="absolute right-0 mt-2 bg-white text-[#3b1804] rounded-lg shadow-lg w-70 py-2 z-50 max-h-[70vh] overflow-y-auto">
+                    <Link href="/" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
+                      <Home size={16} /> {t('Navbar.Dashboard')}
+                    </Link>
+
+                    {DASHBOARD_SECTIONS?.map((section: NavItem) => (
+                      <div key={section.label} className="border-t border-gray-100 mt-2 pt-2">
+                        <Button
+                          onClick={() => toggleSection(section.label)}
+                          className="flex items-center justify-between w-full px-4 py-2 text-sm font-semibold text-[#3b1804] hover:bg-gray-100 rounded-md transition"
+                        >
+                          <span className="flex items-center gap-2">
+                            {section.icon}
+                            {t(`Navbar.${section.label}`)}
+                          </span>
+                          {openSections.has(section.label) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                        </Button>
+
+                        {openSections.has(section.label) && (
+                          <div className="flex flex-col pl-8 mt-1">
+                            {section.subMenu?.map((links: any) => (
+                              <Link
+                                key={String(links.href)}
+                                href={String(links.href)}
+                                className="flex items-center gap-2 px-4 py-1 hover:bg-gray-100 rounded-md text-sm transition"
+                              >
+                                <span className="text-gray-400">
+                                  <CircleSmall size={12} />
+                                </span>
+                                {t(`Navbar.subMenus.${links.label}`)}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                  <Link href="/profile" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
-                    <User size={16} /> {t('Navbar.profile')}
-                  </Link>
-                  <Button onClick={handleLogout} className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-gray-100 text-sm transition">
-                    <LogOut size={16} /> {t('Navbar.logout')}
-                  </Button>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+
+              <div className="relative" ref={profileRef}>
+                <Button
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                  className="flex items-center gap-2 text-[#3b1804] p-1 hover:transition focus:outline-none focus:ring-2 focus:ring-primary-300"
+                  aria-label={t('Navbar.profile')}
+                >
+                  {/* <Image
+                    src={userValue?.image ?? '/avatar.png'}
+                    alt={userValue?.firstName ?? 'Avatar'}
+                    width={32}
+                    height={32}
+                    className="rounded-lg"
+                  /> */}
+                  <CircleUserRound size={24} color="white" />
+                </Button>
+
+                {isProfileOpen && (
+                  <div className="absolute right-0 mt-2 bg-white text-[#3b1804] rounded-lg shadow-lg w-44 py-2 z-50">
+                    <div className="px-4 py-2 border-b border-gray-200">
+                      <span className="font-semibold text-sm truncate block">
+                        {userValue?.firstName} {userValue?.lastName}
+                      </span>
+                    </div>
+                    <Link href="/profile" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
+                      <User size={16} /> {t('Navbar.profile')}
+                    </Link>
+                    <Button
+                      onClick={handleLogout}
+                      className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-gray-100 text-sm transition"
+                    >
+                      <LogOut size={16} /> {t('Navbar.logout')}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </>
           ) : (
             showLoginButton && (
               <Link
@@ -461,7 +416,6 @@ export default function Navbar({
       </div>
 
       {/* Mobile / Tablet Menu */}
-      {/* ✅ Mobile / Tablet Menu */}
       <div
         className={`md:hidden transition-all duration-300 ease-in-out ${
           isMenuOpen ? 'max-h-[80vh] opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-3'
@@ -473,44 +427,51 @@ export default function Navbar({
           className="flex flex-col items-center px-5 py-5 shadow-lg text-center rounded-b-2xl bg-opacity-95 backdrop-blur-md"
         >
           {/* Home Link */}
-          {/* <Link
-            href="/"
-            onClick={() => setIsMenuOpen(false)}
-            className="flex items-center gap-2 w-full py-2 text-white hover:text-gray-300 text-base font-medium"
-          >
-            <Home size={18} /> {t('Navbar.Dashboard')}
-          </Link> */}
+          {navLinks.map(({ label, href, icon: Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              onClick={() => setIsMenuOpen(false)}
+              className="flex items-center gap-2 w-full py-2 text-white hover:text-gray-300 text-base font-medium"
+            >
+              <Icon size={18} /> {t(`Navbar.${label}`)}
+            </Link>
+          ))}
 
           {/* Dynamically generated collapsible sections */}
-          {mobileNavLinks.map(section => (
-            <div key={section.label} className="w-full mt-2 border-t border-white/20 pt-2">
-              <Button
-                onClick={() => toggleSection(section.label)}
-                className="flex justify-between items-center w-full text-left text-white font-medium py-2 px-2 rounded-lg hover:bg-white/10"
-              >
-                <span className="flex items-center gap-2">
-                  {section.icon}
-                  {t(`Navbar.${section.label}`)}
-                </span>
-                {openSections.has(section.label) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-              </Button>
+          {userValue &&
+            DASHBOARD_SECTIONS.map((section: NavItem) => (
+              <div key={section.label} className="w-full mt-2 border-t border-white/20 pt-2">
+                <Button
+                  onClick={() => toggleSection(section.label)}
+                  className="flex justify-between items-center w-full text-left text-white font-medium py-2 px-2 rounded-lg hover:bg-white/10"
+                >
+                  <span className="flex items-center gap-2">
+                    {section.icon}
+                    {t(`Navbar.${section.label}`)}
+                  </span>
+                  {openSections.has(section.label) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </Button>
 
-              {openSections.has(section.label) && (
-                <div className="flex flex-col pl-6 mt-1">
-                  {section.subMenu?.map(sub => (
-                    <Link
-                      key={sub.href}
-                      href={sub.href}
-                      onClick={() => setIsMenuOpen(false)}
-                      className="py-1 text-sm text-gray-200 hover:text-white transition"
-                    >
-                      {t(`Navbar.subMenus.${sub.label}`)}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+                {openSections.has(section.label) && (
+                  <div className="flex flex-col pl-4 space-y-1">
+                    {section.subMenu?.map((sub: any) => (
+                      <Link
+                        key={sub.href}
+                        href={sub.href}
+                        onClick={() => setIsMenuOpen(false)}
+                        className="flex items-center gap-2 px-4 py-1 text-sm text-gray-200 hover:text-white transition no-underline"
+                      >
+                        <span className="text-gray-400">
+                          <CircleSmall size={12} />
+                        </span>
+                        {t(`Navbar.subMenus.${sub.label}`)}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
 
           {/* Keep your language selector & profile/login below unchanged */}
           {showLanguageSelector && (
@@ -531,53 +492,60 @@ export default function Navbar({
             </div>
           )}
 
-          {/* Keep your Profile/Login logic here */}
           {/* Profile / Login Section */}
           {userValue ? (
             <div className="relative mt-4">
-              <Button
-                onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center gap-2 bg-white text-[#3b1804] p-1 rounded-full hover:bg-gray-200 transition"
-              >
-                <Image
-                  src={userValue?.image ?? '/avatar.png'}
-                  alt={userValue?.firstName ?? 'Avatar'}
-                  width={30}
-                  height={30}
-                  className="rounded-full"
-                />
-              </Button>
-              {isProfileOpen && (
-                <>
-                  <div className="fixed inset-0 bg-black/30 z-40" onClick={() => setIsProfileOpen(false)}></div>
-                  <div
-                    className="absolute right-0 mt-2 bg-white text-[#3b1804] rounded-xl shadow-lg w-44 py-2 z-50 max-sm:fixed max-sm:top-20 max-sm:right-4 max-sm:left-4 max-sm:w-auto"
-                    style={{ maxHeight: '60vh', overflowY: 'auto' }}
+              {/* Header */}
+              <div className="px-4 py-3 border-b border-gray-200 text-center">
+                <span className="font-semibold text-sm block truncate">
+                  {userValue?.firstName} {userValue?.lastName}
+                </span>
+              </div>
+
+              {/* Profile Sections */}
+              {PROFILE_SECTIONS.map(item => (
+                <div key={item.label}>
+                  <Button
+                    onClick={() => toggleSection(item.label)}
+                    className="flex justify-between items-center w-full text-left text-white font-medium py-2 px-2 rounded-lg hover:bg-white/10"
                   >
-                    <div className="px-4 py-3 border-b border-gray-200 text-center">
-                      <span className="font-semibold text-sm block truncate">
-                        {userValue?.firstName} {userValue?.lastName}
-                      </span>
+                    <span className="flex items-center gap-2">
+                      {item.icon}
+                      {t(`Navbar.${item.label}`)}
+                    </span>
+                    {openSections.has(item.label) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  </Button>
+
+                  {/* SubMenu items (like logout) */}
+                  {openSections.has(item.label) && (
+                    <div className="flex flex-col pl-6 mt-1">
+                      {item.subMenu?.map(sub =>
+                        sub.label === 'logout' ? (
+                          <Button
+                            key={sub.label}
+                            onClick={() => {
+                              setIsProfileOpen(false)
+                              handleLogout()
+                            }}
+                            className="flex items-center gap-2  w-full text-left px-4 py-3 hover:bg-gray-100 text-sm transition text-white"
+                          >
+                            <LogOut size={16} /> {t(`Navbar.${sub.label}`)}
+                          </Button>
+                        ) : (
+                          <Link
+                            key={sub.label}
+                            href={sub.href}
+                            onClick={() => setIsProfileOpen(false)}
+                            className="flex items-center gap-2 px-4 py-3 hover:bg-gray-100 text-sm transition"
+                          >
+                            {sub.icon} {t(`Navbar.${sub.label}`)}
+                          </Link>
+                        ),
+                      )}
                     </div>
-                    <Link
-                      href="/profile"
-                      onClick={() => setIsProfileOpen(false)}
-                      className="flex items-center gap-2 px-4 py-3 hover:bg-gray-100 text-sm transition"
-                    >
-                      <User size={16} /> {t('Navbar.profile')}
-                    </Link>
-                    <Button
-                      onClick={() => {
-                        setIsProfileOpen(false)
-                        handleLogout()
-                      }}
-                      className="flex items-center gap-2 w-full text-left px-4 py-3 hover:bg-gray-100 text-sm transition"
-                    >
-                      <LogOut size={16} /> {t('Navbar.logout')}
-                    </Button>
-                  </div>
-                </>
-              )}{' '}
+                  )}
+                </div>
+              ))}
             </div>
           ) : (
             showLoginButton && (
