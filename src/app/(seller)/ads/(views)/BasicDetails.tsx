@@ -3,8 +3,7 @@
 import { FormikProps } from 'formik'
 import { AdsCreationFormValues } from '../page'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
-import { v4 as uuidv4 } from 'uuid'
-import { useMemo } from 'react'
+import { useAdsCategories } from '../(hooks)/useAdsCategories'
 
 interface Step1BasicDetailsProps {
   formik: FormikProps<AdsCreationFormValues>
@@ -12,19 +11,7 @@ interface Step1BasicDetailsProps {
 
 export default function Step1BasicDetails({ formik }: Step1BasicDetailsProps) {
   const { values, errors, touched, handleChange, setFieldValue } = formik
-  // Mock categories - replace with actual API call
-   // Generate categories once
-  const categories = useMemo(
-    () => [
-      { id: uuidv4(), name: 'Electronics' },
-      { id: uuidv4(), name: 'Vehicles' },
-      { id: uuidv4(), name: 'Furniture' },
-      { id: uuidv4(), name: 'Clothing' },
-      { id: uuidv4(), name: 'Books' },
-      { id: uuidv4(), name: 'Sports & Outdoors' },
-    ],
-    [] // only run once
-  );
+  const { categories, isLoading: categoriesLoading } = useAdsCategories()
 
   const priceUnits = ['USD', 'EUR', 'GBP', 'INR']
   const statusOptions = ['AVAILABLE', 'SOLD', 'PENDING']
@@ -76,24 +63,39 @@ export default function Step1BasicDetails({ formik }: Step1BasicDetailsProps) {
           <label className="block text-sm font-semibold text-gray-700">
             Category <span className="text-red-500">*</span>
           </label>
-          <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {categories.map(category => (
-              <button
-                key={category.id}
-                type="button"
-                aria-pressed={values.category_id === category.id}
-                onClick={() => setFieldValue('category_id', category.id)}
-                className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all
-                  ${
-                    values.category_id === category.id
-                      ? 'border-[#7B1E1E] bg-red-50 shadow-sm'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-              >
-                <span className="text-sm font-medium">{category.name}</span>
-              </button>
-            ))}
-          </div>
+          {categoriesLoading ? (
+            <div className="mt-3 flex items-center justify-center p-8">
+              <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-[#7B1E1E]" />
+              <span className="ml-2 text-sm text-gray-500">Loading categories...</span>
+            </div>
+          ) : categories.length === 0 ? (
+            <div className="mt-3 p-4 bg-gray-50 rounded-lg text-center text-sm text-gray-500">
+              No categories available
+            </div>
+          ) : (
+            <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {categories
+                .filter(category => category.isActive)
+                .sort((a, b) => a.sortOrder - b.sortOrder)
+                .map(category => (
+                  <button
+                    key={category.id}
+                    type="button"
+                    aria-pressed={values.category_id === category.id}
+                    onClick={() => setFieldValue('category_id', category.id)}
+                    className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all
+                      ${
+                        values.category_id === category.id
+                          ? 'border-[#7B1E1E] bg-red-50 shadow-sm'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    title={category.description}
+                  >
+                    <span className="text-sm font-medium">{category.name}</span>
+                  </button>
+                ))}
+            </div>
+          )}
           {touched.category_id && errors.category_id && (
             <p className="text-red-600 text-xs mt-1">{errors.category_id}</p>
           )}

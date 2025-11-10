@@ -1,7 +1,7 @@
 'use client'
 
 import { appEndpoints } from '@/services/endpoints'
-import { postMethod } from '@/services/service'
+import { postMethod, patchMethod, deleteMethod, getMethod } from '@/services/service'
 
 export async function onCreateAd(prevState: any, payload: any): Promise<any> {
   try {
@@ -17,6 +17,63 @@ export async function onCreateAd(prevState: any, payload: any): Promise<any> {
     return {
       error: true,
       message: 'Something went wrong while creating Ad',
+      data: null,
+    }
+  }
+}
+
+export async function onUpdateAd(prevState: any, payload: { id: string; data: any }): Promise<any> {
+  try {
+    const response = await patchMethod(appEndpoints.updateAd(payload.id), payload.data)
+
+    return {
+      success: !response.error,
+      error: response.error,
+      message: response.message || 'Ad updated successfully',
+      data: response.data,
+    }
+  } catch (e) {
+    return {
+      error: true,
+      message: 'Something went wrong while updating Ad',
+      data: null,
+    }
+  }
+}
+
+export async function onDeleteAd(adId: string): Promise<any> {
+  try {
+    const response = await deleteMethod(appEndpoints.deleteAd(adId))
+
+    return {
+      success: !response.error,
+      error: response.error,
+      message: response.message || 'Ad deleted successfully',
+      data: response.data,
+    }
+  } catch (e) {
+    return {
+      error: true,
+      message: 'Something went wrong while deleting Ad',
+      data: null,
+    }
+  }
+}
+
+export async function getAdById(adId: string): Promise<any> {
+  try {
+    const response = await getMethod(appEndpoints.getAdByID(adId))
+
+    return {
+      success: !response.error,
+      error: response.error,
+      message: response.message,
+      data: response.data,
+    }
+  } catch (e) {
+    return {
+      error: true,
+      message: 'Something went wrong while fetching Ad',
       data: null,
     }
   }

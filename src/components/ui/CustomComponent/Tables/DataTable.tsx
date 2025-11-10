@@ -460,10 +460,6 @@ const DataTable = <T extends RowData = RowData>({
       setTotalPages(pages)
 
       setDisplayData(filteredData)
-
-      const startIndex = Math.max(0, (page - 1) * currentPageSize)
-      const endIndex = startIndex + currentPageSize
-      setData(filteredData.slice(startIndex, endIndex))
     },
     [currentPageSize, page],
   )
@@ -503,19 +499,30 @@ const DataTable = <T extends RowData = RowData>({
     setShouldReload(true)
   }, [fetchData])
 
+  // Sync external pageSize prop with internal state
+  useEffect(() => {
+    setCurrentPageSize(pageSize)
+  }, [pageSize])
+
   useEffect(() => {
     applyFiltersAndSort(allData, filters, sortField, sortDirection)
   }, [applyFiltersAndSort, allData, filters, sortField, sortDirection, currentPageSize])
 
   useEffect(() => {
     if (displayData?.length > 0) {
-      const startIndex = Math.max(0, (page - 1) * currentPageSize)
-      const endIndex = startIndex + currentPageSize
-      setData(displayData?.slice(startIndex, endIndex))
+      // Only slice if using client-side pagination
+      if (isPagination) {
+        const startIndex = Math.max(0, (page - 1) * currentPageSize)
+        const endIndex = startIndex + currentPageSize
+        setData(displayData?.slice(startIndex, endIndex))
+      } else {
+        // For server-side pagination, show all data
+        setData(displayData)
+      }
     } else {
       setData([])
     }
-  }, [currentPageSize, displayData, page])
+  }, [currentPageSize, displayData, page, isPagination])
 
   // Handle sorting
   const handleSort = (field: string) => {
