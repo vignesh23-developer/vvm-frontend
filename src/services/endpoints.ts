@@ -86,6 +86,7 @@ export const appEndpoints = {
   getAdByID: (adId: string) => `/ads/${adId}`,
   updateAd: (adId: string) => `/ads/${adId}`,
   deleteAd: (adId: string) => `/ads/${adId}`,
+  getAllAdsCategories: '/master/ads-category',
 
   // Favorite Endpoints
   toggleFavorite: '/user-interactions/favorites/toggle',

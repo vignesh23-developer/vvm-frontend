@@ -276,7 +276,7 @@ export default function Navbar({
                     title: t('Navbar.ads'),
                     icon: <Megaphone size={16} className="text-[#3b1804]" />,
                     links: [
-                      ['/admin/dashboard/ads-management', t('Navbar.subMenus.ads management')],
+                      ['/ads/list', t('Navbar.subMenus.ads management')],
                       ['/admin/dashboard/ads-pending-approval', t('Navbar.subMenus.ads pending approval')],
                       ['/admin/dashboard/recent-ads', t('Navbar.subMenus.view recent ads')],
                       ['/admin/dashboard/favourite-ads', t('Navbar.subMenus.favourite ads')],
