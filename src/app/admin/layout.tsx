@@ -1,20 +1,10 @@
 'use client'
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { getLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
+
 import Navbar from '@/components/layout/Navbar/Navbar'
 import Footer from '@/components/layout/Footer/Footer'
 import Breadcrumbs from '@/components/ui/CustomComponent/Breadcrumbs/Breadcrumbs'
-import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter()
-  const authToken = getLocalStorageItem(LOCAL_STORAGE_NAME.authToken)
-
-  useEffect(() => {
-    if (!authToken) router.push('/login')
-  }, [authToken, router])
-
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header Section */}

@@ -42,8 +42,7 @@ const properties = [
     status: 'Ready to Move',
     transaction: 'Resale',
     facing: 'East Facing Properties',
-    description:
-      '4BHK A Type corner villa for sale in Sterling Villagrande with all amenities',
+    description: '4BHK A Type corner villa for sale in Sterling Villagrande with all amenities',
     agent: 'Rich Source Realty',
     operatingSince: '2009',
     price: '₹ 9.10 Cr',
@@ -57,8 +56,7 @@ const properties = [
     status: 'Under Construction',
     transaction: 'New Booking',
     facing: 'North Facing Properties',
-    description:
-      'Spacious 3BHK villa with premium facilities and modern design',
+    description: 'Spacious 3BHK villa with premium facilities and modern design',
     agent: 'Prime Estates',
     operatingSince: '2015',
     price: '₹ 7.80 Cr',
@@ -74,8 +72,7 @@ const AgentPropertiesList = [
     status: 'Ready to Move',
     transaction: 'Resale',
     facing: 'East Facing Properties',
-    description:
-      '4BHK A Type corner villa for sale in Sterling Villagrande with all amenities',
+    description: '4BHK A Type corner villa for sale in Sterling Villagrande with all amenities',
     agent: 'Rich Source Realty',
     operatingSince: '2009',
     agentName: 'Shankar',
@@ -88,8 +85,7 @@ const AgentPropertiesList = [
     status: 'Ready to Move',
     transaction: 'Resale',
     facing: 'East Facing Properties',
-    description:
-      '4BHK A Type corner villa for sale in Sterling Villagrande with all amenities',
+    description: '4BHK A Type corner villa for sale in Sterling Villagrande with all amenities',
     agent: 'Rich Source Realty',
     operatingSince: '2009',
     agentName: 'Shankar',
@@ -105,8 +101,7 @@ const BuildersPropertiesList = [
     status: 'Ready to Move',
     transaction: 'Resale',
     facing: 'East Facing Properties',
-    description:
-      '4BHK A Type corner villa for sale in Sterling Villagrande with all amenities',
+    description: '4BHK A Type corner villa for sale in Sterling Villagrande with all amenities',
     agent: 'Rich Source Realty',
     builderName: 'Shankar',
     agentAddress: 'MG Road,Bangalore',
@@ -118,8 +113,7 @@ const BuildersPropertiesList = [
     status: 'Ready to Move',
     transaction: 'Resale',
     facing: 'East Facing Properties',
-    description:
-      '4BHK A Type corner villa for sale in Sterling Villagrande with all amenities',
+    description: '4BHK A Type corner villa for sale in Sterling Villagrande with all amenities',
     agent: 'Rich Source Realty',
     builderName: 'Shankar',
     agentAddress: 'MG Road,Bangalore',
@@ -132,10 +126,7 @@ const PropertiesListing = ({ params }: { params: string }) => {
   const itemsPerPage = 2
   const totalPages = Math.ceil(properties.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
-  const currentProperties = properties.slice(
-    startIndex,
-    startIndex + itemsPerPage,
-  )
+  const currentProperties = properties.slice(startIndex, startIndex + itemsPerPage)
   const [isLoading, setIsLoading] = useState(false)
 
   return (
@@ -147,17 +138,12 @@ const PropertiesListing = ({ params }: { params: string }) => {
       <div className="px-4 sm:px-6 py-4">
         {params === 'explore_by_category' ? (
           <h1 className="text-lg sm:text-xl font-semibold text-gray-800">
-            10 Results - Properties for Sale in{' '}
-            <span className="text-yellow-600">Chennai</span>
+            10 Results - Properties for Sale in <span className="text-yellow-600">Chennai</span>
           </h1>
         ) : params === 'agency' ? (
-          <h1 className="text-lg sm:text-xl font-semibold text-gray-800">
-            Agents in Bangalore Who Can Help You
-          </h1>
+          <h1 className="text-lg sm:text-xl font-semibold text-gray-800">Agents in Bangalore Who Can Help You</h1>
         ) : params === 'builder' ? (
-          <h1 className="text-lg sm:text-xl font-semibold text-gray-800">
-            Builders in Chennai
-          </h1>
+          <h1 className="text-lg sm:text-xl font-semibold text-gray-800">Builders in Chennai</h1>
         ) : null}
       </div>
 
@@ -170,24 +156,56 @@ const PropertiesListing = ({ params }: { params: string }) => {
                 isLoading ? (
                   <SkeletonLoader key={index} />
                 ) : (
-                  <PropertyCard id={''} property_category_id={''} price_unit={''} property_size={''} property_size_unit={''} listing_type={''} door_number={''} street_name={''} address_line={''} city={''} district={''} state={''} postal_code={''} country={''} latitude={''} longitude={''} owner_id={''} agent_id={''} approval_status={''} is_published={false} is_verified={false} is_premium={false} is_featured={false} is_active={false} slug={null} meta_description={null} meta_keywords={null} view_count={0} favorite_count={0} contact_count={0} created_at={''} updated_at={''} published_at={null} approved_at={null} media={[]} key={index} {...property} language={t} />
+                  // <PropertyCard
+                  //   id={''}
+                  //   property_category_id={''}
+                  //   price_unit={''}
+                  //   property_size={''}
+                  //   property_size_unit={''}
+                  //   listing_type={''}
+                  //   door_number={''}
+                  //   street_name={''}
+                  //   address_line={''}
+                  //   city={''}
+                  //   district={''}
+                  //   state={''}
+                  //   postal_code={''}
+                  //   country={''}
+                  //   latitude={''}
+                  //   longitude={''}
+                  //   owner_id={''}
+                  //   agent_id={''}
+                  //   approval_status={''}
+                  //   is_published={false}
+                  //   is_verified={false}
+                  //   is_premium={false}
+                  //   is_featured={false}
+                  //   is_active={false}
+                  //   slug={null}
+                  //   meta_description={null}
+                  //   meta_keywords={null}
+                  //   view_count={0}
+                  //   favorite_count={0}
+                  //   contact_count={0}
+                  //   created_at={''}
+                  //   updated_at={''}
+                  //   published_at={null}
+                  //   approved_at={null}
+                  //   media={[]}
+                  //   key={index}
+                  //   {...property}
+                  //   language={t}
+                  // />
+                  <h1>Upcoming Page</h1>
                 ),
               )
             : params === 'agency'
             ? AgentPropertiesList.map((agentProperty, index) =>
-                isLoading ? (
-                  <SkeletonLoader key={index} />
-                ) : (
-                  <AgentCard key={index} {...agentProperty} language={t} />
-                ),
+                isLoading ? <SkeletonLoader key={index} /> : <AgentCard key={index} {...agentProperty} language={t} />,
               )
             : params === 'builder'
             ? BuildersPropertiesList.map((BuilderProperty, index) =>
-                isLoading ? (
-                  <SkeletonLoader key={index} />
-                ) : (
-                  <BuilderCard key={index} {...BuilderProperty} language={t} />
-                ),
+                isLoading ? <SkeletonLoader key={index} /> : <BuilderCard key={index} {...BuilderProperty} language={t} />,
               )
             : null}
 
@@ -205,11 +223,7 @@ const PropertiesListing = ({ params }: { params: string }) => {
               <button
                 key={i}
                 onClick={() => setCurrentPage(i + 1)}
-                className={`px-3 py-1 border rounded ${
-                  currentPage === i + 1
-                    ? 'bg-black text-white'
-                    : 'hover:bg-gray-200'
-                }`}
+                className={`px-3 py-1 border rounded ${currentPage === i + 1 ? 'bg-black text-white' : 'hover:bg-gray-200'}`}
               >
                 {i + 1}
               </button>
@@ -217,9 +231,7 @@ const PropertiesListing = ({ params }: { params: string }) => {
 
             <button
               className="px-3 py-1 border rounded disabled:opacity-50"
-              onClick={() =>
-                setCurrentPage(prev => Math.min(prev + 1, totalPages))
-              }
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
             >
               {t('PropertiesListCard.next')}
