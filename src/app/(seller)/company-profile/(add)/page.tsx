@@ -62,7 +62,7 @@ const AddCompanyProfile = () => {
       if (response.status === '201') {
         toast.success('Company profile created successfully!')
 
-        router.push('/')
+        router.push('/home')
       }
     } catch (error: any) {
       console.error('Create failed:', error)

@@ -91,7 +91,7 @@ export default function SignupPage() {
       const successMessage = response.data?.message || response.message || 'OTP verified successfully'
       toast.success(successMessage)
 
-      router.push('/')
+      router.push('/home')
     } catch (error) {
       console.error('Signup Error:', error)
       toast.error('Registration failed')

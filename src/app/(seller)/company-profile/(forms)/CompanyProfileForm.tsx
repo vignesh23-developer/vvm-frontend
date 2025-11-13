@@ -189,7 +189,7 @@ const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({ initialValues, 
               <div className="flex justify-end items-center gap-3 pt-3 border-t border-gray-100">
                 <Button
                   type="button"
-                  onClick={() => router.push('/')}
+                  onClick={() => router.push('/home')}
                   className="px-5 py-2 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium transition"
                 >
                   Cancel
