@@ -62,11 +62,11 @@ export default function Step1BasicDetails({ formik, data, onGetPropertyCategoryF
                 type="button"
                 aria-pressed={values.propertyType === val.id}
                 onClick={async () => onSelectPropertyHandler(val.id)}
-                className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all
+                className={`flex items-center gap-2 rounded-lg border-2 px-3 py-2 transition
                   ${values.propertyType === val.id ? 'border-[#7B1E1E] bg-red-50 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}
               >
                 {val.icon && (
-                  <div className="mb-2 flex justify-center">
+                  <div className="">
                     <LucideIconRenderer
                       iconName={val.icon as any}
                       size={20}
@@ -86,18 +86,18 @@ export default function Step1BasicDetails({ formik, data, onGetPropertyCategoryF
           <label className="block text-sm font-semibold text-gray-700">
             Purpose <span className="text-red-500">*</span>
           </label>
-          <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 mt-3">
             {(['SALE', 'RENT', 'LEASE'] as const).map(p => (
               <button
                 key={p}
                 type="button"
                 aria-pressed={values.purpose === p}
                 onClick={() => setFieldValue('purpose', p)}
-                className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all
+                className={`flex items-center gap-2 rounded-lg border-2 px-3 py-2 transition
                   ${values.purpose === p ? 'border-[#7B1E1E] bg-red-50 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}
               >
-                <span className="text-2xl mb-1">{p === 'SALE' ? '💰' : p === 'RENT' ? '🏠' : '📋'}</span>
-                <span className="text-sm font-medium">{p}</span>
+                <span className="">{p === 'SALE' ? '💰' : p === 'RENT' ? '🏠' : '📋'}</span>
+                <span className="text-sm text-gray-700 font-medium">{p}</span>
               </button>
             ))}
           </div>

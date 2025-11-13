@@ -20,6 +20,9 @@ export type AddressParts = {
   city?: string
   district?: string
   postalCode?: string
+  state?: string
+  country?: string
+  [key: string]: any
 }
 
 export default function LocationPickerModal({ open, setOpen, initialLat, initialLng, onLocationSelect }: LocationPickerModalProps) {
@@ -70,7 +73,7 @@ export default function LocationPickerModal({ open, setOpen, initialLat, initial
           if (response.results[0]) {
             const result = response.results?.[0]
             const components = result.address_components
-
+            console.log('geocode components:', components)
             const addressParts: AddressParts = {}
 
             for (const comp of components) {
@@ -84,11 +87,17 @@ export default function LocationPickerModal({ open, setOpen, initialLat, initial
               if (types.includes('locality')) {
                 addressParts.city = comp.long_name
               }
-              if (types.includes('administrative_area_level_2')) {
-                addressParts.district = comp.long_name
+              if (types.includes('administrative_area_level_1')) {
+                addressParts.state = comp.long_name
               }
               if (types.includes('postal_code')) {
                 addressParts.postalCode = comp.long_name
+              }
+              if (types.includes('country')) {
+                addressParts.country = comp.long_name
+              }
+              if (types.includes('administrative_area_level_3')) {
+                addressParts.district = comp.long_name
               }
             }
 

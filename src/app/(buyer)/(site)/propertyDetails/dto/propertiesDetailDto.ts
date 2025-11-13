@@ -51,12 +51,23 @@ export interface PropertyDetailsResponseDto {
   reports: any[]
 }
 
+export interface FeatureOption {
+  id: string
+  name: string
+  icon?: string
+  sort_order: number
+}
 export interface FeatureValue {
   id: string
   property_id: string
   feature_group_id: string | null
+  feature_group_name: string | null
+  feature_category_name: string | null
+  input_type: string
+  feature_type: string
   feature_category_id: string
   feature_option_ids: string[]
+  feature_options?: FeatureOption[]
   values: string | null
   units: string | null
   is_verified: boolean

@@ -13,6 +13,7 @@ interface TextFieldProps {
   maxLength?: number
   rows?: number
   isrequired?: boolean
+  children?: React.ReactNode
 }
 
 export default function FormikTextField({
@@ -25,6 +26,7 @@ export default function FormikTextField({
   rows,
   disabled = false,
   isrequired = false,
+  children,
   className = 'w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none',
 }: TextFieldProps) {
   return (
@@ -32,6 +34,7 @@ export default function FormikTextField({
       <label htmlFor={name} className="block text-sm font-medium mb-1">
         {label} {isrequired && <span className="text-red-500">*</span>}
       </label>
+      <span>{children}</span>
       <Field
         id={name}
         name={name}

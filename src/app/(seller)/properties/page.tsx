@@ -142,16 +142,16 @@ export default function PropertiesPage() {
       </div>
 
       {/* Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="">
         {/* Table Section */}
-        <div className="col-span-2 bg-white rounded-xl shadow p-4">
+        <div className="bg-white rounded-xl shadow p-4">
           <DataTable columns={columns} actions={actions} fetchData={fetchProperties} loading={isLoading} isPagination={true} />
         </div>
-
         {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Pie Chart */}
-          <div className="bg-white rounded-xl shadow p-4">
+
+        {/* <div className="space-y-6 mt-4"> */}
+        {/* Pie Chart */}
+        {/* <div className="bg-white rounded-xl shadow p-4">
             <h3 className="font-semibold mb-4 text-gray-700">Properties by Status</h3>
             <ResponsiveContainer width="100%" height={200}>
               <PieChart>
@@ -164,10 +164,10 @@ export default function PropertiesPage() {
                 <Legend verticalAlign="bottom" height={36} />
               </PieChart>
             </ResponsiveContainer>
-          </div>
+          </div> */}
 
-          {/* Bar Chart */}
-          {/* <div className="bg-white rounded-xl shadow p-4">
+        {/* Bar Chart */}
+        {/* <div className="bg-white rounded-xl shadow p-4">
             <h3 className="font-semibold mb-4 text-gray-700">Properties Added Over Time</h3>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={monthlyData}>
@@ -179,8 +179,8 @@ export default function PropertiesPage() {
             </ResponsiveContainer>
           </div> */}
 
-          {/* Agents */}
-          {/* <div className="bg-white rounded-xl shadow p-4">
+        {/* Agents */}
+        {/* <div className="bg-white rounded-xl shadow p-4">
             <h3 className="font-semibold mb-4 text-gray-700">Top Performing Agents</h3>
             <ul className="space-y-2 text-gray-700">
               <li>🏆 Emnia Taylor</li>
@@ -188,7 +188,7 @@ export default function PropertiesPage() {
               <li>🏆 Noah Smith</li>
             </ul>
           </div> */}
-        </div>
+        {/* </div> */}
       </div>
     </div>
   )

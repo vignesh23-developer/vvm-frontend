@@ -7,7 +7,6 @@ import {
   Menu,
   X,
   Globe,
-  User,
   LogOut,
   ArrowRight,
   Building,
@@ -19,12 +18,15 @@ import {
   Info,
   HelpCircle,
   Tag,
-  House,
   CircleUserRound,
   Grip,
   Megaphone,
   CreditCard,
   CircleSmall,
+  Building2,
+  User,
+  Crown,
+  BadgeIndianRupee,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTranslationContext } from '@/hooks/Translation/TranslationProvider'
@@ -54,6 +56,7 @@ interface NavbarProps {
 }
 
 interface userData {
+  id: string
   firstName: string
   lastName: string
   email: string
@@ -139,14 +142,17 @@ const DASHBOARD_SECTIONS: NavItem[] = [
   },
 ]
 
-const PROFILE_SECTIONS: NavItem[] = [
+const PROFILE_SECTIONS = (userId: string, companyId: string): NavItem[] => [
   {
     label: 'profile',
     href: '/profile/settings',
     icon: <CircleUserRound size={16} />,
     subMenu: [
-      { label: 'profile', href: '/profile', icon: <User size={16} /> },
-      { label: 'logout', href: '/logout' },
+      { label: 'profile', href: `/profile/${userId}`, icon: <User size={16} /> },
+      { label: 'company profile', href: `/company-profile/${companyId}`, icon: <Building2 size={16} /> },
+      { label: 'view subscriptions', href: '/view-subscriptions', icon: <Crown size={16} /> },
+      { label: 'view transactions', href: '/admin/dashboard/view-transactions', icon: <BadgeIndianRupee size={16} /> },
+      { label: 'logout', href: '/logout', icon: <LogOut size={16} /> },
     ],
   },
 ]
@@ -186,6 +192,7 @@ export default function Navbar({
 
     if (authToken && userData) {
       setUserValue({
+        id: userData?.id,
         firstName: userData?.firstName ? userData.firstName.charAt(0).toUpperCase() + userData.firstName.slice(1) : '',
         lastName: userData?.lastName ? userData.lastName.charAt(0).toUpperCase() + userData.lastName.slice(1) : '',
         email: userData?.email,
@@ -370,7 +377,7 @@ export default function Navbar({
                     height={32}
                     className="rounded-lg"
                   /> */}
-                  <CircleUserRound size={24} color="white" />
+                  <User size={24} color="white" />
                 </Button>
 
                 {isProfileOpen && (
@@ -380,8 +387,20 @@ export default function Navbar({
                         {userValue?.firstName} {userValue?.lastName}
                       </span>
                     </div>
-                    <Link href="/profile" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
+                    <Link href={`/profile/${userValue?.id}`} className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
                       <User size={16} /> {t('Navbar.profile')}
+                    </Link>
+                    <Link
+                      href={`/company-profile/${userValue?.companyId}`}
+                      className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition"
+                    >
+                      <Building2 size={16} /> {t('Navbar.company profile')}
+                    </Link>
+                    <Link href="/view-subscriptions" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
+                      <Crown size={16} /> {t('Navbar.view subscriptions')}
+                    </Link>
+                    <Link href="/view-transactions" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
+                      <BadgeIndianRupee size={16} /> {t('Navbar.view transactions')}
                     </Link>
                     <Button
                       onClick={handleLogout}
@@ -462,9 +481,7 @@ export default function Navbar({
                         onClick={() => setIsMenuOpen(false)}
                         className="flex items-center gap-2 px-4 py-1 text-sm text-gray-200 hover:text-white transition no-underline"
                       >
-                        <span className="text-gray-400">
-                          <CircleSmall size={12} />
-                        </span>
+                        <span className="text-gray-400">{sub.icon ? sub.icon : <CircleSmall size={12} />}</span>
                         {t(`Navbar.subMenus.${sub.label}`)}
                       </Link>
                     ))}
@@ -472,6 +489,57 @@ export default function Navbar({
                 )}
               </div>
             ))}
+
+          {/* Profile / Login Section */}
+          {userValue
+            ? PROFILE_SECTIONS(userValue.id, userValue.companyId).map(section => (
+                <div key={section.label} className="w-full mt-2 border-t border-white/20 pt-2">
+                  <Button
+                    onClick={() => toggleSection(section.label)}
+                    className="flex justify-between items-center w-full text-left text-white font-medium py-2 px-2 rounded-lg hover:bg-white/10"
+                  >
+                    <span className="flex items-center gap-2">
+                      {section.icon}
+                      {t(`Navbar.${section.label}`)}
+                    </span>
+                    {openSections.has(section.label) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  </Button>
+
+                  {/* Header */}
+                  {openSections.has(section.label) && (
+                    <>
+                      <div className="px-4 py-3 border-b border-gray-200 text-center">
+                        <span className="font-semibold text-sm block truncate">
+                          {userValue?.firstName} {userValue?.lastName}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-col pl-4 space-y-1">
+                        {section.subMenu?.map((sub: any) => (
+                          <Link
+                            key={sub.href}
+                            href={sub.href}
+                            onClick={() => setIsMenuOpen(false)}
+                            className="flex items-center gap-2 px-4 py-1 text-sm text-gray-200 hover:text-white transition no-underline"
+                          >
+                            <span className="text-gray-400">{sub.icon ? sub.icon : <CircleSmall size={12} />}</span>
+                            {t(`Navbar.subMenus.${sub.label}`)}
+                          </Link>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))
+            : showLoginButton && (
+                <Link
+                  href="/login"
+                  className="flex items-center gap-2 bg-white text-[#3b1804] px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition text-sm md:text-base mt-4"
+                >
+                  {t('Auth.login')}
+                  <ArrowRight size={18} />{' '}
+                </Link>
+              )}
 
           {/* Keep your language selector & profile/login below unchanged */}
           {showLanguageSelector && (
@@ -490,73 +558,6 @@ export default function Navbar({
                 </option>
               </select>
             </div>
-          )}
-
-          {/* Profile / Login Section */}
-          {userValue ? (
-            <div className="relative mt-4">
-              {/* Header */}
-              <div className="px-4 py-3 border-b border-gray-200 text-center">
-                <span className="font-semibold text-sm block truncate">
-                  {userValue?.firstName} {userValue?.lastName}
-                </span>
-              </div>
-
-              {/* Profile Sections */}
-              {PROFILE_SECTIONS.map(item => (
-                <div key={item.label}>
-                  <Button
-                    onClick={() => toggleSection(item.label)}
-                    className="flex justify-between items-center w-full text-left text-white font-medium py-2 px-2 rounded-lg hover:bg-white/10"
-                  >
-                    <span className="flex items-center gap-2">
-                      {item.icon}
-                      {t(`Navbar.${item.label}`)}
-                    </span>
-                    {openSections.has(item.label) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                  </Button>
-
-                  {/* SubMenu items (like logout) */}
-                  {openSections.has(item.label) && (
-                    <div className="flex flex-col pl-6 mt-1">
-                      {item.subMenu?.map(sub =>
-                        sub.label === 'logout' ? (
-                          <Button
-                            key={sub.label}
-                            onClick={() => {
-                              setIsProfileOpen(false)
-                              handleLogout()
-                            }}
-                            className="flex items-center gap-2  w-full text-left px-4 py-3 hover:bg-gray-100 text-sm transition text-white"
-                          >
-                            <LogOut size={16} /> {t(`Navbar.${sub.label}`)}
-                          </Button>
-                        ) : (
-                          <Link
-                            key={sub.label}
-                            href={sub.href}
-                            onClick={() => setIsProfileOpen(false)}
-                            className="flex items-center gap-2 px-4 py-3 hover:bg-gray-100 text-sm transition"
-                          >
-                            {sub.icon} {t(`Navbar.${sub.label}`)}
-                          </Link>
-                        ),
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            showLoginButton && (
-              <Link
-                href="/login"
-                className="flex items-center gap-2 bg-white text-[#3b1804] px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition text-sm md:text-base mt-4"
-              >
-                {t('Auth.login')}
-                <ArrowRight size={18} />{' '}
-              </Link>
-            )
           )}
         </div>
       </div>
