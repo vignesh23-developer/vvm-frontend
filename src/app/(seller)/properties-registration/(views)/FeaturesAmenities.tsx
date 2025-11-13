@@ -178,7 +178,7 @@ export default function Step4FeaturesAmenities({
             {feature_category_name} {is_mandatory && <span className="text-red-500">*</span>}
           </label>
 
-          <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 mt-3">
             {options?.map(opt => {
               const selected = selectedOptions.includes(opt.id)
 
@@ -211,16 +211,16 @@ export default function Step4FeaturesAmenities({
                       })
                     }
                   }}
-                  className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all ${
+                  className={`flex items-center gap-2 rounded-lg border-2 px-3 py-2 transition ${
                     selected ? 'border-[#7B1E1E] bg-red-50 shadow-sm' : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
                   {opt.icon && (
-                    <div className="mt-2 flex justify-center">
+                    <div className="">
                       <LucideIconRenderer iconName={opt.icon} size={20} color={selected ? 'text-[#7B1E1E]' : 'text-gray-700'} />
                     </div>
                   )}
-                  <span className="mt-1 block text-center text-sm font-medium text-gray-800">{opt.name}</span>
+                  <span className="text-sm text-gray-700 font-medium">{opt.name}</span>
                 </button>
               )
             })}
@@ -244,6 +244,7 @@ export default function Step4FeaturesAmenities({
         <div key={group.groupId} className="mb-8">
           <h3 className="text-lg font-semibold mb-4">{group.groupName}</h3>
           <div className="flex flex-col space-y-4.5">{group.categories.map(renderInputField)}</div>
+          {group !== groupedAmenities[groupedAmenities.length - 1] && <hr className="my-6 border-t-1 border-[#7B1E1E] rounded-full" />}
         </div>
       ))}
     </div>

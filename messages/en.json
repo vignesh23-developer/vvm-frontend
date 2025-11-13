@@ -59,8 +59,14 @@
     "users": "Users",
     "support" : "Support",
     "profile": "Profile",
+    "company profile": "Company Profile",
+    "view subscriptions": "View Subscriptions",
+    "view transactions": "View Transactions",
     "logout": "Logout",
     "subMenus": {
+      "profile": "Profile",
+      "company profile": "Company Profile",
+      "logout": "Logout",
       "agency_details": "Agency Details",
       "feature_category": "Feature Category",
       "users": "Users",
@@ -101,6 +107,7 @@
       "payment reports / revenue summary": "Payment Reports / Revenue Summary",
       "refund management": "Refund Management",
       "promo usage reports": "Promo Usage Reports"
+
     }
   },
   "PopularProperties": {
@@ -183,6 +190,7 @@
   "PropertiesDetails" : {
     "name": "Name",
     "contact_owner" : "Contact Owner",
+    "view_contact": "View Contact",
     "bed_rooms": "Bed Rooms",
     "bath_rooms": "Bath Rooms",
     "balcony" : "Balcony",
@@ -190,6 +198,8 @@
     "super_built_up_area" : "Super Built-up Area",
     "status" : "Status",
     "purpose": "Purpose",
+    "listing_type": "Listing Type",
+    "property_type": "Property Type",
     "floors": "Floors",
     "parking": "Parking",
     "age_of_building": "Age of Building",

@@ -25,22 +25,22 @@ const Login = () => {
   const t = useTranslations()
   const [buttonType, setButtonType] = useState<'sms' | 'whatsapp'>('sms')
   const router = useRouter()
-  const pathname = usePathname()
-  const token = getLocalStorageItem('authToken')
+  // const pathname = usePathname()
+  // const token = getLocalStorageItem('authToken')
 
-  useEffect(() => {
-    const publicRoutes = ['/', '/about', '/services', '/pricing', '/help-center', '/login', '/register']
+  // useEffect(() => {
+  //   const publicRoutes = ['/', '/about', '/services', '/pricing', '/help-center', '/login', '/register']
 
-    // If user not logged in AND tries to access a protected route
-    if (!token && !publicRoutes.includes(pathname)) {
-      router.push('/login')
-    }
+  //   // If user not logged in AND tries to access a protected route
+  //   if (!token && !publicRoutes.includes(pathname)) {
+  //     router.push('/login')
+  //   }
 
-    // If user is logged in AND tries to access login/register, redirect to home
-    if (token && ['/login', '/register'].includes(pathname)) {
-      router.push('/')
-    }
-  }, [token, pathname, router])
+  //   // If user is logged in AND tries to access login/register, redirect to home
+  //   if (token && ['/login', '/register'].includes(pathname)) {
+  //     router.push('/')
+  //   }
+  // }, [token, pathname, router])
 
   const initialValues: AuthFormValues = { phone: '' }
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Heart, Share2, MessageSquare, Flag, MapPin } from 'lucide-react'
 import Amenities from '@/components/buyer/Amenities/Amenities'
@@ -15,6 +15,8 @@ import FavoriteButton from '@/components/ui/CustomComponent/FavoriteButton/Favor
 import { appEndpoints } from '@/services/endpoints'
 import { deleteMethod, postMethod } from '@/services/service'
 import EnquiryPropertyModal from './modal/EnquiryPropertyModal'
+import { getLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
+import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
 
 // Reusable animation variants
 const fadeInUp: Variants = {
@@ -31,14 +33,12 @@ const staggerContainer: Variants = {
     },
   },
 }
-
-const imagesValue = [
-  { src: '/villa.png', alt: 'Villa Image 1' },
-  { src: '/property2.png', alt: 'Property Image 2' },
-  { src: '/property3.png', alt: 'Property Image 3' },
-  { src: '/property1.png', alt: 'Property Image 1' },
-]
-
+interface userData {
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+}
 const page = () => {
   const t = useTranslations()
   const params = useParams<{ id: string | string[] }>()
@@ -48,6 +48,18 @@ const page = () => {
   const [reportModalOpen, setReportModalOpen] = useState(false)
   const [enquiryModalOpen, setEnquiryModalOpen] = useState(false)
   const { propertyDetailsData, propertyDetailsFetchLoader, propertyDetailsFetchErr, propertyDetailsRefresh } = usePropertiesDetail({ id: propertyId })
+  const [userValue, setUserValue] = useState<userData | null>(null)
+
+  useEffect(() => {
+    const storedUser = getLocalStorageItem(LOCAL_STORAGE_NAME.userData) as userData
+    if (storedUser) {
+      setUserValue(storedUser)
+    }
+  }, [])
+
+  // Show full owner contact only when user is available; otherwise mask with 'xxx'
+  const ownerNameDisplay = userValue ? propertyDetailsData?.contact_name ?? 'Unknown' : 'xxxxx'
+  const ownerPhoneDisplay = userValue ? propertyDetailsData?.contact_phone ?? 'Unknown' : 'xxxxx'
 
   const handleFavorite = async (propertyId: string) => {
     const isFav = favoritedProperties.has(propertyId)
@@ -110,7 +122,9 @@ const page = () => {
               <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }}>
                 <h1 className="text-xl font-semibold">{propertyDetailsData?.title}</h1>
                 <p className="text-gray-800 mt-2">₹ {propertyDetailsData?.price}</p>
-                <p className="text-sm text-gray-500">₹19,465 per sqft</p>
+                <p className="text-sm text-gray-500">
+                  {propertyDetailsData?.property_size} {propertyDetailsData?.property_size_unit}
+                </p>
               </motion.div>
 
               <motion.div className="flex gap-3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }}>
@@ -132,7 +146,7 @@ const page = () => {
             {/* Image Gallery */}
             <motion.div className="relative w-full flex gap-3 px-5" variants={fadeInUp}>
               <motion.div transition={{ duration: 0.25 }} className="relative flex-1 rounded-xl overflow-hidden shadow-sm">
-                <ImageViewer images={imagesValue.map(img => img.src)} />
+                <ImageViewer images={propertyDetailsData?.media.map(img => img.url)} />
               </motion.div>
             </motion.div>
 
@@ -148,9 +162,10 @@ const page = () => {
             <motion.div variants={fadeInUp} className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 p-6 text-sm">
               {[
                 [t('PropertiesDetails.super_built_up_area'), `${propertyDetailsData?.property_size} ${propertyDetailsData?.property_size_unit}`],
-                [t('PropertiesDetails.status'), `${propertyDetailsData?.status}`],
-                [t('PropertiesDetails.purpose'), `${propertyDetailsData?.listing_type}`],
+
+                [t('PropertiesDetails.listing_type'), `${propertyDetailsData?.listing_type}`],
                 [t('PropertiesDetails.price'), `₹ ${propertyDetailsData?.price}`],
+                [t('PropertiesDetails.status'), `${propertyDetailsData?.status}`],
               ].map(([label, value], idx) => (
                 <motion.div key={idx} whileHover={{ scale: 1.03 }}>
                   <p className="text-gray-600">{label}</p>
@@ -168,7 +183,7 @@ const page = () => {
 
           {/* Amenities */}
           <motion.div variants={fadeInUp} whileInView={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 40 }} transition={{ duration: 0.6 }}>
-            <Amenities title={t('PropertiesDetails.amenities')} />
+            <Amenities title={t('PropertiesDetails.amenities')} PropertyAmenities={propertyDetailsData?.feature_values} />
           </motion.div>
           {/* Map Section */}
           <motion.div variants={fadeInUp} whileInView={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 40 }} transition={{ duration: 0.6 }}>
@@ -194,9 +209,9 @@ const page = () => {
           <motion.div whileHover={{ scale: 1.03 }} className="bg-white shadow-md rounded-xl p-6">
             <h3 className="text-lg font-bold mb-2">{t('PropertiesDetails.contact_owner')}</h3>
             <p className="text-gray-700 font-medium">
-              {t('PropertiesDetails.name')}: {propertyDetailsData?.contact_name || 'Unknown'}
+              {t('PropertiesDetails.name')}: {ownerNameDisplay}
             </p>
-            <p className="text-gray-700 mb-4">{propertyDetailsData?.contact_phone || 'Unknown'}</p>
+            <p className="text-gray-700 mb-4">{ownerPhoneDisplay}</p>
 
             <div className="space-y-3">
               <motion.div
@@ -211,7 +226,7 @@ const page = () => {
                   onClick={() => {}}
                   className="w-full bg-[#4E3B39] text-white px-4 py-2 rounded-lg shadow-md transition font-medium"
                 >
-                  {t('PropertiesDetails.contact_owner')}
+                  {t('PropertiesDetails.view_contact') || 'View Contact'}
                 </Button>
               </motion.div>
 

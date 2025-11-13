@@ -1,3 +1,5 @@
+import { create } from 'domain'
+
 export const appEndpoints = {
   // Authentication Endpoints
   login: '/login',
@@ -79,7 +81,7 @@ export const appEndpoints = {
 
   addPropertyMediaLink: (propertyId: string) => `/property-media/${propertyId}`,
   addPropertyMediaLocal: (propertyId: string) => `/property-media/${propertyId}/upload`,
-  
+
   // Ads Endpoints
   createAd: '/ads',
   getAllAds: '/ads',
@@ -95,4 +97,12 @@ export const appEndpoints = {
   createPropertyEnquiry: '/user-interactions/enquiries',
   getPropertyEnquiry: '/user-interactions/enquiries',
 
+  // agent company profile
+  createCompanyProfile: '/agent-company-profiles',
+  getCompanyProfile: '/agent-company-profiles',
+  getCompanyProfileByID: (agentId: string) => `/agent-company-profiles/${agentId}`,
+  updateCompanyProfile: (agentId: string) => `/agent-company-profiles/${agentId}`,
+  verifyCompanyProfileName: (profileName: string) => `/agent-company-profiles/verify-profile-name?name=${encodeURIComponent(profileName)}`,
+  validateProfileName: '/agent-company-profiles/validate-profile-name',
+  deleteCompanyProfile: (agentId: string) => `/agent-company-profiles/${agentId}`,
 }
