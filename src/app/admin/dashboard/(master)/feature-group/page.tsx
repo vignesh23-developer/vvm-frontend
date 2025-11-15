@@ -5,6 +5,7 @@ import { useCallback, useMemo } from 'react'
 import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
 import { useFeatureGroup } from '@/app/admin/dashboard/(master)/feature-group/(hooks)/useFeatureGroup'
 import { FeatureGroup } from '@/app/admin/dashboard/(master)/feature-group/(dto)/FeatureGroupType'
+import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 
 type FeatureGroupTableRow = FeatureGroup & Record<string, unknown>
 
@@ -19,7 +20,7 @@ export default function FeatureGroupPage() {
     mutateGroups, // ✅ now included
   } = useFeatureGroup()
 
-  // ✅ Columns definition
+  // Columns definition
 
   const columns = useMemo(
     () => [
@@ -75,12 +76,12 @@ export default function FeatureGroupPage() {
     }
   }, [groups])
 
-  // ✅ Handle loading and error states
+  //  Handle loading and error states
   if (error) return <div className="p-6 text-red-600">Failed to load feature group.</div>
 
-  if (isLoading) return <div className="p-6 text-gray-600 animate-pulse">Loading feature group...</div>
+  if (isLoading) return <CustomLoader text="Loading feature group..." />
 
-  // ✅ Render UI
+  // Render UI
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       {/* Header */}

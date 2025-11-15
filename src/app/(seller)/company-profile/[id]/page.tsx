@@ -3,14 +3,16 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { appEndpoints } from '@/services/endpoints'
-import { getMethod } from '@/services/service'
-
+import { getMethod, patchMethod } from '@/services/service'
 import CompanyProfileForm, { CompanyFormValues } from '../(forms)/CompanyProfileForm'
 import { ResponseDTO } from '@/components/dto/response_dto'
+import { toast } from 'react-hot-toast'
+import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 
 const EditCompanyProfile = () => {
   const [initialValues, setInitialValues] = useState<CompanyFormValues | null>(null)
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
   const params = useParams()
   const id = params?.id
 
@@ -73,12 +75,22 @@ const EditCompanyProfile = () => {
   }, [id])
 
   const handleSubmit = async (values: any) => {
-    // Handle form submission logic here
-    console.log('Form submitted with values:', values)
+    try {
+      const response: ResponseDTO = await patchMethod(appEndpoints.updateCompanyProfile(id as string), values)
+
+      if (response.status === '200') {
+        toast.success('Company profile updated successfully!')
+
+        router.push('/home')
+      }
+    } catch (error: any) {
+      console.error('Create failed:', error)
+      toast.error(error?.message || 'Something went wrong!')
+    }
   }
 
   if (loading || !initialValues) {
-    return <div>Loading...</div>
+    return <CustomLoader text="Loading company profile..." />
   }
   return (
     <div>

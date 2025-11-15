@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Formik, Form } from 'formik'
 import * as Yup from 'yup'
 import toast from 'react-hot-toast'
@@ -24,6 +25,7 @@ interface Props {
 
 const PropertyCategoryMappingForm = ({ propertyCategory, featuresGrouped, onSuccess }: Props) => {
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
+  const router = useRouter()
 
   const toggleCollapse = (id: string) => setCollapsed(prev => ({ ...prev, [id]: !prev[id] }))
 
@@ -51,7 +53,7 @@ const PropertyCategoryMappingForm = ({ propertyCategory, featuresGrouped, onSucc
         mappings:
           values.featuresGrouped
             ?.flatMap(group => group.features || [])
-            // .filter(feature => feature.isMapped)
+            .filter(feature => feature.isMapped)
             .map(feature => ({
               feature_category_id: feature.id,
               feature_category_name: feature.name,
@@ -89,6 +91,8 @@ const PropertyCategoryMappingForm = ({ propertyCategory, featuresGrouped, onSucc
   const FeatureButton = ({ groupIdx, featureIdx, f, values, setFieldValue }: any) => {
     const fieldPath = `featuresGrouped[${groupIdx}].features[${featureIdx}].isMapped`
     const isSelected = values.featuresGrouped[groupIdx].features[featureIdx].isMapped
+
+    console.log('Rendering FeatureButton:', f.name, 'Selected:', isSelected, featuresGrouped)
 
     const toggle = () => setFieldValue(fieldPath, !isSelected)
 
@@ -171,13 +175,25 @@ const PropertyCategoryMappingForm = ({ propertyCategory, featuresGrouped, onSucc
             )
           })}
 
-          {/* Submit */}
-          <div className="flex justify-end mt-6">
+          {/* Action Buttons */}
+          <div className="flex justify-end mt-6 gap-3">
+            {/* Cancel Button */}
+            <Button
+              type="button"
+              onClick={() => router.push('/admin/dashboard/property-category')}
+              className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-5 py-2 rounded-md transition-colors"
+            >
+              Cancel
+            </Button>
+
+            {/* Save Button */}
             <Button
               type="submit"
               disabled={isSubmitting}
               onClick={() => {}}
-              className="bg-[#7B1E1E] hover:bg-[#641717] cursor-pointer text-white px-5 py-2 rounded-md"
+              className={`px-5 py-2 rounded-md text-white transition-colors ${
+                isSubmitting ? 'bg-[#a05c5c] cursor-not-allowed' : 'bg-[#7B1E1E] hover:bg-[#641717] cursor-pointer'
+              }`}
             >
               {isSubmitting ? 'Saving...' : 'Save Configuration'}
             </Button>

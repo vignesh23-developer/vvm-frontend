@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import Loader from '@/components/ui/CustomComponent/Loader/Loader'
+import Loader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 
 export default function RouteLoader() {
   const pathname = usePathname()

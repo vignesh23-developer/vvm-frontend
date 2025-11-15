@@ -5,6 +5,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import MapView from '@/components/ui/map/MapView'
 import { X } from 'lucide-react'
 import toast from 'react-hot-toast'
+import Button from '../CustomComponent/Button/Button'
 
 type LocationPickerModalProps = {
   open: boolean
@@ -148,12 +149,12 @@ export default function LocationPickerModal({ open, setOpen, initialLat, initial
         </div>
         {/* Footer */}
         <div className="px-4 py-3 flex justify-end gap-2">
-          <button type="button" className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300" onClick={() => setOpen(false)}>
+          <Button type="button" className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300" onClick={() => setOpen(false)}>
             Cancel
-          </button>
-          <button type="button" className="px-4 py-2 rounded bg-[#7B1E1E] text-white hover:bg-blue-700" onClick={handleSave}>
+          </Button>
+          <Button type="button" className="px-4 py-2 rounded bg-[#7B1E1E] text-white hover:bg-blue-700" onClick={handleSave}>
             Save Location
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -7,6 +7,7 @@ import { getMethod, patchMethod } from '@/services/service'
 import { FormValues } from '@/app/admin/dashboard/(master)/feature-group/(dto)/FeatureGroupType'
 import FeatureGroupForm from '@/app/admin/dashboard/(master)/feature-group/(forms)/FeatureGroupForm'
 import toast from 'react-hot-toast'
+import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 
 export default function EditFeatureGroup() {
   const router = useRouter()
@@ -60,7 +61,7 @@ export default function EditFeatureGroup() {
   }
 
   /** 🔹 Loading / error states */
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-600">Loading feature group details...</div>
+  if (loading) return <CustomLoader text="Loading feature group details..." />
 
   if (!initialValues) return <div className="min-h-screen flex items-center justify-center text-gray-500">Feature Group not found.</div>
 

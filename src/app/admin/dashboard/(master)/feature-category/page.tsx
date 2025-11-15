@@ -5,12 +5,11 @@ import { useCallback, useMemo, useState } from 'react'
 import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
 import { useFeatureCategories } from '@/app/admin/dashboard/(master)/feature-category/(hooks)/useFeatureCategories'
 import { FeatureCategory } from '@/app/admin/dashboard/(master)/feature-category/(dto)/featureCategoryType'
+import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 
 type FeatureCategoryTableRow = FeatureCategory & Record<string, unknown>
 export default function FeatureCategoryPage() {
   const { categories, error, isLoading, handleAdd, handleEdit, handleDelete } = useFeatureCategories()
-
-  // const [icon, setIcon] = useState<string>('')
 
   const columns = useMemo(
     () => [
@@ -20,6 +19,7 @@ export default function FeatureCategoryPage() {
         sortable: true,
         filterable: true,
       },
+
       {
         field: 'name',
         title: 'Feature Category',
@@ -62,7 +62,7 @@ export default function FeatureCategoryPage() {
   }, [categories])
 
   if (error) return <div className="p-6 text-red-600">Failed to load feature categories.</div>
-  if (isLoading) return <div className="p-6 text-gray-600 animate-pulse">Loading feature categories...</div>
+  if (isLoading) return <CustomLoader text="Loading feature categories..." />
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">

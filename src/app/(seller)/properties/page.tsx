@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useProperties } from '@/app/(seller)/properties/(hooks)/useProperties'
 import { PropertiesDto } from '@/app/(seller)/properties/dto/PropertiesDto'
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts'
@@ -25,8 +25,10 @@ type PropertiesTableRow = PropertiesDto & Record<string, unknown>
 
 export default function PropertiesPage() {
   const router = useRouter()
-  const { properties, handleEdit, handleDelete, total, error, isLoading, mutateProperties, handlePropertyAction } = useProperties()
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
 
+  const { properties, handleEdit, handleDelete, total, error, isLoading, mutateProperties, handlePropertyAction } = useProperties({ page, limit })
   const columns = [
     {
       field: 'title',
@@ -63,6 +65,18 @@ export default function PropertiesPage() {
       title: 'Status',
       sortable: true,
       filterable: true,
+      render: (item: any) => {
+        const status = item
+
+        const colorClass =
+          status === 'AVAILABLE'
+            ? 'bg-green-100 text-green-700 border border-green-300'
+            : status === 'INACTIVE'
+            ? 'bg-red-100 text-red-700 border border-red-300'
+            : 'bg-yellow-100 text-yellow-700 border border-yellow-300'
+
+        return <span className={`px-3 py-1 rounded-full text-xs font-semibold ${colorClass}`}>{status}</span>
+      },
     },
     {
       field: 'contact_phone',
@@ -103,14 +117,25 @@ export default function PropertiesPage() {
     }, {}),
   )
 
-  console.log('statusPieData', statusPieData)
   const fetchProperties = useCallback(async (): Promise<{ data: PropertiesTableRow[]; totalItems: number }> => {
     const latestProperties = (properties ?? []) as PropertiesTableRow[]
     return {
       data: latestProperties,
-      totalItems: latestProperties.length,
+      // Use the server total when available so DataTable computes correct pages
+      totalItems: typeof total === 'number' ? total : latestProperties.length,
     }
   }, [properties])
+
+  const handleRefresh = async () => {
+    try {
+      // If you need to perform any server-side work before refreshing, do it here.
+      // The important part is to await the mutate so callers can wait for fresh data.
+      await mutateProperties()
+    } catch (err) {
+      console.error('PropertiesPage: refresh failed', err)
+      throw err instanceof Error ? err : new Error('Refresh failed')
+    }
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -145,7 +170,21 @@ export default function PropertiesPage() {
       <div className="">
         {/* Table Section */}
         <div className="bg-white rounded-xl shadow p-4">
-          <DataTable columns={columns} actions={actions} fetchData={fetchProperties} loading={isLoading} isPagination={true} />
+          <DataTable
+            columns={columns}
+            actions={actions}
+            fetchData={fetchProperties}
+            loading={isLoading}
+            isPagination={true}
+            initialPage={page}
+            pageSize={limit}
+            totalItemsData={total}
+            totalPageData={Math.ceil(total / limit)}
+            pageSizeOptions={[5, 10, 25, 50, 100]}
+            setPage={setPage}
+            setCurrentPageSize={setLimit}
+            onRefresh={handleRefresh}
+          />
         </div>
         {/* Sidebar */}
 

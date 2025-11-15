@@ -7,8 +7,8 @@ export function middleware(request: NextRequest) {
   const token = getLocalStorageItem('authToken')
 
   // Redirect root path `/` depending on login
-  if (request.nextUrl.pathname === '/') {
-    const redirectUrl = new URL(token ? '/' : '/login', request.url)
+  if (request.nextUrl.pathname === '/home') {
+    const redirectUrl = new URL(token ? '/home' : '/login', request.url)
     return NextResponse.redirect(redirectUrl)
   }
 
@@ -16,5 +16,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/'], // apply middleware to `/`
+  matcher: ['/home'], // apply middleware to `/`
 }

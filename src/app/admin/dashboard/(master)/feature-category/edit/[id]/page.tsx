@@ -11,6 +11,7 @@ import type {
 import { getMethod, patchMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import toast from 'react-hot-toast'
+import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 
 const resolveInputType = (value?: string): FeatureInputType => {
   const allowed: FeatureInputType[] = ['single_select', 'multi_select', 'text', 'numeric', 'boolean', 'units']
@@ -114,7 +115,7 @@ export default function EditFeatureCategory() {
     }
   }
 
-  if (loading) return <p className="text-center mt-10">Loading...</p>
+  if (loading) return <CustomLoader text="Loading feature categories details..." />
 
   if (!initialValues) return <p className="text-center mt-10 text-red-500">Category not found</p>
 

@@ -7,7 +7,8 @@ export const companyProfileSchema = Yup.object().shape({
   profileName: Yup.string()
     .trim()
     .required('Profile name is required')
-    .matches(/^(?!.*\/)[^\s]+$/, 'Profile name cannot contain spaces or "/"'),
+    .matches(/^[A-Za-z0-9@_-]+$/, 'Only letters, numbers, and symbols "-", "_", "@" are allowed'),
+
   contact_name: Yup.string().trim().required('Contact name is required'),
   contact_phone: Yup.string()
     .trim()
@@ -20,9 +21,5 @@ export const companyProfileSchema = Yup.object().shape({
     .min(0, 'Expiry days cannot be negative')
     .required('Expiry days is required'),
   address_line: Yup.string().trim().required('Address line is required'),
-  city: Yup.string().trim().required('City is required'),
-  district: Yup.string().trim().required('District is required'),
-  state: Yup.string().trim().required('State is required'),
   postal_code: Yup.string().trim().required('Postal code is required'),
-  country: Yup.string().trim().required('Country is required'),
 })

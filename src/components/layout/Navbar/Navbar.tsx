@@ -27,6 +27,7 @@ import {
   User,
   Crown,
   BadgeIndianRupee,
+  ChevronRight,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTranslationContext } from '@/hooks/Translation/TranslationProvider'
@@ -34,7 +35,8 @@ import { useTranslations } from 'next-intl'
 import LanguageSwitch from '@/components/ui/CustomComponent/languageSwitch/languageSwitch'
 import { getLocalStorageItem, removeLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
 import Button from '@/components/ui/CustomComponent/Button/Button'
-import { label } from 'framer-motion/client'
+import { appEndpoints } from '@/services/endpoints'
+import { getMethod } from '@/services/service'
 
 export interface NavLink {
   label: string
@@ -149,7 +151,7 @@ const PROFILE_SECTIONS = (userId: string, companyId: string): NavItem[] => [
     icon: <CircleUserRound size={16} />,
     subMenu: [
       { label: 'profile', href: `/profile/${userId}`, icon: <User size={16} /> },
-      { label: 'company profile', href: `/company-profile/${companyId}`, icon: <Building2 size={16} /> },
+      { label: 'company profile', href: companyId ? `/company-profile/${companyId}` : '/company-profile', icon: <Building2 size={16} /> },
       { label: 'view subscriptions', href: '/view-subscriptions', icon: <Crown size={16} /> },
       { label: 'view transactions', href: '/admin/dashboard/view-transactions', icon: <BadgeIndianRupee size={16} /> },
       { label: 'logout', href: '/logout', icon: <LogOut size={16} /> },
@@ -172,9 +174,7 @@ export default function Navbar({
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
-  const [openSubMenu, setOpenSubMenu] = useState<string | null>(null)
   const [userValue, setUserValue] = useState<any | null>(null)
-  // track independently-open sections (desktop & mobile)
   const [openSections, setOpenSections] = useState<Set<string>>(new Set())
   const gripRef = useRef<HTMLDivElement | null>(null)
   const profileRef = useRef<HTMLDivElement | null>(null)
@@ -190,14 +190,24 @@ export default function Navbar({
     const authToken = getLocalStorageItem('authToken')
     const userData = getLocalStorageItem('userData') as userData
 
-    if (authToken && userData) {
+    if (!authToken || !userData) return
+
+    setUserValue({
+      id: userData.id,
+      firstName: userData.firstName ? userData.firstName.charAt(0).toUpperCase() + userData.firstName.slice(1) : '',
+      lastName: userData.lastName ? userData.lastName.charAt(0).toUpperCase() + userData.lastName.slice(1) : '',
+      email: userData.email,
+    })
+    const fetchData = async () => {
+      const companyProfiles = await getMethod(appEndpoints.getCompanyProfilesByUserID(userData.id))
+      const companyProfilesData = Array.isArray(companyProfiles?.data) ? (companyProfiles.data as any[]) : []
       setUserValue({
-        id: userData?.id,
-        firstName: userData?.firstName ? userData.firstName.charAt(0).toUpperCase() + userData.firstName.slice(1) : '',
-        lastName: userData?.lastName ? userData.lastName.charAt(0).toUpperCase() + userData.lastName.slice(1) : '',
-        email: userData?.email,
+        ...userData,
+        companyId: companyProfilesData?.length > 0 ? companyProfilesData[0].id : '',
       })
     }
+
+    fetchData()
   }, [])
 
   // Close grip and profile dropdowns when clicking outside or pressing Escape
@@ -270,6 +280,8 @@ export default function Navbar({
     router.refresh()
   }
 
+  console.log('userValue in Navbar:', userValue)
+
   const handleLogout = () => {
     // Clear auth token and redirect to login
     removeLocalStorageItem('authToken')
@@ -281,7 +293,7 @@ export default function Navbar({
     <nav className="sticky top-0 z-50 shadow-md text-white transition-colors duration-300" style={{ backgroundColor: bgColor }}>
       <div className="flex items-center justify-between px-4 sm:px-6 md:px-8 lg:px-12 py-3 md:py-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center">
+        <Link href="/home" className="flex items-center">
           <Image
             src={logoSrc}
             alt="Logo"
@@ -325,7 +337,7 @@ export default function Navbar({
                 {/* Main Dropdown */}
                 {isOpen && (
                   <div className="absolute right-0 mt-2 bg-white text-[#3b1804] rounded-lg shadow-lg w-70 py-2 z-50 max-h-[70vh] overflow-y-auto">
-                    <Link href="/" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
+                    <Link href="/home" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
                       <Home size={16} /> {t('Navbar.Dashboard')}
                     </Link>
 
@@ -350,8 +362,8 @@ export default function Navbar({
                                 href={String(links.href)}
                                 className="flex items-center gap-2 px-4 py-1 hover:bg-gray-100 rounded-md text-sm transition"
                               >
-                                <span className="text-gray-400">
-                                  <CircleSmall size={12} />
+                                <span className="text-gray-500">
+                                  <ChevronRight size={16} />
                                 </span>
                                 {t(`Navbar.subMenus.${links.label}`)}
                               </Link>
@@ -391,7 +403,11 @@ export default function Navbar({
                       <User size={16} /> {t('Navbar.profile')}
                     </Link>
                     <Link
-                      href={`/company-profile/${userValue?.companyId}`}
+                      href={
+                        !!userValue?.companyId
+                          ? `/company-profile/${userValue?.companyId}` // EDIT MODE
+                          : `/company-profile` // ADD MODE
+                      }
                       className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition"
                     >
                       <Building2 size={16} /> {t('Navbar.company profile')}
@@ -481,7 +497,7 @@ export default function Navbar({
                         onClick={() => setIsMenuOpen(false)}
                         className="flex items-center gap-2 px-4 py-1 text-sm text-gray-200 hover:text-white transition no-underline"
                       >
-                        <span className="text-gray-400">{sub.icon ? sub.icon : <CircleSmall size={12} />}</span>
+                        <span className="text-gray-500">{sub.icon ? sub.icon : <ChevronRight size={16} />}</span>
                         {t(`Navbar.subMenus.${sub.label}`)}
                       </Link>
                     ))}

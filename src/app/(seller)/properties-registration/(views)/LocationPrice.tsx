@@ -4,9 +4,11 @@ import { FormikProps } from 'formik'
 import { PropertyCreationFormValues } from '../page'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
 import LocationPickerModal, { AddressParts } from '@/components/ui/map/LocationPickerModal'
+import LocationSearchBox from '@/components/ui/map/LocationSearchInput'
 import { useState } from 'react'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { MapPin } from 'lucide-react'
+import { set } from 'zod'
 
 interface Step2LocationPriceProps {
   formik: FormikProps<PropertyCreationFormValues>
@@ -16,32 +18,143 @@ export default function Step2LocationPrice({ formik }: Step2LocationPriceProps) 
   const { values, errors, touched, handleChange, setFieldValue } = formik
   const [isMapView, setIsMapView] = useState(false)
 
+  //  Handle location selection
+  const handleLocationSelect = (
+    setFieldValue: (field: string, value: any) => void,
+    lat: number,
+    lng: number,
+    address: AddressParts,
+    fullAddress: string,
+  ) => {
+    setFieldValue('latitude', lat)
+    setFieldValue('longitude', lng)
+    setFieldValue('district', address?.district ?? '')
+    setFieldValue('door_number', address?.doorNumber ?? '')
+    setFieldValue('street_name', address?.streetName ?? '')
+    setFieldValue('city', address?.city ?? '')
+    setFieldValue('state', address?.state ?? '')
+    setFieldValue('postal_code', address?.postalCode ?? '')
+    setFieldValue('country', address?.country ?? '')
+    setFieldValue('address_line', fullAddress ?? '')
+  }
+
   return (
     <div className="w-full max-w-4xl mx-auto bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
       <h2 className="text-xl font-semibold mb-6 text-gray-800">Location & Pricing</h2>
 
       {/* Address Section */}
       <div className="space-y-4 mb-6">
-        <FormikTextField label="Full Address" name="address_line" placeholder="Enter or pick address from map" as="textarea" rows={2} />
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <FormikTextField label="District" name="district" placeholder="Enter district" />
-          <FormikTextField label="City / Town" name="city" placeholder="Enter city" />
-        </div>
+        <LocationSearchBox
+          label="Full Address"
+          name="address_line"
+          placeholder="Enter address line"
+          value={values.address_line}
+          onSelectLocation={(lat, lng, fullAddress, parts) => handleLocationSelect(setFieldValue, lat, lng, parts, fullAddress)}
+        />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <FormikTextField label="Door Number" name="door_number" placeholder="Enter door number" />
           <FormikTextField label="Street Name" name="street_name" placeholder="Enter street name" />
         </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <FormikTextField
+            label="Country"
+            name="country"
+            readOnly
+            placeholder="Enter country"
+            className="
+    w-full 
+    p-2 
+    border border-gray-300 
+    rounded-md 
+    bg-gray-100 
+    cursor-not-allowed
+    text-gray-700
+    focus:outline-none 
+    focus:ring-0 
+    focus:border-gray-300
+  "
+          />
+
+          <FormikTextField
+            label="State"
+            name="state"
+            readOnly
+            placeholder="Enter state"
+            className="
+    w-full 
+    p-2 
+    border border-gray-300 
+    rounded-md 
+    bg-gray-100 
+    cursor-not-allowed
+    text-gray-700
+    focus:outline-none 
+    focus:ring-0 
+    focus:border-gray-300
+  "
+          />
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <FormikTextField label="Postal Code" name="postal_code" placeholder="Enter postal code" />
-          <FormikTextField label="State" name="state" placeholder="Enter state" />
-          <FormikTextField label="Country" name="country" placeholder="Enter country" />
+          <FormikTextField
+            label="District"
+            name="district"
+            readOnly
+            placeholder="Enter district"
+            className="
+    w-full 
+    p-2 
+    border border-gray-300 
+    rounded-md 
+    bg-gray-100 
+    cursor-not-allowed
+    text-gray-700
+    focus:outline-none 
+    focus:ring-0 
+    focus:border-gray-300
+  "
+          />
+          <FormikTextField
+            label="City / Town"
+            name="city"
+            readOnly
+            placeholder="Enter city"
+            className="
+    w-full 
+    p-2 
+    border border-gray-300 
+    rounded-md 
+    bg-gray-100 
+    cursor-not-allowed
+    text-gray-700
+    focus:outline-none 
+    focus:ring-0 
+    focus:border-gray-300
+  "
+          />
+          <FormikTextField
+            label="Postal Code"
+            name="postal_code"
+            readOnly
+            placeholder="Enter postal code"
+            className="
+    w-full 
+    p-2 
+    border border-gray-300 
+    rounded-md 
+    bg-gray-100 
+    cursor-not-allowed
+    text-gray-700
+    focus:outline-none 
+    focus:ring-0 
+    focus:border-gray-300
+  "
+          />
         </div>
 
         {/* Map Picker */}
-        <div>
+        {/* <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">Select Your Location Via Map</label>
           <Button
             type="button"
@@ -50,7 +163,7 @@ export default function Step2LocationPrice({ formik }: Step2LocationPriceProps) 
           >
             <MapPin className="inline-block mr-2" color="red" size={20} /> Pick Location from Map
           </Button>
-        </div>
+        </div> */}
       </div>
 
       {/* Pricing Section */}
@@ -108,7 +221,7 @@ export default function Step2LocationPrice({ formik }: Step2LocationPriceProps) 
       </div>
 
       {/* Map Modal */}
-      <LocationPickerModal
+      {/* <LocationPickerModal
         open={isMapView}
         setOpen={setIsMapView}
         initialLat={values?.latitude}
@@ -125,7 +238,7 @@ export default function Step2LocationPrice({ formik }: Step2LocationPriceProps) 
           setFieldValue('state', address?.state ?? '')
           setFieldValue('country', address?.country ?? '')
         }}
-      />
+      /> */}
     </div>
   )
 }

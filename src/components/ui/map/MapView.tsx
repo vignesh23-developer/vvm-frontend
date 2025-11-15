@@ -139,12 +139,12 @@ export default function MapView({ center, zoom, markers, onMapClick, ifTextSearc
         mapContainerStyle={{ width: '100%', height: '85%' }}
         zoom={zoom}
         center={mapCenter}
-        options={{
-          restriction: {
-            latLngBounds: MY_BOUNDS,
-            strictBounds: true,
-          },
-        }}
+        // options={{
+        //   restriction: {
+        //     latLngBounds: MY_BOUNDS,
+        //     strictBounds: true,
+        //   },
+        // }}
         onClick={e => {
           const lat = e.latLng?.lat() ?? 0
           const lng = e.latLng?.lng() ?? 0

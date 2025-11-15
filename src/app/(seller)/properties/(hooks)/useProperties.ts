@@ -20,6 +20,7 @@ interface ApiResponse<T> {
 interface UsePropertiesOptions {
   page?: number
   limit?: number
+  approval_status?: string
 }
 
 interface PropertiesFetcherResult {
@@ -30,7 +31,7 @@ interface PropertiesFetcherResult {
 // Custom hook for managing properties
 export function useProperties(options: UsePropertiesOptions = {}) {
   const router = useRouter()
-  const { page = 1, limit = 10 } = options
+  const { page = 1, limit = 10, approval_status } = options
 
   const queryParams = new URLSearchParams()
   if (limit != null) {
@@ -40,7 +41,9 @@ export function useProperties(options: UsePropertiesOptions = {}) {
     queryParams.set('page', String(page))
   }
 
-  const swrKey = queryParams.toString() ? `${appEndpoints.getAllProperties}?${queryParams.toString()}` : appEndpoints.getAllProperties
+  const swrKey = queryParams.toString()
+    ? `${appEndpoints.getAllProperties}?${approval_status ? `approval_status=${approval_status}` : ''}&${queryParams.toString()}`
+    : appEndpoints.getAllProperties
 
   // Fetcher using our generic API helper
   const fetcher = async (url: string): Promise<PropertiesFetcherResult> => {

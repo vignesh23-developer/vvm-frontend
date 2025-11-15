@@ -1,12 +1,17 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useProperties } from '@/app/(seller)/properties/(hooks)/useProperties'
 import PropertyCard from '../PropertyCard/PropertyCard'
 import FlatCard from '../FlatCard/FlatCard'
 import FilterBar from '../FilterBar/FilterBar'
 import AgentCard from '../Agency/AgentCard/AgentCard'
 import BuilderCard from '../Builders/BuilderCard/BuilderCard'
 import { useTranslations } from 'next-intl'
+import { postMethod, deleteMethod } from '@/services/service'
+import { appEndpoints } from '@/services/endpoints'
+import Pagination from '@/components/ui/CustomComponent/Paginations/Pagination'
 import SkeletonLoader from '@/components/ui/CustomComponent/SkeletonLoader/SkeletonLoader'
 
 const flats = [
@@ -30,37 +35,6 @@ const flats = [
     price: '₹ 5.20 Cr',
     owner: 'Ravi Kumar',
     image: '/flat.png',
-  },
-]
-
-const properties = [
-  {
-    image: '/villa.png',
-    title: '4 BHK Villa for Sale in Whitefield',
-    subtitle: 'Sterling Villa Grande',
-    area: '4000 sqft',
-    status: 'Ready to Move',
-    transaction: 'Resale',
-    facing: 'East Facing Properties',
-    description: '4BHK A Type corner villa for sale in Sterling Villagrande with all amenities',
-    agent: 'Rich Source Realty',
-    operatingSince: '2009',
-    price: '₹ 9.10 Cr',
-    pricePerSqft: '₹ 19,465 per sqft',
-  },
-  {
-    image: '/villa.png',
-    title: '3 BHK Villa for Sale in Bangalore',
-    subtitle: 'Prestige Villa Grande',
-    area: '3200 sqft',
-    status: 'Under Construction',
-    transaction: 'New Booking',
-    facing: 'North Facing Properties',
-    description: 'Spacious 3BHK villa with premium facilities and modern design',
-    agent: 'Prime Estates',
-    operatingSince: '2015',
-    price: '₹ 7.80 Cr',
-    pricePerSqft: '₹ 18,000 per sqft',
   },
 ]
 
@@ -122,12 +96,44 @@ const BuildersPropertiesList = [
 
 const PropertiesListing = ({ params }: { params: string }) => {
   const t = useTranslations()
-  const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 2
-  const totalPages = Math.ceil(properties.length / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const currentProperties = properties.slice(startIndex, startIndex + itemsPerPage)
-  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+  const [favoritedProperties, setFavoritedProperties] = useState<Set<string>>(new Set())
+
+  const { properties, handleEdit, handleDelete, total, error, isLoading, mutateProperties, handlePropertyAction } = useProperties({
+    page,
+    limit,
+    approval_status: 'APPROVED',
+  })
+
+  console.log('properties', properties)
+
+  const totalItems = total ?? 0
+  const totalPages = Math.max(1, Math.ceil(totalItems / limit))
+  const isEmpty = totalItems === 0
+
+  const changePage = (page: number) => setPage(Math.max(1, Math.min(page, totalPages)))
+
+  const handleFavorite = async (propertyId: string) => {
+    const isFav = favoritedProperties.has(propertyId)
+    try {
+      const response = isFav
+        ? await deleteMethod(appEndpoints.deleteFavorite(propertyId))
+        : await postMethod(appEndpoints.toggleFavorite, { entity_type: 'property', entity_id: propertyId })
+
+      if (!response?.error) {
+        setFavoritedProperties(prev => {
+          const newSet = new Set(prev)
+          isFav ? newSet.delete(propertyId) : newSet.add(propertyId)
+          return newSet
+        })
+      }
+      mutateProperties()
+    } catch (err) {
+      console.error('Error updating favorite:', err)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-[#F0F0F0]">
@@ -152,51 +158,20 @@ const PropertiesListing = ({ params }: { params: string }) => {
         {/* Left Section - Properties */}
         <div className="flex-1 space-y-6">
           {params === 'explore_by_category'
-            ? currentProperties.map((property, index) =>
+            ? properties.map((property, index) =>
                 isLoading ? (
                   <SkeletonLoader key={index} />
                 ) : (
-                  // <PropertyCard
-                  //   id={''}
-                  //   property_category_id={''}
-                  //   price_unit={''}
-                  //   property_size={''}
-                  //   property_size_unit={''}
-                  //   listing_type={''}
-                  //   door_number={''}
-                  //   street_name={''}
-                  //   address_line={''}
-                  //   city={''}
-                  //   district={''}
-                  //   state={''}
-                  //   postal_code={''}
-                  //   country={''}
-                  //   latitude={''}
-                  //   longitude={''}
-                  //   owner_id={''}
-                  //   agent_id={''}
-                  //   approval_status={''}
-                  //   is_published={false}
-                  //   is_verified={false}
-                  //   is_premium={false}
-                  //   is_featured={false}
-                  //   is_active={false}
-                  //   slug={null}
-                  //   meta_description={null}
-                  //   meta_keywords={null}
-                  //   view_count={0}
-                  //   favorite_count={0}
-                  //   contact_count={0}
-                  //   created_at={''}
-                  //   updated_at={''}
-                  //   published_at={null}
-                  //   approved_at={null}
-                  //   media={[]}
-                  //   key={index}
-                  //   {...property}
-                  //   language={t}
-                  // />
-                  <h1>Upcoming Page</h1>
+                  <PropertyCard
+                    key={property.id ?? index}
+                    {...property}
+                    language={t}
+                    primaryActionLabel="View Details"
+                    onPrimaryAction={() => router.push(`/propertyDetails/${property.id}`)}
+                    handleFavorite={handleFavorite}
+                    handleShare={() => console.log('Share', property.id)}
+                    isFavorited={favoritedProperties.has(property.id)}
+                  />
                 ),
               )
             : params === 'agency'
@@ -210,33 +185,12 @@ const PropertiesListing = ({ params }: { params: string }) => {
             : null}
 
           {/* Pagination */}
-          <div className="flex flex-wrap justify-center items-center gap-2 mt-6">
-            <button
-              className="px-3 py-1 border rounded disabled:opacity-50"
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              {t('PropertiesListCard.previous')}
-            </button>
-
-            {[...Array(totalPages)].map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrentPage(i + 1)}
-                className={`px-3 py-1 border rounded ${currentPage === i + 1 ? 'bg-black text-white' : 'hover:bg-gray-200'}`}
-              >
-                {i + 1}
-              </button>
-            ))}
-
-            <button
-              className="px-3 py-1 border rounded disabled:opacity-50"
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-            >
-              {t('PropertiesListCard.next')}
-            </button>
-          </div>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-6 flex justify-center">
+              <Pagination totalItems={totalItems} itemsPerPage={limit} currentPage={page} onPageChange={changePage} />
+            </div>
+          )}
         </div>
 
         {/* Right Section - Flats */}
