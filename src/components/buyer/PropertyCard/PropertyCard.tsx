@@ -7,6 +7,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import FavoriteButton from '@/components/ui/CustomComponent/FavoriteButton/FavoriteButton'
+import { formatPrice } from '@/utils/converter/formatPrice'
 
 /* ------------------------------ Motion Variants ------------------------------ */
 const cardVariants: Variants = {
@@ -109,24 +110,6 @@ export default function PropertyCard(props: PropertiesCardProps) {
   }
 
   const imageUrl = media?.[0]?.url || '/villa.png'
-
-  function formatPrice(value: number) {
-    if (!value || value === 0) return '0'
-
-    // Crore
-    if (value >= 10000000) {
-      const crore = value / 10000000
-      return `${crore} Crore`
-    }
-
-    // Lakh
-    if (value >= 100000) {
-      const lakh = value / 100000
-      return `${lakh} Lakh`
-    }
-
-    return value.toString()
-  }
 
   return (
     <motion.div
@@ -269,7 +252,7 @@ const ActionSection = ({
   <div className="flex w-full flex-col justify-between bg-[#ECECEC] p-4 lg:w-[240px]">
     <div className="text-left lg:text-right">
       <h3 className="text-xl font-bold">{'₹ ' + price}</h3>
-      <p className="text-sm text-gray-500">{`${property_size}${property_size_unit}`}</p>
+      <p className="text-sm text-gray-500">{`${property_size} ${property_size_unit}`}</p>
     </div>
 
     {propertyReview ? (
