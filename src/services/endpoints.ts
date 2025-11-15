@@ -90,7 +90,11 @@ export const appEndpoints = {
   updateAd: (adId: string) => `/ads/${adId}`,
   deleteAd: (adId: string) => `/ads/${adId}`,
   getAllAdsCategories: '/master/ads-category',
-
+  // Ads Images
+  addAdImages: (adId: string) => `/ads/${adId}/images`,
+  getAdImages: (adId: string) => `/ads/${adId}/images`,
+  updateAdImage: (adId: string, imageId: string) => `/ads/${adId}/images/${imageId}`,
+  deleteAdImage: (adId: string, imageId: string) => `/ads/${adId}/images/${imageId}`,
   // Favorite Endpoints
   toggleFavorite: '/user-interactions/favorites/toggle',
   deleteFavorite: (propertyId: string) => `/user-interactions/favorites/${propertyId}`,
