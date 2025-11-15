@@ -30,9 +30,10 @@ export interface PropertiesCardProps {
   title: string
   description: string
   price: string
-  property_size: string | number
-  property_size_unit: string
+  property_size?: string | number
+  property_size_unit?: string
   status: string
+  listing_type?: string
   // transaction: string
   address_line: string
   city: string
@@ -72,6 +73,7 @@ export default function PropertyCard(props: PropertiesCardProps) {
     status,
     // transaction,
     address_line,
+    listing_type,
     price,
     approval_status,
     favorite_count,
@@ -94,9 +96,10 @@ export default function PropertyCard(props: PropertiesCardProps) {
   const labels = {
     agent: t(language, 'PropertiesListCard.agent', 'Agent'),
     since: t(language, 'PropertiesListCard.operating_since', 'Operating since'),
-    area: t(language, 'PropertiesListCard.carpet_area', 'Carpet area'),
+    area: t(language, 'PropertiesListCard.property_size', 'Property Size'),
     status: t(language, 'PropertiesListCard.status', 'Status'),
-    transaction: t(language, 'PropertiesListCard.transaction', 'Transaction'),
+    listing_type: t(language, 'PropertiesListCard.listing_type', 'Listing Type'),
+    // transaction: t(language, 'PropertiesListCard.transaction', 'Transaction'),
   }
 
   const buttons = {
@@ -107,6 +110,24 @@ export default function PropertyCard(props: PropertiesCardProps) {
 
   const imageUrl = media?.[0]?.url || '/villa.png'
 
+  function formatPrice(value: number) {
+    if (!value || value === 0) return '0'
+
+    // Crore
+    if (value >= 10000000) {
+      const crore = value / 10000000
+      return `${crore} Crore`
+    }
+
+    // Lakh
+    if (value >= 100000) {
+      const lakh = value / 100000
+      return `${lakh} Lakh`
+    }
+
+    return value.toString()
+  }
+
   return (
     <motion.div
       variants={cardVariants}
@@ -115,8 +136,7 @@ export default function PropertyCard(props: PropertiesCardProps) {
       whileHover="hover"
       className="flex w-full flex-col overflow-hidden rounded-2xl bg-white shadow-md hover:shadow-lg lg:flex-row"
     >
-      {/* href={`/propertyDetails/${id}`} */}
-      <Link href={'#'} className="flex-1">
+      <div className="flex-1">
         <div className="flex flex-col gap-4 p-3 lg:flex-row">
           <ImageSection imageUrl={imageUrl} title={title} agent={agent} operatingSince={operatingSince} labels={labels} />
           <InfoSection
@@ -125,21 +145,21 @@ export default function PropertyCard(props: PropertiesCardProps) {
             subtitle={subtitle}
             description={description}
             status={status}
-            // transaction={transaction}
             address_line={address_line}
             property_size={property_size}
             property_size_unit={property_size_unit}
             labels={labels}
+            listing_type={listing_type}
             handleFavorite={handleFavorite}
             handleShare={handleShare}
             isFavorited={isFavorited}
             favorite_count={favorite_count}
           />
         </div>
-      </Link>
+      </div>
 
       <ActionSection
-        price={price}
+        price={formatPrice(Number(price))}
         approval_status={approval_status}
         property_size={property_size}
         property_size_unit={property_size_unit}
@@ -197,6 +217,7 @@ const InfoSection = ({
   property_size,
   property_size_unit,
   labels,
+  listing_type,
   handleFavorite,
   handleShare,
   isFavorited,
@@ -218,9 +239,10 @@ const InfoSection = ({
     </div>
 
     <div className="mt-3 flex w-full flex-col divide-y divide-gray-200 rounded-md bg-[#F5F5F5] text-sm sm:flex-row sm:divide-y-0 sm:divide-x">
-      <PropertyTag icon={<Ruler size={18} />} label={labels.area} value={`${property_size}${property_size_unit}`} />
       <PropertyTag icon={<Building2 size={18} />} label={labels.status} value={status} />
-      <PropertyTag icon={<Home size={18} />} label={labels.transaction} suffix={<ChevronDown size={16} />} />
+      <PropertyTag icon={<Ruler size={18} />} label={labels.area} value={`${property_size}${property_size_unit}`} />
+      <PropertyTag icon={<Home size={18} />} label={labels.listing_type} value={listing_type} />
+      {/* <PropertyTag icon={<Home size={18} />} label={labels.transaction} suffix={<ChevronDown size={16} />} /> */}
     </div>
 
     <p className="mt-3 flex items-center text-sm text-gray-600">
@@ -257,6 +279,10 @@ const ActionSection = ({
         {buttons.primary && <ActionButton label={buttons.primary} variant="primary" onClick={onPrimaryAction} disabled={primaryDisabled} />}
         {buttons.secondary && <ActionButton label={buttons.secondary} variant="secondary" onClick={onSecondaryAction} disabled={secondaryDisabled} />}
         {buttons.tertiary && <p className="mt-2 text-center text-xs text-gray-500">{buttons.tertiary}</p>}
+      </div>
+    ) : approval_status === 'APPROVED' ? (
+      <div className="mt-4 flex w-full flex-col mb-15 gap-3">
+        {buttons.primary && <ActionButton label={buttons.primary} variant="primary" onClick={onPrimaryAction} disabled={primaryDisabled} />}
       </div>
     ) : (
       <div className="mb-20 text-center text-sm font-medium italic text-gray-500">

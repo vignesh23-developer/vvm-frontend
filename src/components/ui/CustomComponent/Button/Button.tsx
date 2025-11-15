@@ -2,7 +2,7 @@ import React from 'react'
 
 interface ButtonProps {
   children: React.ReactNode
-  onClick: (e: any) => void
+  onClick?: (e: any) => void
   disabled?: boolean
   className?: string
   hover?: string
@@ -26,7 +26,7 @@ function Button({
   variant = 'primary',
 }: ButtonProps) {
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (!disabled) {
+    if (!disabled && onClick) {
       onClick(e)
     }
   }

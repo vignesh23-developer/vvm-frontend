@@ -6,6 +6,7 @@ import { appEndpoints } from '@/services/endpoints'
 import { getMethod, patchMethod } from '@/services/service'
 import PropertyCategoryForm, { FormValues } from '@/app/admin/dashboard/(master)/property-category/(forms)/PropertyCategoryForm'
 import toast from 'react-hot-toast'
+import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 
 export default function EditPropertyCategory() {
   const router = useRouter()
@@ -60,7 +61,7 @@ export default function EditPropertyCategory() {
   }
 
   /** 🔹 Loading / error states */
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-600">Loading category details...</div>
+  if (loading) return <CustomLoader text="Loading property category..." />
 
   if (!initialValues) return <div className="min-h-screen flex items-center justify-center text-gray-500">Property category not found.</div>
 

@@ -5,6 +5,7 @@ import { FormikProps } from 'formik'
 import { PropertyCreationFormValues } from '../page'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
 import { getLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
+import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
 
 interface Step3ContactDetailsProps {
   formik: FormikProps<PropertyCreationFormValues>
@@ -21,13 +22,14 @@ export default function Step3ContactDetails({ formik }: Step3ContactDetailsProps
   const { setFieldValue } = formik
 
   useEffect(() => {
-    const UserData: UserData | null = getLocalStorageItem('userData') // read inside useEffect
+    const UserData: UserData | null = getLocalStorageItem(LOCAL_STORAGE_NAME.userData)
+    console.log('UserData from local storage:', UserData)
     if (UserData) {
       setFieldValue('contactName', `${UserData.firstName ?? ''} ${UserData.lastName ?? ''}`.trim())
       setFieldValue('contactNumber', UserData.phoneNumber ?? '')
       setFieldValue('contactEmail', UserData.email ?? '')
     }
-  }, [setFieldValue]) // only setFieldValue as dependency
+  }, [setFieldValue])
 
   return (
     <div className="w-full mt-8 p-6 bg-white shadow-md rounded-xl border border-gray-200 max-w-4xl mx-auto">

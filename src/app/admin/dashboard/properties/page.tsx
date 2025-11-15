@@ -11,9 +11,9 @@ import { getLocalStorageItem } from '@/utils/local_storage/local_storage_handler
 import { deleteMethod, postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import Pagination from '@/components/ui/CustomComponent/Paginations/Pagination'
-import Loader from '@/components/ui/CustomComponent/Loader/Loader'
+import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 
-const PAGE_SIZE = 6
+const PAGE_SIZE = 10
 
 const PropertiesPage = () => {
   const t = useTranslations()
@@ -110,12 +110,7 @@ const PropertiesPage = () => {
     }
   }
 
-  if (isLoading)
-    return (
-      <div className="p-6 text-gray-600 animate-pulse">
-        <Loader />
-      </div>
-    )
+  if (isLoading) return <CustomLoader text="property loading..." />
   if (error) return <div className="p-6 text-red-600">Failed to load properties.</div>
 
   return (
