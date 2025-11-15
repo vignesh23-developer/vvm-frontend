@@ -1,6 +1,7 @@
 'use client'
 
 import { Plus, Settings, Edit3, Trash2 } from 'lucide-react'
+import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 import { useMemo, useCallback } from 'react'
 import { usePropertyCategories } from '@/app/admin/dashboard/(master)/property-category/(hooks)/usePropertyCategories'
 import { PropertyCategory } from '@/app/admin/dashboard/(master)/property-category/(dto)/propertyCategoryType'
@@ -84,8 +85,7 @@ export default function PropertyCategoryPage() {
   // ✅ Handle loading and error states
   if (error) return <div className="p-6 text-red-600">Failed to load property categories.</div>
 
-  if (isLoading) return <div className="p-6 text-gray-600 animate-pulse">Loading property categories...</div>
-
+  if (isLoading) return <CustomLoader text="Loading property categories..." />
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       {/* Header */}

@@ -1,4 +1,5 @@
 import { create } from 'domain'
+import { get } from 'http'
 
 export const appEndpoints = {
   // Authentication Endpoints
@@ -105,6 +106,7 @@ export const appEndpoints = {
   createCompanyProfile: '/agent-company-profiles',
   getCompanyProfile: '/agent-company-profiles',
   getCompanyProfileByID: (agentId: string) => `/agent-company-profiles/${agentId}`,
+  getCompanyProfilesByUserID: (userId: string) => `/agent-company-profiles/by-user/${userId}`,
   updateCompanyProfile: (agentId: string) => `/agent-company-profiles/${agentId}`,
   verifyCompanyProfileName: (profileName: string) => `/agent-company-profiles/verify-profile-name?name=${encodeURIComponent(profileName)}`,
   validateProfileName: '/agent-company-profiles/validate-profile-name',

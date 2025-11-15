@@ -103,7 +103,7 @@
   "subscription master": "சந்தா முதன்மை",
   "my subscription": "என் சந்தா",
   "user subscription": "பயனர் சந்தா",
-  
+    "view subscriptions" : "சந்தாக்களைப் பார்க்கவும்",
   "view transactions": "பரிவர்த்தனைகளைப் பார்க்கவும்",
   "payment reports / revenue summary": "கட்டண அறிக்கைகள் / வருமான சுருக்கம்",
   "refund management": "பணத்தைத் திருப்பி வழங்கல் மேலாண்மை",
@@ -171,6 +171,8 @@
     "status": "நிலை",
     "ready_to_move": "உடனே குடியேறத் தயாராக உள்ளது",
     "transaction": "பரிவர்த்தனை",
+    "listing_type": "பட்டியல் வகை",
+    "property_size": "சொத்து அளவு",
     "resale": "மறுவிற்பனை",
     "contact_agent": "தொடர்பு முகவர்",
     "get_phone_number": "தொலைபேசி எண் பெறவும்",

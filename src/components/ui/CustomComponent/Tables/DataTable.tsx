@@ -64,6 +64,10 @@ interface DataTableProps<T extends RowData = RowData> {
   actions?: DataTableAction<T>[]
   loading?: boolean
   initialPage?: number
+  totalItemsData?: number
+  totalPageData?: number
+  setPage?: (page: number) => void
+  setCurrentPageSize?: (size: number) => void
   pageSize?: number
   pageSizeOptions?: number[]
   onError?: (error: Error) => void
@@ -334,10 +338,14 @@ const DataTable = <T extends RowData = RowData>({
   actions = [],
   loading: externalLoading = true,
   initialPage = 1,
+  totalItemsData,
+  totalPageData,
   pageSize = 10,
   pageSizeOptions = [5, 10, 25, 50, 100],
   onError,
   onRowSelect,
+  setPage: parentSetPage,
+  setCurrentPageSize: parentSetCurrentPageSize,
   tableName = '',
   allowExport = true,
   allowColumnSelection = true,
@@ -371,14 +379,58 @@ const DataTable = <T extends RowData = RowData>({
   const [data, setData] = useState<T[]>([])
   const [allData, setAllData] = useState<T[]>([])
   const [displayData, setDisplayData] = useState<T[]>([])
-  const [totalItems, setTotalItems] = useState<number>(0)
+  const [totalItems, setTotalItems] = useState<number>(totalItemsData ?? 0)
+  // Detect whether pagination is server-side (parent provides totals or fetcher returns totals)
+  const [isServerSide, setIsServerSide] = useState<boolean>(typeof totalItemsData === 'number' || typeof totalPageData === 'number')
   const [loading, setLoading] = useState<boolean>(true)
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false)
   const [error, setError] = useState<string | undefined>()
 
   // State for pagination
   const [page, setPage] = useState<number>(initialPage)
-  const [totalPages, setTotalPages] = useState<number>(0)
+  const [totalPages, setTotalPages] = useState<number>(totalPageData ?? 0)
   const [currentPageSize, setCurrentPageSize] = useState<number>(pageSize)
+
+  // Keep internal `page` and `currentPageSize` in sync when parent controls them
+  useEffect(() => {
+    setPage(initialPage)
+  }, [initialPage])
+
+  useEffect(() => {
+    setCurrentPageSize(pageSize)
+  }, [pageSize])
+
+  // If parent provides totals (server-side), keep totals in sync
+  useEffect(() => {
+    if (typeof totalItemsData === 'number' || typeof totalPageData === 'number') {
+      // Parent provided pagination totals -> treat as server-side
+      setIsServerSide(true)
+    } else {
+      setIsServerSide(false)
+    }
+
+    if (typeof totalItemsData === 'number') {
+      setTotalItems(totalItemsData)
+      const pages = currentPageSize > 0 ? Math.ceil(totalItemsData / currentPageSize) : 0
+      setTotalPages(typeof totalPageData === 'number' ? totalPageData : pages)
+    } else if (typeof totalPageData === 'number') {
+      setTotalPages(totalPageData)
+    }
+  }, [totalItemsData, totalPageData, currentPageSize])
+
+  // Debug: trace pagination totals and page changes
+  useEffect(() => {
+    try {
+      console.debug('DataTable: pagination state', {
+        totalItems,
+        totalPages,
+        page,
+        currentPageSize,
+      })
+    } catch (err) {
+      // ignore console errors in some environments
+    }
+  }, [totalItems, totalPages, page, currentPageSize])
 
   // State for sorting
   const [sortField, setSortField] = useState<string>(initialSort?.field ?? '')
@@ -455,13 +507,16 @@ const DataTable = <T extends RowData = RowData>({
         })
       }
 
-      setTotalItems(filteredData.length)
-      const pages = currentPageSize > 0 ? Math.ceil(filteredData.length / currentPageSize) : 0
-      setTotalPages(pages)
+      // Only update totals/pages when operating in client-side mode.
+      if (!isServerSide) {
+        setTotalItems(filteredData.length)
+        const pages = currentPageSize > 0 ? Math.ceil(filteredData.length / currentPageSize) : 0
+        setTotalPages(pages)
+      }
 
       setDisplayData(filteredData)
     },
-    [currentPageSize, page],
+    [currentPageSize, page, isServerSide],
   )
 
   const loadData = useCallback(async () => {
@@ -472,7 +527,28 @@ const DataTable = <T extends RowData = RowData>({
 
       setAllData(rows)
       setError(undefined)
-      applyFiltersAndSort(rows, filters, sortField, sortDirection)
+
+      // If fetcher returned totalItems, treat as server-side pagination and use those totals
+      if (result && typeof result.totalItems === 'number') {
+        setIsServerSide(true)
+        setTotalItems(result.totalItems)
+        const pages = currentPageSize > 0 ? Math.ceil(result.totalItems / currentPageSize) : 0
+        setTotalPages(typeof totalPageData === 'number' ? totalPageData : pages)
+
+        // Server returns already-paged rows (or server-managed filtering). Do not re-filter/slice.
+        setDisplayData(rows)
+      } else if (typeof totalItemsData === 'number') {
+        // Parent-provided totals -> server-side behavior
+        setIsServerSide(true)
+        setTotalItems(totalItemsData)
+        const pages = currentPageSize > 0 ? Math.ceil(totalItemsData / currentPageSize) : 0
+        setTotalPages(typeof totalPageData === 'number' ? totalPageData : pages)
+        setDisplayData(rows)
+      } else {
+        // Client-side mode: apply filters/sort and compute totals from full dataset
+        setIsServerSide(false)
+        applyFiltersAndSort(rows, filters, sortField, sortDirection)
+      }
     } catch (err) {
       const errorInstance = err instanceof Error ? err : new Error('Error loading data')
       setError(errorInstance.message)
@@ -482,7 +558,7 @@ const DataTable = <T extends RowData = RowData>({
     } finally {
       setLoading(false)
     }
-  }, [applyFiltersAndSort, fetchData, filters, onError, sortDirection, sortField])
+  }, [applyFiltersAndSort, fetchData, filters, onError, sortDirection, sortField, currentPageSize, totalPageData, totalItemsData])
 
   useEffect(() => {
     if (!shouldReload) {
@@ -505,24 +581,28 @@ const DataTable = <T extends RowData = RowData>({
   }, [pageSize])
 
   useEffect(() => {
-    applyFiltersAndSort(allData, filters, sortField, sortDirection)
+    if (isServerSide) {
+      // When server-side, server is responsible for filtering/paging — just reflect rows
+      setDisplayData(allData)
+    } else {
+      applyFiltersAndSort(allData, filters, sortField, sortDirection)
+    }
   }, [applyFiltersAndSort, allData, filters, sortField, sortDirection, currentPageSize])
 
   useEffect(() => {
     if (displayData?.length > 0) {
-      // Only slice if using client-side pagination
-      if (isPagination) {
+      // Only slice when using client-side pagination. If server-side, displayData already contains page rows.
+      if (!isServerSide && isPagination) {
         const startIndex = Math.max(0, (page - 1) * currentPageSize)
         const endIndex = startIndex + currentPageSize
         setData(displayData?.slice(startIndex, endIndex))
       } else {
-        // For server-side pagination, show all data
         setData(displayData)
       }
     } else {
       setData([])
     }
-  }, [currentPageSize, displayData, page, isPagination])
+  }, [currentPageSize, displayData, page, isPagination, isServerSide])
 
   // Handle sorting
   const handleSort = (field: string) => {
@@ -611,13 +691,24 @@ const DataTable = <T extends RowData = RowData>({
     setExpandedGroups(groups)
   }
 
-  // Refresh data
-  const handleRefresh = () => {
-    // if (onRefresh) {
-    //   void onRefresh()
-    // }
-    setShouldReload(true)
-    loadData()
+  // Refresh data: await parent onRefresh (if it returns a Promise) and show loading during refresh
+  const handleRefresh = async () => {
+    setIsRefreshing(true)
+    try {
+      if (onRefresh) {
+        const maybe = onRefresh()
+        if (maybe && typeof (maybe as any).then === 'function') {
+          await (maybe as Promise<void>)
+        }
+      }
+
+      setShouldReload(true)
+      await loadData()
+    } catch (err) {
+      console.warn('DataTable: refresh failed', err)
+    } finally {
+      setIsRefreshing(false)
+    }
   }
 
   // Export data functions
@@ -691,7 +782,7 @@ const DataTable = <T extends RowData = RowData>({
     return Object.keys(result).length ? result : undefined
   }, [columns, data, groupByField])
 
-  const isLoading = loading || externalLoading
+  const isLoading = loading || externalLoading || isRefreshing
 
   // Check if there are any visible actions for the current table
   const shouldShowActionsColumn = hasVisibleActions()
@@ -756,12 +847,45 @@ const DataTable = <T extends RowData = RowData>({
       {isPagination && (
         <Pagination
           page={page}
-          setPage={setPage}
+          setPage={p => {
+            const nextPage = typeof p === 'function' ? (p as (prev: number) => number)(page) : (p as number)
+            // If parent provided a setter, notify parent (controlled); otherwise update internal state
+            if (typeof parentSetPage === 'function') {
+              try {
+                // debug: notify parent
+                console.debug('DataTable: calling parentSetPage', nextPage)
+                parentSetPage(nextPage)
+              } catch (err) {
+                // ignore
+              }
+            } else {
+              setPage(nextPage)
+            }
+          }}
           totalPages={totalPages}
           totalItems={totalItems}
           currentPageSize={currentPageSize}
           pageSizeOptions={pageSizeOptions}
-          handlePageSizeChange={handlePageSizeChange}
+          handlePageSizeChange={size => {
+            // If parent provided callbacks, notify them in correct order
+            if (typeof parentSetCurrentPageSize === 'function' || typeof parentSetPage === 'function') {
+              try {
+                if (typeof parentSetCurrentPageSize === 'function') {
+                  console.debug('DataTable: calling parentSetCurrentPageSize', size)
+                  parentSetCurrentPageSize(size)
+                }
+              } catch (err) {
+                // ignore
+              }
+              try {
+                if (typeof parentSetPage === 'function') parentSetPage(1)
+              } catch (err) {
+                // ignore
+              }
+            } else {
+              handlePageSizeChange(size)
+            }
+          }}
           isLoading={isLoading}
           dataLength={data.length}
         />

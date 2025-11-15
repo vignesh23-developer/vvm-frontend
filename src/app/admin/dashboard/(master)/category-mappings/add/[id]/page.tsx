@@ -7,6 +7,7 @@ import { getMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import PropertyCategoryMappingForm, { FormValues } from '@/components/admin/forms/PropertyCategoryMappingForm'
 import { isMap } from 'util/types'
+import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 
 export interface PropertyCategory {
   property_category_id: number
@@ -66,7 +67,11 @@ export default function AddPropertyCategoryMapping() {
             sortOrder: f.sortOrder ?? 0,
             featureGroupId: f.featureGroupId,
             featureGroupName: f.featureGroupName,
-            isMapped: propertyCategoryData?.mappings?.some((m: any) => m.is_active === f.isActive),
+            // Mark as mapped when there's an existing mapping for this feature id
+            isMapped: Boolean(
+              Array.isArray(propertyCategoryData?.mappings) &&
+                propertyCategoryData!.mappings.some((m: any) => String(m.feature_category_id) === String(f.id) && !!m.is_active),
+            ),
           }))
 
           // Group by featureGroupId, with "Uncategorized" for null values
@@ -104,7 +109,7 @@ export default function AddPropertyCategoryMapping() {
     fetchData()
   }, [id])
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-500">Loading data...</div>
+  if (loading) return <CustomLoader text="Loading category mapping..." />
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">

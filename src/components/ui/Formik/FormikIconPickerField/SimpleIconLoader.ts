@@ -228,11 +228,7 @@ export class SimpleIconLoader {
         .map(name => {
           const component = (lucideModule as any)[name]
           // Accept both functions and ForwardRef objects
-          if (
-            component &&
-            (typeof component === 'function' ||
-              (typeof component === 'object' && component !== null))
-          ) {
+          if (component && (typeof component === 'function' || (typeof component === 'object' && component !== null))) {
             return {
               name: name as LucideIconName,
               component: component as LucideIcon,
@@ -244,15 +240,11 @@ export class SimpleIconLoader {
         .filter((icon): icon is SimpleIconInfo => icon !== null)
 
       this.isLoaded = true
-      console.log(
-        `✅ SimpleIconLoader: Loaded ${this.icons.length} guaranteed icons`,
-      )
+      console.log(`SimpleIconLoader: Loaded ${this.icons.length} guaranteed icons`)
 
       return { icons: this.icons, isLoaded: this.isLoaded, error: null }
     } catch (error) {
-      const errorMsg = `Failed to load icons: ${
-        error instanceof Error ? error.message : 'Unknown error'
-      }`
+      const errorMsg = `Failed to load icons: ${error instanceof Error ? error.message : 'Unknown error'}`
       console.error('❌ SimpleIconLoader error:', error)
       return { icons: [], isLoaded: false, error: errorMsg }
     }

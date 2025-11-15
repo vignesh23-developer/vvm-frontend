@@ -6,6 +6,7 @@ interface PropertiesListingProps {
 }
 const page = async ({ params }: PropertiesListingProps) => {
   const { slug } = await params
+
   return (
     <div>
       <PropertiesListing params={slug} />
