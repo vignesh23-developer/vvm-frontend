@@ -83,6 +83,12 @@ export const appEndpoints = {
   addPropertyMediaLink: (propertyId: string) => `/property-media/${propertyId}`,
   addPropertyMediaLocal: (propertyId: string) => `/property-media/${propertyId}/upload`,
 
+  // Ads Category Endpoints
+  createAdsCategory: '/master/ads-category',
+  getAdsCategoryByID: (categoryId: string) => `/master/ads-category/${categoryId}`,
+  updateAdsCategory: (categoryId: string) => `/master/ads-category/${categoryId}`,
+  updateAdsCategoryStatus: (categoryId: string) => `/master/ads-category/${categoryId}/status`,
+
   // Ads Endpoints
   createAd: '/ads',
   getAllAds: '/ads',
