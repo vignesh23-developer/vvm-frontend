@@ -5,7 +5,7 @@ import { useState, useEffect, useActionState, startTransition } from 'react'
 import { Formik, Form, FormikHelpers } from 'formik'
 import * as Yup from 'yup'
 import toast from 'react-hot-toast'
- 
+import { useRouter } from 'next/navigation'
 
 // Step components
 import Step1BasicDetails from '../(views)/BasicDetails'
@@ -23,6 +23,7 @@ interface AdsFormProps {
 }
 
 export default function AdsForm({ mode, initialData, adId }: AdsFormProps) {
+  const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
   const [createdAdId, setCreatedAdId] = useState<string | undefined>(adId)
   
@@ -84,11 +85,13 @@ export default function AdsForm({ mode, initialData, adId }: AdsFormProps) {
     is_boosted: false,
 
     address_line: '',
+    door_number: '',
+    street_name: '',
     city: '',
     district: '',
-    state: '',
+    state: 'Tamil Nadu',
     postal_code: '',
-    country: 'USA',
+    country: 'India',
     latitude: 0,
     longitude: 0,
 
@@ -117,11 +120,13 @@ export default function AdsForm({ mode, initialData, adId }: AdsFormProps) {
 
     2: Yup.object().shape({
       address_line: Yup.string().trim().required('Address is required'),
-      city: Yup.string().trim().required('City is required'),
-      district: Yup.string().trim().required('District is required'),
-      state: Yup.string().trim().required('State is required'),
-      postal_code: Yup.string().trim().required('Postal code is required'),
-      country: Yup.string().required('Country is required'),
+      door_number: Yup.string().trim().optional().notRequired(),
+      street_name: Yup.string().trim().optional().notRequired(),
+      city: Yup.string().trim().optional().notRequired(),
+      district: Yup.string().trim().optional().notRequired(),
+      state: Yup.string().oneOf(['Tamil Nadu'], 'State must be Tamil Nadu'),
+      postal_code: Yup.string().trim().optional().notRequired(),
+      country: Yup.string().oneOf(['India'], 'Country must be India'),
     }),
 
     3: Yup.object().shape({
@@ -221,7 +226,7 @@ export default function AdsForm({ mode, initialData, adId }: AdsFormProps) {
               {currentStep === 4 && (
                 <AdsImages
                   adId={createdAdId || adId || ''}
-                  onUploaded={() => {}}
+                  onUploaded={() => router.push('/ads/list')}
                   mode={mode}
                 />
               )}

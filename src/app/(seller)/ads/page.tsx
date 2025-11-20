@@ -17,6 +17,8 @@ export interface AdsCreationFormValues {
 
   // Location
   address_line: string
+  door_number: string
+  street_name: string
   city: string
   district: string
   state: string

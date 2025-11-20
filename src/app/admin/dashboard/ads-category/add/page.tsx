@@ -21,12 +21,15 @@ export default function AddAdsCategory() {
   // ✅ Handle form submission
   const handleSubmit = async (values: FormValues) => {
     try {
-      const payload = {
+      const payload: Record<string, any> = {
         name: values.name.trim(),
-        icon: values.icon,
         description: values.description?.trim(),
         sortOrder: values.sortOrder ?? 0,
         isActive: values.isActive ?? true,
+      }
+
+      if (values.icon) {
+        payload.icon = values.icon
       }
 
       const response: ResponseDTO = await postMethod(appEndpoints.createAdsCategory, payload)

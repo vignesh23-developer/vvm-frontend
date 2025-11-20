@@ -40,6 +40,8 @@ export default function AdsEditPage() {
           is_published: ad.is_published || false,
           is_boosted: ad.is_boosted || false,
           address_line: ad.address_line || '',
+          door_number: ad.door_number || '',
+          street_name: ad.street_name || '',
           city: ad.city || '',
           district: ad.district || '',
           state: ad.state || '',
