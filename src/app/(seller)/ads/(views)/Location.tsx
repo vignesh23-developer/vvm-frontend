@@ -4,6 +4,7 @@ import { FormikProps } from 'formik'
 import { AdsCreationFormValues } from '../page'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
 import LocationPickerModal, { AddressParts } from '@/components/ui/map/LocationPickerModal'
+import LocationSearchBox from '@/components/ui/map/LocationSearchInput'
 import { useState } from 'react'
 
 interface Step2LocationProps {
@@ -14,13 +15,23 @@ export default function Step2Location({ formik }: Step2LocationProps) {
   const { values, errors, touched, handleChange, setFieldValue } = formik
   const [isMapView, setIsMapView] = useState<boolean>(false)
 
-  // US States for example - can be replaced with any country's states/provinces
-  const states = [
-    'NY', 'CA', 'TX', 'FL', 'IL', 'PA', 'OH', 'GA', 'NC', 'MI',
-    'NJ', 'VA', 'WA', 'AZ', 'MA', 'TN', 'IN', 'MO', 'MD', 'WI'
-  ]
-
-  const countries = ['USA', 'Canada', 'UK', 'India', 'Australia']
+  const handleLocationSelect = (
+    lat: number,
+    lng: number,
+    address: AddressParts,
+    fullAddress: string,
+  ) => {
+    setFieldValue('latitude', lat)
+    setFieldValue('longitude', lng)
+    setFieldValue('district', address?.district ?? '')
+    setFieldValue('door_number', address?.doorNumber ?? '')
+    setFieldValue('street_name', address?.streetName ?? '')
+    setFieldValue('city', address?.city ?? '')
+    setFieldValue('state', address?.state ?? '')
+    setFieldValue('postal_code', address?.postalCode ?? '')
+    setFieldValue('country', address?.country ?? '')
+    setFieldValue('address_line', fullAddress ?? '')
+  }
 
   return (
     <div className="w-full mt-8 p-6 bg-white shadow-md rounded-xl border border-gray-200 max-w-4xl mx-auto">
@@ -30,100 +41,64 @@ export default function Step2Location({ formik }: Step2LocationProps) {
       </div>
 
       <div className="space-y-6">
-        {/* Address Line */}
-        <div>
-          <FormikTextField
-            isrequired
-            type="text"
-            placeholder="e.g., 123 Main St"
-            label="Address Line"
+        {/* Address Section */}
+        <div className="space-y-4">
+          <LocationSearchBox
+            label="Full Address"
             name="address_line"
+            placeholder="Enter address line"
+            value={values.address_line}
+            onSelectLocation={(lat, lng, fullAddress, parts) => handleLocationSelect(lat, lng, parts, fullAddress)}
           />
-        </div>
 
-        {/* City and District */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <FormikTextField label="Door Number" name="door_number" placeholder="Enter door number" />
+            <FormikTextField label="Street Name" name="street_name" placeholder="Enter street name" />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <FormikTextField
-              isrequired
-              type="text"
-              placeholder="Enter city"
-              label="City"
-              name="city"
+              label="Country"
+              name="country"
+              readOnly
+              placeholder="Enter country"
+              className="w-full p-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed text-gray-700 focus:outline-none focus:ring-0 focus:border-gray-300"
+            />
+
+            <FormikTextField
+              label="State"
+              name="state"
+              readOnly
+              placeholder="Enter state"
+              className="w-full p-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed text-gray-700 focus:outline-none focus:ring-0 focus:border-gray-300"
             />
           </div>
 
-          <div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <FormikTextField
-              isrequired
-              type="text"
-              placeholder="Enter district"
               label="District"
               name="district"
+              readOnly
+              placeholder="Enter district"
+              className="w-full p-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed text-gray-700 focus:outline-none focus:ring-0 focus:border-gray-300"
             />
-          </div>
-        </div>
-
-        {/* State and Postal Code */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700">
-              State <span className="text-red-500">*</span>
-            </label>
-            <select
-              name="state"
-              value={values.state}
-              onChange={handleChange}
-              className={`mt-2 w-full px-4 py-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-[#7B1E1E] focus:outline-none
-                ${errors.state && touched.state ? 'border-red-300 bg-red-50' : 'border-gray-300'}`}
-            >
-              <option value="">Select state</option>
-              {states.map(state => (
-                <option key={state} value={state}>
-                  {state}
-                </option>
-              ))}
-            </select>
-            {touched.state && errors.state && (
-              <p className="text-red-600 text-xs mt-1">{errors.state}</p>
-            )}
-          </div>
-
-          <div>
             <FormikTextField
-              isrequired
-              type="text"
-              placeholder="e.g., 10001"
+              label="City / Town"
+              name="city"
+              readOnly
+              placeholder="Enter city"
+              className="w-full p-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed text-gray-700 focus:outline-none focus:ring-0 focus:border-gray-300"
+            />
+            <FormikTextField
               label="Postal Code"
               name="postal_code"
+              readOnly
+              placeholder="Enter postal code"
+              className="w-full p-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed text-gray-700 focus:outline-none focus:ring-0 focus:border-gray-300"
             />
           </div>
         </div>
 
-        {/* Country */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700">
-            Country <span className="text-red-500">*</span>
-          </label>
-          <select
-            name="country"
-            value={values.country}
-            onChange={handleChange}
-            className={`mt-2 w-full px-4 py-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-[#7B1E1E] focus:outline-none
-              ${errors.country && touched.country ? 'border-red-300 bg-red-50' : 'border-gray-300'}`}
-          >
-            {countries.map(country => (
-              <option key={country} value={country}>
-                {country}
-              </option>
-            ))}
-          </select>
-          {touched.country && errors.country && (
-            <p className="text-red-600 text-xs mt-1">{errors.country}</p>
-          )}
-        </div>
-
-        {/* Latitude and Longitude (Optional) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-semibold text-gray-700">
@@ -156,11 +131,8 @@ export default function Step2Location({ formik }: Step2LocationProps) {
           </div>
         </div>
 
-        {/* Location Picker Button */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Select Location Via Google Map
-          </label>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">Select Location Via Google Map</label>
           <button
             type="button"
             onClick={() => setIsMapView(!isMapView)}
@@ -170,29 +142,21 @@ export default function Step2Location({ formik }: Step2LocationProps) {
           </button>
         </div>
 
-        {/* Info Box */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-sm text-blue-700">
-            <strong>Tip:</strong> Providing accurate location details helps potential buyers find your ad more easily.
-            You can use the map picker to automatically fill in address details.
+            <strong>Tip:</strong> Providing accurate location details helps potential buyers find your ad more easily. Use the search box or map picker to fill the form automatically.
           </p>
         </div>
       </div>
 
-      {/* LocationPickerModal */}
       <LocationPickerModal
         open={isMapView}
         setOpen={setIsMapView}
-        initialLat={values?.latitude || 40.7128}
-        initialLng={values?.longitude || -74.0060}
-        onLocationSelect={(lat: number, lng: number, address: AddressParts, fullAddress: string) => {
-          setFieldValue('latitude', lat)
-          setFieldValue('longitude', lng)
-          setFieldValue('district', address?.district ?? '')
-          setFieldValue('city', address?.city ?? '')
-          setFieldValue('postal_code', address?.postalCode ?? '')
-          setFieldValue('address_line', fullAddress ?? '')
-        }}
+        initialLat={values?.latitude || 13.0827}
+        initialLng={values?.longitude || 80.2707}
+        onLocationSelect={(lat: number, lng: number, address: AddressParts, fullAddress: string) =>
+          handleLocationSelect(lat, lng, address, fullAddress)
+        }
       />
     </div>
   )
