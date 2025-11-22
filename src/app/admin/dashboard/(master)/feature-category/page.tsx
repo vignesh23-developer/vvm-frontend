@@ -9,7 +9,7 @@ import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 
 type FeatureCategoryTableRow = FeatureCategory & Record<string, unknown>
 export default function FeatureCategoryPage() {
-  const { categories, error, isLoading, handleAdd, handleEdit, handleDelete } = useFeatureCategories()
+  const { categories, error, total, isLoading, handleAdd, handleEdit, handleDelete, mutateCategories } = useFeatureCategories()
 
   const columns = useMemo(
     () => [
@@ -61,6 +61,10 @@ export default function FeatureCategoryPage() {
     }
   }, [categories])
 
+  const handleRefresh = async () => {
+    await mutateCategories()
+  }
+
   if (error) return <div className="p-6 text-red-600">Failed to load feature categories.</div>
   if (isLoading) return <CustomLoader text="Loading feature categories..." />
 
@@ -73,7 +77,7 @@ export default function FeatureCategoryPage() {
           onClick={handleAdd}
           className="flex items-center gap-2 bg-[#7B1E1E] hover:bg-[#641717] cursor-pointer text-white px-4 py-2 rounded-md text-sm font-medium shadow-md transition"
         >
-          <Plus size={16} /> Add Category
+          <Plus size={16} /> Add Feature Category
         </button>
       </div>
 
@@ -84,9 +88,12 @@ export default function FeatureCategoryPage() {
           actions={actions}
           fetchData={fetchCategories}
           loading={isLoading}
+          isPagination={true}
           allowExport
           allowGrouping
           allowRefresh
+          totalItemsData={total}
+          onRefresh={handleRefresh}
         />
       </div>
     </div>

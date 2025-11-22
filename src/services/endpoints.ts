@@ -26,10 +26,11 @@ export const appEndpoints = {
   createProperty: '/properties',
   getAllProperties: '/properties',
   getAllPropertiesList: '/properties/search/list',
+  getAllPropertyDistrictSummary: '/properties/search/district-summary',
   getPropertiesByID: (propertyId: string) => `/properties/${propertyId}`,
   updatePropertiesByID: (propertyId: string) => `/properties/${propertyId}`,
   deletePropertiesByID: (propertyId: string) => `/properties/${propertyId}`,
-
+  getPropertyFavorite: '/properties/favorites',
   getPropertyByID: (propertyId: string) => `/properties/${propertyId}`,
   updateProperty: (propertyId: string) => `/properties/${propertyId}`,
   updatePropertyStatus: (propertyId: string) => `/properties/${propertyId}/status`,
@@ -80,8 +81,14 @@ export const appEndpoints = {
   createProperties: (agentId: string) => `/properties/?ownerId=${agentId}`,
   updateProperties: `/properties/`,
 
+  // Property images
   addPropertyMediaLink: (propertyId: string) => `/property-media/${propertyId}`,
   addPropertyMediaLocal: (propertyId: string) => `/property-media/${propertyId}/upload`,
+
+  addPropertyImages: (propertyId: string) => `/property-media/${propertyId}/upload`,
+  getPropertyImages: (propertyId: string) => `/property-media/${propertyId}`,
+  updatePropertyImage: (propertyId: string, imageId: string) => `/property-media/${propertyId}/${imageId}`,
+  deletePropertyImage: (propertyId: string, imageId: string) => `/property-media/${propertyId}/${imageId}`,
 
   // Ads Endpoints
   createAd: '/ads',
@@ -96,7 +103,9 @@ export const appEndpoints = {
   updateAdImage: (adId: string, imageId: string) => `/ads/${adId}/images/${imageId}`,
   deleteAdImage: (adId: string, imageId: string) => `/ads/${adId}/images/${imageId}`,
   // Favorite Endpoints
+
   toggleFavorite: '/user-interactions/favorites/toggle',
+
   deleteFavorite: (propertyId: string) => `/user-interactions/favorites/${propertyId}`,
   // Enquiry
   createPropertyEnquiry: '/user-interactions/enquiries',
@@ -107,8 +116,10 @@ export const appEndpoints = {
   getCompanyProfile: '/agent-company-profiles',
   getCompanyProfileByID: (agentId: string) => `/agent-company-profiles/${agentId}`,
   getCompanyProfilesByUserID: (userId: string) => `/agent-company-profiles/by-user/${userId}`,
+  getCompanyProfilesByName: (profileName: string) => `/agent-company-profiles/by-profile/${profileName}`,
   updateCompanyProfile: (agentId: string) => `/agent-company-profiles/${agentId}`,
   verifyCompanyProfileName: (profileName: string) => `/agent-company-profiles/verify-profile-name?name=${encodeURIComponent(profileName)}`,
   validateProfileName: '/agent-company-profiles/validate-profile-name',
   deleteCompanyProfile: (agentId: string) => `/agent-company-profiles/${agentId}`,
+  uploadCompanyProfileImage: (agentId: string) => `/agent-company-profiles/${agentId}/logo`,
 }

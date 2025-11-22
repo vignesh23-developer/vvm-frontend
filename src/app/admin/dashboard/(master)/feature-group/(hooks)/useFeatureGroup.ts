@@ -7,37 +7,20 @@ import { appEndpoints } from '@/services/endpoints'
 import { getMethod, patchMethod } from '@/services/service'
 import { FeatureGroup } from '@/app/admin/dashboard/(master)/feature-group/(dto)/FeatureGroupType'
 import toast from 'react-hot-toast'
+import { ResponseDTO } from '@/components/dto/response_dto'
 
 // Custom hook for managing property categories
 export function useFeatureGroup() {
   const router = useRouter()
 
   // Fetcher using our generic API helper
-  const fetcher = async (url: string): Promise<FeatureGroup[]> => {
-    try {
-      const response = await getMethod<FeatureGroup[]>(url)
-      console.log('Fetched feature group ResponseDTO:', response)
-
-      if (response.error) {
-        console.error('API error while fetching group:', response.message)
-        return []
-      }
-
-      // Safe extraction of data
-      if (Array.isArray(response.data)) {
-        return response.data
-      }
-
-      console.warn('Unexpected data format:', response.data)
-      return []
-    } catch (error) {
-      console.error('Failed to fetch property categories:', error)
-      return []
-    }
+  const fetcher = async (url: string) => {
+    const response = await getMethod(url)
+    return response
   }
 
   // SWR handles caching, revalidation, and errors
-  const { data: groups, error, isLoading, mutate: mutateGroups } = useSWR<FeatureGroup[]>(`${appEndpoints.getAllFeatureGroups}`, fetcher)
+  const { data, error, isLoading, mutate: mutateGroups } = useSWR<ResponseDTO>(`${appEndpoints.getAllFeatureGroups}`, fetcher)
 
   // CRUD handlers
   const handleAdd = useCallback(() => {
@@ -55,7 +38,7 @@ export function useFeatureGroup() {
     try {
       await patchMethod(`${appEndpoints.updateFeatureGroupStatus(id.toString())}`)
 
-      // ✅ Revalidate data after update
+      // Revalidate data after update
       mutateGroups()
 
       toast.success(`Category ${newStatus ? 'activated' : 'deactivated'}!`)
@@ -66,7 +49,8 @@ export function useFeatureGroup() {
   }
 
   return {
-    groups: groups ?? [],
+    groups: data?.data as FeatureGroup[] | undefined,
+    total: data?.data?.total as number | undefined,
     error,
     isLoading,
     handleAdd,

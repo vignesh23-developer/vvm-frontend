@@ -12,12 +12,13 @@ type FeatureGroupTableRow = FeatureGroup & Record<string, unknown>
 export default function FeatureGroupPage() {
   const {
     groups,
+    total,
     error,
     isLoading,
     handleAdd,
     handleEdit,
     handleDelete,
-    mutateGroups, // ✅ now included
+    mutateGroups, // now included
   } = useFeatureGroup()
 
   // Columns definition
@@ -76,6 +77,10 @@ export default function FeatureGroupPage() {
     }
   }, [groups])
 
+  const handleRefresh = async () => {
+    await mutateGroups()
+  }
+
   //  Handle loading and error states
   if (error) return <div className="p-6 text-red-600">Failed to load feature group.</div>
 
@@ -102,9 +107,12 @@ export default function FeatureGroupPage() {
           actions={actions}
           fetchData={fetchGroups}
           loading={isLoading}
+          isPagination={true}
           allowExport
           allowGrouping
           allowRefresh
+          totalItemsData={total}
+          onRefresh={handleRefresh}
         />
       </div>
     </div>

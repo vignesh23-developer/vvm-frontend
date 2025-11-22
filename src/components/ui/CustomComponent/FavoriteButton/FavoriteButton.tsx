@@ -1,40 +1,43 @@
 'use client'
 
+import Button from '@/components/ui/CustomComponent/Button/Button'
 import { motion } from 'framer-motion'
 import { Heart } from 'lucide-react'
-import Button from '@/components/ui/CustomComponent/Button/Button'
 
 interface FavoriteButtonProps {
   propertyId: string
-  isFavorited?: boolean
+  isUserFavorited?: boolean
   onToggleFavorite: (propertyId: string) => void
   size?: number
   favoriteCount?: number
 }
 
-const iconHover = { hover: { scale: 1.15, transition: { duration: 0.2 } } }
-
-export default function FavoriteButton({ propertyId, isFavorited = false, onToggleFavorite, size = 18, favoriteCount = 0 }: FavoriteButtonProps) {
-  const hasFavorites = isFavorited || favoriteCount > 0
-
+export function FavoriteButton({ propertyId, isUserFavorited = false, onToggleFavorite, size = 18, favoriteCount = 0 }: FavoriteButtonProps) {
   return (
-    <motion.div variants={iconHover} whileHover="hover" className="relative inline-block">
+    <motion.div whileHover={{ y: -1 }} whileTap={{ scale: 0.96 }} transition={{ duration: 0.15 }}>
       <Button
         type="button"
+        aria-pressed={isUserFavorited}
         onClick={() => onToggleFavorite(propertyId)}
-        className="relative flex items-center justify-center rounded-full p-1 transition hover:bg-gray-100"
+        className={`inline-flex items-center gap-2 rounded-full px-3 py-2 transition
+         shadow-sm border 
+         ${isUserFavorited ? 'border-rose-500 bg-rose-100 text-rose-700' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'}
+         `}
       >
-        <Heart
-          size={size}
-          className={`transition-colors duration-200 ${hasFavorites ? 'text-red-500 fill-red-500' : 'text-gray-500 hover:text-red-400'}`}
-        />
+        <motion.span
+          animate={{
+            scale: isUserFavorited ? 1.15 : 1,
+            rotate: isUserFavorited ? 8 : 0,
+          }}
+          transition={{ type: 'spring', stiffness: 300, damping: 14 }}
+        >
+          <Heart size={size} className={isUserFavorited ? 'text-rose-600 fill-rose-600' : 'text-rose-600'} />
+        </motion.span>
 
-        {favoriteCount > 0 && (
-          <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white shadow-sm">
-            {favoriteCount}
-          </span>
-        )}
+        <span className="font-semibold text-sm">{favoriteCount}</span>
       </Button>
     </motion.div>
   )
 }
+
+export default FavoriteButton

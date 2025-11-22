@@ -3,10 +3,9 @@
 import { Formik, Form } from 'formik'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
 import { useRouter } from 'next/navigation'
-import FormikCheckboxField from '@/components/ui/Formik/FormikCheckboxField/FormikCheckboxField'
-import featureGroupSchema from '@/utils/validations/admin/featureGroupValidation'
+// import FormikCheckboxField from '@/components/ui/Formik/FormikCheckboxField/FormikCheckboxField'
+import featureGroupSchema from '@/app/admin/dashboard/(master)/feature-group/(forms)/featureGroupValidation'
 import type { FeatureGroupFormProps } from '@/app/admin/dashboard/(master)/feature-group/(dto)/FeatureGroupType'
-import IconPicker from '@/components/ui/CustomComponent/IconPicker/IconPicker'
 import FormikIconPickerField from '@/components/ui/Formik/FormikIconPickerField/FormikIconPickerField'
 
 export default function FeatureGroupForm({ initialValues, onSubmit, submitLabel, isEdit = false }: FeatureGroupFormProps) {
@@ -16,7 +15,7 @@ export default function FeatureGroupForm({ initialValues, onSubmit, submitLabel,
     <Formik initialValues={initialValues} validationSchema={featureGroupSchema} enableReinitialize onSubmit={onSubmit}>
       {({ isSubmitting }) => (
         <Form className="space-y-6">
-          {/* Property Category Name */}
+          {/* Feature Group Name */}
           <div>
             <FormikTextField
               label="Name *"
@@ -42,11 +41,11 @@ export default function FeatureGroupForm({ initialValues, onSubmit, submitLabel,
             />
           </div>
           {/* Is Active */}
-          {!isEdit && (
+          {/* {!isEdit && (
             <div>
               <FormikCheckboxField label="Is Active" name="isActive" />
             </div>
-          )}
+          )} */}
 
           {/* Buttons */}
           <div className="flex justify-end items-center gap-4 pt-4">

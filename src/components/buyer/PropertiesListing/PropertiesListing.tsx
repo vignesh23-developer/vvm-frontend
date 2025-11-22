@@ -13,6 +13,7 @@ import { postMethod, deleteMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import Pagination from '@/components/ui/CustomComponent/Paginations/Pagination'
 import SkeletonLoader from '@/components/ui/CustomComponent/SkeletonLoader/SkeletonLoader'
+import useAgentCompanyProfile from './(hooks)/useAgentCompanyProfile'
 
 const flats = [
   {
@@ -35,35 +36,6 @@ const flats = [
     price: '₹ 5.20 Cr',
     owner: 'Ravi Kumar',
     image: '/flat.png',
-  },
-]
-
-const AgentPropertiesList = [
-  {
-    image: '/agent.png',
-    title: '4 BHK Villa for Sale in Whitefield',
-    area: '4000 sqft',
-    status: 'Ready to Move',
-    transaction: 'Resale',
-    facing: 'East Facing Properties',
-    description: '4BHK A Type corner villa for sale in Sterling Villagrande with all amenities',
-    agent: 'Rich Source Realty',
-    operatingSince: '2009',
-    agentName: 'Shankar',
-    agentAddress: 'MG Road,Bangalore',
-  },
-  {
-    image: '/agent.png',
-    title: '4 BHK Villa for Sale in Whitefield',
-    area: '4000 sqft',
-    status: 'Ready to Move',
-    transaction: 'Resale',
-    facing: 'East Facing Properties',
-    description: '4BHK A Type corner villa for sale in Sterling Villagrande with all amenities',
-    agent: 'Rich Source Realty',
-    operatingSince: '2009',
-    agentName: 'Shankar',
-    agentAddress: 'MG Road,Bangalore',
   },
 ]
 
@@ -107,25 +79,33 @@ const PropertiesListing = ({ params }: { params: string }) => {
     approval_status: 'APPROVED',
   })
 
+  const { agentCompanyProfileData, agentCompanyProfileFetchErr, agentCompanyProfileFetchLoader, agentCompanyProfileRefresh } =
+    useAgentCompanyProfile()
+
+  console.log('agentCompanyProfileData', agentCompanyProfileData)
+
   console.log('properties', properties)
 
-  const totalItems = total ?? 0
+  const totalItems =
+    params === 'explore_by_category'
+      ? total ?? 0
+      : params === 'agency'
+      ? agentCompanyProfileData?.length ?? 0
+      : params === 'builder'
+      ? BuildersPropertiesList.length
+      : 0
   const totalPages = Math.max(1, Math.ceil(totalItems / limit))
   const isEmpty = totalItems === 0
 
   const changePage = (page: number) => setPage(Math.max(1, Math.min(page, totalPages)))
 
   const handleFavorite = async (propertyId: string) => {
-    const isFav = favoritedProperties.has(propertyId)
     try {
-      const response = isFav
-        ? await deleteMethod(appEndpoints.deleteFavorite(propertyId))
-        : await postMethod(appEndpoints.toggleFavorite, { entity_type: 'property', entity_id: propertyId })
+      const response = await postMethod(appEndpoints.toggleFavorite, { entity_type: 'property', entity_id: propertyId })
 
       if (!response?.error) {
         setFavoritedProperties(prev => {
           const newSet = new Set(prev)
-          isFav ? newSet.delete(propertyId) : newSet.add(propertyId)
           return newSet
         })
       }
@@ -170,13 +150,17 @@ const PropertiesListing = ({ params }: { params: string }) => {
                     onPrimaryAction={() => router.push(`/propertyDetails/${property.id}`)}
                     handleFavorite={handleFavorite}
                     handleShare={() => console.log('Share', property.id)}
-                    isFavorited={favoritedProperties.has(property.id)}
+                    isUserFavorited={property.is_user_favorite}
                   />
                 ),
               )
             : params === 'agency'
-            ? AgentPropertiesList.map((agentProperty, index) =>
-                isLoading ? <SkeletonLoader key={index} /> : <AgentCard key={index} {...agentProperty} language={t} />,
+            ? agentCompanyProfileData?.map((agentProperty, index) =>
+                agentCompanyProfileFetchLoader ? (
+                  <SkeletonLoader key={index} />
+                ) : (
+                  <AgentCard key={agentProperty.id ?? index} {...agentProperty} language={t} />
+                ),
               )
             : params === 'builder'
             ? BuildersPropertiesList.map((BuilderProperty, index) =>
@@ -184,7 +168,6 @@ const PropertiesListing = ({ params }: { params: string }) => {
               )
             : null}
 
-          {/* Pagination */}
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="mt-6 flex justify-center">

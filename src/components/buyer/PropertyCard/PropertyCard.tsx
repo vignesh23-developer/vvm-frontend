@@ -50,15 +50,17 @@ export interface PropertiesCardProps {
   pricePerSqft?: string
   onPrimaryAction?: () => void
   onSecondaryAction?: () => void
+  onThirdAction?: () => void
   handleFavorite: (propertyId: string) => void
   handleShare: (propertyId: string) => void
-  isFavorited?: boolean
+  isUserFavorited?: boolean
   primaryActionLabel?: string
   secondaryActionLabel?: string
-  tertiaryActionText?: string
+  thirdActionLabel?: string
   primaryActionDisabled?: boolean
   secondaryActionDisabled?: boolean
-  propertyReview?: boolean
+  thirdActionDisabled?: boolean
+  propertyPreviewMode?: boolean
 }
 
 /* ------------------------------ Main Component ------------------------------ */
@@ -78,7 +80,7 @@ export default function PropertyCard(props: PropertiesCardProps) {
     price,
     approval_status,
     favorite_count,
-    isFavorited = false,
+    isUserFavorited = false,
     agent = 'N/A',
     operatingSince = 'N/A',
     handleFavorite,
@@ -86,12 +88,14 @@ export default function PropertyCard(props: PropertiesCardProps) {
     language,
     primaryActionLabel,
     secondaryActionLabel,
-    tertiaryActionText,
+    thirdActionLabel,
     onPrimaryAction,
     onSecondaryAction,
+    onThirdAction,
     primaryActionDisabled = false,
     secondaryActionDisabled = false,
-    propertyReview = false,
+    thirdActionDisabled = false,
+    propertyPreviewMode = false,
   } = props
 
   const labels = {
@@ -106,7 +110,7 @@ export default function PropertyCard(props: PropertiesCardProps) {
   const buttons = {
     primary: primaryActionLabel ?? t(language, 'PropertiesListCard.contact_agent', 'Contact agent'),
     secondary: secondaryActionLabel ?? t(language, 'PropertiesListCard.get_phone_number', 'Get phone number'),
-    tertiary: tertiaryActionText ?? t(language, 'PropertiesListCard.check_affordability', 'Check affordability'),
+    third: thirdActionLabel ?? t(language, 'PropertiesListCard.check_affordability', 'Check affordability'),
   }
 
   const imageUrl = media?.[0]?.url || '/villa.png'
@@ -135,7 +139,7 @@ export default function PropertyCard(props: PropertiesCardProps) {
             listing_type={listing_type}
             handleFavorite={handleFavorite}
             handleShare={handleShare}
-            isFavorited={isFavorited}
+            isUserFavorited={isUserFavorited}
             favorite_count={favorite_count}
           />
         </div>
@@ -146,12 +150,14 @@ export default function PropertyCard(props: PropertiesCardProps) {
         approval_status={approval_status}
         property_size={property_size}
         property_size_unit={property_size_unit}
-        propertyReview={propertyReview}
         buttons={buttons}
         onPrimaryAction={onPrimaryAction}
         onSecondaryAction={onSecondaryAction}
+        onThirdAction={onThirdAction}
         primaryDisabled={primaryActionDisabled}
         secondaryDisabled={secondaryActionDisabled}
+        thirdDisabled={thirdActionDisabled}
+        propertyPreviewMode={propertyPreviewMode}
       />
     </motion.div>
   )
@@ -203,7 +209,7 @@ const InfoSection = ({
   listing_type,
   handleFavorite,
   handleShare,
-  isFavorited,
+  isUserFavorited,
   favorite_count,
 }: any) => (
   <div className="flex flex-1 flex-col justify-between">
@@ -213,11 +219,18 @@ const InfoSection = ({
         <p className="text-[#747474] font-medium underline">{subtitle}</p>
       </div>
 
-      <div className="flex shrink-0 gap-3 text-gray-500">
-        <FavoriteButton propertyId={id} isFavorited={isFavorited} onToggleFavorite={handleFavorite} size={25} favoriteCount={favorite_count} />
-        <Button onClick={() => handleShare(id)} className="p-0">
+      <div className="flex items-center gap-3 text-gray-600">
+        <FavoriteButton
+          propertyId={id}
+          isUserFavorited={isUserFavorited}
+          onToggleFavorite={handleFavorite}
+          size={25}
+          favoriteCount={favorite_count}
+        />
+
+        <button onClick={() => handleShare(id)} className="h-9 w-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition">
           <Share size={18} />
-        </Button>
+        </button>
       </div>
     </div>
 
@@ -242,26 +255,27 @@ const ActionSection = ({
   approval_status,
   property_size,
   property_size_unit,
-  propertyReview,
   buttons,
   onPrimaryAction,
   onSecondaryAction,
+  onThirdAction,
   primaryDisabled,
   secondaryDisabled,
+  thirdDisabled,
+  propertyPreviewMode,
 }: any) => (
   <div className="flex w-full flex-col justify-between bg-[#ECECEC] p-4 lg:w-[240px]">
     <div className="text-left lg:text-right">
       <h3 className="text-xl font-bold">{'₹ ' + price}</h3>
       <p className="text-sm text-gray-500">{`${property_size} ${property_size_unit}`}</p>
     </div>
-
-    {propertyReview ? (
+    {propertyPreviewMode ? (
       <div className="mt-2 mb-24 text-sm text-gray-500">This property is under review.</div>
     ) : approval_status === 'UNDER_REVIEW' ? (
       <div className="mt-4 flex w-full flex-col gap-3">
         {buttons.primary && <ActionButton label={buttons.primary} variant="primary" onClick={onPrimaryAction} disabled={primaryDisabled} />}
         {buttons.secondary && <ActionButton label={buttons.secondary} variant="secondary" onClick={onSecondaryAction} disabled={secondaryDisabled} />}
-        {buttons.tertiary && <p className="mt-2 text-center text-xs text-gray-500">{buttons.tertiary}</p>}
+        {buttons.third && <ActionButton label={buttons.third} variant="third" onClick={onThirdAction} disabled={thirdDisabled} />}
       </div>
     ) : approval_status === 'APPROVED' ? (
       <div className="mt-4 flex w-full flex-col mb-15 gap-3">
@@ -282,7 +296,7 @@ const ActionButton = ({
   disabled,
 }: {
   label: string
-  variant: 'primary' | 'secondary'
+  variant: 'primary' | 'secondary' | 'third'
   onClick?: () => void
   disabled?: boolean
 }) => (

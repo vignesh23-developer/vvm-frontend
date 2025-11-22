@@ -25,9 +25,7 @@ export interface FeatureCategoryFormProps {
   isEdit?: boolean
 }
 
-const ensureOptionsArray = (
-  options: FeatureCategoryFormValues['options'],
-): FeatureOptionFormValue[] => {
+const ensureOptionsArray = (options: FeatureCategoryFormValues['options']): FeatureOptionFormValue[] => {
   if (!Array.isArray(options) || options.length === 0) {
     return []
   }
@@ -42,9 +40,7 @@ const ensureOptionsArray = (
   }))
 }
 
-const createSafeInitialValues = (
-  initialValues: FeatureCategoryFormValues,
-): FeatureCategoryFormValues => {
+const createSafeInitialValues = (initialValues: FeatureCategoryFormValues): FeatureCategoryFormValues => {
   const sanitizedOptions = ensureOptionsArray(initialValues.options)
 
   return {
@@ -61,12 +57,7 @@ const createSafeInitialValues = (
   }
 }
 
-export default function FeatureCategoryForm({
-  initialValues,
-  onSubmit,
-  submitLabel,
-  isEdit = false,
-}: FeatureCategoryFormProps) {
+export default function FeatureCategoryForm({ initialValues, onSubmit, submitLabel, isEdit = false }: FeatureCategoryFormProps) {
   const router = useRouter()
   const safeInitialValues = createSafeInitialValues(initialValues)
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
@@ -91,10 +82,7 @@ export default function FeatureCategoryForm({
       console.log('Fetched feature group ResponseDTO:', response)
 
       if (response.error) {
-        console.error(
-          'API error while fetching feature groups:',
-          response.message,
-        )
+        console.error('API error while fetching feature groups:', response.message)
         return []
       }
 
@@ -110,14 +98,7 @@ export default function FeatureCategoryForm({
     }
   }
 
-  const {
-    data: featureGroups,
-    error: groupError,
-    isLoading,
-  } = useSWR<FeatureGroup[]>(
-    `${appEndpoints.getAllFeatureGroups}?activeOnly=true`,
-    fetcher,
-  )
+  const { data: featureGroups, error: groupError, isLoading } = useSWR<FeatureGroup[]>(`${appEndpoints.getAllFeatureGroups}?activeOnly=true`, fetcher)
 
   const featureGroupOptions =
     featureGroups?.map(group => ({
@@ -179,27 +160,16 @@ export default function FeatureCategoryForm({
               className="w-full border-0 bg-gray-100 rounded-md px-4 py-3 h-36"
             />
 
-            {/* ✅ Feature Group Select */}
+            {/* Feature Group Select */}
             <FormikSelectField
               label="Feature Group"
               name="featureGroupId"
               options={featureGroupOptions}
-              placeholder={
-                isLoading
-                  ? 'Loading...'
-                  : groupError
-                  ? 'Failed to load groups'
-                  : 'Select a feature group'
-              }
+              placeholder={isLoading ? 'Loading...' : groupError ? 'Failed to load groups' : 'Select a feature group'}
             />
 
             {/* Input Type */}
-            <FormikSelectField
-              label="Input Type"
-              name="inputType"
-              options={inputTypeOptions}
-              placeholder="Select input type"
-            />
+            <FormikSelectField label="Input Type" name="inputType" options={inputTypeOptions} placeholder="Select input type" />
 
             <FormikTextField
               label="Sort Order"
@@ -219,37 +189,25 @@ export default function FeatureCategoryForm({
             {values &&
               values.options &&
               Array.isArray(values.options) &&
-              (values.inputType === 'single_select' ||
-                values.inputType === 'multi_select') && (
+              (values.inputType === 'single_select' || values.inputType === 'multi_select') && (
                 <div className="border-t pt-6">
                   <div className="mb-6">
-                    <h3 className="text-xl font-semibold text-gray-800">
-                      Feature Options
-                    </h3>
-                    <p className="text-sm text-gray-600 mt-1">
-                      Define the available options for this feature. Drag to
-                      reorder.
-                    </p>
+                    <h3 className="text-xl font-semibold text-gray-800">Feature Options</h3>
+                    <p className="text-sm text-gray-600 mt-1">Define the available options for this feature. Drag to reorder.</p>
                   </div>
 
                   <FieldArray name="options">
                     {({ push, remove, move }) => {
                       // Triple-check safety
-                      if (
-                        !values ||
-                        !values.options ||
-                        !Array.isArray(values.options)
-                      ) {
+                      if (!values || !values.options || !Array.isArray(values.options)) {
                         return (
                           <div className="text-red-500 p-4 border border-red-200 rounded">
-                            Error: Invalid form data structure. Please refresh
-                            the page.
+                            Error: Invalid form data structure. Please refresh the page.
                           </div>
                         )
                       }
 
-                      const optionsArray: FeatureOptionFormValue[] =
-                        values.options ?? []
+                      const optionsArray: FeatureOptionFormValue[] = values.options ?? []
 
                       const syncSortOrders = () => {
                         if (!values.options) {
@@ -264,15 +222,9 @@ export default function FeatureCategoryForm({
                       }
 
                       // Handle drop logic
-                      const handleDrop = (
-                        e: React.DragEvent,
-                        dropIndex: number,
-                      ) => {
+                      const handleDrop = (e: React.DragEvent, dropIndex: number) => {
                         e.preventDefault()
-                        if (
-                          draggedIndex !== null &&
-                          draggedIndex !== dropIndex
-                        ) {
+                        if (draggedIndex !== null && draggedIndex !== dropIndex) {
                           // Use Formik's move function to reorder items
                           move(draggedIndex, dropIndex)
 
@@ -292,11 +244,7 @@ export default function FeatureCategoryForm({
                                 {optionsArray.length !== 1 ? 's' : ''}
                               </span>
                             </div>
-                            {optionsArray.length > 0 && (
-                              <p className="text-xs text-gray-600">
-                                💡 Tip: Drag the grip handle to reorder options
-                              </p>
-                            )}
+                            {optionsArray.length > 0 && <p className="text-xs text-gray-600">💡 Tip: Drag the grip handle to reorder options</p>}
                           </div>
 
                           {/* Options List or Empty State */}
@@ -331,9 +279,7 @@ export default function FeatureCategoryForm({
 
                                 {/* Option Name */}
                                 <div className="flex-grow min-w-0">
-                                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Option Name *
-                                  </label>
+                                  <label className="block text-sm font-medium text-gray-700 mb-2">Option Name *</label>
                                   <FormikTextField
                                     label=""
                                     name={`options[${index}].name`}
@@ -344,9 +290,7 @@ export default function FeatureCategoryForm({
 
                                 {/* Icon Picker */}
                                 <div className="w-80">
-                                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Choose an Icon
-                                  </label>
+                                  <label className="block text-sm font-medium text-gray-700 mb-2">Choose an Icon</label>
                                   <FormikIconPickerField
                                     name={`options[${index}].icon`}
                                     label=""
@@ -377,12 +321,7 @@ export default function FeatureCategoryForm({
                             /* Empty State */
                             <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
                               <div className="max-w-sm mx-auto">
-                                <svg
-                                  className="w-12 h-12 mx-auto text-gray-400 mb-4"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
+                                <svg className="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
@@ -390,13 +329,8 @@ export default function FeatureCategoryForm({
                                     d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
                                   />
                                 </svg>
-                                <h4 className="text-lg font-medium text-gray-600 mb-2">
-                                  No options yet
-                                </h4>
-                                <p className="text-sm text-gray-500">
-                                  Add your first option to get started. You can
-                                  drag to reorder them later.
-                                </p>
+                                <h4 className="text-lg font-medium text-gray-600 mb-2">No options yet</h4>
+                                <p className="text-sm text-gray-500">Add your first option to get started. You can drag to reorder them later.</p>
                               </div>
                             </div>
                           )}
@@ -416,28 +350,14 @@ export default function FeatureCategoryForm({
                               }
                               className="inline-flex items-center gap-2 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors font-medium"
                             >
-                              <svg
-                                className="w-5 h-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                                />
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                               </svg>
                               Add New Option
                             </button>
-                            <p className="mt-2 text-sm text-gray-600">
-                              Drag to reorder • Options are automatically
-                              activated
-                            </p>
+                            <p className="mt-2 text-sm text-gray-600">Drag to reorder • Options are automatically activated</p>
                             <p className="text-xs text-gray-500 mt-1">
-                              Examples: "1 BHK", "2 BHK", "Villa", "Apartment"
-                              or "North", "South", "East", "West"
+                              Examples: "1 BHK", "2 BHK", "Villa", "Apartment" or "North", "South", "East", "West"
                             </p>
                           </div>
                         </div>
@@ -460,19 +380,14 @@ export default function FeatureCategoryForm({
                 type="submit"
                 disabled={isSubmitting}
                 className={`px-6 py-2 rounded-md text-white font-medium transition ${
-                  isSubmitting
-                    ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-black hover:bg-gray-800 cursor-pointer'
+                  isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-black hover:bg-gray-800 cursor-pointer'
                 }`}
               >
                 {isSubmitting
                   ? isEdit
                     ? 'Updating...'
                     : 'Creating...'
-                  : submitLabel ||
-                    (isEdit
-                      ? 'Update Feature Category'
-                      : 'Create Feature Category')}
+                  : submitLabel || (isEdit ? 'Update Feature Category' : 'Create Feature Category')}
               </button>
             </div>
           </Form>

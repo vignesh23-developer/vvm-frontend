@@ -3,6 +3,7 @@ import * as Yup from 'yup'
 export const FeatureCategoryValidationSchema = Yup.object({
   code: Yup.string().required('Code is required'),
   name: Yup.string().required('Name is required'),
+  featureGroupId: Yup.string().required('Feature Group is required'),
   inputType: Yup.string().required('Input type is required'),
   // options: Yup.array()
   //   .of(

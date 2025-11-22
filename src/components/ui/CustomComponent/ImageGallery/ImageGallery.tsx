@@ -37,30 +37,37 @@ export default function ImageViewer({ images = [] }: ImageViewerProps) {
 
   const handleNav = (dir: 'next' | 'prev') => setSelected(i => (i === null ? 0 : (i + (dir === 'next' ? 1 : -1) + total) % total))
 
+  console.log('ImageViewer validImages:', validImages)
+
   return (
     <>
       {/* 🖼 Thumbnail Layout */}
       {isDefaultOnly ? (
-        // ✅ Show only single full-width image for default fallback
         <Thumbnail src={DEFAULT_IMAGE} className="w-full" />
       ) : (
         <div className="flex gap-2">
-          <Thumbnail src={validImages[0]} onClick={() => setSelected(0)} className="w-[70%]" />
+          {validImages.length > 0 && validImages.length <= 1 ? (
+            <Thumbnail src={validImages[0]} onClick={() => setSelected(0)} className="w-full" />
+          ) : (
+            <>
+              <Thumbnail src={validImages[0]} onClick={() => setSelected(0)} className="w-[70%]" />
 
-          {validImages[1] && (
-            <div className="relative w-[30%]" onClick={() => setSelected(1)}>
-              <Thumbnail src={validImages[1]} />
-              {total > 2 && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-lg font-semibold rounded-xl">
-                  +{total - 1} Photos
+              {validImages[1] && (
+                <div className="relative w-[30%]" onClick={() => setSelected(1)}>
+                  <Thumbnail src={validImages[1]} />
+                  {total > 2 && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-lg font-semibold rounded-xl">
+                      +{total - 1} Photos
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
+            </>
           )}
         </div>
       )}
 
-      {/* 🖼 Fullscreen Modal */}
+      {/* Fullscreen Modal */}
       {selected !== null && (
         <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/95 p-4" onClick={() => setSelected(null)}>
           <style jsx global>{`

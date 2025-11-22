@@ -14,7 +14,7 @@ export default function Breadcrumbs({ customLabels = {} }: BreadcrumbsProps) {
 
   return (
     <nav className="flex items-center text-sm text-gray-600">
-      <Link href="/home" className="hover:text-gray-900">
+      <Link href="/" className="hover:text-gray-900">
         Home
       </Link>
 

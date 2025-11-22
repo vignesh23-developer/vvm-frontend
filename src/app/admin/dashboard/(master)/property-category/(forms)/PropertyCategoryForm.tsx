@@ -4,28 +4,9 @@ import { Formik, Form } from 'formik'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
 import { useRouter } from 'next/navigation'
 import FormikCheckboxField from '@/components/ui/Formik/FormikCheckboxField/FormikCheckboxField'
-import propertyCategorySchema from '@/utils/validations/admin/propertyCategory/propertyCategoryValidation'
+import propertyCategorySchema from '@/app/admin/dashboard/(master)/property-category/(forms)/propertyCategoryValidation'
 import { FormikIconPickerField } from '@/components/ui/Formik/FormikIconPickerField'
-
-export interface FormValues {
-  name: string
-  icon: string
-  description: string
-  sortOrder?: number
-  isActive?: boolean
-}
-
-interface PropertyCategoryFormProps {
-  initialValues: FormValues
-  /** Submit handler */
-  onSubmit: (values: FormValues) => Promise<void>
-
-  /** Optional — Change button label dynamically */
-  submitLabel?: string
-
-  /** Optional — Change button state for add/edit */
-  isEdit?: boolean
-}
+import type { PropertyCategoryFormProps } from '@/app/admin/dashboard/(master)/property-category/(dto)/propertyCategoryType'
 
 export default function PropertyCategoryForm({ initialValues, onSubmit, submitLabel, isEdit = false }: PropertyCategoryFormProps) {
   const router = useRouter()
@@ -67,11 +48,11 @@ export default function PropertyCategoryForm({ initialValues, onSubmit, submitLa
             />
           </div>
           {/* Is Active */}
-          {!isEdit && (
+          {/* {!isEdit && (
             <div>
               <FormikCheckboxField label="Is Active" name="isActive" />
             </div>
-          )}
+          )} */}
 
           {/* Buttons */}
           <div className="flex justify-end items-center gap-4 pt-4">

@@ -11,9 +11,10 @@ import Button from '@/components/ui/CustomComponent/Button/Button'
 type PropertyCategoryTableRow = PropertyCategory & Record<string, unknown>
 
 export default function PropertyCategoryPage() {
-  const { categories, error, isLoading, handleAdd, handleCategoryMapping, handleEdit, handleDelete, mutateCategories } = usePropertyCategories()
+  const { categories, total, error, isLoading, handleAdd, handleCategoryMapping, handleEdit, handleDelete, mutateCategories } =
+    usePropertyCategories()
 
-  // ✅ Columns definition
+  // Columns definition
 
   const columns = useMemo(
     () => [
@@ -82,7 +83,11 @@ export default function PropertyCategoryPage() {
     }
   }, [categories])
 
-  // ✅ Handle loading and error states
+  const handleRefresh = async () => {
+    await mutateCategories()
+  }
+
+  // Handle loading and error states
   if (error) return <div className="p-6 text-red-600">Failed to load property categories.</div>
 
   if (isLoading) return <CustomLoader text="Loading property categories..." />
@@ -104,9 +109,12 @@ export default function PropertyCategoryPage() {
         actions={actions}
         fetchData={fetchCategories}
         loading={isLoading}
+        isPagination={true}
         allowExport
         allowGrouping
         allowRefresh
+        onRefresh={handleRefresh}
+        totalItemsData={total}
       />
     </div>
   )

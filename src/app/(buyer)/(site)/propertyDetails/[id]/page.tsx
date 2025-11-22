@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { Heart, Share2, MessageSquare, Flag, MapPin } from 'lucide-react'
+import Link from 'next/link'
+import { Heart, Share2, MessageSquare, Flag, MapPin, Eye, BarChart3 } from 'lucide-react'
 import Amenities from '@/components/buyer/Amenities/Amenities'
 import { useTranslations } from 'next-intl'
 import { motion, Variants } from 'framer-motion'
@@ -17,6 +18,9 @@ import { deleteMethod, postMethod } from '@/services/service'
 import EnquiryPropertyModal from './modal/EnquiryPropertyModal'
 import { getLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
 import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
+import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
+import { formatPrice } from '@/utils/converter/formatPrice'
+import ApproveOrRejectPropertyModal from '@/components/ui/CustomComponent/Modal/ApproveOrReject/ApproveOrRejectModal'
 
 // Reusable animation variants
 const fadeInUp: Variants = {
@@ -44,9 +48,10 @@ const page = () => {
   const params = useParams<{ id: string | string[] }>()
   const propertyIdParam = params?.id
   const propertyId = Array.isArray(propertyIdParam) ? propertyIdParam[0] : propertyIdParam
-  const [favoritedProperties, setFavoritedProperties] = useState<Set<string>>(new Set())
   const [reportModalOpen, setReportModalOpen] = useState(false)
   const [enquiryModalOpen, setEnquiryModalOpen] = useState(false)
+  const [approveOrRejectModalOpen, setApproveOrRejectModalOpen] = useState(false)
+  const [approveOrRejectReason, setApproveOrRejectReason] = useState<string>('')
   const { propertyDetailsData, propertyDetailsFetchLoader, propertyDetailsFetchErr, propertyDetailsRefresh } = usePropertiesDetail({ id: propertyId })
   const [userValue, setUserValue] = useState<userData | null>(null)
 
@@ -62,32 +67,37 @@ const page = () => {
   const ownerPhoneDisplay = userValue ? propertyDetailsData?.contact_phone ?? 'Unknown' : 'xxxxx'
 
   const handleFavorite = async (propertyId: string) => {
-    const isFav = favoritedProperties.has(propertyId)
     try {
-      const response = isFav
-        ? await deleteMethod(appEndpoints.deleteFavorite(propertyId))
-        : await postMethod(appEndpoints.toggleFavorite, { entity_type: 'property', entity_id: propertyId })
-
-      if (!response?.error) {
-        setFavoritedProperties(prev => {
-          const newSet = new Set(prev)
-          isFav ? newSet.delete(propertyId) : newSet.add(propertyId)
-          return newSet
-        })
-      }
+      const response = await postMethod(appEndpoints.toggleFavorite, { entity_type: 'property', entity_id: propertyId })
       propertyDetailsRefresh()
     } catch (err) {
       console.error('Error updating favorite:', err)
     }
   }
 
-  if (propertyDetailsFetchLoader) {
-    return (
-      <main className="flex min-h-[50vh] items-center justify-center bg-gray-50">
-        <p className="text-gray-600 text-sm md:text-base">{t('PropertiesDetails.loading', { defaultValue: 'Loading property details…' })}</p>
-      </main>
-    )
-  }
+  const ReportDetails = [
+    {
+      label: 'Number of Reports',
+      value: propertyDetailsData?.reports.length || 0,
+      color: 'bg-rose-500',
+      icon: <BarChart3 className="w-5 h-5 text-white" />,
+      href: '/admin/dashboard/property-reports',
+    },
+    {
+      label: 'Total Enquiries',
+      value: 48,
+      color: 'bg-blue-500',
+      icon: <MessageSquare className="w-5 h-5 text-white" />,
+      href: '/admin/dashboard/property-enquiry',
+    },
+    {
+      label: 'Page Views',
+      value: propertyDetailsData?.view_count || 0,
+      color: 'bg-green-500',
+      icon: <Eye className="w-5 h-5 text-white" />,
+      href: '#',
+    },
+  ]
 
   if (propertyDetailsFetchErr) {
     return (
@@ -101,12 +111,16 @@ const page = () => {
     )
   }
 
-  if (!propertyDetailsData) {
-    return (
-      <main className="flex min-h-[50vh] items-center justify-center bg-gray-50">
-        <p className="text-gray-600 text-sm md:text-base">{t('PropertiesDetails.not_found', { defaultValue: 'Property details not available.' })}</p>
-      </main>
-    )
+  // if (!propertyDetailsData) {
+  //   return (
+  //     <main className="flex min-h-[50vh] items-center justify-center bg-gray-50">
+  //       <p className="text-gray-600 text-sm md:text-base">{t('PropertiesDetails.not_found', { defaultValue: 'Property details not available.' })}</p>
+  //     </main>
+  //   )
+  // }
+
+  if (propertyDetailsFetchLoader) {
+    return <CustomLoader text="Loading property details..." />
   }
 
   return (
@@ -121,22 +135,23 @@ const page = () => {
             <div className="flex justify-between items-start p-5">
               <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }}>
                 <h1 className="text-xl font-semibold">{propertyDetailsData?.title}</h1>
-                <p className="text-gray-800 mt-2">₹ {propertyDetailsData?.price}</p>
+                <p className="text-gray-800 mt-2">₹ {formatPrice(propertyDetailsData?.price)}</p>
                 <p className="text-sm text-gray-500">
                   {propertyDetailsData?.property_size} {propertyDetailsData?.property_size_unit}
                 </p>
               </motion.div>
 
               <motion.div className="flex gap-3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }}>
-                <motion.div whileHover={{ scale: 1.2, color: '#ef4444' }} className="p-2 rounded-full hover:bg-gray-100 transition">
+                <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 200, damping: 12 }} className="inline-block">
                   <FavoriteButton
                     propertyId={propertyId}
-                    isFavorited={favoritedProperties.has(propertyId)}
+                    isUserFavorited={propertyDetailsData?.is_user_favorite}
                     onToggleFavorite={handleFavorite}
                     size={25}
                     favoriteCount={propertyDetailsData?.favorite_count}
                   />
                 </motion.div>
+
                 <motion.button whileHover={{ scale: 1.2, color: '#2563eb' }} className="p-2 rounded-full hover:bg-gray-100 transition">
                   <Share2 size={20} />
                 </motion.button>
@@ -164,7 +179,7 @@ const page = () => {
                 [t('PropertiesDetails.super_built_up_area'), `${propertyDetailsData?.property_size} ${propertyDetailsData?.property_size_unit}`],
 
                 [t('PropertiesDetails.listing_type'), `${propertyDetailsData?.listing_type}`],
-                [t('PropertiesDetails.price'), `₹ ${propertyDetailsData?.price}`],
+                [t('PropertiesDetails.price'), `₹ ${formatPrice(propertyDetailsData?.price)}`],
                 [t('PropertiesDetails.status'), `${propertyDetailsData?.status}`],
               ].map(([label, value], idx) => (
                 <motion.div key={idx} whileHover={{ scale: 1.03 }}>
@@ -205,6 +220,55 @@ const page = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
+          {/* Approve / Reject Section */}
+          {propertyDetailsData?.approval_status === 'UNDER_REVIEW' && (
+            <motion.div
+              whileHover={{ scale: 1.01 }}
+              className="bg-white border border-gray-200 rounded-2xl p-6 shadow-md 
+             flex flex-col gap-5 w-full max-w-xl mx-auto"
+            >
+              {/* Title */}
+              <h2 className="text-lg font-semibold text-gray-800 text-center">Approve or Reject the Property</h2>
+
+              {/* Buttons */}
+              <div className="flex items-center justify-center gap-6">
+                {/* Approve Button */}
+                <motion.div whileTap={{ scale: 0.95 }}>
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setApproveOrRejectModalOpen(true)
+                      setApproveOrRejectReason('approve')
+                    }}
+                    className="px-6 py-2.5 rounded-lg border border-green-600 
+                 text-green-700 font-medium shadow-sm
+                 hover:bg-green-600 hover:text-white transition-all 
+                 active:scale-95"
+                  >
+                    Approve
+                  </Button>
+                </motion.div>
+
+                {/* Reject Button */}
+                <motion.div whileTap={{ scale: 0.95 }}>
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setApproveOrRejectModalOpen(true)
+                      setApproveOrRejectReason('reject')
+                    }}
+                    className="px-6 py-2.5 rounded-lg border border-red-600 
+                 text-red-600 font-medium shadow-sm
+                 hover:bg-red-600 hover:text-white transition-all 
+                 active:scale-95"
+                  >
+                    Reject
+                  </Button>
+                </motion.div>
+              </div>
+            </motion.div>
+          )}
+
           {/* Contact Owner */}
           <motion.div whileHover={{ scale: 1.03 }} className="bg-white shadow-md rounded-xl p-6">
             <h3 className="text-lg font-bold mb-2">{t('PropertiesDetails.contact_owner')}</h3>
@@ -236,7 +300,7 @@ const page = () => {
                 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="flex justify-between items-center gap-2 text-white px-4 py-2 rounded-lg shadow-md transition font-medium">
+                <div className="flex justify-between items-center gap-2 text-white px-2 py-2 transition font-medium">
                   <Button
                     type="button"
                     onClick={() => setReportModalOpen(true)}
@@ -258,16 +322,21 @@ const page = () => {
             </div>
           </motion.div>
 
-          {/* Agents */}
+          {/* Reports and Enquiries */}
           <motion.div whileHover={{ scale: 1.03 }} className="bg-white shadow-md rounded-xl p-6">
-            {[
-              ['SD', t('PropertiesDetails.agent') + ' 1', 'bg-blue-500'],
-              ['S', t('PropertiesDetails.agent') + ' 2', 'bg-indigo-500'],
-            ].map(([initials, name, color], idx) => (
-              <motion.div key={idx} className={`flex items-center space-x-3 mb-4 last:mb-0`} whileHover={{ x: 5 }}>
-                <div className={`w-10 h-10 rounded-full ${color} flex items-center justify-center text-white font-bold`}>{initials}</div>
-                <p className="font-medium text-gray-700">{name}</p>
-              </motion.div>
+            {ReportDetails?.map((item, idx) => (
+              <Link href={item.href} key={idx} className="block">
+                <motion.div whileHover={{ x: 5 }} className="flex items-center space-x-4 mb-4 last:mb-0 cursor-pointer">
+                  {/* Icon Circle */}
+                  <div className={`w-10 h-10 rounded-full ${item.color} flex items-center justify-center shadow`}>{item.icon}</div>
+
+                  {/* Text Block */}
+                  <div>
+                    <p className="text-sm font-semibold text-gray-700">{item.label}</p>
+                    <p className="text-xl font-bold text-gray-900">{item.value}</p>
+                  </div>
+                </motion.div>
+              </Link>
             ))}
           </motion.div>
           {/* Video Section */}
@@ -286,6 +355,15 @@ const page = () => {
             ></iframe>
           </motion.div>
         </motion.aside>
+
+        <ApproveOrRejectPropertyModal
+          approveOrRejectModalOpen={approveOrRejectModalOpen}
+          setApproveOrRejectModalOpen={setApproveOrRejectModalOpen}
+          approveOrRejectReason={approveOrRejectReason}
+          userId={userValue ? userValue?.id : ''}
+          property={propertyDetailsData ? propertyDetailsData : ''}
+          propertyDetailsRefresh={propertyDetailsRefresh}
+        />
 
         <ReportPropertyModal
           reportModalOpen={reportModalOpen}

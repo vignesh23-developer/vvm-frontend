@@ -6,6 +6,7 @@ import { FormValues } from '@/app/admin/dashboard/(master)/feature-group/(dto)/F
 import { appEndpoints } from '@/services/endpoints'
 import { postMethod } from '@/services/service'
 import toast from 'react-hot-toast'
+import { ResponseDTO } from '@/components/dto/response_dto'
 
 export default function AddFeatureGroup() {
   const router = useRouter()
@@ -17,7 +18,7 @@ export default function AddFeatureGroup() {
     isActive: true,
   }
 
-  // ✅ Handle form submission
+  // Handle form submission
   const handleSubmit = async (values: FormValues) => {
     try {
       const payload = {
@@ -27,11 +28,14 @@ export default function AddFeatureGroup() {
         isActive: values.isActive ?? true,
       }
 
-      const response = await postMethod(appEndpoints.createFeatureGroup, payload)
+      const response: ResponseDTO = await postMethod(appEndpoints.createFeatureGroup, payload)
 
-      toast.success('Feature Group created successfully!')
-
-      router.push('/admin/dashboard/feature-group')
+      if (response?.status === '201') {
+        toast.success('Feature Group created successfully!')
+        router.push('/admin/dashboard/feature-group')
+      } else {
+        toast.error(response?.message || 'Failed to create Feature Group')
+      }
     } catch (error: any) {
       console.error('Create failed:', error)
       toast.error(error?.message || 'Something went wrong!')

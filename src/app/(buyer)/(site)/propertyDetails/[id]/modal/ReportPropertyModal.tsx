@@ -49,7 +49,7 @@ const ReportPropertyModal = ({ reportModalOpen, setReportModalOpen, propertyId }
   const userData: UserData | null = getLocalStorageItem<UserData>(LOCAL_STORAGE_NAME.userData)
 
   const initialValues: ReportFormValues = {
-    report_type: 'FAKE_LISTING',
+    report_type: '',
     description: '',
     is_anonymous: false,
     evidenceLink: '',

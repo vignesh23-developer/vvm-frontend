@@ -6,6 +6,7 @@ import type { FeatureCategory, FeatureCategoryFormValues } from '@/app/admin/das
 import { postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import toast from 'react-hot-toast'
+import { ResponseDTO } from '@/components/dto/response_dto'
 
 export default function AddFeatureCategory() {
   const router = useRouter()
@@ -22,10 +23,10 @@ export default function AddFeatureCategory() {
     options: [{ name: '', value: '', icon: '', sortOrder: 1, isActive: true }],
   }
 
-  // ✅ Handle form submit
+  // Handle form submit
   const handleSubmit = async (values: FeatureCategoryFormValues) => {
     try {
-      // ✅ Prepare payload
+      // Prepare payload
       const payload = {
         ...values,
         options:
@@ -40,18 +41,15 @@ export default function AddFeatureCategory() {
               })),
       }
 
-      // ✅ API call using your helper
-      const res = await postMethod<FeatureCategory>(appEndpoints.createFeatureCategory, payload)
+      // API call using your helper
+      const response: ResponseDTO = await postMethod(appEndpoints.createFeatureCategory, payload)
 
-      if (res.error) {
-        console.error('Failed to create feature category:', res.message)
-        toast.error(res.message || 'Failed to create feature category')
-        return
+      if (response?.status === '201') {
+        toast.success('Feature category created successfully!')
+        router.push('/admin/dashboard/feature-category')
+      } else {
+        toast.error(response?.message || 'Failed to create feature category')
       }
-      toast.success('Feature category created successfully!')
-
-      // ✅ Redirect to listing page
-      router.push('/admin/dashboard/feature-category')
     } catch (error) {
       console.error('Submit error:', error)
       toast.error('Something went wrong while creating feature category')

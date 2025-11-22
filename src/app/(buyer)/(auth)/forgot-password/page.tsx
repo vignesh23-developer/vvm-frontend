@@ -20,10 +20,7 @@ const ForgotPassword = () => {
     phone: '',
   }
 
-  const handleForgotPasswordSubmit = (
-    values: any,
-    setSubmitting: (isSubmitting: boolean) => void,
-  ) => {
+  const handleForgotPasswordSubmit = (values: any, setSubmitting: (isSubmitting: boolean) => void) => {
     console.log('Form Submitted ✅', values)
     setTimeout(() => {
       setSubmitting(false)
@@ -38,12 +35,7 @@ const ForgotPassword = () => {
       className="min-h-screen flex flex-col md:flex-row relative"
     >
       {/* Language Switch */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="absolute top-4 right-4"
-      >
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="absolute top-4 right-4">
         <LanguageSwitch />
       </motion.div>
 
@@ -54,20 +46,9 @@ const ForgotPassword = () => {
         transition={{ duration: 0.8 }}
         className="hidden md:flex w-full md:w-1/2 bg-[#2c1207] flex-col items-center justify-center p-6"
       >
-        <Link href="/home">
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            transition={{ type: 'spring', stiffness: 300 }}
-            className="max-w-xs hover:cursor-pointer"
-          >
-            <Image
-              src="/footer_logo.png"
-              alt="Vaazhga Valamudan Logo"
-              width={400}
-              height={300}
-              className="mt-6"
-              priority
-            />
+        <Link href="/">
+          <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }} className="max-w-xs hover:cursor-pointer">
+            <Image src="/footer_logo.png" alt="Vaazhga Valamudan Logo" width={400} height={300} className="mt-6" priority />
           </motion.div>
         </Link>
       </motion.div>
@@ -86,10 +67,7 @@ const ForgotPassword = () => {
           className="w-full max-w-md"
         >
           {/* Back Button */}
-          <Link
-            href="/login"
-            className="flex items-center text-sm font-semibold text-green-900 mb-4 hover:underline"
-          >
+          <Link href="/login" className="flex items-center text-sm font-semibold text-green-900 mb-4 hover:underline">
             <ArrowLeft size={20} className="mr-2" /> {t('Auth.back')}
           </Link>
 
@@ -123,11 +101,7 @@ const ForgotPassword = () => {
             {({ isSubmitting }) => (
               <Form className="mt-4 space-y-4">
                 {/* Phone Number */}
-                <motion.div
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                >
+                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
                   <FormikTextField
                     label={t('form.phone_number.label')}
                     type="tel"

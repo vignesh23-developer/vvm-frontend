@@ -8,6 +8,7 @@ import { FormValues } from '@/app/admin/dashboard/(master)/feature-group/(dto)/F
 import FeatureGroupForm from '@/app/admin/dashboard/(master)/feature-group/(forms)/FeatureGroupForm'
 import toast from 'react-hot-toast'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
+import { ResponseDTO } from '@/components/dto/response_dto'
 
 export default function EditFeatureGroup() {
   const router = useRouter()
@@ -50,10 +51,14 @@ export default function EditFeatureGroup() {
         sortOrder: values.sortOrder ?? 0,
       }
 
-      const response = await patchMethod(`${appEndpoints.updateFeatureGroup(id as string)}`, payload)
+      const response: ResponseDTO = await patchMethod(`${appEndpoints.updateFeatureGroup(id as string)}`, payload)
 
-      toast.success('Feature Group updated successfully')
-      router.push('/admin/dashboard/feature-group')
+      if (response?.status === '200') {
+        toast.success('Feature Group updated successfully')
+        router.push('/admin/dashboard/feature-group')
+      } else {
+        toast.error(response?.message || 'Failed to update feature group')
+      }
     } catch (error: any) {
       console.error('Update failed:', error)
       toast.error(error.response?.data?.message || error.message || 'Something went wrong while updating feature group')
@@ -65,7 +70,7 @@ export default function EditFeatureGroup() {
 
   if (!initialValues) return <div className="min-h-screen flex items-center justify-center text-gray-500">Feature Group not found.</div>
 
-  /** ✅ Render Form */
+  /** Render Form */
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-8 max-w-3xl mx-auto">

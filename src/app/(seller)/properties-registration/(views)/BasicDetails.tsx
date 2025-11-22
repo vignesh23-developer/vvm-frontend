@@ -60,21 +60,21 @@ export default function Step1BasicDetails({ formik, data, onGetPropertyCategoryF
               <button
                 key={idx}
                 type="button"
-                aria-pressed={values.propertyType === val.id}
-                onClick={async () => onSelectPropertyHandler(val.id)}
+                aria-pressed={values.propertyType === val?.id}
+                onClick={async () => onSelectPropertyHandler(val?.id)}
                 className={`flex items-center gap-2 rounded-lg border-2 px-3 py-2 transition
-                  ${values.propertyType === val.id ? 'border-[#7B1E1E] bg-red-50 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}
+                  ${values.propertyType === val?.id ? 'border-[#7B1E1E] bg-red-50 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}
               >
-                {val.icon && (
+                {val?.icon && (
                   <div className="">
                     <LucideIconRenderer
-                      iconName={val.icon as any}
+                      iconName={val?.icon as any}
                       size={20}
-                      color={values.propertyType === val.id ? 'text-[#7B1E1E]' : 'text-gray-700'}
+                      color={values.propertyType === val?.id ? 'text-[#7B1E1E]' : 'text-gray-700'}
                     />
                   </div>
                 )}
-                <span className="text-sm font-medium">{val.name}</span>
+                <span className="text-sm font-medium">{val?.name}</span>
               </button>
             ))}
           </div>

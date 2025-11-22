@@ -1,4 +1,4 @@
-// ✅ Define type
+// Define type
 export interface FeatureOption {
   id: number
   name: string
@@ -19,14 +19,7 @@ export interface FeatureCategory {
   featureGroupId: string
   featureGroupName?: string
   featureGroupSortOrder?: string
-  inputType:
-    | 'single_select'
-    | 'multi_select'
-    | 'text'
-    | 'numeric'
-    | 'boolean'
-    | 'units'
-    | string
+  inputType: 'single_select' | 'multi_select' | 'text' | 'numeric' | 'boolean' | 'units' | string
   isFilterable: boolean
   isMandatory: boolean
   sortOrder: number
@@ -41,14 +34,7 @@ export interface FeatureGroup {
   name: string
 }
 
-export type FeatureInputType =
-  | 'single_select'
-  | 'multi_select'
-  | 'text'
-  | 'numeric'
-  | 'boolean'
-  | 'units'
-  | ''
+export type FeatureInputType = 'single_select' | 'multi_select' | 'text' | 'numeric' | 'boolean' | 'units' | ''
 
 export interface FeatureOptionFormValue {
   id?: number

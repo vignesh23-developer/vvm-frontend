@@ -58,64 +58,6 @@ export default function Step2LocationPrice({ formik }: Step2LocationPriceProps) 
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <FormikTextField
-            label="Country"
-            name="country"
-            readOnly
-            placeholder="Enter country"
-            className="
-    w-full 
-    p-2 
-    border border-gray-300 
-    rounded-md 
-    bg-gray-100 
-    cursor-not-allowed
-    text-gray-700
-    focus:outline-none 
-    focus:ring-0 
-    focus:border-gray-300
-  "
-          />
-
-          <FormikTextField
-            label="State"
-            name="state"
-            readOnly
-            placeholder="Enter state"
-            className="
-    w-full 
-    p-2 
-    border border-gray-300 
-    rounded-md 
-    bg-gray-100 
-    cursor-not-allowed
-    text-gray-700
-    focus:outline-none 
-    focus:ring-0 
-    focus:border-gray-300
-  "
-          />
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <FormikTextField
-            label="District"
-            name="district"
-            readOnly
-            placeholder="Enter district"
-            className="
-    w-full 
-    p-2 
-    border border-gray-300 
-    rounded-md 
-    bg-gray-100 
-    cursor-not-allowed
-    text-gray-700
-    focus:outline-none 
-    focus:ring-0 
-    focus:border-gray-300
-  "
-          />
-          <FormikTextField
             label="City / Town"
             name="city"
             readOnly
@@ -134,10 +76,10 @@ export default function Step2LocationPrice({ formik }: Step2LocationPriceProps) 
   "
           />
           <FormikTextField
-            label="Postal Code"
-            name="postal_code"
+            label="District"
+            name="district"
             readOnly
-            placeholder="Enter postal code"
+            placeholder="Enter district"
             className="
     w-full 
     p-2 
@@ -151,6 +93,46 @@ export default function Step2LocationPrice({ formik }: Step2LocationPriceProps) 
     focus:border-gray-300
   "
           />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <FormikTextField
+            label="State"
+            name="state"
+            readOnly
+            placeholder="Enter state"
+            className="
+    w-full 
+    p-2 
+    border border-gray-300 
+    rounded-md 
+    bg-gray-100 
+    cursor-not-allowed
+    text-gray-700
+    focus:outline-none 
+    focus:ring-0 
+    focus:border-gray-300
+  "
+          />
+          <FormikTextField
+            label="Country"
+            name="country"
+            readOnly
+            placeholder="Enter country"
+            className="
+    w-full 
+    p-2 
+    border border-gray-300 
+    rounded-md 
+    bg-gray-100 
+    cursor-not-allowed
+    text-gray-700
+    focus:outline-none 
+    focus:ring-0 
+    focus:border-gray-300
+  "
+          />
+          <FormikTextField label="Postal Code" name="postal_code" placeholder="Enter postal code" />
         </div>
 
         {/* Map Picker */}

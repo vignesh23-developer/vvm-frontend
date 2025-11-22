@@ -29,7 +29,7 @@ export default function EditFeatureCategory() {
   const [initialValues, setInitialValues] = useState<FeatureCategoryFormValues | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // ✅ Fetch existing feature category
+  // Fetch existing feature category
   useEffect(() => {
     const fetchCategory = async () => {
       try {
@@ -76,9 +76,10 @@ export default function EditFeatureCategory() {
     if (id) fetchCategory()
   }, [id])
 
-  // ✅ Handle form submit (UPDATE)
+  // Handle form submit (UPDATE)
   const handleSubmit = async (values: FeatureCategoryFormValues) => {
     try {
+      console.log('Submitting values:', values)
       const payload = {
         name: values.name,
         inputType: values.inputType,
@@ -100,15 +101,14 @@ export default function EditFeatureCategory() {
               })),
       }
 
-      const res = await patchMethod<FeatureCategory>(`${appEndpoints.updateFeatureCategory(id as string)}/with-options`, payload)
+      const response = await patchMethod<FeatureCategory>(`${appEndpoints.updateFeatureCategory(id as string)}/with-options`, payload)
 
-      if (res.error) {
-        toast.error(res.message || 'Failed to update feature category')
-        return
+      if (response?.status === '200') {
+        toast.success('Feature category updated successfully!')
+        router.push('/admin/dashboard/feature-category')
+      } else {
+        toast.error(response?.message || 'Failed to update feature category')
       }
-
-      toast.success('Feature category updated successfully!')
-      router.push('/admin/dashboard/feature-category')
     } catch (error) {
       console.error('Update error:', error)
       toast.error('Something went wrong while updating feature category')

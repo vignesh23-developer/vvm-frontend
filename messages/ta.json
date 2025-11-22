@@ -73,7 +73,7 @@
       "role_management": "பங்கு மேலாண்மை",
       "subscription": "சந்தா",
       "saved_criteria": "சேமிக்கப்பட்ட அளவுகோல்கள்",
-      "referral_management": "பரிந்துரை மேலாண்மை",
+      "referral management": "பரிந்துரை மேலாண்மை",
       "notification": "அறிவிப்பு",
       "property_category": "சொத்து வகை",
       "feature_group": "அம்சம் குழு",
@@ -83,6 +83,8 @@
       "feature group": "அம்சம் குழு",
       "properties": "சொத்துகள்",
       "category mappings": "வகை வரைபடங்கள்",
+      "ads categories": "விளம்பர வகைகள்",
+      "promo code": "ப்ரோமோ குறியீடு",
       
   "properties management": "சொத்து மேலாண்மை",
   "properties pending approval": "அனுமதி நிலுவையில் உள்ள சொத்துகள்",

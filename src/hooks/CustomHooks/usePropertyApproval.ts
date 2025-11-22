@@ -23,9 +23,7 @@ interface UsePropertyApprovalsOptions {
 }
 
 // Custom hook for managing property approvals
-export function usePropertyApprovals(
-  options: UsePropertyApprovalsOptions = {},
-) {
+export function usePropertyApprovals(options: UsePropertyApprovalsOptions = {}) {
   const router = useRouter()
 
   const { page = 1, limit = 10, status = 'PENDING' } = options
@@ -41,9 +39,7 @@ export function usePropertyApprovals(
     queryParams.set('page', String(page))
   }
 
-  const swrKey = `${
-    appEndpoints.getAllPropertyApprovals
-  }?${queryParams.toString()}`
+  const swrKey = `${appEndpoints.getAllPropertyApprovals}?${queryParams.toString()}`
 
   // Fetcher using our generic API helper
   const fetcher = async (url: string): Promise<PropertyApproval[]> => {
@@ -64,17 +60,12 @@ export function usePropertyApprovals(
   }
 
   // SWR handles caching, revalidation, and errors
-  const {
-    data,
-    error,
-    isLoading,
-    mutate: mutateApprovals,
-  } = useSWR<PropertyApproval[]>(swrKey, fetcher)
+  const { data, error, isLoading, mutate: mutateApprovals } = useSWR<PropertyApproval[]>(swrKey, fetcher)
 
   // CRUD handlers
   const handleEdit = useCallback(
     (id: number) => {
-      router.push(`/admin/dashboard/property-approval/edit/${id}`)
+      router.push(`/admin/property-approval/edit/${id}`)
     },
     [router],
   )

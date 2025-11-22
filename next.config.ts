@@ -1,4 +1,4 @@
-import { NextConfig } from 'next'
+import type { NextConfig } from 'next'
 import createNextIntlPlugin from 'next-intl/plugin'
 
 const nextConfig: NextConfig = {
@@ -16,7 +16,12 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'youtube.com',
+        hostname: 'i.ytimg.com', // YouTube thumbnails
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'yt3.ggpht.com', // YouTube profile/channel images
         pathname: '**',
       },
     ],
@@ -24,4 +29,5 @@ const nextConfig: NextConfig = {
 }
 
 const withNextIntl = createNextIntlPlugin()
+
 export default withNextIntl(nextConfig)

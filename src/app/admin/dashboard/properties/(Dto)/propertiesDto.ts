@@ -38,6 +38,7 @@ export interface PropertiesDto {
   published_at: string | null
   approved_at: string | null
   media: Media[]
+  is_user_favorite: boolean
 }
 
 interface Media {
