@@ -42,6 +42,8 @@ const AddCompanyProfile = () => {
     contact_email: '',
     expiryDays: '',
     address_line: '',
+    door_number: '',
+    street_name: '',
     city: '',
     district: '',
     state: '',
@@ -53,26 +55,26 @@ const AddCompanyProfile = () => {
 
   console.log('Initial Values:', initialValues.profileName)
 
-  const handleSubmit = async (values: any) => {
-    try {
-      const response: ResponseDTO = await postMethod(appEndpoints.createCompanyProfile, values)
+  // const handleSubmit = async (values: any) => {
+  //   console.log('Submitting values:', values)
+  //   try {
+  //     const response: ResponseDTO = await postMethod(appEndpoints.createCompanyProfile, values)
 
-      console.log('Create response:', response)
+  //     console.log('Create response:', response)
 
-      if (response.status === '201') {
-        toast.success('Company profile created successfully!')
-
-        router.push('/home')
-      }
-    } catch (error: any) {
-      console.error('Create failed:', error)
-      toast.error(error?.message || 'Something went wrong!')
-    }
-  }
+  //     if (response.status === '201') {
+  //       toast.success('Company profile created successfully!')
+  //       router.push('/')
+  //     }
+  //   } catch (error: any) {
+  //     console.error('Create failed:', error)
+  //     toast.error(error?.message || 'Something went wrong!')
+  //   }
+  // }
 
   return (
     <div className="">
-      <CompanyProfileForm initialValues={initialValues} onSubmit={handleSubmit} submitLabel="Create Company Profile" isEdit={false} />
+      <CompanyProfileForm initialValues={initialValues} submitLabel="Create Company Profile" isEdit={false} />
     </div>
   )
 }

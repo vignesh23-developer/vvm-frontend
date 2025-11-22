@@ -1,7 +1,11 @@
 'use client'
-import HomePageLayout from '@/app/(buyer)/(site)/layout'
-import HomePage from '@/app/(buyer)/(site)/home/page'
+
+import SitePage from './(buyer)/(site)/page'
 
 export default function Home() {
-  return <HomePageLayout children={<HomePage />} />
+  return (
+    <main>
+      <SitePage />
+    </main>
+  )
 }

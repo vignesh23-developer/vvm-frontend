@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { Formik, Form } from 'formik'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
 import ProfileNameField from './ProfileNameField'
@@ -10,13 +11,17 @@ import Button from '@/components/ui/CustomComponent/Button/Button'
 import LocationPickerModal, { AddressParts } from '@/components/ui/map/LocationPickerModal'
 import LocationSearchBox from '@/components/ui/map/LocationSearchInput'
 import { appEndpoints } from '@/services/endpoints'
-import { postMethod } from '@/services/service'
+import { postMethod, patchMethod } from '@/services/service'
 import { ResponseDTO } from '@/components/dto/response_dto'
+import { toast } from 'react-hot-toast'
+import ModalComponent from '@/components/ui/CustomComponent/Modal/ModalComponent'
+import UploadCompanyProfileImageModal from '../modal/UploadCompanyProfileImage'
 
 export interface CompanyFormValues {
   companyName: string
   userId: string
   profileName: string
+  companyLogo?: string
   shortTitle: string
   description: string
   gstNumber: string
@@ -25,6 +30,8 @@ export interface CompanyFormValues {
   contact_email: string
   expiryDays: number | string
   address_line: string
+  door_number: string
+  street_name: string
   city: string
   district: string
   state: string
@@ -36,15 +43,26 @@ export interface CompanyFormValues {
 
 interface CompanyProfileFormProps {
   initialValues: CompanyFormValues
-  onSubmit: (values: CompanyFormValues) => Promise<void>
+  companyProfileId?: string
+  setUploadedImage?: (uploaded: boolean) => void
+  imageVersion?: number
   submitLabel?: string
   isEdit: boolean
 }
 
-const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({ initialValues, onSubmit, submitLabel, isEdit = false }) => {
+const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({
+  initialValues,
+  companyProfileId,
+  setUploadedImage,
+  submitLabel,
+  isEdit = false,
+  imageVersion,
+}) => {
   const router = useRouter()
   const [verifyStatus, setVerifyStatus] = useState<'idle' | 'verifying' | 'available' | 'taken' | 'error'>('idle')
   const [verifiedFor, setVerifiedFor] = useState<string | null>(null)
+  const [companyId, setCompanyId] = useState<string | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   // Normalize Formik initial values
   const normalizedInitialValues: CompanyFormValues = {
@@ -59,6 +77,8 @@ const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({ initialValues, 
     contact_email: initialValues.contact_email ?? '',
     expiryDays: initialValues.expiryDays ?? '',
     address_line: initialValues.address_line ?? '',
+    door_number: initialValues.door_number ?? '',
+    street_name: initialValues.street_name ?? '',
     city: initialValues.city ?? '',
     district: initialValues.district ?? '',
     state: initialValues.state ?? '',
@@ -78,6 +98,8 @@ const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({ initialValues, 
   ) => {
     setFieldValue('latitude', lat)
     setFieldValue('longitude', lng)
+    setFieldValue('door_number', address?.doorNumber ?? '')
+    setFieldValue('street_name', address?.streetName ?? '')
     setFieldValue('district', address?.district ?? '')
     setFieldValue('city', address?.city ?? '')
     setFieldValue('state', address?.state ?? '')
@@ -86,13 +108,129 @@ const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({ initialValues, 
     setFieldValue('address_line', fullAddress ?? '')
   }
 
-  console.log(' :', isEdit)
+  const handleSubmit = async (values: any) => {
+    console.log('Submitting values:', values)
+
+    const payload = {
+      userId: values.userId,
+      companyName: values.companyName,
+      profileName: values.profileName,
+      shortTitle: values.shortTitle,
+      description: values.description,
+      gstNumber: values.gstNumber,
+      contact_name: values.contact_name,
+      contact_phone: values.contact_phone,
+      contact_email: values.contact_email,
+      expiryDays: values.expiryDays,
+      address_line: values.address_line,
+      door_number: values.door_number,
+      street_name: values.street_name,
+      city: values.city,
+      district: values.district,
+      state: values.state,
+      postal_code: values.postal_code,
+      country: values.country,
+      latitude: Number(values.latitude),
+      longitude: Number(values.longitude),
+    }
+    try {
+      if (isEdit) {
+        const response: ResponseDTO = await patchMethod(appEndpoints.updateCompanyProfile(companyProfileId as string), payload)
+        if (response.status === '200') {
+          toast.success('Company profile updated successfully!')
+        } else {
+          toast.error(response?.message || 'Update failed.')
+        }
+      } else if (!isEdit && companyId) {
+        setIsModalOpen(true)
+      } else {
+        const response: ResponseDTO = await postMethod(appEndpoints.createCompanyProfile, payload)
+        console.log('Create response:', response)
+        if (response.status === '201') {
+          console.log('Created company ID:', response.data)
+          setCompanyId(response.data.id)
+          toast.success('Company profile created successfully!')
+          setIsModalOpen(true)
+        } else {
+          toast.error(response?.message || 'Creation failed.')
+        }
+      }
+    } catch (error: any) {
+      console.error('Create failed:', error)
+      toast.error(error?.message || 'Something went wrong!')
+    }
+  }
+
+  const handleCompanyLogoSubmit = async (values: any, { resetForm }: any) => {
+    try {
+      if (!values.file) {
+        toast.error('Please select a file before submitting.')
+        return
+      }
+
+      const formData = new FormData()
+      formData.append('file', values.file)
+      const companyIdToUse = companyId || companyProfileId
+      if (!companyIdToUse) {
+        toast.error('Company ID is missing. Cannot upload logo.')
+        return
+      }
+      const response: ResponseDTO = await postMethod(appEndpoints.uploadCompanyProfileImage(companyIdToUse as string), formData)
+      // console.log('Upload response:', response.data.profile.id)
+      if (Number(response.status) === 201) {
+        const id = response?.data?.profile.id
+        if (!isEdit) {
+          resetForm()
+          setIsModalOpen(false)
+          toast.success('Company logo submitted successfully!')
+          router.push(`/company-profile/${id}`)
+        } else {
+          resetForm()
+          setIsModalOpen(false)
+          if (setUploadedImage) setUploadedImage(true)
+          toast.success('Company logo submitted successfully!')
+        }
+      } else {
+        toast.error(response?.message || 'Upload failed.')
+      }
+    } catch (error) {
+      toast.error('Failed to submit company logo. Please try again.')
+    }
+  }
+
+  console.log('Rendering CompanyProfileForm with initialValues:', normalizedInitialValues)
 
   return (
     <div className="max-w-5xl mx-auto bg-white shadow-md rounded-xl p-6 md:p-8 mt-8 mb-8 border border-gray-100">
       <h2 className="text-2xl font-semibold text-gray-800 mb-5">{isEdit ? 'Edit Company Profile' : 'Create Company Profile'}</h2>
 
-      <Formik initialValues={normalizedInitialValues} validationSchema={companyProfileSchema} enableReinitialize onSubmit={onSubmit}>
+      {isEdit && companyProfileId && (
+        <div className="w-full flex flex-col items-center justify-center">
+          <div
+            onClick={() => setIsModalOpen(true)}
+            className="w-28 h-28 rounded-full border-2 border-gray-300 flex items-center justify-center cursor-pointer hover:border-rose-500 hover:bg-rose-50 transition"
+          >
+            {normalizedInitialValues.companyLogo ? (
+              <Image
+                src={
+                  (normalizedInitialValues.companyLogo as string) +
+                  (imageVersion ? (normalizedInitialValues.companyLogo?.includes('?') ? '&' : '?') + `v=${imageVersion}` : '')
+                }
+                alt="Company Logo"
+                width={80}
+                height={80}
+                className="rounded-full"
+              />
+            ) : (
+              <div className="w-20 h-20 bg-gray-100 rounded-full" />
+            )}
+          </div>
+
+          <p className="mt-2 text-center text-sm text-gray-500">Upload Company Logo</p>
+        </div>
+      )}
+
+      <Formik initialValues={normalizedInitialValues} validationSchema={companyProfileSchema} enableReinitialize onSubmit={handleSubmit}>
         {({ isSubmitting, setFieldValue, values }) => {
           const currentProfileName = (values.profileName ?? '').trim()
           const nameChanged = currentProfileName !== (initialValues.profileName ?? '').trim()
@@ -136,6 +274,10 @@ const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({ initialValues, 
                   value={values.address_line}
                   onSelectLocation={(lat, lng, fullAddress, parts) => handleLocationSelect(setFieldValue, lat, lng, parts, fullAddress)}
                 />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <FormikTextField label="Door Number" name="door_number" placeholder="Enter door number" />
+                  <FormikTextField label="Street Name" name="street_name" placeholder="Enter street name" />
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <FormikTextField
                     label="City"
@@ -209,24 +351,7 @@ const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({ initialValues, 
     focus:border-gray-300
   "
                   />
-                  <FormikTextField
-                    label="Postal Code"
-                    name="postal_code"
-                    placeholder="Enter postal code"
-                    readOnly
-                    className="
-    w-full 
-    p-2 
-    border border-gray-300 
-    rounded-md 
-    bg-gray-100 
-    cursor-not-allowed
-    text-gray-700
-    focus:outline-none 
-    focus:ring-0 
-    focus:border-gray-300
-  "
-                  />
+                  <FormikTextField label="Postal Code" name="postal_code" placeholder="Enter postal code" />
                 </div>
               </section>
 
@@ -234,7 +359,7 @@ const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({ initialValues, 
               <div className="flex justify-end items-center gap-3 pt-3 border-t border-gray-100">
                 <Button
                   type="button"
-                  onClick={() => router.push('/home')}
+                  onClick={() => router.push('/')}
                   className="px-5 py-2 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium"
                 >
                   Cancel
@@ -242,7 +367,7 @@ const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({ initialValues, 
 
                 <Button
                   type="submit"
-                  disabled={isSubmitting || !submitAllowed}
+                  disabled={isSubmitting}
                   className={`px-5 py-2 rounded-md text-white font-medium transition ${
                     isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-black hover:bg-gray-800'
                   }`}
@@ -258,6 +383,7 @@ const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({ initialValues, 
           )
         }}
       </Formik>
+      <UploadCompanyProfileImageModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} onImageUploadSubmit={handleCompanyLogoSubmit} />
     </div>
   )
 }

@@ -1,41 +1,43 @@
 'use client'
 
 import useSWR from 'swr'
-import { useRouter } from 'next/navigation'
 import { appEndpoints } from '@/services/endpoints'
 import { getMethod } from '@/services/service'
 import { PropertyEnquiry } from '@/app/admin/dashboard/property-enquiry/(dto)/PropertyEnquiryType'
+import { ResponseDTO } from '@/components/dto/response_dto'
 
-// Custom hook for managing property categories
-export function usePropertyEnquiry() {
-  const router = useRouter()
+// Response shape for SWR
+interface EnquiryResponse {
+  items: PropertyEnquiry[]
+  total: number
+}
 
-  // Fetcher using our generic API helper
-  const fetcher = async (url: string): Promise<PropertyEnquiry[]> => {
-    try {
-      const response = await getMethod<PropertyEnquiry[]>(url)
-      console.log('Fetched feature group ResponseDTO:', response)
-      // Safe extraction of data
-      if (Array.isArray(response.data)) {
-        return response.data
-      }
-      return []
-    } catch (error) {
-      console.error('Failed to fetch property categories:', error)
-      return []
+// Hook
+export function usePropertyEnquiry({ page = 1, limit = 10 } = {}) {
+  // Create API URL dynamically
+  const url = `${appEndpoints.getPropertyEnquiry}?entity_type=property&page=${page}&limit=${limit}`
+
+  // Fetcher
+  const fetchEnquiries = async (endpoint: string): Promise<EnquiryResponse> => {
+    const response: ResponseDTO = await getMethod(endpoint)
+
+    if (response.error) {
+      console.error('Error fetching property enquiries:', response.message)
+      return { items: [], total: 0 }
+    }
+
+    return {
+      items: response.data?.data ?? [],
+      total: response.data?.total ?? 0,
     }
   }
 
-  // SWR handles caching, revalidation, and errors
-  const {
-    data: enquiries,
-    error,
-    isLoading,
-    mutate: mutateEnquiries,
-  } = useSWR<PropertyEnquiry[]>(`${appEndpoints.getPropertyEnquiry}?entity_type=property`, fetcher)
+  // SWR
+  const { data = { items: [], total: 0 }, error, isLoading, mutate: mutateEnquiries } = useSWR<EnquiryResponse>(url, fetchEnquiries)
 
   return {
-    enquiries: enquiries ?? [],
+    enquiries: data.items,
+    total: data.total,
     error,
     isLoading,
     mutateEnquiries,

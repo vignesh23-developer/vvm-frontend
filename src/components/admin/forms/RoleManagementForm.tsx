@@ -22,21 +22,11 @@ interface RoleManagementFormProps {
   isEdit?: boolean
 }
 
-export default function RoleManagementForm({
-  initialValues,
-  onSubmit,
-  submitLabel,
-  isEdit = false,
-}: RoleManagementFormProps) {
+export default function RoleManagementForm({ initialValues, onSubmit, submitLabel, isEdit = false }: RoleManagementFormProps) {
   const router = useRouter()
 
   return (
-    <Formik
-      initialValues={initialValues}
-      validationSchema={roleManagementSchema}
-      enableReinitialize
-      onSubmit={onSubmit}
-    >
+    <Formik initialValues={initialValues} validationSchema={roleManagementSchema} enableReinitialize onSubmit={onSubmit}>
       {({ isSubmitting }) => (
         <Form className="space-y-6">
           {/* Role Name */}
@@ -65,7 +55,7 @@ export default function RoleManagementForm({
           <div className="flex justify-end items-center gap-4 pt-4">
             <button
               type="button"
-              onClick={() => router.push('/admin/dashboard/role-management')}
+              onClick={() => router.push('/admin/role-management')}
               className="px-6 py-2 rounded-md bg-gray-200 hover:bg-gray-300 cursor-pointer text-gray-800 font-medium transition"
               title="cancel"
             >
@@ -75,17 +65,11 @@ export default function RoleManagementForm({
               type="submit"
               disabled={isSubmitting}
               className={`px-6 py-2 rounded-md text-white font-medium transition ${
-                isSubmitting
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-black hover:bg-gray-800 cursor-pointer'
+                isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-black hover:bg-gray-800 cursor-pointer'
               }`}
               title="submit"
             >
-              {isSubmitting
-                ? isEdit
-                  ? 'Updating...'
-                  : 'Creating...'
-                : submitLabel || (isEdit ? 'Update Role' : 'Create Role')}
+              {isSubmitting ? (isEdit ? 'Updating...' : 'Creating...') : submitLabel || (isEdit ? 'Update Role' : 'Create Role')}
             </button>
           </div>
         </Form>

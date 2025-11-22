@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { appEndpoints } from '@/services/endpoints'
 import { getMethod, patchMethod } from '@/services/service'
-import PropertyCategoryForm, { FormValues } from '@/app/admin/dashboard/(master)/property-category/(forms)/PropertyCategoryForm'
+import PropertyCategoryForm from '@/app/admin/dashboard/(master)/property-category/(forms)/PropertyCategoryForm'
+import { PropertyCategoryFormValues } from '../../(dto)/propertyCategoryType'
 import toast from 'react-hot-toast'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 
@@ -13,7 +14,7 @@ export default function EditPropertyCategory() {
   const params = useParams()
   const { id } = params
 
-  const [initialValues, setInitialValues] = useState<FormValues | null>(null)
+  const [initialValues, setInitialValues] = useState<PropertyCategoryFormValues | null>(null)
   const [loading, setLoading] = useState(true)
 
   /** 🔹 Fetch existing category data */
@@ -43,7 +44,7 @@ export default function EditPropertyCategory() {
   }, [id])
 
   /** 🔹 Handle submit */
-  const handleSubmit = async (values: FormValues) => {
+  const handleSubmit = async (values: PropertyCategoryFormValues) => {
     try {
       const payload = {
         ...values,
@@ -65,7 +66,7 @@ export default function EditPropertyCategory() {
 
   if (!initialValues) return <div className="min-h-screen flex items-center justify-center text-gray-500">Property category not found.</div>
 
-  /** ✅ Render Form */
+  /** Render Form */
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-8 max-w-3xl mx-auto">

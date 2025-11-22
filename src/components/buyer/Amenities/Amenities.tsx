@@ -14,11 +14,6 @@ const Amenities: React.FC<AmenitiesProps> = ({ title, PropertyAmenities = [] }) 
 
   return (
     <div className="w-full max-w-5xl mx-auto p-6 bg-white rounded-2xl shadow border border-gray-200">
-      <header className="mb-6 border-b border-gray-200 pb-3">
-        <h2 className="text-2xl font-semibold text-gray-900">{title}</h2>
-        <p className="text-gray-600 text-sm">Available features and amenities</p>
-      </header>
-
       {!hasData ? (
         <p className="text-gray-500 italic text-sm mt-4">No amenities available.</p>
       ) : (

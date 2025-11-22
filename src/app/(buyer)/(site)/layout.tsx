@@ -1,9 +1,9 @@
-'use client '
+'use client'
 import Footer from '@/components/layout/Footer/Footer'
 import Navbar from '@/components/layout/Navbar/Navbar'
 import React from 'react'
 
-const HomePageLayout = ({
+const SitePageLayout = ({
   children,
 }: Readonly<{
   children: React.ReactNode
@@ -21,4 +21,4 @@ const HomePageLayout = ({
   )
 }
 
-export default HomePageLayout
+export default SitePageLayout

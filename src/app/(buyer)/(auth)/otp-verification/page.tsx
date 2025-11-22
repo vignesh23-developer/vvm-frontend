@@ -43,7 +43,7 @@ export default function OtpVerification() {
     otp: string[]
   }
 
-  // ✅ Validation Schema
+  //  Validation Schema
   const OtpSchema = Yup.object().shape({
     otp: Yup.array()
       .of(
@@ -59,7 +59,7 @@ export default function OtpVerification() {
     otp: ['', '', '', '', '', ''],
   }
 
-  // ✅ Handle Submit
+  // Handle Submit
   const handleSubmit = async (values: OtpValues, { setSubmitting }: FormikHelpers<OtpValues>) => {
     try {
       if (!phone) {
@@ -91,17 +91,19 @@ export default function OtpVerification() {
         return
       }
 
-      const token = response.data?.accessToken
-      const userData = response.data?.user
-      if (token) {
-        setLocalStorageItem(LOCAL_STORAGE_NAME.authToken, token)
-        setLocalStorageItem(LOCAL_STORAGE_NAME.userData, userData || '')
+      if (response?.status === '200') {
+        const token = response.data?.accessToken
+        const userData = response.data?.user
+        if (token) {
+          setLocalStorageItem(LOCAL_STORAGE_NAME.authToken, token)
+          setLocalStorageItem(LOCAL_STORAGE_NAME.userData, userData || '')
+        }
+
+        const successMessage = response.data?.message || response.message || 'OTP verified successfully'
+        toast.success(successMessage)
+
+        router.push('/')
       }
-
-      const successMessage = response.data?.message || response.message || 'OTP verified successfully'
-      toast.success(successMessage)
-
-      router.push('/home')
     } catch (error) {
       console.error('OTP verification failed:', error)
       toast.error('Unable to verify OTP right now. Please try again.')
@@ -110,7 +112,7 @@ export default function OtpVerification() {
     }
   }
 
-  // ✅ Handle Change and Auto Focus
+  //  Handle Change and Auto Focus
   const handleOtpChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     index: number,
@@ -159,7 +161,7 @@ export default function OtpVerification() {
         transition={{ duration: 0.6 }}
         className="hidden md:flex w-1/2 bg-[#2c1207] flex-col items-center justify-center p-6"
       >
-        <Link href="/home">
+        <Link href="/">
           <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 200 }} className="max-w-xs cursor-pointer">
             <Image src="/footer_logo.png" alt="Vaazhga Valamudan Logo" width={400} height={300} className="mt-6" />
           </motion.div>
@@ -187,7 +189,7 @@ export default function OtpVerification() {
             <p className="text-gray-500 mt-2 text-xs">{t('Auth.otp_description')}</p>
           </motion.div>
 
-          {/* ✅ Formik Form */}
+          {/* Formik Form */}
           <Formik initialValues={initialValues} validationSchema={OtpSchema} onSubmit={handleSubmit}>
             {({ values, setFieldValue, errors, touched, isSubmitting }) => (
               <Form className="mt-6 space-y-4">

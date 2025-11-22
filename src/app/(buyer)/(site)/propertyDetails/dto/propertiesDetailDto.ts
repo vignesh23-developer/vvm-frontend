@@ -49,6 +49,7 @@ export interface PropertyDetailsResponseDto {
   media: PropertyMedia[]
   approvals: any[]
   reports: any[]
+  is_user_favorite: boolean
 }
 
 export interface FeatureOption {

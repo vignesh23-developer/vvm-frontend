@@ -37,6 +37,7 @@ import { getLocalStorageItem, removeLocalStorageItem } from '@/utils/local_stora
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { appEndpoints } from '@/services/endpoints'
 import { getMethod } from '@/services/service'
+import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
 
 export interface NavLink {
   label: string
@@ -100,7 +101,7 @@ const DASHBOARD_SECTIONS: NavItem[] = [
     subMenu: [
       { label: 'properties management', href: '/properties' },
       { label: 'properties pending approval', href: '/admin/dashboard/properties' },
-      { label: 'favourite properties', href: '/admin/dashboard/favourite-properties' },
+      { label: 'favourite properties', href: '/admin/dashboard/property-favorite' },
       { label: 'reported properties', href: '/admin/dashboard/property-reports' },
       { label: 'view enquiries', href: '/admin/dashboard/property-enquiry' },
       { label: 'saved searches', href: '/admin/dashboard/saved-searches' },
@@ -284,8 +285,9 @@ export default function Navbar({
 
   const handleLogout = () => {
     // Clear auth token and redirect to login
-    removeLocalStorageItem('authToken')
-    removeLocalStorageItem('userData')
+    removeLocalStorageItem(LOCAL_STORAGE_NAME.authToken)
+    removeLocalStorageItem(LOCAL_STORAGE_NAME.userData)
+    removeLocalStorageItem(LOCAL_STORAGE_NAME.propertyId)
     router.push('/login')
   }
 
@@ -293,7 +295,7 @@ export default function Navbar({
     <nav className="sticky top-0 z-50 shadow-md text-white transition-colors duration-300" style={{ backgroundColor: bgColor }}>
       <div className="flex items-center justify-between px-4 sm:px-6 md:px-8 lg:px-12 py-3 md:py-4">
         {/* Logo */}
-        <Link href="/home" className="flex items-center">
+        <Link href="/" className="flex items-center">
           <Image
             src={logoSrc}
             alt="Logo"
@@ -337,7 +339,7 @@ export default function Navbar({
                 {/* Main Dropdown */}
                 {isOpen && (
                   <div className="absolute right-0 mt-2 bg-white text-[#3b1804] rounded-lg shadow-lg w-70 py-2 z-50 max-h-[70vh] overflow-y-auto">
-                    <Link href="/home" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
+                    <Link href="/" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
                       <Home size={16} /> {t('Navbar.Dashboard')}
                     </Link>
 

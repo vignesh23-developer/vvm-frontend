@@ -28,11 +28,8 @@ function ProfileCreation() {
 
   const [checking, setChecking] = useState(false)
 
-  const handleProfileCreationSubmit = (
-    values: any,
-    setSubmitting: (isSubmitting: boolean) => void,
-  ) => {
-    console.log('Form Submitted ✅', values)
+  const handleProfileCreationSubmit = (values: any, setSubmitting: (isSubmitting: boolean) => void) => {
+    console.log('Form Submitted ', values)
     setTimeout(() => {
       setSubmitting(false)
     }, 1000)
@@ -40,36 +37,26 @@ function ProfileCreation() {
 
   return (
     <div className="min-h-screen flex relative overflow-hidden">
-      {/* 🌐 Language Switch */}
+      {/* Language Switch */}
       <div className="absolute top-4 right-4 z-10">
         <LanguageSwitch />
       </div>
 
-      {/* 🧭 Left Side (Logo + Animation) */}
+      {/* Left Side (Logo + Animation) */}
       <motion.div
         initial={{ x: -100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.8, ease: 'easeOut' }}
         className="hidden md:flex w-1/2 bg-[#2c1207] flex-col items-center justify-center text-center p-6"
       >
-        <Link href="/home">
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            transition={{ type: 'spring', stiffness: 200 }}
-            className="max-w-xs cursor-pointer"
-          >
-            <Image
-              src="/footer_logo.png"
-              alt="Vaazhga Valamudan Logo"
-              width={400}
-              height={300}
-              className="mt-6"
-            />
+        <Link href="/">
+          <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 200 }} className="max-w-xs cursor-pointer">
+            <Image src="/footer_logo.png" alt="Vaazhga Valamudan Logo" width={400} height={300} className="mt-6" />
           </motion.div>
         </Link>
       </motion.div>
 
-      {/* 🧾 Right Side (Form) */}
+      {/* Right Side (Form) */}
       <motion.div
         initial={{ x: 100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
@@ -91,12 +78,7 @@ function ProfileCreation() {
           >
             {t('Auth.profile_creation')}
           </motion.h2>
-          <motion.p
-            className="text-gray-500 text-xs mt-2"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-          >
+          <motion.p className="text-gray-500 text-xs mt-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
             {t('Auth.profile_description')}
           </motion.p>
 
@@ -117,12 +99,7 @@ function ProfileCreation() {
                   { name: 'landMark', label: 'form.land_mark', type: 'text' },
                   { name: 'postalCode', label: 'form.post_code', type: 'text' },
                 ].map((field, index) => (
-                  <motion.div
-                    key={field.name}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 * index }}
-                  >
+                  <motion.div key={field.name} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 * index }}>
                     <FormikTextField
                       label={t(`${field.label}.label`)}
                       type={field.type}

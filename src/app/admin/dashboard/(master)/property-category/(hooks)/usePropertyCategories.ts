@@ -7,30 +7,20 @@ import toast from 'react-hot-toast'
 import { appEndpoints } from '@/services/endpoints'
 import { getMethod, patchMethod } from '@/services/service'
 import { PropertyCategory } from '@/app/admin/dashboard/(master)/property-category/(dto)/propertyCategoryType'
+import { ResponseDTO } from '@/components/dto/response_dto'
 
 // Hook
 export function usePropertyCategories() {
   const router = useRouter()
 
   // 🔹 Generic fetcher for SWR
-  const fetcher = async (url: string): Promise<PropertyCategory[]> => {
-    try {
-      const { data, error, message } = await getMethod<PropertyCategory[]>(url)
-
-      if (error) {
-        console.error('Error fetching categories:', message)
-        return []
-      }
-
-      return Array.isArray(data) ? data : []
-    } catch (err) {
-      console.error('Failed to fetch categories:', err)
-      return []
-    }
+  const fetcher = async (url: string) => {
+    const result = await getMethod(url)
+    return result
   }
 
   // 🔹 SWR data hook
-  const { data: categories = [], error, isLoading, mutate } = useSWR(`${appEndpoints.getAllPropertyCategories}?activeOnly=true`, fetcher)
+  const { data, error, isLoading, mutate } = useSWR<ResponseDTO>(`${appEndpoints.getAllPropertyCategories}?activeOnly=true`, fetcher)
 
   // 🔹 Handlers
   const navigate = useCallback((path: string) => router.push(path), [router])
@@ -57,7 +47,8 @@ export function usePropertyCategories() {
   )
 
   return {
-    categories,
+    categories: data?.data as PropertyCategory[] | undefined,
+    total: data?.data?.total as number | undefined,
     error,
     isLoading,
     handleAdd,

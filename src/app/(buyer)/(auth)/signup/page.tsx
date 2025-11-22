@@ -91,7 +91,7 @@ export default function SignupPage() {
       const successMessage = response.data?.message || response.message || 'OTP verified successfully'
       toast.success(successMessage)
 
-      router.push('/home')
+      router.push('/')
     } catch (error) {
       console.error('Signup Error:', error)
       toast.error('Registration failed')
@@ -118,7 +118,7 @@ export default function SignupPage() {
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.8 }}
       >
-        <Link href="/home">
+        <Link href="/">
           <motion.div className="max-w-xs hover:cursor-pointer" whileHover={{ scale: 1.05 }}>
             <Image src="/footer_logo.png" alt="Vaazhga Valamudan Logo" width={400} height={300} className="mt-6" />
           </motion.div>

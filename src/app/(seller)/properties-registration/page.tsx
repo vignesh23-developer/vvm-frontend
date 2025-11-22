@@ -19,12 +19,10 @@ import { ResponseDTO } from '@/components/dto/response_dto'
 import { onAddPropertyMedia, onCreateProperty, onUpdateProperty } from './(action)/properties_registration_action'
 import { getLocalStorageItem, removeLocalStorageItem, setLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
 import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
-import { useRouter } from 'next/navigation'
-import { title } from 'process'
-import { id } from 'zod/locales'
 import { getMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import Button from '@/components/ui/CustomComponent/Button/Button'
+// import Step5UploadImages from './(views)/UploadImages'
 
 const mapFeatureValuesToPayload = (featureValues: any[] | undefined, mappings: FeatureMappingDTO[] | null): FeaturePayloadDTO[] => {
   if (!Array.isArray(featureValues)) {
@@ -162,6 +160,11 @@ interface userData {
   firstName: string
   lastName: string
   email: string
+  agent: {
+    agent_id: string
+    agent_name: string
+    agent_profile_name: string
+  }
 }
 
 export default function PropertiesRegistrationPage({ propertiesId }: { propertiesId?: string }) {
@@ -193,6 +196,11 @@ export default function PropertiesRegistrationPage({ propertiesId }: { propertie
         firstName: userData?.firstName,
         lastName: userData?.lastName,
         email: userData?.email,
+        agent: {
+          agent_id: userData?.agent?.agent_id,
+          agent_name: userData?.agent?.agent_name,
+          agent_profile_name: userData?.agent?.agent_profile_name,
+        },
       }
       setUserValue(user)
     }
@@ -487,7 +495,7 @@ export default function PropertiesRegistrationPage({ propertiesId }: { propertie
             country: values?.country,
             latitude: values?.latitude,
             longitude: values?.longitude,
-            agent_id: userValue?.id || '',
+            agent_id: userValue?.agent?.agent_id || '',
             // Ensure each feature is an instance of FeaturePayloadDTO so `toObject()` exists at runtime.
             features: selectedFeatures.map((feature: FeaturePayloadDTO) =>
               feature instanceof FeaturePayloadDTO ? feature : new FeaturePayloadDTO(feature as any),

@@ -1,22 +1,20 @@
 'use client'
 
 import { Plus, Edit3, Trash2 } from 'lucide-react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
 import { usePropertyEnquiry } from '@/app/admin/dashboard/property-enquiry/(hooks)/usePropertyEnquiry'
 import { PropertyEnquiry } from '@/app/admin/dashboard/property-enquiry/(dto)/PropertyEnquiryType'
+import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 
 type PropertyEnquiryTableRow = PropertyEnquiry & Record<string, unknown>
 
 export default function PropertyEnquiryPage() {
-  const {
-    enquiries,
-    error,
-    isLoading,
-    mutateEnquiries, // ✅ now included
-  } = usePropertyEnquiry()
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+  const { enquiries, total, error, isLoading, mutateEnquiries } = usePropertyEnquiry({ page, limit })
 
-  // ✅ Columns definition
+  // Columns definition
 
   const columns = useMemo(
     () => [
@@ -50,12 +48,20 @@ export default function PropertyEnquiryPage() {
     }
   }, [enquiries])
 
-  // ✅ Handle loading and error states
+  const handleRefresh = async () => {
+    try {
+      await mutateEnquiries()
+    } catch (error) {
+      console.error('Error refreshing enquiries:', error)
+    }
+  }
+
+  // Handle loading and error states
   if (error) return <div className="p-6 text-red-600">Failed to load property enquiries.</div>
 
-  if (isLoading) return <div className="p-6 text-gray-600 animate-pulse">Loading property enquiries...</div>
+  if (isLoading) return <CustomLoader text="Loading property enquiries..." />
 
-  // ✅ Render UI
+  // Render UI
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       {/* Header */}
@@ -65,7 +71,22 @@ export default function PropertyEnquiryPage() {
 
       {/* Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-        <DataTable<PropertyEnquiryTableRow> columns={columns} fetchData={fetchEnquiries} loading={isLoading} allowExport allowGrouping allowRefresh />
+        <DataTable<PropertyEnquiryTableRow>
+          columns={columns}
+          fetchData={fetchEnquiries}
+          loading={isLoading}
+          allowExport
+          allowGrouping
+          allowRefresh
+          onRefresh={handleRefresh}
+          initialPage={page}
+          pageSize={limit}
+          totalItemsData={total}
+          totalPageData={Math.ceil(total / limit)}
+          pageSizeOptions={[5, 10, 25, 50, 100]}
+          setPage={setPage}
+          setCurrentPageSize={setLimit}
+        />
       </div>
     </div>
   )

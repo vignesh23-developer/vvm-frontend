@@ -183,11 +183,11 @@ export async function patchMethod<T = unknown>(url: string, body?: any, headers?
   } catch (err: unknown) {
     if (axios.isAxiosError(err)) {
       const axiosErr = err as AxiosError<any>
-      console.log('❌ Axios Error (PATCH):', axiosErr.message, axiosErr.response)
+      console.log('❌ Axios Error (PATCH):', axiosErr.message, axiosErr.response?.data.data.message)
       return new ResponseDTO<T>({
         error: true,
         data: axiosErr.response?.data ?? ({} as T),
-        message: axiosErr.response?.data?.message || 'Server not reachable',
+        message: axiosErr.response?.data?.data?.message || 'Server not reachable',
         status: axiosErr.response?.status?.toString(),
       })
     }

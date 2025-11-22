@@ -29,7 +29,7 @@ const Login = () => {
   const token = getLocalStorageItem('authToken')
 
   useEffect(() => {
-    const publicRoutes = ['/home', '/about', '/services', '/pricing', '/help-center', '/login', '/register']
+    const publicRoutes = ['/', '/about', '/services', '/pricing', '/help-center', '/login', '/register']
 
     // If user not logged in AND tries to access a protected route
     if (!token && !publicRoutes.includes(pathname)) {
@@ -38,7 +38,7 @@ const Login = () => {
 
     // If user is logged in AND tries to access login/register, redirect to home
     if (token && ['/login', '/register'].includes(pathname)) {
-      router.push('/home')
+      router.push('/')
     }
   }, [token, pathname, router])
 
@@ -105,7 +105,7 @@ const Login = () => {
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.8, ease: 'easeOut' }}
       >
-        <Link href="/home">
+        <Link href="/">
           <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }} className="max-w-xs cursor-pointer">
             <Image src="/footer_logo.png" alt="Vaazhga Valamudan Logo" width={400} height={300} className="mt-6" />
           </motion.div>

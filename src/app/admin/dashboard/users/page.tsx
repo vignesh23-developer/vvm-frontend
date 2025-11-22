@@ -51,9 +51,7 @@ export default function UserManagementPage() {
       render: row => (
         <span
           className={`px-2 py-1 rounded-full text-xs font-medium ${
-            row.status === 'Active'
-              ? 'bg-green-100 text-green-700'
-              : 'bg-red-100 text-red-600'
+            row.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
           }`}
         >
           {row.status}
@@ -89,30 +87,22 @@ export default function UserManagementPage() {
 
       {/* Header Tabs + Filters */}
       <div className="flex flex-wrap items-center gap-3 mb-5">
-        <button className="px-4 py-2 rounded-md bg-orange-100 border border-orange-300 text-orange-700 text-sm font-medium">
-          All
-        </button>
+        <button className="px-4 py-2 rounded-md bg-orange-100 border border-orange-300 text-orange-700 text-sm font-medium">All</button>
         <button className="px-4 py-2 rounded-md bg-white border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-100">
           Projection
         </button>
         <button className="px-4 py-2 rounded-md bg-white border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-100">
           Comparable
         </button>
-        <button className="px-4 py-2 rounded-md bg-white border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-100">
-          Merger
-        </button>
+        <button className="px-4 py-2 rounded-md bg-white border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-100">Merger</button>
 
         <select className="ml-auto border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-600 focus:outline-none">
           <option>All industries</option>
         </select>
 
-        <div className="flex items-center border border-gray-200 rounded-md px-3 py-2 bg-white text-sm text-gray-600">
-          Created
-        </div>
+        <div className="flex items-center border border-gray-200 rounded-md px-3 py-2 bg-white text-sm text-gray-600">Created</div>
 
-        <button className="p-2 border border-gray-200 rounded-md bg-white">
-          🔍
-        </button>
+        <button className="p-2 border border-gray-200 rounded-md bg-white">🔍</button>
 
         <button className="ml-2 bg-orange-100 hover:bg-orange-200 text-orange-700 px-4 py-2 rounded-md text-sm font-medium border border-orange-200 transition">
           + Add User

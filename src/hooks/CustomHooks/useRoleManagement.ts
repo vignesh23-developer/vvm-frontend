@@ -48,12 +48,12 @@ export function useRoleManagement() {
 
   // CRUD handlers
   const handleAdd = useCallback(() => {
-    router.push('/admin/dashboard/role-management/add')
+    router.push('/admin/role-management/add')
   }, [router])
 
   const handleEdit = useCallback(
     (id: number) => {
-      router.push(`/admin/dashboard/role-management/edit/${id}`)
+      router.push(`/admin/role-management/edit/${id}`)
     },
     [router],
   )

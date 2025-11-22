@@ -1,7 +1,6 @@
 import { ResponseDTO } from '@/components/dto/response_dto'
-import { patchMethod, postMethod } from '@/services/service'
+import { deleteMethod, getMethod, patchMethod, postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
-import { head } from 'framer-motion/client'
 
 export async function onCreateProperty(prevState: ResponseDTO, data: { payload: any; userId: string }): Promise<ResponseDTO> {
   try {
@@ -82,6 +81,93 @@ export async function onAddPropertyMedia(
     return {
       error: true,
       message: 'Something went wrong while creating Property',
+      data: null,
+    }
+  }
+}
+
+export async function onAddPropertyImages(
+  prevState: any,
+  params: {
+    propertyId: string
+    formData: FormData
+    current: number
+    total: number
+  },
+): Promise<any> {
+  try {
+    // Add current and total to form data
+    params.formData.append('current', params.current.toString())
+    params.formData.append('total', params.total.toString())
+
+    const response = await postMethod(appEndpoints.addPropertyImages(params.propertyId), params.formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+
+    return {
+      success: !response.error,
+      error: response.error,
+      message: response.message || 'Images uploaded successfully',
+      data: response.data,
+    }
+  } catch (e) {
+    return {
+      error: true,
+      message: 'Something went wrong while uploading property images',
+      data: null,
+    }
+  }
+}
+
+export async function getPropertyImages(propertyId: string): Promise<any> {
+  try {
+    const response = await getMethod(appEndpoints.getPropertyImages(propertyId))
+    return {
+      success: !response.error,
+      error: response.error,
+      message: response.message,
+      data: response.data,
+    }
+  } catch (e) {
+    return {
+      error: true,
+      message: 'Something went wrong while fetching property images',
+      data: null,
+    }
+  }
+}
+
+export async function updatePropertyImage(propertyId: string, imageId: string, body: { is_primary?: boolean; sort_order?: number }): Promise<any> {
+  try {
+    const response = await patchMethod(appEndpoints.updatePropertyImage(propertyId, imageId), body)
+    return {
+      success: !response.error,
+      error: response.error,
+      message: response.message || 'Image updated successfully',
+      data: response.data,
+    }
+  } catch (e) {
+    return {
+      error: true,
+      message: 'Something went wrong while updating property image',
+      data: null,
+    }
+  }
+}
+
+export async function deletePropertyImage(propertyId: string, imageId: string): Promise<any> {
+  try {
+    const response = await deleteMethod(appEndpoints.deletePropertyImage(propertyId, imageId))
+    return {
+      success: !response.error,
+      error: response.error,
+      message: response.message || 'Image deleted successfully',
+      data: response.data,
+    }
+  } catch (e) {
+    return {
+      error: true,
+      message: 'Something went wrong while deleting property image',
       data: null,
     }
   }

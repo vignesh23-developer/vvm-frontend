@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import PropertyCard from '@/components/buyer/PropertyCard/PropertyCard'
 import { useProperties } from '@/app/admin/dashboard/properties/(Hooks)/useProperties'
 import { useTranslations } from 'next-intl'
@@ -12,16 +13,19 @@ import { deleteMethod, postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import Pagination from '@/components/ui/CustomComponent/Paginations/Pagination'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
+import { ResponseDTO } from '@/components/dto/response_dto'
+import ApproveOrRejectPropertyModal from '@/components/ui/CustomComponent/Modal/ApproveOrReject/ApproveOrRejectModal'
 
 const PAGE_SIZE = 10
 
 const PropertiesPage = () => {
   const t = useTranslations()
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState('pending')
   const [currentPage, setCurrentPage] = useState(1)
   const [favoritedProperties, setFavoritedProperties] = useState<Set<string>>(new Set())
   const [pendingActionPropertyId, setPendingActionPropertyId] = useState<string | null>(null)
-  const [modalAction, setModalAction] = useState<'approve' | 'reject' | null>(null)
+  const [modalAction, setModalAction] = useState<string>('')
   const [selectedProperty, setSelectedProperty] = useState<PropertiesDto | null>(null)
   const [comment, setComment] = useState('')
   const [rejectReason, setRejectReason] = useState('')
@@ -59,27 +63,9 @@ const PropertiesPage = () => {
 
   const closeModal = useCallback(() => {
     setIsModalOpen(false)
-    setModalAction(null)
+    setModalAction('')
     setSelectedProperty(null)
   }, [])
-
-  const triggerPropertyAction = useCallback(
-    async (propertyId: string, action: 'approve' | 'reject', data?: { comment?: string; rejectReason?: string }) => {
-      try {
-        setPendingActionPropertyId(propertyId)
-        await handlePropertyAction(propertyId, reviewerId, action, data)
-      } finally {
-        setPendingActionPropertyId(null)
-      }
-    },
-    [handlePropertyAction, reviewerId],
-  )
-
-  const handleModalConfirm = useCallback(async () => {
-    if (!modalAction || !selectedProperty) return
-    await triggerPropertyAction(selectedProperty.id, modalAction, { comment, rejectReason })
-    closeModal()
-  }, [modalAction, selectedProperty, comment, rejectReason, triggerPropertyAction, closeModal])
 
   const changePage = (page: number) => setCurrentPage(Math.max(1, Math.min(page, totalPages)))
 
@@ -91,19 +77,8 @@ const PropertiesPage = () => {
   const isEmptyTab = (activeTab === 'pending' ? pendingCount : rejectedCount) === 0
 
   const handleFavorite = async (propertyId: string) => {
-    const isFav = favoritedProperties.has(propertyId)
     try {
-      const response = isFav
-        ? await deleteMethod(appEndpoints.deleteFavorite(reviewerId))
-        : await postMethod(appEndpoints.toggleFavorite, { entity_type: 'property', entity_id: propertyId })
-
-      if (!response?.error) {
-        setFavoritedProperties(prev => {
-          const newSet = new Set(prev)
-          isFav ? newSet.delete(propertyId) : newSet.add(propertyId)
-          return newSet
-        })
-      }
+      const response: ResponseDTO = await postMethod(appEndpoints.toggleFavorite, { entity_type: 'property', entity_id: propertyId })
       mutateProperties()
     } catch (err) {
       console.error('Error updating favorite:', err)
@@ -168,13 +143,16 @@ const PropertiesPage = () => {
                 language={t}
                 primaryActionLabel="Approve"
                 secondaryActionLabel="Reject"
+                thirdActionLabel="View Details"
                 onPrimaryAction={() => openModal(property, 'approve')}
                 onSecondaryAction={() => openModal(property, 'reject')}
+                onThirdAction={() => router.push(`/propertyDetails/${property.id}`)}
                 primaryActionDisabled={pendingActionPropertyId === property.id}
                 secondaryActionDisabled={pendingActionPropertyId === property.id}
+                thirdActionDisabled={pendingActionPropertyId === property.id}
                 handleFavorite={handleFavorite}
                 handleShare={() => console.log('Share', property.id)}
-                isFavorited={favoritedProperties.has(property.id)}
+                isUserFavorited={property.is_user_favorite}
               />
             ))}
         </div>
@@ -188,7 +166,14 @@ const PropertiesPage = () => {
       )}
 
       {/* Modal */}
-      <ModalComponent
+      <ApproveOrRejectPropertyModal
+        approveOrRejectModalOpen={isModalOpen}
+        setApproveOrRejectModalOpen={setIsModalOpen}
+        approveOrRejectReason={modalAction}
+        userId={reviewerId}
+        property={selectedProperty}
+      />
+      {/* <ModalComponent
         open={isModalOpen}
         onClose={closeModal}
         title={modalAction === 'approve' ? 'Approve Property' : 'Reject Property'}
@@ -247,7 +232,7 @@ const PropertiesPage = () => {
             </>
           )}
         </div>
-      </ModalComponent>
+      </ModalComponent> */}
     </div>
   )
 }

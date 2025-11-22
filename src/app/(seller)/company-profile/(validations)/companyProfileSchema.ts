@@ -15,11 +15,5 @@ export const companyProfileSchema = Yup.object().shape({
     .required('Contact phone is required')
     .matches(/^\+?[1-9]\d{1,14}$/, 'Please enter a valid phone number'),
   contact_email: Yup.string().trim().email('Please enter a valid email address').required('Contact email is required'),
-  expiryDays: Yup.number()
-    .typeError('Expiry days must be a number')
-    .integer('Expiry days must be an integer')
-    .min(0, 'Expiry days cannot be negative')
-    .required('Expiry days is required'),
   address_line: Yup.string().trim().required('Address line is required'),
-  postal_code: Yup.string().trim().required('Postal code is required'),
 })
