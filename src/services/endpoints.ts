@@ -104,6 +104,11 @@ export const appEndpoints = {
   updateAd: (adId: string) => `/ads/${adId}`,
   deleteAd: (adId: string) => `/ads/${adId}`,
   getAllAdsCategories: '/master/ads-category',
+  approveAd: (adId: string) => `/ad-approvals/ad/${adId}/approve`,
+  rejectAd: (adId: string) => `/ad-approvals/ad/${adId}/reject`,
+  getAllAdReports: '/ad-reports',
+  getAdReportByID: (reportId: string) => `/ad-reports/${reportId}`,
+  createAdReport: (adId: string) => `/ad-reports/${adId}`,
   // Ads Images
   addAdImages: (adId: string) => `/ads/${adId}/images`,
   getAdImages: (adId: string) => `/ads/${adId}/images`,
@@ -116,7 +121,9 @@ export const appEndpoints = {
   deleteFavorite: (propertyId: string) => `/user-interactions/favorites/${propertyId}`,
   // Enquiry
   createPropertyEnquiry: '/user-interactions/enquiries',
+  createEnquiry: '/user-interactions/enquiries',
   getPropertyEnquiry: '/user-interactions/enquiries',
+  getAdEnquiry: '/user-interactions/enquiries',
 
   // agent company profile
   createCompanyProfile: '/agent-company-profiles',

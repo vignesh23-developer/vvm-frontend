@@ -118,8 +118,8 @@ const DASHBOARD_SECTIONS: NavItem[] = [
       { label: 'ads pending approval', href: '/admin/dashboard/ads-pending-approval' },
       { label: 'view recent ads', href: '/admin/dashboard/recent-ads' },
       { label: 'favourite ads', href: '/admin/dashboard/favourite-ads' },
-      { label: 'reported ads', href: '/admin/dashboard/reported-ads' },
-      { label: 'view enquiries', href: '/admin/dashboard/ads-enquiries' },
+      { label: 'reported ads', href: '/admin/dashboard/ads-reports' },
+      { label: 'view enquiries', href: '/admin/dashboard/ads-enquiry' },
     ],
   },
   {

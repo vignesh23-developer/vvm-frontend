@@ -95,6 +95,48 @@ export default function AdsListPage() {
       title: 'Status',
       sortable: true,
       filterable: true,
+      render: (value: unknown) => {
+        if (typeof value !== 'string') return '—'
+
+        const formatted = value
+          .toLowerCase()
+          .split('_')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ')
+
+        const badgeClass =
+          value === 'AVAILABLE'
+            ? 'bg-green-100 text-green-700 border border-green-300'
+            : value === 'SOLD'
+            ? 'bg-red-100 text-red-700 border border-red-300'
+            : 'bg-yellow-100 text-yellow-700 border border-yellow-300'
+
+        return <span className={`px-3 py-1 rounded-full text-xs font-semibold ${badgeClass}`}>{formatted}</span>
+      },
+    },
+    {
+      field: 'approval_status',
+      title: 'Approval Status',
+      sortable: true,
+      filterable: true,
+      render: (value: unknown) => {
+        if (typeof value !== 'string') return '—'
+
+        const formatted = value
+          .toLowerCase()
+          .split('_')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ')
+
+        const badgeClass =
+          value === 'UNDER_REVIEW'
+            ? 'bg-yellow-100 text-yellow-700 border border-yellow-300'
+            : value === 'APPROVED'
+            ? 'bg-green-100 text-green-700 border border-green-300'
+            : 'bg-red-100 text-red-700 border border-red-300'
+
+        return <span className={`px-3 py-1 rounded-full text-xs font-semibold ${badgeClass}`}>{formatted}</span>
+      },
     },
     {
       field: 'contact_phone',
@@ -199,13 +241,22 @@ export default function AdsListPage() {
           <h1 className="text-3xl font-bold text-gray-800">Ads</h1>
           <p className="text-gray-500">Manage and oversee all listed ads.</p>
         </div>
-        <Button
-          type="button"
-          onClick={() => router.push('/ads')}
-          className="flex items-center gap-2 bg-[#7B1E1E] px-4 py-2 text-sm font-medium text-white rounded-md shadow-md hover:bg-[#641717] transition"
-        >
-          Add Ads
-        </Button>
+        <div className="flex flex-wrap gap-3">
+          <Button
+            type="button"
+            onClick={() => router.push('/admin/dashboard/ads-pending-approval')}
+            className="flex items-center gap-2 border border-[#7B1E1E] px-4 py-2 text-sm font-medium text-[#7B1E1E] rounded-md hover:bg-[#f5e6e6] transition"
+          >
+            View Pending Ads
+          </Button>
+          <Button
+            type="button"
+            onClick={() => router.push('/ads')}
+            className="flex items-center gap-2 bg-[#7B1E1E] px-4 py-2 text-sm font-medium text-white rounded-md shadow-md hover:bg-[#641717] transition"
+          >
+            Add Ads
+          </Button>
+        </div>
       </div>
 
       {/* Layout */}
