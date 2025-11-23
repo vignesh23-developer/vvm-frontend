@@ -22,7 +22,20 @@ export interface AdsDto {
   contact_email: string
   user_id: string
   view_count: number
+  favorite_count?: number
   created_at: string
   updated_at: string
   media?: any[]
+  images?: Array<{
+    id: string
+    url: string
+    thumbnail_url?: string
+    is_primary?: boolean
+    [key: string]: any
+  }>
+  approval_status?: 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED' | string
+  rejection_reason?: string | null
+  reports_count?: number
+  enquiry_count?: number
+  is_user_favorite?: boolean
 }

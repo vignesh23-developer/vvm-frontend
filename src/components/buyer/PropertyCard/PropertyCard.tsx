@@ -2,7 +2,7 @@
 
 import { type ReactNode } from 'react'
 import { motion, type Variants } from 'framer-motion'
-import { Heart, Share, Ruler, Building2, Home, ChevronDown, MapPin } from 'lucide-react'
+import { Heart, Share, Ruler, Building2, Home, ChevronDown, MapPin, Eye } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import Button from '@/components/ui/CustomComponent/Button/Button'
@@ -26,7 +26,15 @@ const t = (translator: ((k: string) => string) | undefined, key: string, fallbac
   typeof translator === 'function' ? translator(key) : fallback
 
 /* ------------------------------ Types ------------------------------ */
-export interface PropertiesCardProps {
+export interface MediaItem {
+  id: string
+  url: string
+  thumbnail_url?: string
+  is_primary?: boolean
+  [key: string]: any
+}
+
+interface PropertiesCardProps {
   id: string
   title: string
   description: string
@@ -35,14 +43,14 @@ export interface PropertiesCardProps {
   property_size_unit?: string
   status: string
   listing_type?: string
-  // transaction: string
   address_line: string
   city: string
   state: string
   postal_code: string
   approval_status: string
   favorite_count: number
-  media: any[]
+  media?: MediaItem[]
+  images?: MediaItem[]
   agent?: string
   operatingSince?: string
   subtitle?: string
@@ -101,10 +109,7 @@ export default function PropertyCard(props: PropertiesCardProps) {
   const labels = {
     agent: t(language, 'PropertiesListCard.agent', 'Agent'),
     since: t(language, 'PropertiesListCard.operating_since', 'Operating since'),
-    area: t(language, 'PropertiesListCard.property_size', 'Property Size'),
-    status: t(language, 'PropertiesListCard.status', 'Status'),
-    listing_type: t(language, 'PropertiesListCard.listing_type', 'Listing Type'),
-    // transaction: t(language, 'PropertiesListCard.transaction', 'Transaction'),
+    status: t(language, 'PropertiesListCard.status', 'Status')
   }
 
   const buttons = {
@@ -113,7 +118,20 @@ export default function PropertyCard(props: PropertiesCardProps) {
     third: thirdActionLabel ?? t(language, 'PropertiesListCard.check_affordability', 'Check affordability'),
   }
 
-  const imageUrl = media?.[0]?.url || '/villa.png'
+  // Find primary image or fall back to first image
+  const getImageUrl = () => {
+    // Use images prop if available, otherwise fall back to media prop
+    const imageArray = (props as any).images || media || []
+    if (imageArray.length === 0) return '/villa.png'
+    
+    // Find primary image or fall back to first image
+    const primary = imageArray.find((img: any) => img.is_primary)
+    if (primary?.url) return primary.url
+    if (imageArray[0]?.url) return imageArray[0].url
+    return '/villa.png'
+  }
+  
+  const imageUrl = getImageUrl()
 
   return (
     <motion.div
@@ -236,9 +254,7 @@ const InfoSection = ({
 
     <div className="mt-3 flex w-full flex-col divide-y divide-gray-200 rounded-md bg-[#F5F5F5] text-sm sm:flex-row sm:divide-y-0 sm:divide-x">
       <PropertyTag icon={<Building2 size={18} />} label={labels.status} value={status} />
-      <PropertyTag icon={<Ruler size={18} />} label={labels.area} value={`${property_size}${property_size_unit}`} />
-      <PropertyTag icon={<Home size={18} />} label={labels.listing_type} value={listing_type} />
-      {/* <PropertyTag icon={<Home size={18} />} label={labels.transaction} suffix={<ChevronDown size={16} />} /> */}
+      <PropertyTag icon={<Eye size={18} />} value={property_size} />
     </div>
 
     <p className="mt-3 flex items-center text-sm text-gray-600">
