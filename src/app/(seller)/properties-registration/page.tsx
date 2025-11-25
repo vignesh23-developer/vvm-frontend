@@ -16,12 +16,13 @@ import { FeatureMappingDTO, FeaturePayloadDTO, LandRegistrationPayloadDTO } from
 
 import toast from 'react-hot-toast'
 import { ResponseDTO } from '@/components/dto/response_dto'
+import { useGlobalContext } from '@/hooks/GlobalContext/GlobalContext'
 import { onAddPropertyMedia, onCreateProperty, onUpdateProperty } from './(action)/properties_registration_action'
-import { getLocalStorageItem, removeLocalStorageItem, setLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
 import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
 import { getMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import Button from '@/components/ui/CustomComponent/Button/Button'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 // import Step5UploadImages from './(views)/UploadImages'
 
 const mapFeatureValuesToPayload = (featureValues: any[] | undefined, mappings: FeatureMappingDTO[] | null): FeaturePayloadDTO[] => {
@@ -155,18 +156,6 @@ export interface PropertyCreationFormValues {
   // you could also include step5 review constraints
 }
 
-interface userData {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  agent: {
-    agent_id: string
-    agent_name: string
-    agent_profile_name: string
-  }
-}
-
 export default function PropertiesRegistrationPage({ propertiesId }: { propertiesId?: string }) {
   const steps = [
     { title: 'Step 1', subtitle: 'Basic Details', icon: <Home className="w-5 h-5" /> },
@@ -184,27 +173,8 @@ export default function PropertiesRegistrationPage({ propertiesId }: { propertie
     onGetPropertyCategoryFeatureMapping,
   } = useLandRegistration()
 
-  const [userValue, setUserValue] = useState<userData | null>(null)
-
-  useEffect(() => {
-    const authToken = getLocalStorageItem('authToken')
-    const userData = getLocalStorageItem('userData') as userData
-
-    if (authToken && userData) {
-      const user = {
-        id: userData?.id,
-        firstName: userData?.firstName,
-        lastName: userData?.lastName,
-        email: userData?.email,
-        agent: {
-          agent_id: userData?.agent?.agent_id,
-          agent_name: userData?.agent?.agent_name,
-          agent_profile_name: userData?.agent?.agent_profile_name,
-        },
-      }
-      setUserValue(user)
-    }
-  }, [])
+  const { value, setValue } = useGlobalContext()
+  const { user } = useAuth()
   const [valueData, setValueData] = useState<any>(null)
   const fectchPropertiesById = async (id: string | undefined) => {
     if (id) {
@@ -389,7 +359,8 @@ export default function PropertiesRegistrationPage({ propertiesId }: { propertie
     if (ULRActionState?.success) {
       toast.success('Property Updated Successfully')
       console.log('property id:', ULRActionState?.data?.id)
-      setLocalStorageItem(LOCAL_STORAGE_NAME.propertyId, ULRActionState?.data?.id)
+      setValue(ULRActionState?.data?.id)
+      // setLocalStorageItem(LOCAL_STORAGE_NAME.propertyId, ULRActionState?.data?.id)
       setCurrentStep(step => step + 1)
       setIsEdit(true)
     }
@@ -402,7 +373,8 @@ export default function PropertiesRegistrationPage({ propertiesId }: { propertie
     if (LRActionState?.success) {
       toast.success('Property Created Successfully')
       console.log('property id:', LRActionState?.data?.id)
-      setLocalStorageItem(LOCAL_STORAGE_NAME.propertyId, LRActionState?.data?.id)
+      setValue(LRActionState?.data?.id)
+      // setLocalStorageItem(LOCAL_STORAGE_NAME.propertyId, LRActionState?.data?.id)
       setCurrentStep(step => step + 1)
       setIsEdit(true)
     }
@@ -495,7 +467,7 @@ export default function PropertiesRegistrationPage({ propertiesId }: { propertie
             country: values?.country,
             latitude: values?.latitude,
             longitude: values?.longitude,
-            agent_id: userValue?.agent?.agent_id || '',
+            agent_id: user?.agent?.agent_id || '',
             // Ensure each feature is an instance of FeaturePayloadDTO so `toObject()` exists at runtime.
             features: selectedFeatures.map((feature: FeaturePayloadDTO) =>
               feature instanceof FeaturePayloadDTO ? feature : new FeaturePayloadDTO(feature as any),
@@ -504,29 +476,30 @@ export default function PropertiesRegistrationPage({ propertiesId }: { propertie
 
           var payload = LandRegistrationData?.toObject()
 
-          const localStroagePropertyId = (await getLocalStorageItem(LOCAL_STORAGE_NAME?.propertyId)) as any
+          const contextPropertyId = value
 
-          console.log('log on data sss properties:', localStroagePropertyId, propertiesId)
+          console.log('log on data sss properties:', contextPropertyId, propertiesId)
 
-          if (localStroagePropertyId || propertiesId) {
+          if (contextPropertyId || propertiesId) {
             startTransition(async () => {
-              ULRAction({ payload, propertiesId: propertiesId ? propertiesId : localStroagePropertyId })
+              ULRAction({ payload, propertiesId: propertiesId ? propertiesId : contextPropertyId })
             })
           } else {
             startTransition(async () => {
-              LRAction({ payload, userId: userValue?.id })
+              LRAction({ payload, userId: user?.id })
             })
           }
           return
         }
 
         if (currentStep === 5) {
-          const localPropertyId = getLocalStorageItem(LOCAL_STORAGE_NAME?.propertyId) as any
-          console.log(localPropertyId, 'local')
-          const propertyId = propertiesId ? propertiesId : localPropertyId
-          console.log('Step 5 submit - propertyId:', propertyId, propertiesId, localPropertyId, 'uploadType:', values?.uploadType)
+          const contextPropertyId = value
+          console.log(contextPropertyId, 'local')
+          const propertyId = propertiesId ? propertiesId : contextPropertyId
+          console.log('Step 5 submit - propertyId:', propertyId, propertiesId, contextPropertyId, 'uploadType:', values?.uploadType)
 
           if (!propertyId || !values?.uploadType) {
+            toast.error('Missing propertyId or uploadType')
             console.error('Missing propertyId or uploadType')
             actions.setSubmitting(false)
             return
@@ -672,35 +645,7 @@ export default function PropertiesRegistrationPage({ propertiesId }: { propertie
       <Formik initialValues={initialValues} validationSchema={validationSchemas[currentStep]} onSubmit={handleSubmit}>
         {formik => {
           async function init() {
-            // 1) Check for local draft first
-            // const localStoradData: any = await getLocalStorageItem(LOCAL_STORAGE_NAME.propertyDetails)
-
-            // console.log('localstorad val:', localStoradData)
-
-            // if (localStoradData) {
-            //   const storadPropertyData: PropertyCreationFormValues = JSON.parse(localStoradData)
-            //   console.log('localstorad val: st132ep 0002 ', storadPropertyData)
-            //   const featureResult = await onGetPropertyCategoryFeatureMapping(storadPropertyData?.propertyType)
-            //   const mappings = featureResult?.data?.mappings ?? null
-
-            //   setFeatureData(mappings)
-
-            //   Object.entries(storadPropertyData)
-            //     .filter(([key, value]) => key !== 'features' && (value !== '' || value !== null || value !== undefined))
-            //     .forEach(([key, value]) => formik.setFieldValue(key, value))
-
-            //   if (Array.isArray(storadPropertyData.features)) {
-            //     const restoredFeatures = storadPropertyData.features.map(feature => new FeaturePayloadDTO(feature as any))
-            //     formik.setFieldValue('features', restoredFeatures)
-            //     setInputFeatureData(restoredFeatures)
-            //   } else {
-            //     formik.setFieldValue('features', [])
-            //     setInputFeatureData([])
-            //   }
-            //   return
-            // }
-
-            // 2) If editing (propertiesId present and valueData fetched), populate with server data
+            // 1) If editing (propertiesId present and valueData fetched), populate with server data
             if (propertiesId && valueData) {
               console.log('Editing property with ID:', propertiesId)
               console.log('Fetched valueData:', valueData)
@@ -813,41 +758,55 @@ export default function PropertiesRegistrationPage({ propertiesId }: { propertie
                 </Button>
                 {currentStep !== 6 && (
                   <>
-                    {currentStep !== 5 ? (
-                      <Button
-                        type="submit"
-                        onClick={() => {}}
-                        disabled={formik.isSubmitting || UPPIsPending}
-                        className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#7B1E1E] text-white hover:bg-[#641717] cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ${
-                          formik.isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-                        }`}
-                      >
-                        {!formik.isSubmitting ? (
-                          <>
-                            {isLastStep ? 'Submit' : currentStep === 4 ? 'Save Property' : 'Next Step'}
-                            <ArrowRight size={20} />
-                          </>
-                        ) : (
-                          'Loading'
-                        )}
-                      </Button>
-                    ) : (
-                      <Button
-                        type="button"
-                        onClick={() => {
-                          if (uploadCompleted) {
-                            setCurrentStep(s => Math.min(s + 1, steps.length))
-                          }
-                        }}
-                        disabled={!uploadCompleted}
-                        className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#7B1E1E] text-white hover:bg-[#641717] transition disabled:opacity-50 disabled:cursor-not-allowed ${
-                          uploadCompleted ? 'cursor-pointer' : ''
-                        }`}
-                      >
-                        {uploadCompleted ? 'Next Step' : 'Upload files to enable'}
-                        <ArrowRight size={20} />
-                      </Button>
-                    )}
+                    {currentStep !== 5
+                      ? (() => {
+                          const isLoading = formik.isSubmitting || UPPIsPending || LRIsPending || ULRIsPending
+                          return (
+                            <Button
+                              type="submit"
+                              onClick={() => {}}
+                              disabled={isLoading}
+                              className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#7B1E1E] text-white hover:bg-[#641717] cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ${
+                                isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                              }`}
+                            >
+                              {!isLoading ? (
+                                <>
+                                  {isLastStep ? 'Submit' : currentStep === 4 ? 'Save Property' : 'Next Step'}
+                                  <ArrowRight size={20} />
+                                </>
+                              ) : (
+                                <span>Loading...</span>
+                              )}
+                            </Button>
+                          )
+                        })()
+                      : (() => {
+                          const isLoading = UPPIsPending
+                          return (
+                            <Button
+                              type="button"
+                              onClick={() => {
+                                if (uploadCompleted) {
+                                  setCurrentStep(s => Math.min(s + 1, steps.length))
+                                }
+                              }}
+                              disabled={!uploadCompleted || isLoading}
+                              className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#7B1E1E] text-white hover:bg-[#641717] transition disabled:opacity-50 disabled:cursor-not-allowed ${
+                                uploadCompleted && !isLoading ? 'cursor-pointer' : ''
+                              }`}
+                            >
+                              {!isLoading ? (
+                                <>
+                                  {uploadCompleted ? 'Next Step' : 'Upload files to enable'}
+                                  <ArrowRight size={20} />
+                                </>
+                              ) : (
+                                <span>Uploading...</span>
+                              )}
+                            </Button>
+                          )
+                        })()}
                   </>
                 )}
               </div>

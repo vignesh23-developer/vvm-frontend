@@ -17,6 +17,7 @@ import {
   FeatureOptionFormValue,
 } from '@/app/admin/dashboard/(master)/feature-category/(dto)/featureCategoryType'
 import { FeatureCategoryValidationSchema } from './FeatureCategoryValidation'
+import toast from 'react-hot-toast'
 
 export interface FeatureCategoryFormProps {
   initialValues: FeatureCategoryFormValues
@@ -82,6 +83,7 @@ export default function FeatureCategoryForm({ initialValues, onSubmit, submitLab
       console.log('Fetched feature group ResponseDTO:', response)
 
       if (response.error) {
+        toast.error(response.message || 'Failed to fetch feature groups')
         console.error('API error while fetching feature groups:', response.message)
         return []
       }

@@ -47,6 +47,7 @@ export function usePropertiesList(options: UsePropertiesOptions = {}) {
     try {
       const response = await getMethod<ApiResponse<PropertiesDto[]>>(url)
       if (response.error) {
+        toast.error(response.message || 'Failed to fetch properties')
         console.error('API error while fetching properties:', response.message)
         return { items: [], total: 0 }
       }

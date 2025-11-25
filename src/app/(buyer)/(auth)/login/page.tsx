@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
 import { Formik, Form } from 'formik'
@@ -15,7 +15,8 @@ import LanguageSwitch from '@/components/ui/CustomComponent/languageSwitch/langu
 import { postMethod } from '@/services/service'
 import toast from 'react-hot-toast'
 import { usePathname, useRouter } from 'next/navigation'
-import { getLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
+import { ResponseDTO } from '@/components/dto/response_dto'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 
 interface AuthFormValues {
   phone: string
@@ -23,10 +24,11 @@ interface AuthFormValues {
 
 const Login = () => {
   const t = useTranslations()
-  const [buttonType, setButtonType] = useState<'sms' | 'whatsapp'>('sms')
+  const submitChannelRef = useRef<'sms' | 'whatsapp'>('sms')
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
-  const token = getLocalStorageItem('authToken')
+  const { token } = useAuth()
 
   useEffect(() => {
     const publicRoutes = ['/', '/about', '/services', '/pricing', '/help-center', '/login', '/register']
@@ -44,44 +46,43 @@ const Login = () => {
 
   const initialValues: AuthFormValues = { phone: '' }
 
-  const handleLoginSubmit = async (values: AuthFormValues, setSubmitting: (isSubmitting: boolean) => void, type: string) => {
+  const handleLoginSubmit = async (values: AuthFormValues, setSubmitting: (isSubmitting: boolean) => void, channel: 'sms' | 'whatsapp') => {
+    setIsLoading(true)
+    setSubmitting(true)
     try {
       const payload = {
         phoneNumber: values.phone,
-        otpTypes: [type === 'whatsapp' ? 'whatsapp_otp' : 'sms_otp'],
+        otpTypes: [channel === 'whatsapp' ? 'whatsapp_otp' : 'sms_otp'],
       }
 
-      const response = await postMethod(appEndpoints.loginSendOtp, payload)
+      const response = (await postMethod(appEndpoints.loginSendOtp, payload)) as ResponseDTO
 
-      const responseData = response.data as {
-        message?: string
-        data?: {
+      // console.log('Login response:', response)
+
+      if (response.status === '200') {
+        const responseData = response.data as {
           message?: string
+          data?: {
+            message?: string
+            isExistingUser?: boolean
+          }
           isExistingUser?: boolean
         }
-        isExistingUser?: boolean
-      }
-
-      const nestedData = responseData?.data
-      const isExistingUser = nestedData?.isExistingUser ?? responseData?.isExistingUser
-
-      const successMessage = nestedData?.message || responseData?.message || 'OTP sent successfully'
-
-      toast.success(successMessage)
-
-      if (typeof isExistingUser === 'boolean') {
-        if (isExistingUser) {
+        if (responseData.isExistingUser) {
           router.push(`/otp-verification?phone=${encodeURIComponent(values.phone)}`)
         } else {
           router.push(`/signup?phone=${encodeURIComponent(values.phone)}`)
         }
+        const successMessage = responseData?.message || responseData?.data?.message || 'OTP sent successfully'
+        toast.success(successMessage)
+      } else {
+        toast.error(response.message || 'Failed to send OTP')
       }
-
-      console.log('Button Clicked:', type, response)
     } catch (error) {
       console.error('Login error:', error)
       toast.error('Failed to send OTP')
     } finally {
+      setIsLoading(false)
       setSubmitting(false)
     }
   }
@@ -150,7 +151,7 @@ const Login = () => {
             initialValues={initialValues}
             validationSchema={AuthSchema(t)}
             onSubmit={(values, { setSubmitting }) => {
-              handleLoginSubmit(values, setSubmitting, buttonType)
+              handleLoginSubmit(values, setSubmitting, submitChannelRef.current)
             }}
           >
             {({ isSubmitting }) => (
@@ -180,11 +181,13 @@ const Login = () => {
                   <motion.div whileTap={{ scale: 0.97 }}>
                     <Button
                       type="submit"
-                      disabled={isSubmitting}
-                      onClick={() => setButtonType('whatsapp')}
+                      disabled={isSubmitting || isLoading}
+                      onClick={() => {
+                        submitChannelRef.current = 'whatsapp'
+                      }}
                       className="w-full bg-[#2B1B12] text-white text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-[#3d2616] disabled:opacity-60"
                     >
-                      <span>{isSubmitting ? 'Verifying...' : t('Auth.whatapp_button')}</span>
+                      <span>{isSubmitting || isLoading ? 'Verifying...' : t('Auth.whatapp_button')}</span>
                     </Button>
                   </motion.div>
                 </motion.div>
@@ -213,12 +216,15 @@ const Login = () => {
                 >
                   <motion.div whileTap={{ scale: 0.97 }}>
                     <Button
-                      type="button"
-                      onClick={() => setButtonType('sms')}
+                      type="submit"
+                      disabled={isSubmitting || isLoading}
+                      onClick={() => {
+                        submitChannelRef.current = 'sms'
+                      }}
                       className="w-full border border-gray-400 text-sm rounded-md py-2 flex items-center justify-center space-x-2 hover:bg-gray-50"
                     >
                       <MessageCircle size={20} />
-                      <span>{t('Auth.continue_with_sms')}</span>
+                      <span>{isSubmitting || isLoading ? 'Verifying...' : t('Auth.continue_with_sms')}</span>
                     </Button>
                   </motion.div>
                 </motion.div>

@@ -3,6 +3,7 @@
 import useSWR from 'swr'
 import { appEndpoints } from '@/services/endpoints'
 import { getMethod } from '@/services/service'
+import toast from 'react-hot-toast'
 
 // Custom hook for managing property reports
 export function useCompanyProfilesByUserId(userId: string) {
@@ -13,6 +14,7 @@ export function useCompanyProfilesByUserId(userId: string) {
       console.log('Fetched company profiles ResponseDTO:', response)
 
       if (response?.error) {
+        toast.error(response.message || 'Failed to fetch company profiles')
         console.error('API error while fetching company profiles:', response.message)
         return []
       }

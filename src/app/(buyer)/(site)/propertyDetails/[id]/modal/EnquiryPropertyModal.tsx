@@ -8,8 +8,6 @@ import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextFi
 import EnquiryPropertyValidation from '../validation/EnquiryPropertyValidation'
 import { postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
-import { getLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
-import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
 import { ResponseDTO } from '@/components/dto/response_dto'
 
 interface EnquiryPropertyModalProps {
@@ -27,17 +25,7 @@ interface EnquiryFormValues {
   message: string
 }
 
-interface UserData {
-  id: string
-  firstName?: string
-  lastName?: string
-  email?: string
-  // add other fields if needed
-}
-
 const EnquiryPropertyModal = ({ EnquiryModalOpen, setEnquiryModalOpen, propertyId }: EnquiryPropertyModalProps) => {
-  const userData: UserData | null = getLocalStorageItem<UserData>(LOCAL_STORAGE_NAME.userData)
-
   const initialValues: EnquiryFormValues = {
     entity_type: 'property',
     entity_id: propertyId ? propertyId : null,

@@ -6,6 +6,7 @@ import Table from '@/components/ui/CustomComponent/Table/Table'
 import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
 import { usePropertyReports, PropertyReports } from '@/hooks/CustomHooks/usePropertyReport'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
+import toast from 'react-hot-toast'
 
 type PropertyReportsTableRow = PropertyReports & Record<string, unknown>
 
@@ -57,12 +58,10 @@ export default function PropertyReportsPage() {
 
   const handleRefresh = async () => {
     try {
-      // If you need to perform any server-side work before refreshing, do it here.
-      // The important part is to await the mutate so callers can wait for fresh data.
       await mutateReports()
     } catch (err) {
       console.error('PropertiesPage: refresh failed', err)
-      throw err instanceof Error ? err : new Error('Refresh failed')
+      toast.error('Failed to refresh property reports')
     }
   }
 

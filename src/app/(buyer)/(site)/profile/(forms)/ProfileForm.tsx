@@ -12,6 +12,7 @@ interface ProfileFormProps {
     firstName: string
     lastName: string
     email: string
+    // phoneNumber: string
   }
   isEdit?: boolean
   validationSchema: any
@@ -20,10 +21,13 @@ interface ProfileFormProps {
 const ProfileForm: React.FC<ProfileFormProps> = ({ initialValues, validationSchema, isEdit = false }) => {
   const handleSubmit = async (values: any) => {
     console.log('Form submitted with values:', values)
-
+    const payload = {
+      fullName: values.firstName + values.lastName,
+      email: values.email,
+    }
     try {
       if (isEdit) {
-        const res = await patchMethod(appEndpoints.updateUserProfile, values)
+        const res = await patchMethod(appEndpoints.updateUserProfile, payload)
         console.log(' Profile updated:', res)
       } else {
         console.log(' Creating new profile...')
@@ -43,6 +47,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialValues, validationSche
             <FormikTextField label="First Name" name="firstName" placeholder="Enter your first name" />
             <FormikTextField label="Last Name" name="lastName" placeholder="Enter your last name" />
             <FormikTextField label="Email" name="email" placeholder="Enter your email" />
+            {/* <FormikTextField label="Phone Number" name="phoneNumber" placeholder="Enter your phone number" /> */}
 
             <Button
               type="submit"

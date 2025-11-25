@@ -8,8 +8,6 @@ import { appEndpoints } from '@/services/endpoints'
 import { getMethod, patchMethod } from '@/services/service'
 import { AdsCategory } from '../(dto)/adsCategoryType'
 
-
-
 // Hook
 export function useAdsCategories() {
   const router = useRouter()
@@ -20,6 +18,7 @@ export function useAdsCategories() {
       const { data, error, message } = await getMethod<AdsCategory[]>(url)
 
       if (error) {
+        toast.error(message || 'Failed to fetch categories')
         console.error('Error fetching categories:', message)
         return []
       }

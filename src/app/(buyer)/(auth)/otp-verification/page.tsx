@@ -13,11 +13,11 @@ import * as Yup from 'yup'
 import toast from 'react-hot-toast'
 import { appEndpoints } from '@/services/endpoints'
 import { postMethod } from '@/services/service'
-import { setLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
-import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 
 export default function OtpVerification() {
   const t = useTranslations()
+  const { setUser, setToken } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   const phone = searchParams.get('phone')
@@ -86,6 +86,7 @@ export default function OtpVerification() {
         user?: any
       }>(appEndpoints.loginVerifyOtp, payload)
 
+      console.log(response, 'response 93')
       if (response.error) {
         toast.error(response.message || 'OTP verification failed')
         return
@@ -94,15 +95,17 @@ export default function OtpVerification() {
       if (response?.status === '200') {
         const token = response.data?.accessToken
         const userData = response.data?.user
+
+        // console.log('user', response.data)
         if (token) {
-          setLocalStorageItem(LOCAL_STORAGE_NAME.authToken, token)
-          setLocalStorageItem(LOCAL_STORAGE_NAME.userData, userData || '')
+          setUser(userData || null)
+          setToken(token)
+          const successMessage = response.data?.message || response.message || 'OTP verified successfully'
+          toast.success(successMessage)
+          router.push('/')
+        } else {
+          toast.error(response.message || 'OTP verification failed: Missing token')
         }
-
-        const successMessage = response.data?.message || response.message || 'OTP verified successfully'
-        toast.success(successMessage)
-
-        router.push('/')
       }
     } catch (error) {
       console.error('OTP verification failed:', error)

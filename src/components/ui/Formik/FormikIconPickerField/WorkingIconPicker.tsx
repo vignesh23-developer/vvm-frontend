@@ -36,9 +36,9 @@ export default function SimpleIconPicker({
 
       if (result.isLoaded) {
         setIcons(result.icons)
-        console.log('✅ SimpleIconPicker: Loaded', result.icons.length, 'icons')
+        console.log('SimpleIconPicker: Loaded', result.icons.length, 'icons')
       } else {
-        console.error('❌ SimpleIconPicker: Failed to load icons:', result.error)
+        console.error('SimpleIconPicker: Failed to load icons:', result.error)
       }
 
       setIsLoading(false)

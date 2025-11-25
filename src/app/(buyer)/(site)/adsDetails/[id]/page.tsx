@@ -1,7 +1,8 @@
-"use client"
+'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { motion, Variants } from 'framer-motion'
 import { Share2, Flag, MessageSquare, MapPin, Phone, Mail, Eye, BarChart3, MessageSquareMore } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -13,8 +14,6 @@ import FavoriteButton from '@/components/ui/CustomComponent/FavoriteButton/Favor
 import MapView from '@/components/ui/map/MapView'
 import ImageViewer from '@/components/ui/CustomComponent/ImageGallery/ImageGallery'
 import { formatPrice } from '@/utils/converter/formatPrice'
-import { getLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
-import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
 import { useAdDetails } from '@/app/(buyer)/(site)/adsDetails/(hooks)/useAdDetails'
 import { appEndpoints } from '@/services/endpoints'
 import { postMethod } from '@/services/service'
@@ -40,6 +39,7 @@ const staggerContainer: Variants = {
 const AdsDetailsPage = () => {
   const params = useParams<{ id: string | string[] }>()
   const router = useRouter()
+  const { user } = useAuth()
   const adIdParam = params?.id
   const adId = Array.isArray(adIdParam) ? adIdParam[0] : adIdParam
 
@@ -53,25 +53,22 @@ const AdsDetailsPage = () => {
 
   const { adDetails, adDetailsLoading, adDetailsError, adDetailsRefresh, handleAdApprovalAction } = useAdDetails({ id: adId })
 
-  const reviewer = getLocalStorageItem<{ id?: string }>(LOCAL_STORAGE_NAME.userData)
+  const reviewerId = user ? user?.id : null
 
   // Get primary images first, then fall back to all images
   const adImages = useMemo(() => {
     if (!adDetails?.images?.length) return []
     // Try to find primary images first
-    const primaryImages = adDetails.images
-      .filter(img => img.is_primary && img.url)
-      .map(img => img.url)
-    
+    const primaryImages = adDetails.images.filter(img => img.is_primary && img.url).map(img => img.url)
+
     // If no primary images, use all available images
-    return primaryImages.length > 0 
-      ? primaryImages 
-      : adDetails.images.map(img => img.url).filter(Boolean)
+    return primaryImages.length > 0 ? primaryImages : adDetails.images.map(img => img.url).filter(Boolean)
   }, [adDetails?.images])
-  
-  const formattedAddress = useMemo(() => 
-    [adDetails?.address_line, adDetails?.city, adDetails?.state].filter(Boolean).join(', ')
-  , [adDetails?.address_line, adDetails?.city, adDetails?.state])
+
+  const formattedAddress = useMemo(
+    () => [adDetails?.address_line, adDetails?.city, adDetails?.state].filter(Boolean).join(', '),
+    [adDetails?.address_line, adDetails?.city, adDetails?.state],
+  )
 
   useEffect(() => {
     if (!adId) {
@@ -108,21 +105,20 @@ const AdsDetailsPage = () => {
   )
 
   const detailItems = useMemo(
-    () =>
-      [
-        { label: 'Category', value: adDetails?.category_id ?? '-' },
-        { label: 'Status', value: adDetails?.status ?? '-' },
-        { label: 'Approval', value: adDetails?.approval_status ?? '-' },
-        {
-          label: 'Price',
-          value: adDetails?.price ? `₹ ${formatPrice(Number(adDetails.price))}` : '-',
-        },
-        { label: 'Negotiable', value: adDetails?.is_negotiable ? 'Yes' : 'No' },
-        {
-          label: 'Created On',
-          value: adDetails?.created_at ? new Date(adDetails.created_at).toLocaleDateString() : '-',
-        },
-      ],
+    () => [
+      { label: 'Category', value: adDetails?.category_id ?? '-' },
+      { label: 'Status', value: adDetails?.status ?? '-' },
+      { label: 'Approval', value: adDetails?.approval_status ?? '-' },
+      {
+        label: 'Price',
+        value: adDetails?.price ? `₹ ${formatPrice(Number(adDetails.price))}` : '-',
+      },
+      { label: 'Negotiable', value: adDetails?.is_negotiable ? 'Yes' : 'No' },
+      {
+        label: 'Created On',
+        value: adDetails?.created_at ? new Date(adDetails.created_at).toLocaleDateString() : '-',
+      },
+    ],
     [adDetails],
   )
 
@@ -145,15 +141,12 @@ const AdsDetailsPage = () => {
     }
   }, [])
 
-  const openApproveModal = useCallback(
-    (action: 'approve' | 'reject') => {
-      setApproveAction(action)
-      setApprovalComment('')
-      setRejectReason('')
-      setApproveModalOpen(true)
-    },
-    [],
-  )
+  const openApproveModal = useCallback((action: 'approve' | 'reject') => {
+    setApproveAction(action)
+    setApprovalComment('')
+    setRejectReason('')
+    setApproveModalOpen(true)
+  }, [])
 
   const closeApproveModal = useCallback(() => {
     setApproveModalOpen(false)
@@ -161,9 +154,9 @@ const AdsDetailsPage = () => {
   }, [])
 
   const handleApproveSubmit = useCallback(async () => {
-    if (!adDetails || !approveAction || !reviewer?.id) return
+    if (!adDetails || !approveAction || !reviewerId) return
     setApprovalSubmitting(true)
-    const success = await handleAdApprovalAction(adDetails.id, reviewer.id, approveAction, {
+    const success = await handleAdApprovalAction(adDetails.id, reviewerId, approveAction, {
       comment: approvalComment,
       rejectReason,
     })
@@ -171,7 +164,7 @@ const AdsDetailsPage = () => {
     if (success) {
       closeApproveModal()
     }
-  }, [adDetails, approveAction, reviewer?.id, handleAdApprovalAction, approvalComment, rejectReason, closeApproveModal])
+  }, [adDetails, approveAction, reviewerId, handleAdApprovalAction, approvalComment, rejectReason, closeApproveModal])
 
   if (adDetailsLoading) {
     return <CustomLoader text="Loading ad details..." />
@@ -255,9 +248,7 @@ const AdsDetailsPage = () => {
               <motion.div variants={fadeInUp} className="px-6">
                 <div className="bg-white rounded-xl shadow-inner p-6 border border-gray-100">
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">Description</h3>
-                  <p className="text-sm leading-relaxed text-gray-700 whitespace-pre-wrap">
-                    {adDetails.description || 'No description provided.'}
-                  </p>
+                  <p className="text-sm leading-relaxed text-gray-700 whitespace-pre-wrap">{adDetails.description || 'No description provided.'}</p>
                 </div>
               </motion.div>
             </div>

@@ -5,6 +5,7 @@ import { appEndpoints } from '@/services/endpoints'
 import { getMethod } from '@/services/service'
 import { PropertyEnquiry } from '@/app/admin/dashboard/property-enquiry/(dto)/PropertyEnquiryType'
 import { ResponseDTO } from '@/components/dto/response_dto'
+import toast from 'react-hot-toast'
 
 // Response shape for SWR
 interface EnquiryResponse {
@@ -22,6 +23,7 @@ export function usePropertyEnquiry({ page = 1, limit = 10 } = {}) {
     const response: ResponseDTO = await getMethod(endpoint)
 
     if (response.error) {
+      toast.error(response.message || 'Failed to fetch property enquiries')
       console.error('Error fetching property enquiries:', response.message)
       return { items: [], total: 0 }
     }

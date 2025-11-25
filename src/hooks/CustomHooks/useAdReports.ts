@@ -5,6 +5,7 @@ import useSWR from 'swr'
 import { appEndpoints } from '@/services/endpoints'
 import { getMethod } from '@/services/service'
 import { ResponseDTO } from '@/components/dto/response_dto'
+import toast from 'react-hot-toast'
 
 export interface AdReport {
   id: number | string
@@ -26,6 +27,7 @@ const fetchAdReports = async (endpoint: string): Promise<AdReportResponse> => {
   const response: ResponseDTO = await getMethod(endpoint)
 
   if (response.error) {
+    toast.error(response.message || 'Failed to fetch ad reports')
     console.error('Error fetching ad reports:', response.message)
     return { items: [], total: 0 }
   }
