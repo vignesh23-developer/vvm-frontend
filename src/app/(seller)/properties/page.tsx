@@ -4,10 +4,13 @@ import { useCallback, useMemo, useState } from 'react'
 import { useProperties } from '@/app/(seller)/properties/(hooks)/useProperties'
 import { PropertiesDto } from '@/app/(seller)/properties/dto/PropertiesDto'
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import { useRouter } from 'next/navigation'
+import { redirect, useRouter } from 'next/navigation'
 import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { ArrowRight, Edit3, Trash2 } from 'lucide-react'
+import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
+import toast from 'react-hot-toast'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 
 // Chart data
 
@@ -25,10 +28,18 @@ type PropertiesTableRow = PropertiesDto & Record<string, unknown>
 
 export default function PropertiesPage() {
   const router = useRouter()
+  const { token } = useAuth()
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
 
-  const { properties, handleEdit, handleDelete, total, error, isLoading, mutateProperties, handlePropertyAction } = useProperties({ page, limit })
+  if (!token) {
+    redirect('/login')
+  }
+
+  const { properties, handleEdit, handleDelete, total, error, isLoadingProperties, mutateProperties, handlePropertyAction } = useProperties({
+    page,
+    limit,
+  })
   const columns = [
     {
       field: 'title',
@@ -146,13 +157,15 @@ export default function PropertiesPage() {
 
   const handleRefresh = async () => {
     try {
-      // If you need to perform any server-side work before refreshing, do it here.
-      // The important part is to await the mutate so callers can wait for fresh data.
       await mutateProperties()
     } catch (err) {
       console.error('PropertiesPage: refresh failed', err)
-      throw err instanceof Error ? err : new Error('Refresh failed')
+      toast.error('Failed to refresh properties')
     }
+  }
+
+  {
+    isLoadingProperties && <CustomLoader text="Loading Properties List..." />
   }
 
   return (
@@ -192,7 +205,7 @@ export default function PropertiesPage() {
             columns={columns}
             actions={actions}
             fetchData={fetchProperties}
-            loading={isLoading}
+            loading={isLoadingProperties}
             isPagination={true}
             initialPage={page}
             pageSize={limit}

@@ -32,12 +32,13 @@ import {
 import { useRouter } from 'next/navigation'
 import { useTranslationContext } from '@/hooks/Translation/TranslationProvider'
 import { useTranslations } from 'next-intl'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { useGlobalContext } from '@/hooks/GlobalContext/GlobalContext'
 import LanguageSwitch from '@/components/ui/CustomComponent/languageSwitch/languageSwitch'
-import { getLocalStorageItem, removeLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
+import formatName from '@/utils/converter/formatName'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { appEndpoints } from '@/services/endpoints'
 import { getMethod } from '@/services/service'
-import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
 
 export interface NavLink {
   label: string
@@ -56,13 +57,6 @@ interface NavbarProps {
     name: string
     email?: string
   } | null
-}
-
-interface userData {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
 }
 
 interface NavItem {
@@ -166,16 +160,18 @@ export default function Navbar({
   showLoginButton = true,
   showLanguageSelector = true,
   bgColor = '#3b1804',
-  user = null,
 }: NavbarProps) {
   const t = useTranslations()
+  const { logout, user, token } = useAuth()
+  const { reset } = useGlobalContext()
+  console.log('user in Navbar component:', user)
   const { locale, setLocale } = useTranslationContext()
   const router = useRouter()
 
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
-  const [userValue, setUserValue] = useState<any | null>(null)
+  const [companyProfileId, setCompanyProfileId] = useState<any | null>(null)
   const [openSections, setOpenSections] = useState<Set<string>>(new Set())
   const gripRef = useRef<HTMLDivElement | null>(null)
   const profileRef = useRef<HTMLDivElement | null>(null)
@@ -188,28 +184,18 @@ export default function Navbar({
     })
 
   useEffect(() => {
-    const authToken = getLocalStorageItem('authToken')
-    const userData = getLocalStorageItem('userData') as userData
-
-    if (!authToken || !userData) return
-
-    setUserValue({
-      id: userData.id,
-      firstName: userData.firstName ? userData.firstName.charAt(0).toUpperCase() + userData.firstName.slice(1) : '',
-      lastName: userData.lastName ? userData.lastName.charAt(0).toUpperCase() + userData.lastName.slice(1) : '',
-      email: userData.email,
-    })
+    if (!token || !user) return
+    console.log('Fetching user details in Navbar useEffect:', user)
     const fetchData = async () => {
-      const companyProfiles = await getMethod(appEndpoints.getCompanyProfilesByUserID(userData.id))
+      const companyProfiles = await getMethod(appEndpoints.getCompanyProfilesByUserID(user.id))
       const companyProfilesData = Array.isArray(companyProfiles?.data) ? (companyProfiles.data as any[]) : []
-      setUserValue({
-        ...userData,
-        companyId: companyProfilesData?.length > 0 ? companyProfilesData[0].id : '',
-      })
+      setCompanyProfileId(companyProfilesData?.length > 0 ? companyProfilesData[0].id : '')
     }
 
     fetchData()
-  }, [])
+  }, [companyProfileId, token, user])
+
+  console.log('userValue in Navbar useEffect:', user, companyProfileId)
 
   // Close grip and profile dropdowns when clicking outside or pressing Escape
   useEffect(() => {
@@ -254,40 +240,17 @@ export default function Navbar({
     }
   }, [gripRef, profileRef])
 
-  // Lock body scroll when any menu/dropdown is open; allow the dropdown itself to scroll
-  // useEffect(() => {
-  //   if (typeof document === 'undefined') return
-
-  //   const originalOverflow = document.body.style.overflow
-  //   const anyOpen = isMenuOpen || isOpen || isProfileOpen || openSections.size > 0
-
-  //   // hide scroll when any overlay is open
-  //   if (anyOpen) {
-  //     document.body.style.overflow = 'hidden'
-  //   } else {
-  //     document.body.style.overflow = originalOverflow
-  //   }
-
-  //   // cleanup (always restore original)
-  //   return () => {
-  //     document.body.style.overflow = originalOverflow
-  //   }
-  // }, [isMenuOpen, isOpen, isProfileOpen, openSections])
-
-  // no debug logs in production code
-
   const handleLanguageChange = (lang: 'ta' | 'en') => {
     setLocale(lang)
     router.refresh()
   }
 
-  console.log('userValue in Navbar:', userValue)
+  console.log('userValue in Navbar:', user, companyProfileId)
 
   const handleLogout = () => {
     // Clear auth token and redirect to login
-    removeLocalStorageItem(LOCAL_STORAGE_NAME.authToken)
-    removeLocalStorageItem(LOCAL_STORAGE_NAME.userData)
-    removeLocalStorageItem(LOCAL_STORAGE_NAME.propertyId)
+    logout()
+    reset()
     router.push('/login')
   }
 
@@ -323,7 +286,7 @@ export default function Navbar({
         <div className="hidden md:flex items-center gap-4 relative">
           {showLanguageSelector && <LanguageSwitch />}
 
-          {userValue ? (
+          {user ? (
             <>
               <div className="relative grip-menu" ref={gripRef}>
                 {/* Grip Icon */}
@@ -398,16 +361,16 @@ export default function Navbar({
                   <div className="absolute right-0 mt-2 bg-white text-[#3b1804] rounded-lg shadow-lg w-44 py-2 z-50">
                     <div className="px-4 py-2 border-b border-gray-200">
                       <span className="font-semibold text-sm truncate block">
-                        {userValue?.firstName} {userValue?.lastName}
+                        {formatName(user?.firstName)} {formatName(user?.lastName)}
                       </span>
                     </div>
-                    <Link href={`/profile/${userValue?.id}`} className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
+                    <Link href={`/profile/${user?.id}`} className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
                       <User size={16} /> {t('Navbar.profile')}
                     </Link>
                     <Link
                       href={
-                        !!userValue?.companyId
-                          ? `/company-profile/${userValue?.companyId}` // EDIT MODE
+                        !!companyProfileId
+                          ? `/company-profile/${companyProfileId}` // EDIT MODE
                           : `/company-profile` // ADD MODE
                       }
                       className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition"
@@ -476,7 +439,7 @@ export default function Navbar({
           ))}
 
           {/* Dynamically generated collapsible sections */}
-          {userValue &&
+          {user &&
             DASHBOARD_SECTIONS.map((section: NavItem) => (
               <div key={section.label} className="w-full mt-2 border-t border-white/20 pt-2">
                 <Button
@@ -509,8 +472,8 @@ export default function Navbar({
             ))}
 
           {/* Profile / Login Section */}
-          {userValue
-            ? PROFILE_SECTIONS(userValue.id, userValue.companyId).map(section => (
+          {user
+            ? PROFILE_SECTIONS(user.id, companyProfileId).map(section => (
                 <div key={section.label} className="w-full mt-2 border-t border-white/20 pt-2">
                   <Button
                     onClick={() => toggleSection(section.label)}
@@ -528,22 +491,36 @@ export default function Navbar({
                     <>
                       <div className="px-4 py-3 border-b border-gray-200 text-center">
                         <span className="font-semibold text-sm block truncate">
-                          {userValue?.firstName} {userValue?.lastName}
+                          {formatName(user?.firstName)} {formatName(user?.lastName)}
                         </span>
                       </div>
 
                       <div className="flex flex-col pl-4 space-y-1">
-                        {section.subMenu?.map((sub: any) => (
-                          <Link
-                            key={sub.href}
-                            href={sub.href}
-                            onClick={() => setIsMenuOpen(false)}
-                            className="flex items-center gap-2 px-4 py-1 text-sm text-gray-200 hover:text-white transition no-underline"
-                          >
-                            <span className="text-gray-400">{sub.icon ? sub.icon : <CircleSmall size={12} />}</span>
-                            {t(`Navbar.subMenus.${sub.label}`)}
-                          </Link>
-                        ))}
+                        {section.subMenu?.map((sub: any) =>
+                          sub.label === 'logout' ? (
+                            <Button
+                              key="mobile-logout"
+                              onClick={() => {
+                                setIsMenuOpen(false)
+                                handleLogout()
+                              }}
+                              className="flex items-center gap-2 w-full px-4 py-1 text-sm text-gray-200 hover:text-white transition"
+                            >
+                              <span className="text-gray-400">{sub.icon ? sub.icon : <CircleSmall size={12} />}</span>
+                              {t(`Navbar.subMenus.${sub.label}`)}
+                            </Button>
+                          ) : (
+                            <Link
+                              key={sub.href}
+                              href={sub.href}
+                              onClick={() => setIsMenuOpen(false)}
+                              className="flex items-center gap-2 px-4 py-1 text-sm text-gray-200 hover:text-white transition no-underline"
+                            >
+                              <span className="text-gray-400">{sub.icon ? sub.icon : <CircleSmall size={12} />}</span>
+                              {t(`Navbar.subMenus.${sub.label}`)}
+                            </Link>
+                          ),
+                        )}
                       </div>
                     </>
                   )}

@@ -5,6 +5,7 @@ import { appEndpoints } from '@/services/endpoints'
 import { PopularPropertyDto } from '../dto/popularPropertiesDto'
 import { getMethod } from '@/services/service'
 import { useRouter } from 'next/navigation'
+import toast from 'react-hot-toast'
 
 interface ApiResponse<T> {
   data?: T
@@ -31,6 +32,7 @@ const fetchPopularProperties = async (url: string): Promise<PopularPropertiesFet
     const response = await getMethod<ApiResponse<PopularPropertyDto[]>>(url)
 
     if (response.error) {
+      toast.error(response.message || 'Failed to fetch popular properties')
       console.error('Failed to fetch popular properties:', response.message)
       return { items: [], total: 0 }
     }

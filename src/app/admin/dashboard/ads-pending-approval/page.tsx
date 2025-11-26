@@ -1,10 +1,9 @@
-
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
-
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import Pagination from '@/components/ui/CustomComponent/Paginations/Pagination'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
@@ -13,13 +12,13 @@ import PropertyCard from '@/components/buyer/PropertyCard/PropertyCard'
 
 import { useAdsModeration } from '@/app/admin/dashboard/ads-pending-approval/(hooks)/useAdsModeration'
 import { AdsDto } from '@/app/(seller)/ads/dto/AdsDto'
-import { getLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
 import { appEndpoints } from '@/services/endpoints'
 import { postMethod, getMethod } from '@/services/service'
 
 const PAGE_SIZE = 10
 const AdsPendingApprovalPage = () => {
   const router = useRouter()
+  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState<'pending' | 'rejected'>('pending')
   const [currentPage, setCurrentPage] = useState(1)
   const [tabCounts, setTabCounts] = useState<{ pending?: number; rejected?: number }>({})
@@ -41,7 +40,7 @@ const AdsPendingApprovalPage = () => {
     approvalStatus,
   })
 
-  const reviewerId = (getLocalStorageItem('userData') as { id?: string })?.id || ''
+  const reviewerId = user?.id || ''
 
   useEffect(() => {
     if (typeof total === 'number') {

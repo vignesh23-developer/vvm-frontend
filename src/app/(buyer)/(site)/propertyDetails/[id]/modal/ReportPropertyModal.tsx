@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import ModalComponent from '@/components/ui/CustomComponent/Modal/ModalComponent'
 import { Formik, Form } from 'formik'
 import { toast } from 'react-hot-toast'
@@ -11,8 +12,6 @@ import FormikCheckboxField from '@/components/ui/Formik/FormikCheckboxField/Form
 import ReportPropertyValidation from '../validation/ReportPropertyValidation'
 import { postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
-import { getLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
-import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
 import { ResponseDTO } from '@/components/dto/response_dto'
 
 interface ReportPropertyModalProps {
@@ -30,15 +29,8 @@ interface ReportFormValues {
   reporter_id?: string | number | null
 }
 
-interface UserData {
-  id: string
-  firstName?: string
-  lastName?: string
-  email?: string
-  // add other fields if needed
-}
-
 const ReportPropertyModal = ({ reportModalOpen, setReportModalOpen, propertyId }: ReportPropertyModalProps) => {
+  const { user } = useAuth()
   const options = [
     { value: 'FAKE_LISTING', label: 'Fake Listing' },
     { value: 'MISLEADING_INFO', label: 'Misleading Information' },
@@ -46,15 +38,13 @@ const ReportPropertyModal = ({ reportModalOpen, setReportModalOpen, propertyId }
     { value: 'OTHER', label: 'Other' },
   ]
 
-  const userData: UserData | null = getLocalStorageItem<UserData>(LOCAL_STORAGE_NAME.userData)
-
   const initialValues: ReportFormValues = {
     report_type: '',
     description: '',
     is_anonymous: false,
     evidenceLink: '',
     severity: 1,
-    reporter_id: userData ? userData.id : null,
+    reporter_id: user ? user?.id : null,
   }
 
   const handleReportSubmit = async (values: any, { resetForm }: any) => {

@@ -1,6 +1,7 @@
 'use client'
 
-import useSWR from 'swr'
+import { useMemo } from 'react'
+import useSWR, { type SWRConfiguration } from 'swr'
 import { useRouter } from 'next/navigation'
 import { appEndpoints } from '@/services/endpoints'
 import { PropertiesDto } from '../(Dto)/propertiesDto'
@@ -33,18 +34,32 @@ export function useProperties(options: UsePropertiesOptions = {}) {
   const router = useRouter()
   const { page = 1, limit = 6 } = options
 
-  const queryParams = new URLSearchParams()
-  if (limit != null) {
-    queryParams.set('limit', String(limit))
-  }
-  if (page != null) {
-    queryParams.set('page', String(page))
-  }
-  if (options.approvalStatus) {
-    queryParams.set('approval_status', options.approvalStatus)
-  }
+  const queryString = useMemo(() => {
+    const queryParams = new URLSearchParams()
+    if (limit != null) {
+      queryParams.set('limit', String(limit))
+    }
+    if (page != null) {
+      queryParams.set('page', String(page))
+    }
+    if (options.approvalStatus) {
+      queryParams.set('approval_status', options.approvalStatus)
+    }
+    return queryParams.toString()
+  }, [limit, options.approvalStatus, page])
 
-  const swrKey = queryParams.toString() ? `${appEndpoints.getAllProperties}?${queryParams.toString()}` : appEndpoints.getAllProperties
+  const swrKey = useMemo(() => (queryString ? `${appEndpoints.getAllProperties}?${queryString}` : appEndpoints.getAllProperties), [queryString])
+
+  const swrConfig: SWRConfiguration = useMemo(
+    () => ({
+      dedupingInterval: 15_000,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      shouldRetryOnError: false,
+      keepPreviousData: true,
+    }),
+    [],
+  )
 
   // Fetcher using our generic API helper
   const fetcher = async (url: string): Promise<PropertiesFetcherResult> => {
@@ -74,7 +89,7 @@ export function useProperties(options: UsePropertiesOptions = {}) {
     }
   }
   // SWR handles caching, revalidation, and errors
-  const { data, error, isLoading, mutate: mutateProperties } = useSWR<PropertiesFetcherResult>(swrKey, fetcher)
+  const { data, error, isLoading, mutate: mutateProperties } = useSWR<PropertiesFetcherResult>(swrKey, fetcher, swrConfig)
 
   // Function to approve or reject a property
   const handlePropertyAction = async (
@@ -116,13 +131,6 @@ export function useProperties(options: UsePropertiesOptions = {}) {
   }
   const properties = data?.items ?? []
   const total = data?.total ?? properties.length
-
-  console.log(
-    'useProperties - fetched properties count:',
-    data?.items?.map(item => item.media),
-    'total:',
-    total,
-  )
 
   return {
     properties: properties ?? [],

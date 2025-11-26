@@ -4,30 +4,21 @@ import { useEffect } from 'react'
 import { FormikProps } from 'formik'
 import { PropertyCreationFormValues } from '../page'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
-import { getLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
-import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 
 interface Step3ContactDetailsProps {
   formik: FormikProps<PropertyCreationFormValues>
 }
 
-interface UserData {
-  firstName?: string
-  lastName?: string
-  phoneNumber?: string
-  email?: string
-}
-
 export default function Step3ContactDetails({ formik }: Step3ContactDetailsProps) {
   const { setFieldValue } = formik
+  const { user, token } = useAuth()
 
   useEffect(() => {
-    const UserData: UserData | null = getLocalStorageItem(LOCAL_STORAGE_NAME.userData)
-    console.log('UserData from local storage:', UserData)
-    if (UserData) {
-      setFieldValue('contactName', `${UserData.firstName ?? ''} ${UserData.lastName ?? ''}`.trim())
-      setFieldValue('contactNumber', UserData.phoneNumber ?? '')
-      setFieldValue('contactEmail', UserData.email ?? '')
+    if (user) {
+      setFieldValue('contactName', `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim())
+      setFieldValue('contactNumber', user.phoneNumber ?? '')
+      setFieldValue('contactEmail', user.email ?? '')
     }
   }, [setFieldValue])
 

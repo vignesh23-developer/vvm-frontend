@@ -109,7 +109,9 @@ export default function PropertyCard(props: PropertiesCardProps) {
   const labels = {
     agent: t(language, 'PropertiesListCard.agent', 'Agent'),
     since: t(language, 'PropertiesListCard.operating_since', 'Operating since'),
-    status: t(language, 'PropertiesListCard.status', 'Status')
+    status: t(language, 'PropertiesListCard.status', 'Status'),
+    property_size_unit: t(language, 'PropertiesListCard.property_size', 'Property size'),
+    listing_type: t(language, 'PropertiesListCard.listing_type', 'Listing type'),
   }
 
   const buttons = {
@@ -123,14 +125,14 @@ export default function PropertyCard(props: PropertiesCardProps) {
     // Use images prop if available, otherwise fall back to media prop
     const imageArray = (props as any).images || media || []
     if (imageArray.length === 0) return '/villa.png'
-    
+
     // Find primary image or fall back to first image
     const primary = imageArray.find((img: any) => img.is_primary)
     if (primary?.url) return primary.url
     if (imageArray[0]?.url) return imageArray[0].url
     return '/villa.png'
   }
-  
+
   const imageUrl = getImageUrl()
 
   return (
@@ -254,7 +256,13 @@ const InfoSection = ({
 
     <div className="mt-3 flex w-full flex-col divide-y divide-gray-200 rounded-md bg-[#F5F5F5] text-sm sm:flex-row sm:divide-y-0 sm:divide-x">
       <PropertyTag icon={<Building2 size={18} />} label={labels.status} value={status} />
-      <PropertyTag icon={<Eye size={18} />} value={property_size} />
+      <PropertyTag
+        icon={<Ruler size={18} />}
+        label={labels.property_size_unit}
+        value={property_size ? property_size.toString() : 'N/A'}
+        suffix={property_size_unit ? <span className="text-gray-500">sqft</span> : null}
+      />
+      <PropertyTag icon={<Home size={18} />} label={labels.listing_type} value={listing_type} />
     </div>
 
     <p className="mt-3 flex items-center text-sm text-gray-600">
