@@ -37,7 +37,7 @@ interface FetchResult<T extends RowData = RowData> {
 }
 
 interface DataTableAction<T extends RowData = RowData> {
-  label: string
+  label?: string
   onClick: (row: T) => void
   icon?: React.ComponentType<{ size?: number; className?: string }>
   className?: string

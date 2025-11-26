@@ -188,7 +188,22 @@
     "AgencyDetails": {
     "enquire_now": "Enquire Now",
     "enquire_description": "Let’s Start the Conversation",
-    "contact_owner": "Contact Owner"
+    "contact_owner": "Contact Owner",
+    "about_heading": "About the Agency",
+    "about_placeholder": "This agency has not shared a description yet.",
+    "primary_contact": "Primary Contact",
+    "contact_information": "Contact Information",
+    "service_regions": "Service Regions",
+    "verification_status": "Verification Status",
+    "verified": "Verified",
+    "not_verified": "Not Verified",
+    "gst_number": "GST Number",
+    "address_heading": "Office Address",
+    "address_placeholder": "Address information will be updated soon.",
+    "no_results": "We couldn't find an agency profile for this name yet.",
+    "loading": "Loading agency profile...",
+    "fetch_error": "Unable to load agency profile. Please try again later.",
+    "send_enquiry": "Send Enquiry"
   },
   "PropertiesDetails" : {
     "name": "Name",

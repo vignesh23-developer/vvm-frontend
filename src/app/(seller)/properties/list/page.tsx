@@ -7,10 +7,11 @@ import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, Resp
 import { redirect, useRouter } from 'next/navigation'
 import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
 import Button from '@/components/ui/CustomComponent/Button/Button'
-import { ArrowRight, Edit3, Trash2 } from 'lucide-react'
+import { ArrowRight, Edit3, Trash2, Eye, RefreshCcw } from 'lucide-react'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import PropertyStatusChangeModal from '../modal/propertiesStatusChangeModal'
 
 // Chart data
 
@@ -31,15 +32,24 @@ export default function PropertiesPage() {
   const { token } = useAuth()
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
+  const [isOpenStatusModal, setIsOpenStatusModal] = useState(false)
+  const [propertyId, setPropertyId] = useState<string | null>(null)
 
   if (!token) {
     redirect('/login')
   }
 
-  const { properties, handleEdit, handleDelete, total, error, isLoadingProperties, mutateProperties, handlePropertyAction } = useProperties({
-    page,
-    limit,
-  })
+  const { properties, handleView, handleEdit, handleDelete, total, error, isLoadingProperties, mutateProperties, handlePropertyAction } =
+    useProperties({
+      page,
+      limit,
+    })
+
+  const handleStatusChange = async (propertyId: string) => {
+    setIsOpenStatusModal(true)
+    setPropertyId(propertyId)
+  }
+
   const columns = [
     {
       field: 'title',
@@ -82,7 +92,7 @@ export default function PropertiesPage() {
         const colorClass =
           status === 'AVAILABLE'
             ? 'bg-green-100 text-green-700 border border-green-300'
-            : status === 'INACTIVE'
+            : status === 'SOLD'
             ? 'bg-red-100 text-red-700 border border-red-300'
             : 'bg-yellow-100 text-yellow-700 border border-yellow-300'
 
@@ -118,23 +128,39 @@ export default function PropertiesPage() {
   const actions = useMemo(
     () => [
       {
-        label: 'Edit',
-        icon: Edit3,
+        icon: RefreshCcw, // for status change
+        onClick: (row: PropertiesTableRow) => {
+          void handleStatusChange(row.id)
+        },
+        color: '#1e6897',
+        title: 'Change Status',
+      },
+      {
+        icon: Eye, // correct for view
+        onClick: (row: PropertiesTableRow) => {
+          void handleView(row.id)
+        },
+        color: '#1e6897',
+        title: 'View',
+      },
+      {
+        icon: Edit3, // correct for edit
         onClick: (row: PropertiesTableRow) => {
           void handleEdit(row.id)
         },
         color: '#1e6897',
+        title: 'Edit',
       },
       {
-        label: 'Delete',
-        icon: Trash2,
+        icon: Trash2, // correct for delete
         onClick: (row: PropertiesTableRow) => {
-          void handleDelete(row.id)
+          void handleDelete(row.id, !row.isActive)
         },
         color: '#e02424',
+        title: 'Delete',
       },
     ],
-    [handleDelete, handleEdit],
+    [handleDelete, handleEdit, handleStatusChange, handleView],
   )
 
   const statusPieData = Object.values(
@@ -189,7 +215,7 @@ export default function PropertiesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <Button
           type="button"
-          onClick={() => router.push('/admin/dashboard/properties')}
+          onClick={() => router.push('/admin/dashboard/properties-pending-approval')}
           className="flex items-center gap-2 bg-[#7B1E1E] hover:bg-[#641717] text-white text-sm font-medium px-4 py-2 rounded-md shadow-md transition-colors"
         >
           View your pending properties
@@ -260,6 +286,12 @@ export default function PropertiesPage() {
           </div> */}
         {/* </div> */}
       </div>
+      <PropertyStatusChangeModal
+        isOpenStatusModal={isOpenStatusModal}
+        setIsOpenStatusModal={setIsOpenStatusModal}
+        propertyId={propertyId!}
+        propertyRefresh={mutateProperties}
+      />
     </div>
   )
 }

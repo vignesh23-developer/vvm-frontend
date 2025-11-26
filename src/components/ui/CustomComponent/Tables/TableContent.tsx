@@ -15,7 +15,7 @@ type TableColumn<T extends RowData = RowData> = {
 }
 
 type TableAction<T extends RowData = RowData> = {
-  label: string
+  label?: string
   onClick: (row: T) => void
   icon?: ComponentType<{ size?: number; className?: string }>
   className?: string
@@ -68,29 +68,19 @@ export default function TableContent<T extends RowData = RowData>({
   sortDirection,
   handleSort,
 }: TableContentProps<T>) {
-  const columnSpan =
-    visibleColumns.length +
-    (shouldShowActionsColumn ? 1 : 0) +
-    (groupByField ? 1 : 0)
+  const columnSpan = visibleColumns.length + (shouldShowActionsColumn ? 1 : 0) + (groupByField ? 1 : 0)
 
   const safeHandleRowClick = handleRowClick ?? (() => undefined)
 
   const renderSortIndicator = (field: string): ReactNode => {
     if (!sortField || field !== sortField) return null
-    return sortDirection === 'asc' ? (
-      <ChevronUp size={16} className="ml-1 inline" />
-    ) : (
-      <ChevronDown size={16} className="ml-1 inline" />
-    )
+    return sortDirection === 'asc' ? <ChevronUp size={16} className="ml-1 inline" /> : <ChevronDown size={16} className="ml-1 inline" />
   }
 
   const renderDataRows = (rows: T[], isGrouped: boolean, groupKey?: string) =>
     rows.map((row, rowIndex) => {
       const rowId = (row as { id?: string | number }).id
-      const key =
-        typeof rowId === 'string' || typeof rowId === 'number'
-          ? rowId
-          : `${groupKey ?? 'row'}-${rowIndex}`
+      const key = typeof rowId === 'string' || typeof rowId === 'number' ? rowId : `${groupKey ?? 'row'}-${rowIndex}`
 
       return (
         <DataRow<T>
@@ -115,10 +105,7 @@ export default function TableContent<T extends RowData = RowData>({
         <thead>
           <tr className="bg-gray-50">
             {groupByField && (
-              <th
-                className="w-10 px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
-                style={{ color: colors.primary[800] }}
-              />
+              <th className="w-10 px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: colors.primary[800] }} />
             )}
 
             {visibleColumns.map(column => (
@@ -129,14 +116,8 @@ export default function TableContent<T extends RowData = RowData>({
               >
                 <button
                   type="button"
-                  className={`flex items-center gap-1 ${
-                    column.sortable ? 'hover:text-blue-600' : 'cursor-default'
-                  }`}
-                  onClick={() =>
-                    column.sortable && handleSort
-                      ? handleSort(column.field)
-                      : undefined
-                  }
+                  className={`flex items-center gap-1 ${column.sortable ? 'hover:text-blue-600' : 'cursor-default'}`}
+                  onClick={() => (column.sortable && handleSort ? handleSort(column.field) : undefined)}
                   disabled={!column.sortable || !handleSort}
                 >
                   <span>{column.title}</span>
@@ -146,10 +127,7 @@ export default function TableContent<T extends RowData = RowData>({
             ))}
 
             {shouldShowActionsColumn && (
-              <th
-                className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider"
-                style={{ color: colors.primary[800] }}
-              >
+              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider" style={{ color: colors.primary[800] }}>
                 Actions
               </th>
             )}
@@ -159,34 +137,22 @@ export default function TableContent<T extends RowData = RowData>({
         <tbody className="divide-y divide-gray-200 bg-white">
           {isLoading ? (
             <tr>
-              <td
-                colSpan={columnSpan}
-                className="px-6 py-4 text-center text-sm text-gray-500"
-              >
+              <td colSpan={columnSpan} className="px-6 py-4 text-center text-sm text-gray-500">
                 <div className="flex items-center justify-center space-x-2">
-                  <div
-                    className="h-5 w-5 animate-spin rounded-full border-b-2"
-                    style={{ borderColor: colors.accent }}
-                  />
+                  <div className="h-5 w-5 animate-spin rounded-full border-b-2" style={{ borderColor: colors.accent }} />
                   <span>Loading...</span>
                 </div>
               </td>
             </tr>
           ) : error ? (
             <tr>
-              <td
-                colSpan={columnSpan}
-                className="px-6 py-4 text-center text-sm text-red-500"
-              >
+              <td colSpan={columnSpan} className="px-6 py-4 text-center text-sm text-red-500">
                 {error}
               </td>
             </tr>
           ) : data.length === 0 ? (
             <tr>
-              <td
-                colSpan={columnSpan}
-                className="px-6 py-4 text-center text-sm text-gray-500"
-              >
+              <td colSpan={columnSpan} className="px-6 py-4 text-center text-sm text-gray-500">
                 No data available
               </td>
             </tr>

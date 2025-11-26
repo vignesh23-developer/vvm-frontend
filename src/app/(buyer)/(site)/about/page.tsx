@@ -101,7 +101,7 @@ const About = () => {
               boxShadow: ['0 0 18px rgba(46,28,12,0.15)', '0 0 28px rgba(46,28,12,0.28)', '0 0 18px rgba(46,28,12,0.15)'],
             }}
           >
-            <Image src="/footer_logo.png" alt="Vaazhga Valamudan" width={96} height={96} className="object-contain" />
+            <Image src="/logo-about.png" alt="Vaazhga Valamudan" width={300} height={300} className="object-contain w-full" />
           </motion.div>
         </motion.div>
 

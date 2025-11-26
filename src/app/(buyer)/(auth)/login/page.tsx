@@ -26,23 +26,24 @@ const Login = () => {
   const t = useTranslations()
   const submitChannelRef = useRef<'sms' | 'whatsapp'>('sms')
   const [isLoading, setIsLoading] = useState(false)
+  const [activeChannel, setActiveChannel] = useState<'sms' | 'whatsapp' | null>(null)
   const router = useRouter()
   const pathname = usePathname()
   const { token } = useAuth()
 
-  useEffect(() => {
-    const publicRoutes = ['/', '/about', '/services', '/pricing', '/help-center', '/login', '/register']
+  // useEffect(() => {
+  //   const publicRoutes = ['/', '/about', '/services', '/pricing', '/help-center', '/login', '/register']
 
-    // If user not logged in AND tries to access a protected route
-    if (!token && !publicRoutes.includes(pathname)) {
-      router.push('/login')
-    }
+  //   // If user not logged in AND tries to access a protected route
+  //   if (!token && !publicRoutes.includes(pathname)) {
+  //     router.push('/login')
+  //   }
 
-    // If user is logged in AND tries to access login/register, redirect to home
-    if (token && ['/login', '/register'].includes(pathname)) {
-      router.push('/')
-    }
-  }, [token, pathname, router])
+  //   // If user is logged in AND tries to access login/register, redirect to home
+  //   if (token && ['/login', '/register'].includes(pathname)) {
+  //     router.push('/')
+  //   }
+  // }, [token, pathname, router])
 
   const initialValues: AuthFormValues = { phone: '' }
 
@@ -84,6 +85,7 @@ const Login = () => {
     } finally {
       setIsLoading(false)
       setSubmitting(false)
+      setActiveChannel(null)
     }
   }
 
@@ -154,7 +156,7 @@ const Login = () => {
               handleLoginSubmit(values, setSubmitting, submitChannelRef.current)
             }}
           >
-            {({ isSubmitting }) => (
+            {({ isSubmitting, submitForm }) => (
               <Form className="mt-4 space-y-4">
                 <motion.div
                   variants={{
@@ -180,14 +182,16 @@ const Login = () => {
                 >
                   <motion.div whileTap={{ scale: 0.97 }}>
                     <Button
-                      type="submit"
+                      type="button"
                       disabled={isSubmitting || isLoading}
                       onClick={() => {
                         submitChannelRef.current = 'whatsapp'
+                        setActiveChannel('whatsapp')
+                        void submitForm()
                       }}
                       className="w-full bg-[#2B1B12] text-white text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-[#3d2616] disabled:opacity-60"
                     >
-                      <span>{isSubmitting || isLoading ? 'Verifying...' : t('Auth.whatapp_button')}</span>
+                      <span>{(isSubmitting || isLoading) && activeChannel === 'whatsapp' ? 'Verifying...' : t('Auth.whatapp_button')}</span>
                     </Button>
                   </motion.div>
                 </motion.div>
@@ -216,15 +220,17 @@ const Login = () => {
                 >
                   <motion.div whileTap={{ scale: 0.97 }}>
                     <Button
-                      type="submit"
+                      type="button"
                       disabled={isSubmitting || isLoading}
                       onClick={() => {
                         submitChannelRef.current = 'sms'
+                        setActiveChannel('sms')
+                        void submitForm()
                       }}
                       className="w-full border border-gray-400 text-sm rounded-md py-2 flex items-center justify-center space-x-2 hover:bg-gray-50"
                     >
                       <MessageCircle size={20} />
-                      <span>{isSubmitting || isLoading ? 'Verifying...' : t('Auth.continue_with_sms')}</span>
+                      <span>{(isSubmitting || isLoading) && activeChannel === 'sms' ? 'Verifying...' : t('Auth.continue_with_sms')}</span>
                     </Button>
                   </motion.div>
                 </motion.div>
