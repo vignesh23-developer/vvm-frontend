@@ -156,7 +156,9 @@ export interface PropertyCreationFormValues {
   // you could also include step5 review constraints
 }
 
-export default function PropertiesRegistrationPage({ propertiesId }: { propertiesId?: string }) {
+export default function PropertiesRegistrationPage({ searchParams }: { searchParams: Promise<{ propertiesId?: string }> }) {
+  const resolvedParams = use(searchParams)
+  const propertiesId = resolvedParams?.propertiesId
   const steps = [
     { title: 'Step 1', subtitle: 'Basic Details', icon: <Home className="w-5 h-5" /> },
     { title: 'Step 2', subtitle: 'Location & Price', icon: <MapPin className="w-5 h-5" /> },
