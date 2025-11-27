@@ -3,6 +3,7 @@
 import useSWR from 'swr'
 import { appEndpoints } from '@/services/endpoints'
 import { getMethod } from '@/services/service'
+import toast from 'react-hot-toast'
 
 export interface AdsCategoryDto {
   id: string
@@ -24,15 +25,16 @@ export function useAdsCategories() {
   const fetcher = async (url: string): Promise<AdsCategoryDto[]> => {
     try {
       const response = await getMethod<ApiResponse>(url)
-      
+
       if (response.error) {
+        toast.error(response.message || 'Failed to fetch ads categories')
         console.error('API error while fetching ads categories:', response.message)
         return []
       }
 
       // getMethod wraps response, so the array is at response.data
       const categories = response.data as any
-      
+
       if (Array.isArray(categories)) {
         return categories
       }
@@ -45,10 +47,7 @@ export function useAdsCategories() {
     }
   }
 
-  const { data, error, isLoading, mutate } = useSWR<AdsCategoryDto[]>(
-    appEndpoints.getAllAdsCategories,
-    fetcher
-  )
+  const { data, error, isLoading, mutate } = useSWR<AdsCategoryDto[]>(appEndpoints.getAllAdsCategories, fetcher)
 
   return {
     categories: data ?? [],

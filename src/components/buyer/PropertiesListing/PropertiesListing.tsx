@@ -71,9 +71,10 @@ const PropertiesListing = ({ params }: { params: string }) => {
   const router = useRouter()
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
-  const [favoritedProperties, setFavoritedProperties] = useState<Set<string>>(new Set())
 
-  const { properties, handleEdit, handleDelete, total, error, isLoading, mutateProperties, handlePropertyAction } = useProperties({
+  console.log('params 75', params)
+
+  const { properties, handleEdit, handleDelete, total, error, isLoadingProperties, mutateProperties, handlePropertyAction } = useProperties({
     page,
     limit,
     approval_status: 'APPROVED',
@@ -102,18 +103,13 @@ const PropertiesListing = ({ params }: { params: string }) => {
   const handleFavorite = async (propertyId: string) => {
     try {
       const response = await postMethod(appEndpoints.toggleFavorite, { entity_type: 'property', entity_id: propertyId })
-
-      if (!response?.error) {
-        setFavoritedProperties(prev => {
-          const newSet = new Set(prev)
-          return newSet
-        })
-      }
       mutateProperties()
     } catch (err) {
       console.error('Error updating favorite:', err)
     }
   }
+
+  console.log('isLoading', isLoadingProperties, agentCompanyProfileFetchLoader)
 
   return (
     <div className="min-h-screen bg-[#F0F0F0]">
@@ -137,36 +133,42 @@ const PropertiesListing = ({ params }: { params: string }) => {
       <div className="flex flex-col lg:flex-row gap-6 px-4 sm:px-6 pb-8">
         {/* Left Section - Properties */}
         <div className="flex-1 space-y-6">
-          {params === 'explore_by_category'
-            ? properties.map((property, index) =>
-                isLoading ? (
-                  <SkeletonLoader key={index} />
-                ) : (
-                  <PropertyCard
-                    key={property.id ?? index}
-                    {...property}
-                    language={t}
-                    primaryActionLabel="View Details"
-                    onPrimaryAction={() => router.push(`/propertyDetails/${property.id}`)}
-                    handleFavorite={handleFavorite}
-                    handleShare={() => console.log('Share', property.id)}
-                    isUserFavorited={property.is_user_favorite}
-                  />
-                ),
-              )
-            : params === 'agency'
-            ? agentCompanyProfileData?.map((agentProperty, index) =>
-                agentCompanyProfileFetchLoader ? (
-                  <SkeletonLoader key={index} />
-                ) : (
-                  <AgentCard key={agentProperty.id ?? index} {...agentProperty} language={t} />
-                ),
-              )
-            : params === 'builder'
-            ? BuildersPropertiesList.map((BuilderProperty, index) =>
-                isLoading ? <SkeletonLoader key={index} /> : <BuilderCard key={index} {...BuilderProperty} language={t} />,
-              )
-            : null}
+          {params === 'explore_by_category' && (
+            <>
+              {isLoadingProperties
+                ? Array.from({ length: limit }).map((_, index) => <SkeletonLoader key={`property-skeleton-${index}`} />)
+                : properties.map((property, index) => (
+                    <PropertyCard
+                      key={property.id ?? index}
+                      {...property}
+                      language={t}
+                      primaryActionLabel="View Details"
+                      onPrimaryAction={() => router.push(`/propertyDetails/${property.id}`)}
+                      handleFavorite={handleFavorite}
+                      handleShare={() => console.log('Share', property.id)}
+                      isUserFavorited={property.is_user_favorite}
+                    />
+                  ))}
+            </>
+          )}
+
+          {params === 'agency' && (
+            <>
+              {agentCompanyProfileFetchLoader
+                ? Array.from({ length: limit }).map((_, index) => <SkeletonLoader key={`agency-skeleton-${index}`} />)
+                : agentCompanyProfileData?.map((agentProperty, index) => (
+                    <AgentCard key={agentProperty.id ?? index} {...agentProperty} language={t} />
+                  ))}
+            </>
+          )}
+
+          {params === 'builder' && (
+            <>
+              {isLoadingProperties
+                ? Array.from({ length: limit }).map((_, index) => <SkeletonLoader key={`builder-skeleton-${index}`} />)
+                : BuildersPropertiesList.map((builderProperty, index) => <BuilderCard key={index} {...builderProperty} language={t} />)}
+            </>
+          )}
 
           {/* Pagination */}
           {totalPages > 1 && (

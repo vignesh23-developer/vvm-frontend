@@ -1,12 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { appEndpoints } from '@/services/endpoints'
-import { getMethod, patchMethod } from '@/services/service'
+import { getMethod } from '@/services/service'
 import CompanyProfileForm, { CompanyFormValues } from '../(forms)/CompanyProfileForm'
 import { ResponseDTO } from '@/components/dto/response_dto'
-import { toast } from 'react-hot-toast'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 
 const EditCompanyProfile = () => {
@@ -79,21 +78,6 @@ const EditCompanyProfile = () => {
 
     if (id) fetchCompanyProfile()
   }, [id, imageVersion])
-
-  // const handleSubmit = async (values: any) => {
-  //   try {
-  //     const response: ResponseDTO = await patchMethod(appEndpoints.updateCompanyProfile(id as string), values)
-
-  //     if (response.status === '200') {
-  //       toast.success('Company profile updated successfully!')
-
-  //       router.push('/')
-  //     }
-  //   } catch (error: any) {
-  //     console.error('Create failed:', error)
-  //     toast.error(error?.message || 'Something went wrong!')
-  //   }
-  // }
 
   if (loading || !initialValues) {
     return <CustomLoader text="Loading company profile..." />

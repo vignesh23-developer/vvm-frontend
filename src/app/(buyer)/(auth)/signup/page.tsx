@@ -14,8 +14,8 @@ import { SignupSchema } from '@/utils/validations/auth/AuthValidationSchema'
 import { postMethod } from '@/services/service'
 import toast from 'react-hot-toast'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { setLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
-import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { ResponseDTO } from '@/components/dto/response_dto'
 
 interface SignupFormValues {
   firstName: string
@@ -27,6 +27,7 @@ interface SignupFormValues {
 
 export default function SignupPage() {
   const t = useTranslations()
+  const { setUser, setToken } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   const phone = searchParams.get('phone') || ''
@@ -72,26 +73,28 @@ export default function SignupPage() {
       },
       // otpType: buttonType === 'whatsapp' ? 'whatsapp_otp' : 'sms_otp',
     }
-    console.log('Signup Payload:', payload)
+    // console.log('Signup Payload:', payload)
     try {
-      const response = await postMethod<{
+      const response = (await postMethod<{
         accessToken?: string
         refreshToken?: string
         message?: string
         user?: any
-      }>(appEndpoints.loginVerifyOtp, payload)
+      }>(appEndpoints.loginVerifyOtp, payload)) as ResponseDTO
 
-      const token = response.data?.accessToken
-      const userData = response.data?.user
-      if (token) {
-        setLocalStorageItem(LOCAL_STORAGE_NAME.authToken, token)
-        setLocalStorageItem(LOCAL_STORAGE_NAME.userData, userData || '')
+      if (response.status === '200') {
+        const token = response.data?.accessToken
+        const userData = response.data?.user
+        if (token) {
+          setUser(userData)
+          setToken(token)
+          const successMessage = response.data?.message || response.message || 'OTP verified successfully'
+          toast.success(successMessage)
+          router.push('/')
+        } else {
+          toast.error(response.message || 'Missing access token in response')
+        }
       }
-
-      const successMessage = response.data?.message || response.message || 'OTP verified successfully'
-      toast.success(successMessage)
-
-      router.push('/')
     } catch (error) {
       console.error('Signup Error:', error)
       toast.error('Registration failed')

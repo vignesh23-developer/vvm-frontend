@@ -245,7 +245,7 @@ export class SimpleIconLoader {
       return { icons: this.icons, isLoaded: this.isLoaded, error: null }
     } catch (error) {
       const errorMsg = `Failed to load icons: ${error instanceof Error ? error.message : 'Unknown error'}`
-      console.error('❌ SimpleIconLoader error:', error)
+      console.error(' SimpleIconLoader error:', error)
       return { icons: [], isLoaded: false, error: errorMsg }
     }
   }

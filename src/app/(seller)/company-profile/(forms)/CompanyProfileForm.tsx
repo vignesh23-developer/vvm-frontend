@@ -16,6 +16,7 @@ import { ResponseDTO } from '@/components/dto/response_dto'
 import { toast } from 'react-hot-toast'
 import ModalComponent from '@/components/ui/CustomComponent/Modal/ModalComponent'
 import UploadCompanyProfileImageModal from '../modal/UploadCompanyProfileImage'
+import { Camera } from 'lucide-react'
 
 export interface CompanyFormValues {
   companyName: string
@@ -205,10 +206,11 @@ const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({
       <h2 className="text-2xl font-semibold text-gray-800 mb-5">{isEdit ? 'Edit Company Profile' : 'Create Company Profile'}</h2>
 
       {isEdit && companyProfileId && (
-        <div className="w-full flex flex-col items-center justify-center">
-          <div
+        <div className="flex w-full flex-col items-center justify-center gap-3 p-6">
+          <button
+            type="button"
             onClick={() => setIsModalOpen(true)}
-            className="w-28 h-28 rounded-full border-2 border-gray-300 flex items-center justify-center cursor-pointer hover:border-rose-500 hover:bg-rose-50 transition"
+            className="relative flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border border-dashed border-rose-200 bg-white shadow-inner transition duration-200 hover:border-rose-400 hover:shadow-lg"
           >
             {normalizedInitialValues.companyLogo ? (
               <Image
@@ -217,16 +219,22 @@ const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({
                   (imageVersion ? (normalizedInitialValues.companyLogo?.includes('?') ? '&' : '?') + `v=${imageVersion}` : '')
                 }
                 alt="Company Logo"
-                width={80}
-                height={80}
-                className="rounded-full"
+                width={110}
+                height={110}
+                className="h-full w-full rounded-full object-cover"
               />
             ) : (
-              <div className="w-20 h-20 bg-gray-100 rounded-full" />
+              <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-[#3e2a1c]">
+                <Camera className="h-6 w-6" />
+                <span className="text-xs font-semibold">Add Logo</span>
+              </div>
             )}
-          </div>
+            <span className="absolute bottom-2 rounded-full bg-red-400 px-3 py-1 text-xs font-medium text-white shadow-md">Change</span>
+          </button>
 
-          <p className="mt-2 text-center text-sm text-gray-500">Upload Company Logo</p>
+          <div className="text-center text-sm text-[#3e2a1c]">
+            <p className="font-medium text-[#3e2a1c]">Company Logo</p>
+          </div>
         </div>
       )}
 

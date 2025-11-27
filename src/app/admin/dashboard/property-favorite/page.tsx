@@ -6,6 +6,7 @@ import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 import { PropertyFavorite } from './(dto)/PropertyFavoriteType'
 import { usePropertyFavorite } from './(hooks)/usePropertyFavorite'
+import toast from 'react-hot-toast'
 
 type PropertyFavoriteTableRow = PropertyFavorite & Record<string, unknown>
 
@@ -67,6 +68,7 @@ export default function PropertyFavoritePage() {
       await mutateFavorites()
     } catch (error) {
       console.error('Error refreshing favorites:', error)
+      toast.error('Failed to refresh property favorites')
     }
   }
 

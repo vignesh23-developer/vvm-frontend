@@ -6,6 +6,7 @@ import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
 import { usePropertyEnquiry } from '@/app/admin/dashboard/property-enquiry/(hooks)/usePropertyEnquiry'
 import { PropertyEnquiry } from '@/app/admin/dashboard/property-enquiry/(dto)/PropertyEnquiryType'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
+import toast from 'react-hot-toast'
 
 type PropertyEnquiryTableRow = PropertyEnquiry & Record<string, unknown>
 
@@ -52,6 +53,7 @@ export default function PropertyEnquiryPage() {
     try {
       await mutateEnquiries()
     } catch (error) {
+      toast.error('Failed to refresh property enquiries')
       console.error('Error refreshing enquiries:', error)
     }
   }

@@ -1,132 +1,138 @@
-'use client';
+'use client'
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Search, X, ChevronDown, Loader2 } from 'lucide-react';
-import { LucideIconName } from './LucideIconName';
-import { IconLoader, IconInfo } from './IconLoader';
+import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { Search, X, ChevronDown, Loader2 } from 'lucide-react'
+import { LucideIconName } from './LucideIconName'
+import { IconLoader, IconInfo } from './IconLoader'
 
 export interface IconPickerDropdownProps {
-  value: LucideIconName | null;
-  onChange: (icon: LucideIconName) => void;
-  placeholder?: string;
-  disabled?: boolean;
-  className?: string;
-  maxHeight?: string;
+  value: LucideIconName | null
+  onChange: (icon: LucideIconName) => void
+  placeholder?: string
+  disabled?: boolean
+  className?: string
+  maxHeight?: string
 }
 
 export default function IconPickerDropdown({
   value,
   onChange,
-  placeholder = "Select an icon",
+  placeholder = 'Select an icon',
   disabled = false,
   className = '',
-  maxHeight = '320px'
+  maxHeight = '320px',
 }: IconPickerDropdownProps) {
   // State management
-  const [isOpen, setIsOpen] = useState(false);
-  const [search, setSearch] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const [icons, setIcons] = useState<IconInfo[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  const [categories, setCategories] = useState<string[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedIcon, setSelectedIcon] = useState<any>(null);
+  const [isOpen, setIsOpen] = useState(false)
+  const [search, setSearch] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
+  const [icons, setIcons] = useState<IconInfo[]>([])
+  const [selectedCategory, setSelectedCategory] = useState<string>('All')
+  const [categories, setCategories] = useState<string[]>([])
+  const [error, setError] = useState<string | null>(null)
+  const [selectedIcon, setSelectedIcon] = useState<any>(null)
 
   // Refs
-  const containerRef = useRef<HTMLDivElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
 
   // Icon loader instance
-  const iconLoader = IconLoader.getInstance();
+  const iconLoader = IconLoader.getInstance()
 
   // Load icons on mount
   useEffect(() => {
     const loadIcons = async () => {
-      setIsLoading(true);
-      console.log('🔄 IconPickerDropdown: Starting to load icons...');
-      const result = await iconLoader.loadIcons();
-      
+      setIsLoading(true)
+      console.log('🔄 IconPickerDropdown: Starting to load icons...')
+      const result = await iconLoader.loadIcons()
+
       console.log('📊 IconPickerDropdown: Load result:', {
         isLoaded: result.isLoaded,
         iconCount: result.icons.length,
-        error: result.error
-      });
-      
-      if (result.error) {
-        setError(result.error);
-        console.error('❌ IconPickerDropdown: Error loading icons:', result.error);
-      } else {
-        setIcons(result.icons);
-        setError(null);
-        console.log('✅ IconPickerDropdown: Successfully loaded', result.icons.length, 'icons');
-      }
-      
-      setIsLoading(false);
-    };
+        error: result.error,
+      })
 
-    loadIcons();
-  }, [iconLoader]);
+      if (result.error) {
+        setError(result.error)
+        console.error(' IconPickerDropdown: Error loading icons:', result.error)
+      } else {
+        setIcons(result.icons)
+        setError(null)
+        console.log(' IconPickerDropdown: Successfully loaded', result.icons.length, 'icons')
+      }
+
+      setIsLoading(false)
+    }
+
+    loadIcons()
+  }, [iconLoader])
 
   // Update selected icon when value changes
   useEffect(() => {
     if (value && !isLoading) {
-      const icon = iconLoader.getIcon(value);
-      setSelectedIcon(icon);
+      const icon = iconLoader.getIcon(value)
+      setSelectedIcon(icon)
     } else {
-      setSelectedIcon(null);
+      setSelectedIcon(null)
     }
-  }, [value, iconLoader, isLoading]);
+  }, [value, iconLoader, isLoading])
 
   // Filter icons based on search
   const filteredIcons = useCallback(() => {
     if (!search.trim()) {
-      return icons;
+      return icons
     }
-    return iconLoader.searchIcons(search);
-  }, [search, icons, iconLoader]);
+    return iconLoader.searchIcons(search)
+  }, [search, icons, iconLoader])
 
   // Handle clicking outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
+        setIsOpen(false)
       }
-    };
+    }
 
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside)
       // Focus search input when opened
       setTimeout(() => {
-        searchInputRef.current?.focus();
-      }, 0);
+        searchInputRef.current?.focus()
+      }, 0)
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen]);
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpen])
 
   // Handle icon selection
-  const handleIconSelect = useCallback((iconName: LucideIconName) => {
-    onChange(iconName);
-    setIsOpen(false);
-    setSearch('');
-  }, [onChange]);
+  const handleIconSelect = useCallback(
+    (iconName: LucideIconName) => {
+      onChange(iconName)
+      setIsOpen(false)
+      setSearch('')
+    },
+    [onChange],
+  )
 
   // Handle keyboard navigation
-  const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
-    if (event.key === 'Escape') {
-      setIsOpen(false);
-    } else if (event.key === 'Enter' && !isOpen) {
-      setIsOpen(true);
-    }
-  }, [isOpen]);
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsOpen(false)
+      } else if (event.key === 'Enter' && !isOpen) {
+        setIsOpen(true)
+      }
+    },
+    [isOpen],
+  )
 
   // Clear search
   const clearSearch = useCallback(() => {
-    setSearch('');
-    searchInputRef.current?.focus();
-  }, []);
+    setSearch('')
+    searchInputRef.current?.focus()
+  }, [])
 
   // Render loading state
   if (isLoading) {
@@ -139,7 +145,7 @@ export default function IconPickerDropdown({
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   // Render error state
@@ -150,10 +156,10 @@ export default function IconPickerDropdown({
           <span className="text-red-600 text-sm">Failed to load icons</span>
         </div>
       </div>
-    );
+    )
   }
 
-  const iconsToShow = filteredIcons();
+  const iconsToShow = filteredIcons()
 
   return (
     <div className={`relative ${className}`} ref={containerRef}>
@@ -164,34 +170,25 @@ export default function IconPickerDropdown({
         onKeyDown={handleKeyDown}
         disabled={disabled}
         className={`flex items-center justify-between w-full p-2 border rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-          disabled 
-            ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-            : 'bg-white hover:bg-gray-50'
+          disabled ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-50'
         }`}
       >
         <div className="flex items-center gap-2 min-w-0 flex-1">
           {value && selectedIcon ? (
             <>
-              {React.createElement(selectedIcon, { className: "h-5 w-5 flex-shrink-0" })}
+              {React.createElement(selectedIcon, { className: 'h-5 w-5 flex-shrink-0' })}
               <span className="truncate">{value}</span>
             </>
           ) : (
             <span className="text-gray-500 truncate">{placeholder}</span>
           )}
         </div>
-        <ChevronDown 
-          className={`h-4 w-4 text-gray-400 flex-shrink-0 transition-transform ${
-            isOpen ? 'rotate-180' : ''
-          }`} 
-        />
+        <ChevronDown className={`h-4 w-4 text-gray-400 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {/* Dropdown menu */}
       {isOpen && (
-        <div 
-          className="absolute z-50 mt-1 w-full bg-white border rounded-md shadow-lg overflow-hidden"
-          style={{ maxHeight }}
-        >
+        <div className="absolute z-50 mt-1 w-full bg-white border rounded-md shadow-lg overflow-hidden" style={{ maxHeight }}>
           {/* Search header */}
           <div className="p-3 border-b bg-gray-50">
             <div className="relative">
@@ -201,15 +198,11 @@ export default function IconPickerDropdown({
                 type="text"
                 placeholder="Search icons..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={e => setSearch(e.target.value)}
                 className="w-full pl-8 pr-8 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {search && (
-                <button
-                  type="button"
-                  onClick={clearSearch}
-                  className="absolute right-2 top-2.5 p-0.5 hover:bg-gray-200 rounded"
-                >
+                <button type="button" onClick={clearSearch} className="absolute right-2 top-2.5 p-0.5 hover:bg-gray-200 rounded">
                   <X className="h-3 w-3 text-gray-500" />
                 </button>
               )}
@@ -231,18 +224,14 @@ export default function IconPickerDropdown({
                     title={name}
                   >
                     <IconComponent className="h-5 w-5 mb-1" />
-                    <span className="truncate w-full text-center text-xs">
-                      {name}
-                    </span>
+                    <span className="truncate w-full text-center text-xs">{name}</span>
                   </button>
                 ))}
               </div>
             ) : (
               <div className="text-center py-8 text-gray-500">
                 <Search className="h-8 w-8 mx-auto mb-2 text-gray-300" />
-                <p className="text-sm">
-                  {search ? `No icons found for "${search}"` : 'No icons available'}
-                </p>
+                <p className="text-sm">{search ? `No icons found for "${search}"` : 'No icons available'}</p>
               </div>
             )}
           </div>
@@ -254,5 +243,5 @@ export default function IconPickerDropdown({
         </div>
       )}
     </div>
-  );
+  )
 }

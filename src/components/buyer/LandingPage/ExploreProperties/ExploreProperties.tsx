@@ -35,8 +35,8 @@ export default function ExploreProperties() {
   const router = useRouter()
   const { items, total, isLoading, error, handleSeeMore } = useExploreProperties()
 
-  const filteredItems = items.filter((item: ExplorePropertyDto) => item.district)
-
+  const safeItems = Array.isArray(items) ? items : []
+  const filteredItems = safeItems?.filter((item: ExplorePropertyDto) => item.district)
   // const properties = [
   //   {
   //     city: 'Coimbatore',
@@ -94,7 +94,7 @@ export default function ExploreProperties() {
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
         >
-          {filteredItems.map((p: ExplorePropertyDto) => (
+          {filteredItems?.map((p: ExplorePropertyDto) => (
             <motion.div
               key={p.district}
               variants={cardVariants}

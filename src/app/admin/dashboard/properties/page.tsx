@@ -5,21 +5,22 @@ import { useRouter } from 'next/navigation'
 import PropertyCard from '@/components/buyer/PropertyCard/PropertyCard'
 import { useProperties } from '@/app/admin/dashboard/properties/(Hooks)/useProperties'
 import { useTranslations } from 'next-intl'
-import ModalComponent from '@/components/ui/CustomComponent/Modal/ModalComponent'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { PropertiesDto } from './(Dto)/propertiesDto'
-import { getLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
 import { deleteMethod, postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import Pagination from '@/components/ui/CustomComponent/Paginations/Pagination'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 import { ResponseDTO } from '@/components/dto/response_dto'
 import ApproveOrRejectPropertyModal from '@/components/ui/CustomComponent/Modal/ApproveOrReject/ApproveOrRejectModal'
+import SkeletonLoader from '@/components/ui/CustomComponent/SkeletonLoader/SkeletonLoader'
 
 const PAGE_SIZE = 10
 
 const PropertiesPage = () => {
   const t = useTranslations()
+  const { user } = useAuth()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState('pending')
   const [currentPage, setCurrentPage] = useState(1)
@@ -39,7 +40,6 @@ const PropertiesPage = () => {
     limit: PAGE_SIZE,
     approvalStatus,
   })
-  const reviewerId = (getLocalStorageItem('userData') as { id?: string })?.id || ''
 
   const tabs = useMemo(
     () => [
@@ -85,7 +85,15 @@ const PropertiesPage = () => {
     }
   }
 
-  if (isLoading) return <CustomLoader text="property loading..." />
+  if (isLoading) {
+    return (
+      <div className="p-10 grid gap-6 md:grid-cols xl:grid-cols">
+        {Array.from({ length: PAGE_SIZE }).map((_, index) => (
+          <SkeletonLoader key={`property-skeleton-${index}`} />
+        ))}
+      </div>
+    )
+  }
   if (error) return <div className="p-6 text-red-600">Failed to load properties.</div>
 
   return (
@@ -136,25 +144,29 @@ const PropertiesPage = () => {
               if (activeTab === 'rejected') return p.approval_status === 'REJECTED'
               return true
             })
-            .map((property, i) => (
-              <PropertyCard
-                key={property.id ?? i}
-                {...property}
-                language={t}
-                primaryActionLabel="Approve"
-                secondaryActionLabel="Reject"
-                thirdActionLabel="View Details"
-                onPrimaryAction={() => openModal(property, 'approve')}
-                onSecondaryAction={() => openModal(property, 'reject')}
-                onThirdAction={() => router.push(`/propertyDetails/${property.id}`)}
-                primaryActionDisabled={pendingActionPropertyId === property.id}
-                secondaryActionDisabled={pendingActionPropertyId === property.id}
-                thirdActionDisabled={pendingActionPropertyId === property.id}
-                handleFavorite={handleFavorite}
-                handleShare={() => console.log('Share', property.id)}
-                isUserFavorited={property.is_user_favorite}
-              />
-            ))}
+            .map((property, i) =>
+              isLoading ? (
+                <SkeletonLoader key={`property-skeleton-${i}`} />
+              ) : (
+                <PropertyCard
+                  key={property.id ?? i}
+                  {...property}
+                  language={t}
+                  primaryActionLabel="Approve"
+                  secondaryActionLabel="Reject"
+                  thirdActionLabel="View Details"
+                  onPrimaryAction={() => openModal(property, 'approve')}
+                  onSecondaryAction={() => openModal(property, 'reject')}
+                  onThirdAction={() => router.push(`/propertyDetails/${property.id}`)}
+                  primaryActionDisabled={pendingActionPropertyId === property.id}
+                  secondaryActionDisabled={pendingActionPropertyId === property.id}
+                  thirdActionDisabled={pendingActionPropertyId === property.id}
+                  handleFavorite={handleFavorite}
+                  handleShare={() => console.log('Share', property.id)}
+                  isUserFavorited={property.is_user_favorite}
+                />
+              ),
+            )}
         </div>
       )}
 
@@ -170,69 +182,9 @@ const PropertiesPage = () => {
         approveOrRejectModalOpen={isModalOpen}
         setApproveOrRejectModalOpen={setIsModalOpen}
         approveOrRejectReason={modalAction}
-        userId={reviewerId}
+        userId={user?.id || ''}
         property={selectedProperty}
       />
-      {/* <ModalComponent
-        open={isModalOpen}
-        onClose={closeModal}
-        title={modalAction === 'approve' ? 'Approve Property' : 'Reject Property'}
-        footer={
-          <>
-            <Button onClick={closeModal} className="border px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-              Cancel
-            </Button>
-            <Button
-              onClick={handleModalConfirm}
-              disabled={!modalAction || !selectedProperty || pendingActionPropertyId === selectedProperty?.id}
-              className="bg-[#7B1E1E] px-4 py-2 text-sm text-white hover:bg-[#661919] disabled:bg-gray-400"
-            >
-              Confirm
-            </Button>
-          </>
-        }
-      >
-        <div className="space-y-4 text-sm text-gray-600">
-          <p>
-            Are you sure you want to <span className="font-semibold">{modalAction}</span> the property{' '}
-            <span className="font-semibold">{selectedProperty?.title ?? 'this listing'}</span>?
-          </p>
-
-          {modalAction === 'approve' && (
-            <textarea
-              value={comment}
-              onChange={e => setComment(e.target.value)}
-              className="w-full rounded-md border px-3 py-2 text-sm focus:border-[#7B1E1E] focus:ring-[#7B1E1E]"
-              placeholder="Add approval notes (optional)..."
-              rows={3}
-            />
-          )}
-
-          {modalAction === 'reject' && (
-            <>
-              <select
-                value={rejectReason}
-                onChange={e => setRejectReason(e.target.value)}
-                className="w-full rounded-md border px-3 py-2 text-sm focus:border-[#7B1E1E] focus:ring-[#7B1E1E]"
-              >
-                <option value="">Select a reason</option>
-                <option value="incomplete_information">Incomplete Information</option>
-                <option value="invalid_documents">Invalid Documents</option>
-                <option value="property_not_eligible">Property Not Eligible</option>
-                <option value="other">Other</option>
-              </select>
-
-              <textarea
-                value={comment}
-                onChange={e => setComment(e.target.value)}
-                className="w-full rounded-md border px-3 py-2 text-sm focus:border-[#7B1E1E] focus:ring-[#7B1E1E]"
-                placeholder="Add rejection comments (optional)..."
-                rows={3}
-              />
-            </>
-          )}
-        </div>
-      </ModalComponent> */}
     </div>
   )
 }

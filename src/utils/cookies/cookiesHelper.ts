@@ -43,5 +43,3 @@ export const onDeleteCookies = async (cookiesName: string) => {
     return { isError: true, message: 'Error on Delete Cookies' }
   }
 }
-
-// export const onUpdateCookies = () => { }

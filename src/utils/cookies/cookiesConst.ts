@@ -1,3 +1,6 @@
 export const CookiesName = {
-    userInfo: "USER_INFO",
+  authToken: 'authToken',
+  userData: 'userData',
+  propertyId: 'PROPERTY_ID',
+  propertyDetails: 'PROPERTY_DETAILS',
 }

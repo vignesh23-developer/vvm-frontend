@@ -5,8 +5,7 @@ import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { PropertyCreationFormValues } from '../page'
 import { PropertyCategory } from '@/app/(seller)/properties-registration/(dto)/properties_registration_dto'
-import { getLocalStorageItem, removeLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
-import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { useRouter } from 'next/navigation'
 import PropertyCard from '@/components/buyer/PropertyCard/PropertyCard'
 import usePropertiesDetail from '@/app/(buyer)/(site)/propertyDetails/(hooks)/usePropertiesHook'
@@ -14,6 +13,7 @@ import { appEndpoints } from '@/services/endpoints'
 import { postMethod } from '@/services/service'
 import { PropertyDetailsResponseDto } from '@/app/(buyer)/(site)/propertyDetails/dto/propertiesDetailDto'
 import ApproveOrRejectPropertyModal from '@/components/ui/CustomComponent/Modal/ApproveOrReject/ApproveOrRejectModal'
+import { useGlobalContext } from '@/hooks/GlobalContext/GlobalContext'
 
 interface ListingDetails {
   type?: string
@@ -40,31 +40,25 @@ interface UserData {
 export default function Step6ReviewSubmit({ listingData, onSubmit, formik, propertyCategoryData }: Step6ReviewSubmitProps) {
   // only formik is currently accepted for potential future use
   const t = useTranslations()
+  const { user } = useAuth()
+  const { value, reset } = useGlobalContext()
   const { values } = formik
-  const propertyID = getLocalStorageItem(LOCAL_STORAGE_NAME.propertyId) as string | undefined
-  const [userValue, setUserValue] = useState<UserData | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedProperty, setSelectedProperty] = useState<PropertyDetailsResponseDto | null>(null)
   const [modalAction, setModalAction] = useState<string>('')
   const [comment, setComment] = useState('')
   const [rejectReason, setRejectReason] = useState('')
-  const { propertyDetailsData, propertyDetailsRefresh } = usePropertiesDetail({ id: propertyID })
+  const { propertyDetailsData, propertyDetailsRefresh } = usePropertiesDetail({ id: value ?? '' })
 
   const [agreedToTerms, setAgreedToTerms] = useState(false)
   const router = useRouter()
 
-  useEffect(() => {
-    const userDetails = getLocalStorageItem(LOCAL_STORAGE_NAME.userData) as UserData
-    if (userDetails) {
-      setUserValue(userDetails)
-    }
-  }, [propertyDetailsData])
-
   const handleSubmit = () => {
-    removeLocalStorageItem(LOCAL_STORAGE_NAME?.propertyId)
-    removeLocalStorageItem(LOCAL_STORAGE_NAME?.propertyDetails)
+    reset()
     router.push('/properties')
   }
+
+  console.log('Property Details Data in ReviewSubmit:', propertyDetailsData)
 
   const handleTermsChange = (e: React.ChangeEvent<HTMLInputElement>) => setAgreedToTerms(e.target.checked)
 
@@ -103,8 +97,8 @@ export default function Step6ReviewSubmit({ listingData, onSubmit, formik, prope
                 handleShare={() => console.log('Share', propertyDetailsData.id)}
                 isUserFavorited={Boolean(propertyDetailsData.is_user_favorite)}
                 subtitle={propertyCategoryData?.find(c => c.id === propertyDetailsData.property_category_id)?.name ?? ''}
+                media={propertyDetailsData.media?.map(m => ({ ...m, thumbnail_url: m.thumbnail_url ?? undefined }))}
                 property_size_unit={propertyDetailsData?.property_size_unit ?? undefined}
-                media={Array.isArray(propertyDetailsData.media) ? propertyDetailsData.media : []}
                 propertyPreviewMode={true}
               />
             )}
@@ -167,7 +161,7 @@ export default function Step6ReviewSubmit({ listingData, onSubmit, formik, prope
         approveOrRejectModalOpen={isModalOpen}
         setApproveOrRejectModalOpen={setIsModalOpen}
         approveOrRejectReason={modalAction}
-        userId={userValue ? userValue?.id : ''}
+        userId={user ? user?.id : ''}
         property={selectedProperty}
       />
     </>

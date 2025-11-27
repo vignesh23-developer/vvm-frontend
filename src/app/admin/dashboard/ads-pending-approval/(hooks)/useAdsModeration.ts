@@ -54,6 +54,7 @@ export function useAdsModeration(options: UseAdsModerationOptions = {}) {
       const response = await getMethod<ApiResponse<AdsDto[]>>(url)
 
       if (response.error) {
+        toast.error(response.message || 'Failed to fetch ads')
         console.error('API error while fetching ads:', response.message)
         return { items: [], total: 0 }
       }
@@ -93,12 +94,12 @@ export function useAdsModeration(options: UseAdsModerationOptions = {}) {
       action === 'approve'
         ? {
             reviewer_id: reviewerId,
-            ...(extraData?.comment ? { comments: extraData.comment } : {})
+            ...(extraData?.comment ? { comments: extraData.comment } : {}),
           }
         : {
             reviewer_id: reviewerId,
             rejection_reason: extraData?.rejectReason,
-            ...(extraData?.comment ? { comments: extraData.comment } : {})
+            ...(extraData?.comment ? { comments: extraData.comment } : {}),
           }
 
     try {

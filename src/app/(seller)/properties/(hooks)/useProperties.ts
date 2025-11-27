@@ -73,7 +73,7 @@ export function useProperties(options: UsePropertiesOptions = {}) {
     }
   }
   // SWR handles caching, revalidation, and errors
-  const { data, error, isLoading, mutate: mutateProperties } = useSWR<PropertiesFetcherResult>(swrKey, fetcher)
+  const { data, error, isLoading: isLoadingProperties, mutate: mutateProperties } = useSWR<PropertiesFetcherResult>(swrKey, fetcher)
 
   // Function to approve or reject a property
   const handlePropertyAction = async (
@@ -129,7 +129,7 @@ export function useProperties(options: UsePropertiesOptions = {}) {
     error,
     handleEdit,
     handleDelete,
-    isLoading,
+    isLoadingProperties,
     mutateProperties,
     handlePropertyAction,
   }

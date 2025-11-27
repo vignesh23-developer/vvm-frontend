@@ -48,7 +48,7 @@ export default function usePropertiesDetail({ id }: UsePropertiesDetailParams) {
         toast.error(`Failed to ${action} property: ${response.message}`)
         return
       } else {
-        toast.success(`Property ${action}d successfully`)
+        toast.success(`Property ${action}ed successfully`)
         await mutateProperties()
         router.refresh()
       }

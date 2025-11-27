@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from 'react'
 import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 import { useAdReports, AdReport } from '@/hooks/CustomHooks/useAdReports'
+import toast from 'react-hot-toast'
 
 type AdReportTableRow = AdReport & Record<string, unknown>
 
@@ -57,7 +58,7 @@ export default function AdsReportsPage() {
       await mutateAdReports()
     } catch (err) {
       console.error('Failed to refresh ads reports', err)
-      throw err instanceof Error ? err : new Error('Refresh failed')
+      toast.error('Failed to refresh ad reports')
     }
   }, [mutateAdReports])
 
