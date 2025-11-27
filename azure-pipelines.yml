@@ -6,31 +6,60 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-steps:
-  - task: NodeTool@0
-    inputs:
-      versionSpec: '20.x'
-    displayName: 'Install Node.js'
+variables:
+  azureSubscription: 'vaazhga-valamudan-qa-connection'
+  appName: 'vaazhga-valamudan-ui'
 
-  - script: |
-      npm install -g pnpm
-      pnpm install --frozen-lockfile
-    displayName: 'Install dependencies'
+stages:
+  - stage: Build
+    displayName: 'Build'
+    jobs:
+      - job: Build
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '20.x'
+            displayName: 'Install Node.js'
 
-  - script: |
-      pnpm run build:qa
-    displayName: 'Build Next.js app'
-    env:
-      NEXT_PUBLIC_API_URL: 'https://vaazhga-valamudan-api.azurewebsites.net'
-      NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: '$(GOOGLE_MAPS_API_KEY)'
-      NEXT_PUBLIC_RAZORPAY_KEY_ID: '$(RAZORPAY_KEY_ID)'
+          - script: |
+              npm install -g pnpm
+              pnpm install --frozen-lockfile
+            displayName: 'Install dependencies'
 
-  - task: AzureStaticWebApp@0
-    inputs:
-      app_location: '/'
-      output_location: '.next'
-      api_location: ''
-      skip_app_build: true
-      skip_api_build: true
-      azure_static_web_apps_api_token: $(DEPLOYMENT_TOKEN)
-    displayName: 'Deploy to Azure Static Web Apps'
+          - script: |
+              pnpm run build:qa
+            displayName: 'Build Next.js app'
+            env:
+              NEXT_PUBLIC_API_URL: 'https://vaazhga-valamudan-api.azurewebsites.net'
+              NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: '$(GOOGLE_MAPS_API_KEY)'
+              NEXT_PUBLIC_RAZORPAY_KEY_ID: '$(RAZORPAY_KEY_ID)'
+
+          - task: ArchiveFiles@2
+            inputs:
+              rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+              includeRootFolder: false
+              archiveType: 'zip'
+              archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+              replaceExistingArchive: true
+
+          - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+            artifact: drop
+
+  - stage: Deploy
+    displayName: 'Deploy to QA'
+    dependsOn: Build
+    jobs:
+      - deployment: Deploy
+        environment: 'QA-UI'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzureWebApp@1
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    appType: 'webAppLinux'
+                    appName: '$(appName)'
+                    package: '$(Pipeline.Workspace)/drop/$(Build.BuildId).zip'
+                    runtimeStack: 'NODE|20-lts'
+                    startUpCommand: 'pnpm start'
