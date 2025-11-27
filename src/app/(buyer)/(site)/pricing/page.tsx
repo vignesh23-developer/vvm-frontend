@@ -1,6 +1,9 @@
 import { appEndpoints } from '@/services/endpoints'
 import PricingPlansClient from './PricingPlansClient'
 
+// Force dynamic rendering - don't try to statically generate this page
+export const dynamic = 'force-dynamic'
+
 // API Response Types
 interface PlanItem {
   id: number
@@ -167,8 +170,7 @@ async function fetchPricingPlans(): Promise<ApiPlan[]> {
       headers: {
         'Content-Type': 'application/json',
       },
-      cache: 'force-cache', // Static page - cache the data
-      next: { revalidate: 3600 }, // Revalidate every hour
+      cache: 'no-store', // Dynamic page - fetch fresh data each time
     })
 
     if (!response.ok) {
