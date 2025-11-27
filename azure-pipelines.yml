@@ -14,7 +14,7 @@ steps:
 
   - script: |
       npm install -g pnpm
-      pnpm install
+      pnpm install --frozen-lockfile
     displayName: 'Install dependencies'
 
   - script: |
@@ -29,5 +29,7 @@ steps:
     inputs:
       app_location: '/'
       output_location: '.next'
+      skip_app_build: true
+      skip_api_build: true
       azure_static_web_apps_api_token: $(DEPLOYMENT_TOKEN)
     displayName: 'Deploy to Azure Static Web Apps'
