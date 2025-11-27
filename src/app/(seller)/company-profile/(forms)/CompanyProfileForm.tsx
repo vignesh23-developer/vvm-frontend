@@ -14,7 +14,6 @@ import { appEndpoints } from '@/services/endpoints'
 import { postMethod, patchMethod } from '@/services/service'
 import { ResponseDTO } from '@/components/dto/response_dto'
 import { toast } from 'react-hot-toast'
-import ModalComponent from '@/components/ui/CustomComponent/Modal/ModalComponent'
 import UploadCompanyProfileImageModal from '../modal/UploadCompanyProfileImage'
 import { Camera } from 'lucide-react'
 
@@ -29,7 +28,6 @@ export interface CompanyFormValues {
   contact_name: string
   contact_phone: string
   contact_email: string
-  expiryDays: number | string
   address_line: string
   door_number: string
   street_name: string
@@ -76,7 +74,6 @@ const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({
     contact_name: initialValues.contact_name ?? '',
     contact_phone: initialValues.contact_phone ?? '',
     contact_email: initialValues.contact_email ?? '',
-    expiryDays: initialValues.expiryDays ?? '',
     address_line: initialValues.address_line ?? '',
     door_number: initialValues.door_number ?? '',
     street_name: initialValues.street_name ?? '',
@@ -122,7 +119,6 @@ const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({
       contact_name: values.contact_name,
       contact_phone: values.contact_phone,
       contact_email: values.contact_email,
-      expiryDays: values.expiryDays,
       address_line: values.address_line,
       door_number: values.door_number,
       street_name: values.street_name,
@@ -148,7 +144,7 @@ const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({
         const response: ResponseDTO = await postMethod(appEndpoints.createCompanyProfile, payload)
         console.log('Create response:', response)
         if (response.status === '201') {
-          console.log('Created company ID:', response.data)
+          // console.log('Created company ID:', response.data)
           setCompanyId(response.data.id)
           toast.success('Company profile created successfully!')
           setIsModalOpen(true)
@@ -268,7 +264,6 @@ const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({
                     <FormikTextField label="Description" as="textarea" name="description" placeholder="Enter description" rows={3} />
                   </div>
                   <FormikTextField label="GST Number" name="gstNumber" placeholder="Enter GST number" />
-                  <FormikTextField label="Expiry Days" name="expiryDays" type="number" placeholder="Enter expiry days" />
                 </div>
               </section>
 

@@ -73,7 +73,7 @@ const page = () => {
     },
     {
       label: 'Total Enquiries',
-      value: 48,
+      value: propertyDetailsData?.enquiry_count || 0,
       color: 'bg-[#DBEAFE]',
       iconColor: 'text-[#2563EB]',
       icon: <MessageSquare size={18} />,
@@ -254,7 +254,7 @@ const page = () => {
           </motion.div>
           {/* Map Section */}
           <motion.div variants={fadeInUp} whileInView={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 40 }} transition={{ duration: 0.6 }}>
-            <div className="rounded-3xl border border-gray-100 bg-white/90 p-4 shadow-md backdrop-blur">
+            <div className="rounded-3xl border border-gray-100 bg-white/90 shadow-md backdrop-blur">
               <div className="h-100 w-full overflow-hidden rounded-2xl">
                 <MapView
                   center={{ lat: Number(propertyDetailsData?.latitude) || 12.9177477, lng: Number(propertyDetailsData?.longitude) || 80.2209669 }}
@@ -326,7 +326,7 @@ const page = () => {
           {/* Contact Owner */}
           <motion.div whileHover={{ scale: 1.03 }} className="bg-white shadow-md rounded-xl p-6 ">
             <h3 className="text-lg font-bold mb-2">{t('PropertiesDetails.contact_owner')}</h3>
-            <p className="text-gray-700 gap-2 font-medium">
+            <p className="text-gray-700 gap-2 font-medium mb-2">
               <MessageSquare size={18} className="inline mr-2" /> {ownerNameDisplay}
             </p>
             <p className="text-gray-700 gap-2 font-medium mb-4">

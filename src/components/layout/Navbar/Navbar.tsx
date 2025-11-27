@@ -84,8 +84,8 @@ const DASHBOARD_SECTIONS: NavItem[] = [
       { label: 'feature categories', href: '/admin/dashboard/feature-category' },
       { label: 'property categories', href: '/admin/dashboard/property-category' },
       { label: 'ads categories', href: '/admin/dashboard/ads-category' },
-      { label: 'promo code', href: '/admin/dashboard/promo-code' },
-      { label: 'referral management', href: '/admin/dashboard/referral-management' },
+      // { label: 'promo code', href: '/admin/dashboard/promo-code' },
+      // { label: 'referral management', href: '/admin/dashboard/referral-management' },
     ],
   },
   {
@@ -93,14 +93,14 @@ const DASHBOARD_SECTIONS: NavItem[] = [
     href: '/properties',
     icon: <Building size={16} />,
     subMenu: [
-      { label: 'properties management', href: '/properties' },
-      { label: 'properties pending approval', href: '/admin/dashboard/properties' },
+      { label: 'properties management', href: '/properties/list' },
+      { label: 'properties pending approval', href: '/admin/dashboard/properties-pending-approval' },
       { label: 'favourite properties', href: '/admin/dashboard/property-favorite' },
       { label: 'reported properties', href: '/admin/dashboard/property-reports' },
       { label: 'view enquiries', href: '/admin/dashboard/property-enquiry' },
-      { label: 'saved searches', href: '/admin/dashboard/saved-searches' },
-      { label: 'recently viewed properties', href: '/admin/dashboard/recently-viewed' },
-      { label: 'contact requests', href: '/admin/dashboard/contact-requests' },
+      // { label: 'saved searches', href: '/admin/dashboard/saved-searches' },
+      // { label: 'recently viewed properties', href: '/admin/dashboard/recently-viewed' },
+      // { label: 'contact requests', href: '/admin/dashboard/contact-requests' },
     ],
   },
   {
@@ -110,7 +110,7 @@ const DASHBOARD_SECTIONS: NavItem[] = [
     subMenu: [
       { label: 'ads management', href: '/ads/list' },
       { label: 'ads pending approval', href: '/admin/dashboard/ads-pending-approval' },
-      { label: 'view recent ads', href: '/admin/dashboard/recent-ads' },
+      // { label: 'view recent ads', href: '/admin/dashboard/recent-ads' },
       { label: 'favourite ads', href: '/admin/dashboard/favourite-ads' },
       { label: 'reported ads', href: '/admin/dashboard/ads-reports' },
       { label: 'view enquiries', href: '/admin/dashboard/ads-enquiry' },
@@ -302,7 +302,7 @@ export default function Navbar({
                 {/* Main Dropdown */}
                 {isOpen && (
                   <div className="absolute right-0 mt-2 bg-white text-[#3b1804] rounded-lg shadow-lg w-70 py-2 z-50 max-h-[70vh] overflow-y-auto">
-                    <Link href="/" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
+                    <Link href="/admin/dashboard" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
                       <Home size={16} /> {t('Navbar.Dashboard')}
                     </Link>
 
@@ -439,37 +439,44 @@ export default function Navbar({
           ))}
 
           {/* Dynamically generated collapsible sections */}
-          {user &&
-            DASHBOARD_SECTIONS.map((section: NavItem) => (
-              <div key={section.label} className="w-full mt-2 border-t border-white/20 pt-2">
-                <Button
-                  onClick={() => toggleSection(section.label)}
-                  className="flex justify-between items-center w-full text-left text-white font-medium py-2 px-2 rounded-lg hover:bg-white/10"
-                >
-                  <span className="flex items-center gap-2">
-                    {section.icon}
-                    {t(`Navbar.${section.label}`)}
-                  </span>
-                  {openSections.has(section.label) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                </Button>
+          {user && (
+            <>
+              <Link href="/admin/dashboard" className="flex items-center gap-2 w-full py-2 text-white hover:text-gray-300 text-base font-medium">
+                <Home size={16} /> {t('Navbar.Dashboard')}
+              </Link>
 
-                {openSections.has(section.label) && (
-                  <div className="flex flex-col pl-4 space-y-1">
-                    {section.subMenu?.map((sub: any) => (
-                      <Link
-                        key={sub.href}
-                        href={sub.href}
-                        onClick={() => setIsMenuOpen(false)}
-                        className="flex items-center gap-2 px-4 py-1 text-sm text-gray-200 hover:text-white transition no-underline"
-                      >
-                        <span className="text-gray-500">{sub.icon ? sub.icon : <ChevronRight size={16} />}</span>
-                        {t(`Navbar.subMenus.${sub.label}`)}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
+              {DASHBOARD_SECTIONS.map((section: NavItem) => (
+                <div key={section.label} className="w-full mt-2 border-t border-white/20 pt-2">
+                  <Button
+                    onClick={() => toggleSection(section.label)}
+                    className="flex justify-between items-center w-full text-left text-white font-medium py-2 px-2 rounded-lg hover:bg-white/10"
+                  >
+                    <span className="flex items-center gap-2">
+                      {section.icon}
+                      {t(`Navbar.${section.label}`)}
+                    </span>
+                    {openSections.has(section.label) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  </Button>
+
+                  {openSections.has(section.label) && (
+                    <div className="flex flex-col pl-4 space-y-1">
+                      {section.subMenu?.map((sub: any) => (
+                        <Link
+                          key={sub.href}
+                          href={sub.href}
+                          onClick={() => setIsMenuOpen(false)}
+                          className="flex items-center gap-2 px-4 py-1 text-sm text-gray-200 hover:text-white transition no-underline"
+                        >
+                          <span className="text-gray-500">{sub.icon ? sub.icon : <ChevronRight size={16} />}</span>
+                          {t(`Navbar.subMenus.${sub.label}`)}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </>
+          )}
 
           {/* Profile / Login Section */}
           {user

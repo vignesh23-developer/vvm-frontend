@@ -4,7 +4,7 @@ import useSWR from 'swr'
 import { useRouter } from 'next/navigation'
 import { appEndpoints } from '@/services/endpoints'
 import { PropertiesDto } from '@/app/(seller)/properties/dto/PropertiesDto'
-import { getMethod, putMethod } from '@/services/service'
+import { deleteMethod, getMethod, patchMethod, putMethod } from '@/services/service'
 import toast from 'react-hot-toast'
 
 interface ApiResponse<T> {
@@ -114,11 +114,26 @@ export function useProperties(options: UsePropertiesOptions = {}) {
     }
   }
 
+  const handleView = (id: string) => {
+    router.push(`/propertyDetails/${id}`)
+  }
   const handleEdit = (id: string) => {
     router.push(`/properties-registration/${id}`)
   }
-  const handleDelete = (id: string) => {
-    router.push(`/properties-registration`)
+  const handleDelete = async (id: string, newStatus: boolean) => {
+    try {
+      // await patchMethod(`${appEndpoints.updatePropertyStatus(id.toString())}`)
+
+      await deleteMethod(`${appEndpoints.deleteProperty(id.toString())}`)
+
+      // Revalidate data after update
+      mutateProperties()
+
+      toast.success(`Property ${newStatus ? 'activated' : 'deactivated'}!`)
+    } catch (err) {
+      console.error('Failed to update status:', err)
+      toast.error('Failed to update status')
+    }
   }
   const properties = data?.items ?? []
   const total = data?.total ?? properties.length
@@ -127,6 +142,7 @@ export function useProperties(options: UsePropertiesOptions = {}) {
     properties: properties ?? [],
     total,
     error,
+    handleView,
     handleEdit,
     handleDelete,
     isLoadingProperties,

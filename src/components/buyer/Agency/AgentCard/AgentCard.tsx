@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Heart, Share } from 'lucide-react'
+import { Heart, Share, MapPin } from 'lucide-react'
 import Stats from '../../Stats/Stats'
 import Image from 'next/image'
 import Button from '@/components/ui/CustomComponent/Button/Button'
@@ -38,8 +38,7 @@ export default function AgentCard(props: AgentCompanyProfile) {
   const router = useRouter()
 
   const handleViewDetails = () => {
-    let encodeURI = encodeURIComponent(profileName)
-    router.push(`/agencyDetails/${encodeURI}`)
+    router.push(`/${profileName}`)
   }
   return (
     <motion.div
@@ -98,16 +97,16 @@ export default function AgentCard(props: AgentCompanyProfile) {
 
             {/* Deals in */}
             <motion.div className="mt-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
-              <p className="text-gray-700 text-sm sm:text-base">
-                <span className="font-medium">Deals in:</span>{' '}
-                <span className="text-gray-500">Rent/Lease, Pre-launch, Original Booking, Resale, Others</span>
+              <p className="mt-3 flex items-center text-sm text-gray-600">
+                <MapPin size={30} color="#d41111" className="mr-1.5" />
+                {address_line}
               </p>
             </motion.div>
 
             {/* Operates in */}
             <motion.div className="mt-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
               <p className="text-gray-700 text-sm sm:text-base">
-                <span className="font-medium">Operates in:</span> <span className="text-gray-500">{address_line}</span>
+                <span className="text-gray-500">{description}</span>
               </p>
             </motion.div>
           </div>

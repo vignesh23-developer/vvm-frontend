@@ -41,6 +41,7 @@ export interface PropertyDetailsResponseDto {
   view_count: number
   favorite_count: number
   contact_count: number
+  enquiry_count: number
   created_at: string
   updated_at: string
   published_at: string | null

@@ -9,9 +9,10 @@ import { useRouter } from 'next/navigation'
 import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
 import Pagination from '@/components/ui/CustomComponent/Tables/Pagination'
 import Button from '@/components/ui/CustomComponent/Button/Button'
-import { Edit, Trash2 } from 'lucide-react'
+import { Edit, Edit3, Eye, Trash2 } from 'lucide-react'
 import { onDeleteAd } from '@/app/(seller)/ads/(action)/ads_action'
 import toast from 'react-hot-toast'
+import { color } from 'framer-motion/dom'
 
 // Chart data - these would ideally be calculated from the actual ads data
 const statusData = [
@@ -36,7 +37,7 @@ export default function AdsListPage() {
   const router = useRouter()
   const [currentPage, setCurrentPage] = useState(1)
   const [currentLimit, setCurrentLimit] = useState(10)
-  
+
   // Fetch ads with current page and limit - triggers API call when these change
   const { ads, total, error, isLoading, mutateAds } = useAds({ page: currentPage, limit: currentLimit })
   const { categories } = useAdsCategories()
@@ -154,6 +155,10 @@ export default function AdsListPage() {
     }
   }, [ads])
 
+  const handleView = (row: AdsTableRow) => {
+    router.push(`/adsDetails/${row.id}`)
+  }
+
   const handleEdit = (row: AdsTableRow) => {
     router.push(`/ads/edit/${row.id}`)
   }
@@ -161,7 +166,7 @@ export default function AdsListPage() {
   const handleDelete = async (row: AdsTableRow) => {
     try {
       const response = await onDeleteAd(row.id as string)
-      
+
       if (response.error) {
         toast.error(response.message || 'Failed to delete ad')
         return
@@ -177,18 +182,22 @@ export default function AdsListPage() {
 
   const actions = [
     {
-      label: 'Edit',
-      onClick: handleEdit,
-      icon: Edit,
-      color: '#3b82f6',
-      title: 'Edit ad',
+      icon: Eye, // correct for view
+      onClick: handleView,
+      color: '#1e6897',
+      title: 'View',
     },
     {
-      label: 'Delete',
+      icon: Edit3, // correct for edit
+      onClick: handleEdit,
+      color: '#1e6897',
+      title: 'Edit',
+    },
+    {
+      icon: Trash2, // correct for delete
       onClick: handleDelete,
-      icon: Trash2,
-      color: '#ef4444',
-      title: 'Delete ad',
+      color: '#e02424',
+      title: 'Delete',
     },
   ]
 
@@ -200,7 +209,7 @@ export default function AdsListPage() {
       Reserved: 0,
     }
 
-    ads.forEach((ad) => {
+    ads.forEach(ad => {
       if (ad.status === 'AVAILABLE') statusCount.Available++
       else if (ad.status === 'SOLD') statusCount.Sold++
       else if (ad.status === 'RESERVED') statusCount.Reserved++
@@ -218,13 +227,13 @@ export default function AdsListPage() {
     const monthCounts: { [key: string]: number } = {}
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
-    ads.forEach((ad) => {
+    ads.forEach(ad => {
       const date = new Date(ad.created_at)
       const monthName = monthNames[date.getMonth()]
       monthCounts[monthName] = (monthCounts[monthName] || 0) + 1
     })
 
-    return monthNames.map((month) => ({
+    return monthNames.map(month => ({
       name: month,
       count: monthCounts[month] || 0,
     }))
@@ -264,16 +273,9 @@ export default function AdsListPage() {
         {/* Table Section */}
         <div className="col-span-2 bg-white rounded-xl shadow">
           <div className="p-4">
-            <DataTable 
-              columns={columns} 
-              fetchData={fetchAds} 
-              loading={isLoading}
-              isPagination={false}
-              pageSize={currentLimit}
-              actions={actions}
-            />
+            <DataTable columns={columns} fetchData={fetchAds} loading={isLoading} isPagination={false} pageSize={currentLimit} actions={actions} />
           </div>
-          
+
           {/* Custom Server-Side Pagination */}
           <Pagination
             page={currentPage}
@@ -282,7 +284,7 @@ export default function AdsListPage() {
             totalItems={total}
             currentPageSize={currentLimit}
             pageSizeOptions={[5, 10, 25, 50, 100]}
-            handlePageSizeChange={(size) => {
+            handlePageSizeChange={size => {
               setCurrentLimit(size)
               setCurrentPage(1)
             }}
@@ -332,11 +334,11 @@ export default function AdsListPage() {
               </li>
               <li className="flex justify-between">
                 <span>Published:</span>
-                <span className="font-semibold">{ads.filter((ad) => ad.is_published).length}</span>
+                <span className="font-semibold">{ads.filter(ad => ad.is_published).length}</span>
               </li>
               <li className="flex justify-between">
                 <span>Boosted:</span>
-                <span className="font-semibold">{ads.filter((ad) => ad.is_boosted).length}</span>
+                <span className="font-semibold">{ads.filter(ad => ad.is_boosted).length}</span>
               </li>
             </ul>
           </div>

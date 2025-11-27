@@ -19,7 +19,6 @@ const AddCompanyProfile = () => {
     contact_name: '',
     contact_phone: '',
     contact_email: '',
-    expiryDays: '',
     address_line: '',
     door_number: '',
     street_name: '',

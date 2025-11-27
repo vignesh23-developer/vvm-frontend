@@ -1,7 +1,8 @@
 'use client'
 
+import Link from 'next/link'
 import { motion, Variants } from 'framer-motion'
-import { Building2, Star } from 'lucide-react'
+import { Building2, HatGlasses, Star } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { useRouter } from 'next/navigation'
@@ -112,6 +113,14 @@ export default function ExploreProperties() {
                   <Building2 size={18} className="text-gray-600" />
                   {p.count} Properties
                 </p>
+
+                {/* Agent Count */}
+                <Link href={`/properties_list/agency`}>
+                  <p className="flex items-center gap-2 font-semibold text-gray-800 mb-3">
+                    <HatGlasses size={18} className="text-gray-600" />
+                    {p.createdByCount} Agents
+                  </p>
+                </Link>
 
                 {/* Rating */}
                 {/* <div className="flex items-center gap-1 mb-4">

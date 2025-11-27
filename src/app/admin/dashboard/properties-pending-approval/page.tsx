@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import PropertyCard from '@/components/buyer/PropertyCard/PropertyCard'
-import { useProperties } from '@/app/admin/dashboard/properties/(Hooks)/useProperties'
+import { useProperties } from '@/app/admin/dashboard/properties-pending-approval/(Hooks)/useProperties'
 import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import Button from '@/components/ui/CustomComponent/Button/Button'
