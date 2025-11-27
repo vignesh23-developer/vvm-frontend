@@ -29,6 +29,7 @@ steps:
     inputs:
       app_location: '/'
       output_location: '.next'
+      api_location: ''
       skip_app_build: true
       skip_api_build: true
       azure_static_web_apps_api_token: $(DEPLOYMENT_TOKEN)
