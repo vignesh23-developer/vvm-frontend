@@ -136,4 +136,16 @@ export const appEndpoints = {
   validateProfileName: '/agent-company-profiles/validate-profile-name',
   deleteCompanyProfile: (agentId: string) => `/agent-company-profiles/${agentId}`,
   uploadCompanyProfileImage: (agentId: string) => `/agent-company-profiles/${agentId}/logo`,
+
+  // subscription
+  getPublicPlans: '/subscription-plans?includeItems=true',
+  getPublicPlan: (planId: string) => `/subscription-plans/${planId}`,
+
+  getUserSubscription: (userId: string) => `/users/${userId}/subscription`,
+  createSubscriptionOrder: (userId: string) => `/users/${userId}/subscribe/order`,
+  verifySubscriptionPayment: (userId: string) => `/users/${userId}/subscribe/verify`,
+
+  getUserAddons: (userId: string) => `/users/${userId}/add-ons`,
+  createAddonOrder: (userId: string) => `/users/${userId}/addons/order`,
+  verifyAddonPayment: (userId: string) => `/users/${userId}/addons/verify`,
 }

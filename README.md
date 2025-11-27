@@ -18,6 +18,18 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
+## Environment Variables
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```env
+NEXT_PUBLIC_API_URL=your_api_url_here
+NEXT_PUBLIC_RAZORPAY_KEY_ID=your_razorpay_key_id_here
+```
+
+- `NEXT_PUBLIC_API_URL`: The base URL for your backend API
+- `NEXT_PUBLIC_RAZORPAY_KEY_ID`: Your Razorpay frontend API key (used for payment gateway integration)
+
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More
