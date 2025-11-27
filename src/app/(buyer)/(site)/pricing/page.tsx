@@ -1,15 +1,38 @@
-'use client'
+import { appEndpoints } from '@/services/endpoints'
+import PricingPlansClient from './PricingPlansClient'
 
-import {
-  Check,
-  X,
-  Megaphone,
-  Star,
-  Trophy,
-  Award,
-  Settings,
-} from 'lucide-react'
-import { motion, Variants } from 'framer-motion'
+// API Response Types
+interface PlanItem {
+  id: number
+  plan_id: number
+  item: {
+    id: number
+    name: string
+    type: string
+    valueType: 'NUMERIC' | 'BOOLEAN' | 'TEXT'
+    category: string
+    unit: string
+    description: string
+    iconName?: string
+    displayOrder?: number
+  }
+  isIncluded: boolean
+  numericValue: number | null
+  textValue: string | null
+  isUnlimited: boolean
+}
+
+interface ApiPlan {
+  id: number
+  name: string
+  tagline: string
+  price: string
+  durationDays: number
+  billingCycle: string
+  isPopular: boolean
+  isActive: boolean
+  planItems: PlanItem[]
+}
 
 interface Feature {
   text: string
@@ -17,288 +40,163 @@ interface Feature {
 }
 
 interface Plan {
+  id: number
   name: string
   price: string
-  icon: keyof typeof iconMap
+  icon: 'megaphone' | 'star' | 'trophy' | 'award' | 'settings'
   highlight?: boolean
   bgColor?: string
   textColor?: string
   features: Feature[]
 }
 
-const featuresList = [
-  'Listing Value Limit',
-  'Active Listings',
-  'Plan Validity',
-  'Leaton Purchases',
-  'Lead Protection',
-  'Flag',
-  'Protection',
-]
-
-const plans: Plan[] = [
-  {
-    name: 'Free Ad (Trial)',
-    price: '₹0',
-    icon: 'megaphone',
-    bgColor: 'bg-gray-700',
-    textColor: 'text-white',
-    features: [
-      { text: 'Listing Value Limit', value: 'Up to ₹26L' },
-      { text: 'Active Listings', value: '1 Basic Ad' },
-      { text: 'Plan Validity', value: 'Not available' },
-      { text: 'Leaton Purchases', value: false },
-      { text: 'Lead Protection', value: true },
-      { text: 'Flag', value: true },
-      { text: 'Protection', value: true },
-    ],
-  },
-  {
-    name: 'Silver',
-    price: '₹499',
-    icon: 'star',
-    features: [
-      { text: 'Listing Value Limit', value: 'Up to 5 bases up ₹5L' },
-      { text: 'Active Listings', value: '39 (Optional)' },
-      { text: 'Plan Validity', value: '₹999 (Optional)' },
-      { text: 'Leaton Purchases', value: 'Chat / Email' },
-      { text: 'Lead Protection', value: true },
-      { text: 'Flag', value: true },
-      { text: 'Protection', value: true },
-    ],
-  },
-  {
-    name: 'Gold',
-    price: '₹999',
-    icon: 'trophy',
-    highlight: true,
-    bgColor: 'bg-yellow-400',
-    textColor: 'text-white',
-    features: [
-      { text: 'Listing Value Limit', value: '10 Listings' },
-      { text: 'Active Listings', value: 'Free' },
-      { text: 'Plan Validity', value: 'Free' },
-      { text: 'Leaton Purchases', value: 'Priority Support' },
-      { text: 'Lead Protection', value: true },
-      { text: 'Flag', value: true },
-      { text: 'Protection', value: true },
-    ],
-  },
-  {
-    name: 'Platinum',
-    price: '₹1999',
-    icon: 'award',
-    features: [
-      { text: 'Listing Value Limit', value: 'Up to 5 Listings' },
-      { text: 'Active Listings', value: '20 Listings' },
-      { text: 'Plan Validity', value: 'Free' },
-      { text: 'Leaton Purchases', value: 'Priority Support' },
-      { text: 'Lead Protection', value: true },
-      { text: 'Flag', value: true },
-      { text: 'Protection', value: true },
-    ],
-  },
-  {
-    name: 'Custom',
-    price: 'Contact Admin',
-    icon: 'settings',
-    features: [
-      { text: 'Listing Value Limit', value: 'Custom' },
-      { text: 'Active Listings', value: 'Custom' },
-      { text: 'Plan Validity', value: 'Free' },
-      { text: 'Leaton Purchases', value: 'Free' },
-      { text: 'Lead Protection', value: true },
-      { text: 'Flag', value: true },
-      { text: 'Protection', value: true },
-    ],
-  },
-]
-
-const iconMap = {
-  megaphone: Megaphone,
-  star: Star,
-  trophy: Trophy,
-  award: Award,
-  settings: Settings,
+// Icon mapping based on plan name
+function getIconForPlan(planName: string): Plan['icon'] {
+  const name = planName.toLowerCase()
+  if (name.includes('bronze') || name.includes('free') || name.includes('trial')) return 'megaphone'
+  if (name.includes('silver')) return 'star'
+  if (name.includes('gold')) return 'trophy'
+  if (name.includes('platinum')) return 'award'
+  if (name.includes('custom')) return 'settings'
+  return 'star' // default
 }
 
-function FeatureValue({ value }: { value: string | boolean }) {
-  if (typeof value === 'boolean') {
-    return value ? (
-      <Check className="text-green-600 w-5 h-5" />
-    ) : (
-      <X className="text-red-500 w-5 h-5" />
-    )
+// Transform API plan to component Plan
+function transformPlan(apiPlan: ApiPlan, allFeatureNames?: Set<string>): Plan {
+  const icon = getIconForPlan(apiPlan.name)
+  
+  // Determine styling based on plan
+  let bgColor: string | undefined
+  let textColor: string | undefined
+  let highlight = false
+
+  if (apiPlan.isPopular) {
+    highlight = true
+    bgColor = 'bg-yellow-400'
+    textColor = 'text-white'
+  } else if (apiPlan.name.toLowerCase().includes('bronze') || apiPlan.name.toLowerCase().includes('free')) {
+    bgColor = 'bg-gray-700'
+    textColor = 'text-white'
   }
-  return <span>{value}</span>
+
+  // Create a map of planItems by item name for quick lookup
+  const planItemsMap = new Map<string, PlanItem>()
+  apiPlan.planItems.forEach(item => {
+    planItemsMap.set(item.item.name, item)
+  })
+
+  // Transform planItems to features
+  // For mobile: only show included items
+  // For desktop: show all features (handled in client component)
+  const features: Feature[] = apiPlan.planItems
+    .filter(item => item.isIncluded) // Mobile view: only included items
+    .map(item => {
+      const featureText = item.item.name
+      let featureValue: string | boolean
+
+      if (item.item.valueType === 'BOOLEAN') {
+        featureValue = item.isIncluded
+      } else if (item.item.valueType === 'NUMERIC') {
+        if (item.isUnlimited) {
+          featureValue = 'Unlimited'
+        } else {
+          featureValue = item.numericValue?.toString() || '0'
+          if (item.item.unit && item.item.unit !== 'enabled' && item.item.unit !== 'listings') {
+            featureValue += ` ${item.item.unit}`
+          }
+        }
+      } else if (item.item.valueType === 'TEXT') {
+        featureValue = item.textValue || item.item.unit || 'Enabled'
+      } else {
+        featureValue = item.isIncluded ? 'Enabled' : 'Disabled'
+      }
+
+      return {
+        text: featureText,
+        value: featureValue,
+      }
+    })
+
+  // Format price
+  const formattedPrice = apiPlan.price ? `₹${parseFloat(apiPlan.price).toLocaleString('en-IN')}` : 'Contact Admin'
+
+  return {
+    id: apiPlan.id,
+    name: apiPlan.name,
+    price: formattedPrice,
+    icon,
+    highlight,
+    bgColor,
+    textColor,
+    features,
+  }
 }
 
-// Animation Variants
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.15 },
-  },
+// Get unique feature list from all plans for the desktop table
+function getUniqueFeatures(apiPlans: ApiPlan[]): string[] {
+  const featureSet = new Set<string>()
+  const featureOrderMap = new Map<string, number>()
+  
+  apiPlans.forEach(plan => {
+    plan.planItems.forEach(item => {
+      featureSet.add(item.item.name)
+      // Store the minimum display order for each feature
+      const currentOrder = featureOrderMap.get(item.item.name)
+      const itemOrder = item.item.displayOrder ?? 999
+      if (currentOrder === undefined || itemOrder < currentOrder) {
+        featureOrderMap.set(item.item.name, itemOrder)
+      }
+    })
+  })
+  
+  return Array.from(featureSet).sort((a, b) => {
+    const orderA = featureOrderMap.get(a) ?? 999
+    const orderB = featureOrderMap.get(b) ?? 999
+    if (orderA !== orderB) return orderA - orderB
+    return a.localeCompare(b)
+  })
 }
 
-const cardVariants: Variants = {
-  hidden: { opacity: 0, scale: 0.9, y: 30 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: 'easeOut' },
-  },
+async function fetchPricingPlans(): Promise<ApiPlan[]> {
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+    const url = `${apiUrl}${appEndpoints.getPublicPlans}`
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      cache: 'force-cache', // Static page - cache the data
+      next: { revalidate: 3600 }, // Revalidate every hour
+    })
+
+    if (!response.ok) {
+      console.error('Failed to fetch pricing plans:', response.statusText)
+      return []
+    }
+
+    const data = await response.json()
+    
+    // Handle the response structure: response.data.data (as shown in console.log)
+    // The API returns: { data: { data: [...] } }
+    const plans = data?.data?.data || data?.data || (Array.isArray(data) ? data : [])
+    
+    if (Array.isArray(plans)) {
+      return plans.filter((plan: ApiPlan) => plan.isActive)
+    }
+    
+    return []
+  } catch (error) {
+    console.error('Error fetching pricing plans:', error)
+    return []
+  }
 }
 
-function PlanCard({ plan }: { plan: Plan }) {
-  const Icon = iconMap[plan.icon]
-  return (
-    <motion.div
-      variants={cardVariants}
-      whileHover={{
-        y: -8,
-        boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
-        transition: { duration: 0.3 },
-      }}
-      className="bg-white p-6 rounded-xl shadow-md transition-transform duration-300"
-    >
-      <div
-        className={`rounded-lg p-3 flex flex-col items-center ${
-          plan.bgColor || 'bg-gray-100'
-        } transition-colors duration-300`}
-      >
-        <Icon
-          className={`w-6 h-6 transform transition-transform duration-300 hover:scale-110 ${
-            plan.textColor || 'text-gray-800'
-          }`}
-        />
-        <h3
-          className={`mt-2 font-semibold ${plan.textColor || 'text-gray-800'}`}
-        >
-          {plan.name}
-        </h3>
-        <p
-          className={`text-lg font-bold mt-1 ${
-            plan.textColor || 'text-gray-800'
-          }`}
-        >
-          {plan.price}
-        </p>
-      </div>
+export default async function PricingPlans() {
+  const apiPlans = await fetchPricingPlans()
+  const plans = apiPlans.map(plan => transformPlan(plan))
+  const featuresList = getUniqueFeatures(apiPlans)
 
-      <ul className="mt-6 space-y-4 text-sm text-gray-700">
-        {plan.features.map((f, i) => (
-          <li key={i} className="flex justify-between items-center">
-            <span className="font-medium">{f.text}</span>
-            <FeatureValue value={f.value} />
-          </li>
-        ))}
-      </ul>
-    </motion.div>
-  )
-}
-
-export default function PricingPlans() {
-  return (
-    <div className="w-full py-16 bg-[#F8F9FA]">
-      <div className="max-w-7xl mx-auto px-4">
-        {/* Heading */}
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-center text-3xl sm:text-4xl font-bold text-gray-800 mb-12"
-        >
-          Choose Your Plan
-        </motion.h2>
-
-        {/* Mobile Cards */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="grid grid-cols-1 gap-8 md:hidden"
-        >
-          {plans.map((plan, idx) => (
-            <PlanCard key={idx} plan={plan} />
-          ))}
-        </motion.div>
-
-        {/* Desktop Table */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="hidden md:block overflow-x-auto"
-        >
-          <motion.div
-            variants={cardVariants}
-            className="grid grid-cols-[200px_repeat(5,minmax(180px,1fr))] rounded-2xl shadow-md overflow-hidden"
-          >
-            {/* Left Column */}
-            <div className="bg-white p-6 border-r">
-              <h3 className="font-semibold text-gray-700">Feature / Benefit</h3>
-              <ul className="mt-6 space-y-6 text-sm text-gray-600">
-                {featuresList.map((feature, i) => (
-                  <li key={i}>{feature}</li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Plans */}
-            {plans.map((plan, idx) => {
-              const Icon = iconMap[plan.icon]
-              return (
-                <motion.div
-                  key={idx}
-                  variants={cardVariants}
-                  whileHover={{
-                    scale: 1.03,
-                    backgroundColor: '#fafafa',
-                    transition: { duration: 0.3 },
-                  }}
-                  className="p-6 text-center border-r last:border-r-0 bg-white transition-all"
-                >
-                  <div
-                    className={`rounded-lg p-3 flex flex-col items-center ${
-                      plan.bgColor || 'bg-gray-100'
-                    }`}
-                  >
-                    <Icon
-                      className={`w-6 h-6 ${plan.textColor || 'text-gray-800'}`}
-                    />
-                    <h3
-                      className={`mt-2 font-semibold ${
-                        plan.textColor || 'text-gray-800'
-                      }`}
-                    >
-                      {plan.name}
-                    </h3>
-                    <p
-                      className={`text-lg font-bold mt-1 ${
-                        plan.textColor || 'text-gray-800'
-                      }`}
-                    >
-                      {plan.price}
-                    </p>
-                  </div>
-                  <ul className="mt-6 space-y-6 text-sm text-gray-700">
-                    {plan.features.map((f, i) => (
-                      <li key={i} className="flex justify-center">
-                        <FeatureValue value={f.value} />
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
-              )
-            })}
-          </motion.div>
-        </motion.div>
-      </div>
-    </div>
-  )
+  return <PricingPlansClient plans={plans} featuresList={featuresList} apiPlans={apiPlans} />
 }
