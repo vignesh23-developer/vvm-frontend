@@ -117,9 +117,9 @@ const About = () => {
             {t('About.header')}
           </motion.span>
 
-          <motion.h2 variants={itemVariants} className="text-3xl sm:text-4xl font-extrabold leading-tight text-[#2b1b12]">
+          {/* <motion.h2 variants={itemVariants} className="text-3xl sm:text-4xl font-extrabold leading-tight text-[#2b1b12]">
             {t('About.title')}
-          </motion.h2>
+          </motion.h2> */}
 
           <motion.div variants={itemVariants} className="text-base leading-relaxed text-[#4b3727]">
             <MarkdownRenderer content={t('About.description')} className="space-y-4" />

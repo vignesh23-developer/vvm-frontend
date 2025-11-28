@@ -38,7 +38,7 @@ export default function AgentCard(props: AgentCompanyProfile) {
   const router = useRouter()
 
   const handleViewDetails = () => {
-    router.push(`/${profileName}`)
+    router.push(`/agent-profile/${profileName}`)
   }
   return (
     <motion.div

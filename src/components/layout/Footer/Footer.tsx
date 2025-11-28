@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl'
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { Facebook, Instagram, Twitter } from 'lucide-react'
+import { Facebook, Instagram, Twitter, Linkedin } from 'lucide-react'
 import FooterColumn from './FooterColumn'
 
 const aboutLinks = [
@@ -17,14 +17,15 @@ const aboutLinks = [
 const supportLinks = [
   { label: 'faq', href: '/faq' },
   { label: 'contact_us', href: '/contact' },
-  { label: 'help_center', href: '/help' },
+  { label: 'help_center', href: '/help-center' },
   { label: 'terms_of_service', href: '/terms' },
 ]
 
 const socialLinks = [
-  { label: 'instagram', icon: Instagram, href: '#' },
-  { label: 'facebook', icon: Facebook, href: '#' },
-  { label: 'twitter_(𝕏)', icon: Twitter, href: '#' },
+  { label: 'instagram', icon: Instagram, href: 'https://www.instagram.com/vaazhga._.valamudan?igsh=MXA1OGp5cnY5ZHR6YQ==' },
+  { label: 'facebook', icon: Facebook, href: 'https://www.facebook.com/share/1Cp5XJwHHC/' },
+  { label: 'twitter_(𝕏)', icon: Twitter, href: 'https://x.com/VaazhgaValam?t=Iu-WpKa3cvAT-h3BHUBdYg&s=09' },
+  { label: 'linked_in', icon: Linkedin, href: 'https://www.linkedin.com/in/vaazhga-valamudan-tn' },
 ]
 
 export default function Footer() {
@@ -60,7 +61,7 @@ export default function Footer() {
               {socialLinks.map(({ label, icon: Icon, href }) => (
                 <li key={label} className="flex items-center gap-2">
                   <Icon size={18} />
-                  <Link href={href} className="hover:text-white">
+                  <Link href={href} target="_blank" rel="noopener noreferrer" className="hover:text-white">
                     {t(`Footer.${label}`)}
                   </Link>
                 </li>
