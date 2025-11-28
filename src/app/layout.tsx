@@ -52,9 +52,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <TranslationProvider>
               <ConnectivityNotifier />
               {/*  Page Content */}
-              <ErrorBoundary>
-                <main className="min-h-screen">{children}</main>
-              </ErrorBoundary>
+
+              <main className="min-h-screen">{children}</main>
 
               {/*  Toast Notifications */}
               <Toaster position="top-right" reverseOrder={false} />

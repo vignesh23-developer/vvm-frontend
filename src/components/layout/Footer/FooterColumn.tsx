@@ -3,14 +3,14 @@
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 
-export default function FooterColumn({
-  title,
-  links,
-}: {
+interface FooterColumnProps {
   title: string
   links: { label: string; href: string }[]
-}) {
+}
+
+export default function FooterColumn({ title, links }: FooterColumnProps) {
   const t = useTranslations()
+  console.log('FooterColumn links:', links)
   return (
     <div>
       <h3 className="font-semibold text-lg mb-4">{title}</h3>

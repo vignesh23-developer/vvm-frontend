@@ -195,6 +195,8 @@ export default function AgencyDetails({ name }: { name: string }) {
     }
   }
 
+  console.log('fetcherror', fetchError)
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-stone-100 via-white to-stone-50 py-10 px-4 sm:px-6 lg:px-0">
       <div className="mx-auto w-full max-w-6xl space-y-10">
@@ -208,10 +210,6 @@ export default function AgencyDetails({ name }: { name: string }) {
 
         {isFetching ? (
           <CustumLoader text="Loading agency details..." />
-        ) : !agencyData ? (
-          <div className="rounded-3xl border border-dashed border-stone-300 bg-white/70 p-14 text-center text-stone-600 shadow-sm">
-            <p className="text-base font-semibold">{fetchError || t('AgencyDetails.no_results')}</p>
-          </div>
         ) : (
           <div className="space-y-10">
             <section className="overflow-hidden rounded-3xl border border-stone-200 bg-white/80 shadow-sm backdrop-blur">
