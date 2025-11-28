@@ -293,8 +293,8 @@ export default function Navbar({
                 <button
                   onClick={() => setIsOpen(prev => !prev)}
                   className="cursor-pointer p-2 hover:bg-gray-400 rounded-md transition focus:outline-none focus:ring-2 focus:ring-primary-300"
-                  title={'common:site_menu'}
-                  aria-label={'common:site_menu'}
+                  title="dashboard_menu"
+                  aria-label={'common:dashboard_menu'}
                 >
                   <Grip />
                 </button>

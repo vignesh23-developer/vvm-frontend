@@ -7,22 +7,17 @@ import AppPromo from '@/components/buyer/LandingPage/AppPromo/AppPromo'
 import PropertyVideos from '@/components/buyer/LandingPage/PropertyVideos/PropertyVideos'
 import ExploreProperties from '@/components/buyer/LandingPage/ExploreProperties/ExploreProperties'
 import PropertySlider from '@/components/buyer/LandingPage/PropertySlider/PropertySlider'
-import SitePageLayout from './layout'
 
 export default function SitePage() {
   return (
-    <SitePageLayout
-      children={
-        <main>
-          <HeroSection />
-          <PropertySlider />
-          <PopularProperties />
-          <ExploreProperties />
-          <Testimonials />
-          <PropertyVideos />
-          <AppPromo />
-        </main>
-      }
-    />
+    <>
+      <HeroSection />
+      <PropertySlider />
+      <PopularProperties />
+      <ExploreProperties />
+      <Testimonials />
+      <PropertyVideos />
+      <AppPromo />
+    </>
   )
 }
