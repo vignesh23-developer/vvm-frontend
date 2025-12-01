@@ -81,6 +81,12 @@ export default function FeatureGroupPage() {
     await mutateGroups()
   }
 
+  const Colors = {
+    primary: '#1E6897',
+    secondary: '#E5F4FB',
+    accent: '#15557C',
+  }
+
   //  Handle loading and error states
   if (error) return <div className="p-6 text-red-600">Failed to load feature group.</div>
 
@@ -113,6 +119,7 @@ export default function FeatureGroupPage() {
           allowRefresh
           totalItemsData={total}
           onRefresh={handleRefresh}
+          colors={Colors}
         />
       </div>
     </div>

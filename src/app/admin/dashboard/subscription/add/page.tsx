@@ -6,7 +6,6 @@ import FormikSelectField from '@/components/ui/Formik/FormikSelectField/FormikSe
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
 import * as Yup from 'yup'
 import { Plus, Trash2 } from 'lucide-react'
-import { useState } from 'react'
 
 interface Feature {
   title: string
@@ -73,22 +72,14 @@ export default function AddSubscription() {
         <span className="text-gray-400">›</span>
         <span>Subscription Master</span>
         <span className="text-gray-400">›</span>
-        <span className="font-medium text-gray-700">
-          Add Subscription Master
-        </span>
+        <span className="font-medium text-gray-700">Add Subscription Master</span>
       </div>
 
       {/* Form Card */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-8 max-w-5xl mx-auto">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-8">
-          Add Subscription
-        </h2>
+        <h2 className="text-2xl font-semibold text-gray-900 mb-8">Add Subscription</h2>
 
-        <Formik
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}
-        >
+        <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
           {({ values, isSubmitting }) => (
             <Form className="space-y-6">
               {/* Subscription Name */}
@@ -115,18 +106,13 @@ export default function AddSubscription() {
 
               {/* Features & Benefits */}
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Add Features And Benefits
-                </h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Add Features And Benefits</h3>
 
                 <FieldArray name="features">
                   {({ push, remove }) => (
                     <div className="space-y-4">
                       {values.features.map((_, index) => (
-                        <div
-                          key={index}
-                          className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end border-b border-gray-100 pb-4"
-                        >
+                        <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end border-b border-gray-100 pb-4">
                           {/* Title */}
                           <div>
                             <FormikTextField
@@ -215,9 +201,7 @@ export default function AddSubscription() {
                   type="submit"
                   disabled={isSubmitting}
                   className={`px-6 py-2 rounded-md text-white font-medium transition ${
-                    isSubmitting
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-black hover:bg-gray-800'
+                    isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-black hover:bg-gray-800'
                   }`}
                 >
                   {isSubmitting ? 'Creating...' : 'Create Subscription'}

@@ -17,7 +17,6 @@ import toast from 'react-hot-toast'
 import { usePathname, useRouter } from 'next/navigation'
 import { ResponseDTO } from '@/components/dto/response_dto'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
-
 interface AuthFormValues {
   phone: string
 }

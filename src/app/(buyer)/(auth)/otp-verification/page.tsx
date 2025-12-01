@@ -1,59 +1,51 @@
 'use client'
 
-import { Formik, Form, Field, type FormikHelpers } from 'formik'
-import { useEffect, useState } from 'react'
+import { Formik, Form, type FormikHelpers } from 'formik'
+import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useTranslations } from 'next-intl'
+import { useGlobalContext } from '@/hooks/GlobalContext/GlobalContext'
+import OTPInput from '@/components/ui/OTPInput/OTPInput'
 import LanguageSwitch from '@/components/ui/CustomComponent/languageSwitch/languageSwitch'
 import * as Yup from 'yup'
 import toast from 'react-hot-toast'
 import { appEndpoints } from '@/services/endpoints'
 import { postMethod } from '@/services/service'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { OtpSchema } from '@/utils/validations/auth/AuthValidationSchema'
+import Button from '@/components/ui/CustomComponent/Button/Button'
+import { ResponseDTO } from '@/components/dto/response_dto'
 
 export default function OtpVerification() {
   const t = useTranslations()
   const { setUser, setToken } = useAuth()
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   const phone = searchParams.get('phone')
-  const [timeLeft, setTimeLeft] = useState(120) // 2 minutes
 
-  useEffect(() => {
-    if (timeLeft <= 0) return
-    const timer = setInterval(() => setTimeLeft(s => s - 1), 1000)
-    return () => clearInterval(timer)
-  }, [timeLeft])
+  const handleResend = async () => {
+    setIsLoading(true)
 
-  const handleResend = () => {
-    if (timeLeft > 0) return
-    console.log('Resending OTP...')
-    setTimeLeft(120)
+    try {
+      // Example: await postMethod(appEndpoints.loginSendOtp, { phoneNumber: phone })
+      // Show toast on success
+      // toast.success('OTP resent')
+    } catch (err) {
+      console.error('Resend OTP failed', err)
+      toast.error('Failed to resend OTP')
+    } finally {
+      setIsLoading(false)
+    }
   }
-
-  const formatTime = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
-
-  const canResend = timeLeft <= 0
 
   type OtpValues = {
     otp: string[]
   }
-
-  //  Validation Schema
-  const OtpSchema = Yup.object().shape({
-    otp: Yup.array()
-      .of(
-        Yup.string()
-          .matches(/^[0-9]$/, 'Must be a number')
-          .required('Required'),
-      )
-      .min(6, 'Enter all 6 digits')
-      .max(6, 'Invalid OTP'),
-  })
 
   const initialValues: OtpValues = {
     otp: ['', '', '', '', '', ''],
@@ -112,26 +104,6 @@ export default function OtpVerification() {
       toast.error('Unable to verify OTP right now. Please try again.')
     } finally {
       setSubmitting(false)
-    }
-  }
-
-  //  Handle Change and Auto Focus
-  const handleOtpChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    index: number,
-    values: string[],
-    setFieldValue: (field: string, value: any) => void,
-  ) => {
-    const value = e.target.value
-    if (/^[0-9]?$/.test(value)) {
-      const newOtp = [...values]
-      newOtp[index] = value
-      setFieldValue('otp', newOtp)
-
-      if (value && index < 5) {
-        const nextInput = document.getElementById(`otp-${index + 1}`)
-        nextInput?.focus()
-      }
     }
   }
 
@@ -196,61 +168,28 @@ export default function OtpVerification() {
           <Formik initialValues={initialValues} validationSchema={OtpSchema} onSubmit={handleSubmit}>
             {({ values, setFieldValue, errors, touched, isSubmitting }) => (
               <Form className="mt-6 space-y-4">
-                {/* OTP Inputs */}
-                <motion.div variants={containerVariants} className="flex justify-between mb-4">
-                  {values.otp.map((digit, index) => (
-                    <motion.div key={index} variants={itemVariants}>
-                      <Field name={`otp[${index}]`}>
-                        {() => (
-                          <input
-                            id={`otp-${index}`}
-                            type="text"
-                            maxLength={1}
-                            value={digit}
-                            onChange={e => handleOtpChange(e, index, values.otp, setFieldValue)}
-                            className="w-14 h-14 text-center text-xl font-semibold border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-900"
-                          />
-                        )}
-                      </Field>
-                    </motion.div>
-                  ))}
-                </motion.div>
-
-                {/* Resend OTP */}
-                <motion.p
-                  whileHover={canResend ? { scale: 1.02, color: '#14532d' } : {}}
-                  onClick={handleResend}
-                  className={`mt-4 text-right text-xs transition cursor-pointer
-    ${canResend ? 'text-green-700 hover:underline' : 'text-gray-400 cursor-not-allowed'}
-  `}
-                >
-                  {canResend ? t('Auth.resend_otp') : `${t('Auth.resend_in')} ${formatTime(timeLeft)}`}
-                </motion.p>
-
-                {/* Error Message */}
-                <motion.div variants={itemVariants}>
-                  {errors.otp && touched.otp ? (
-                    <p className="text-red-500 text-xs mt-1">
-                      {typeof errors.otp === 'string'
-                        ? errors.otp
-                        : Array.isArray(errors.otp)
-                        ? errors.otp.find(message => Boolean(message)) || ''
-                        : ''}
-                    </p>
-                  ) : null}
+                {/* OTP Inputs (reusable component) */}
+                <motion.div variants={containerVariants}>
+                  <OTPInput
+                    length={6}
+                    value={values.otp}
+                    onChange={next => setFieldValue('otp', next)}
+                    initialTime={120}
+                    onResend={handleResend}
+                    error={touched.otp && errors.otp ? errors.otp : undefined}
+                  />
                 </motion.div>
 
                 {/* Verify Button */}
-                <motion.button
-                  variants={itemVariants}
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.95 }}
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-[#2B1B12] text-white text-sm py-2 rounded-md font-medium hover:bg-[#3d2616] transition disabled:opacity-60"
-                >
-                  {isSubmitting ? 'Verifying...' : t('Auth.verify')}
-                </motion.button>
+                <motion.div variants={itemVariants} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.95 }}>
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full bg-[#2B1B12] text-white text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-[#3d2616] disabled:opacity-60 cursor-pointer"
+                  >
+                    {isSubmitting ? 'Verifying...' : t('Auth.verify')}
+                  </Button>
+                </motion.div>
               </Form>
             )}
           </Formik>

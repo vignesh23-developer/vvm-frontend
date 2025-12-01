@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useProperties } from '@/app/(seller)/properties/(hooks)/useProperties'
 import PropertyCard from '../PropertyCard/PropertyCard'
@@ -14,6 +14,7 @@ import { appEndpoints } from '@/services/endpoints'
 import Pagination from '@/components/ui/CustomComponent/Paginations/Pagination'
 import SkeletonLoader from '@/components/ui/CustomComponent/SkeletonLoader/SkeletonLoader'
 import useAgentCompanyProfile from './(hooks)/useAgentCompanyProfile'
+import { toast } from 'react-hot-toast'
 
 const flats = [
   {
@@ -109,7 +110,13 @@ const PropertiesListing = ({ params }: { params: string }) => {
     }
   }
 
-  console.log('isLoading', isLoadingProperties, agentCompanyProfileFetchLoader)
+  const handleShare = useCallback(() => {
+    // if (typeof window !== 'undefined') {
+    //   navigator?.clipboard?.writeText(window.location.href)
+    //   toast.success('Link copied to clipboard')
+    // }
+    console.log('Share clicked')
+  }, [])
 
   return (
     <div className="min-h-screen bg-[#F0F0F0]">
@@ -145,7 +152,7 @@ const PropertiesListing = ({ params }: { params: string }) => {
                       primaryActionLabel="View Details"
                       onPrimaryAction={() => router.push(`/propertyDetails/${property.id}`)}
                       handleFavorite={handleFavorite}
-                      handleShare={() => console.log('Share', property.id)}
+                      handleShare={handleShare}
                       isUserFavorited={property.is_user_favorite}
                     />
                   ))}

@@ -11,10 +11,10 @@ const About = () => {
   const t = useTranslations()
 
   const aboutImage = [
-    { src: '/about1.png', alt: 'Living room', width: 500, height: 500 },
-    { src: '/about2.png', alt: 'Modern interior', width: 500, height: 500 },
-    { src: '/about3.png', alt: 'Cozy home', width: 500, height: 500 },
-    { src: '/about4.png', alt: 'Luxury home', width: 500, height: 500 },
+    { src: '/plot1.jpeg', alt: 'Plots', width: 500, height: 500 },
+    { src: '/layout1.jpeg', alt: 'Layout', width: 500, height: 500 },
+    { src: '/house.jpeg', alt: 'House', width: 500, height: 500 },
+    { src: '/agri2.jpeg', alt: 'Agriculture', width: 500, height: 500 },
   ]
 
   const highlightPillars = [

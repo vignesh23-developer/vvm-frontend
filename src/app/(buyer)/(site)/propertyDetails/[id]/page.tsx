@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { Heart, Share2, MessageSquare, Flag, MapPin, Eye, Phone, BarChart3, ArrowRight, Home, Ruler, BadgeCheck, IndianRupee } from 'lucide-react'
@@ -21,6 +21,8 @@ import EnquiryPropertyModal from './modal/EnquiryPropertyModal'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 import { formatPrice } from '@/utils/converter/formatPrice'
 import ApproveOrRejectPropertyModal from '@/components/ui/CustomComponent/Modal/ApproveOrReject/ApproveOrRejectModal'
+import { Roles, hasRole, getUserRoles } from '@/utils/roles/roles'
+import { toast } from 'react-hot-toast'
 
 // Reusable animation variants
 const fadeInUp: Variants = {
@@ -40,6 +42,8 @@ const staggerContainer: Variants = {
 const page = () => {
   const t = useTranslations()
   const { user } = useAuth()
+  const userRoles = getUserRoles(user)
+  const onlyAdmin = hasRole(userRoles, [Roles.ADMIN])
   const params = useParams<{ id: string | string[] }>()
   const propertyIdParam = params?.id
   const propertyId = Array.isArray(propertyIdParam) ? propertyIdParam[0] : propertyIdParam
@@ -62,10 +66,17 @@ const page = () => {
     }
   }
 
+  const handleShare = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      navigator?.clipboard?.writeText(window.location.href)
+      toast.success('Link copied to clipboard')
+    }
+  }, [])
+
   const ReportDetails = [
     {
       label: 'Number of Reports',
-      value: propertyDetailsData?.reports.length || 0,
+      value: propertyDetailsData?.reports?.length || 0,
       color: 'bg-[#FEE2E2]',
       iconColor: 'text-[#DC2626]',
       icon: <BarChart3 size={18} />,
@@ -73,7 +84,7 @@ const page = () => {
     },
     {
       label: 'Total Enquiries',
-      value: propertyDetailsData?.enquiry_count || 0,
+      value: propertyDetailsData?.contact_count || 0,
       color: 'bg-[#DBEAFE]',
       iconColor: 'text-[#2563EB]',
       icon: <MessageSquare size={18} />,
@@ -126,28 +137,24 @@ const page = () => {
     },
   ]
 
-  if (propertyDetailsFetchErr) {
-    return (
-      <main className="flex min-h-[50vh] items-center justify-center bg-gray-50">
-        <p className="text-red-600 text-sm md:text-base">
-          {/* {t('PropertiesDetails.load_error', {
-            defaultValue: 'Unable to load property details right now. Please try again later.',
-          })} */}
-        </p>
-      </main>
-    )
-  }
-
-  // if (!propertyDetailsData) {
-  //   return (
-  //     <main className="flex min-h-[50vh] items-center justify-center bg-gray-50">
-  //       <p className="text-gray-600 text-sm md:text-base">{t('PropertiesDetails.not_found', { defaultValue: 'Property details not available.' })}</p>
-  //     </main>
-  //   )
-  // }
-
   if (propertyDetailsFetchLoader) {
     return <CustomLoader text="Loading property details..." />
+  }
+
+  if (propertyDetailsFetchErr || !propertyDetailsData) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center bg-gray-50 px-4">
+        <div className="bg-white shadow-md rounded-2xl p-8 max-w-md w-full text-center">
+          <p className="text-gray-700 text-lg font-medium mb-4">Unable to load property details right now</p>
+
+          <p className="text-gray-500 text-sm mb-6">Please check your connection or try again.</p>
+
+          <Button onClick={() => propertyDetailsRefresh()} className="bg-[#7B1E1E] text-white px-6 py-2 rounded-lg hover:bg-[#8f2424] transition">
+            Retry
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -207,6 +214,7 @@ const page = () => {
                     </motion.div>
                     <motion.button
                       whileHover={{ scale: 1.05 }}
+                      onClick={handleShare}
                       className="flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 shadow-md transition hover:text-rose-500"
                       aria-label="Share property"
                     >
@@ -275,7 +283,7 @@ const page = () => {
           transition={{ duration: 0.6, delay: 0.3 }}
         >
           {/* Approve / Reject Section */}
-          {propertyDetailsData?.approval_status === 'UNDER_REVIEW' && (
+          {propertyDetailsData?.approval_status === 'UNDER_REVIEW' && onlyAdmin && (
             <motion.div
               whileHover={{ scale: 1.01 }}
               className="bg-white border border-gray-200 rounded-2xl p-6 shadow-md 
@@ -437,12 +445,14 @@ const page = () => {
           reportModalOpen={reportModalOpen}
           setReportModalOpen={setReportModalOpen}
           propertyId={propertyId ? String(propertyId) : ''}
+          propertyDetailsRefresh={propertyDetailsRefresh}
         />
 
         <EnquiryPropertyModal
           EnquiryModalOpen={enquiryModalOpen}
           setEnquiryModalOpen={setEnquiryModalOpen}
           propertyId={propertyId ? String(propertyId) : ''}
+          propertyDetailsRefresh={propertyDetailsRefresh}
         />
       </div>
     </motion.main>

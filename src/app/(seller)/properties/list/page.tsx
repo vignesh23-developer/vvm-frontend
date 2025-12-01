@@ -12,6 +12,7 @@ import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import PropertyStatusChangeModal from '../modal/propertiesStatusChangeModal'
+import { Roles, getUserRoles, hasRole, type UserRole } from '@/utils/roles/roles'
 
 // Chart data
 
@@ -29,7 +30,7 @@ type PropertiesTableRow = PropertiesDto & Record<string, unknown>
 
 export default function PropertiesPage() {
   const router = useRouter()
-  const { token } = useAuth()
+  const { user, token } = useAuth()
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
   const [isOpenStatusModal, setIsOpenStatusModal] = useState(false)
@@ -39,6 +40,12 @@ export default function PropertiesPage() {
     redirect('/login')
   }
 
+  console.log('PropertiesPage: user', user)
+  const userRoles = getUserRoles(user)
+
+  console.log('PropertiesPage: userRoles', userRoles)
+  const onlyAdmin = hasRole(userRoles, [Roles.ADMIN])
+  const canChangeStatus = hasRole(userRoles, [Roles.ADMIN])
   const { properties, handleView, handleEdit, handleDelete, total, error, isLoadingProperties, mutateProperties, handlePropertyAction } =
     useProperties({
       page,
@@ -125,16 +132,8 @@ export default function PropertiesPage() {
     },
   ]
 
-  const actions = useMemo(
-    () => [
-      {
-        icon: RefreshCcw, // for status change
-        onClick: (row: PropertiesTableRow) => {
-          void handleStatusChange(row.id)
-        },
-        color: '#1e6897',
-        title: 'Change Status',
-      },
+  const actions = useMemo(() => {
+    const base = [
       {
         icon: Eye, // correct for view
         onClick: (row: PropertiesTableRow) => {
@@ -151,17 +150,32 @@ export default function PropertiesPage() {
         color: '#1e6897',
         title: 'Edit',
       },
-      {
-        icon: Trash2, // correct for delete
-        onClick: (row: PropertiesTableRow) => {
-          void handleDelete(row.id, !row.isActive)
+    ]
+
+    if (onlyAdmin) {
+      // place change-status action at the front
+      base.unshift(
+        {
+          icon: RefreshCcw,
+          onClick: (row: PropertiesTableRow) => {
+            void handleStatusChange(row.id)
+          },
+          color: '#1e6897',
+          title: 'Change Status',
         },
-        color: '#e02424',
-        title: 'Delete',
-      },
-    ],
-    [handleDelete, handleEdit, handleStatusChange, handleView],
-  )
+        {
+          icon: Trash2, // correct for delete
+          onClick: (row: PropertiesTableRow) => {
+            void handleDelete(row.id, !row.isActive)
+          },
+          color: '#e02424',
+          title: 'Delete',
+        },
+      )
+    }
+
+    return base
+  }, [canChangeStatus, handleDelete, handleEdit, handleStatusChange, handleView])
 
   const statusPieData = Object.values(
     (properties ?? []).reduce<Record<string, { name: string; value: number }>>((acc, prop) => {
@@ -213,14 +227,16 @@ export default function PropertiesPage() {
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <Button
-          type="button"
-          onClick={() => router.push('/admin/dashboard/properties-pending-approval')}
-          className="flex items-center gap-2 bg-[#7B1E1E] hover:bg-[#641717] text-white text-sm font-medium px-4 py-2 rounded-md shadow-md transition-colors"
-        >
-          View your pending properties
-          <ArrowRight size={16} />
-        </Button>
+        {onlyAdmin && (
+          <Button
+            type="button"
+            onClick={() => router.push('/admin/dashboard/properties-pending-approval')}
+            className="flex items-center gap-2 bg-[#7B1E1E] hover:bg-[#641717] text-white text-sm font-medium px-4 py-2 rounded-md shadow-md transition-colors"
+          >
+            View your pending properties
+            <ArrowRight size={16} />
+          </Button>
+        )}
       </div>
 
       {/* Layout */}

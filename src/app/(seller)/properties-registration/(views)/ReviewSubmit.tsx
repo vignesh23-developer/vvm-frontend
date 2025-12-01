@@ -14,6 +14,7 @@ import { postMethod } from '@/services/service'
 import { PropertyDetailsResponseDto } from '@/app/(buyer)/(site)/propertyDetails/dto/propertiesDetailDto'
 import ApproveOrRejectPropertyModal from '@/components/ui/CustomComponent/Modal/ApproveOrReject/ApproveOrRejectModal'
 import { useGlobalContext } from '@/hooks/GlobalContext/GlobalContext'
+import SkeletonLoader from '@/components/ui/CustomComponent/SkeletonLoader/SkeletonLoader'
 
 interface ListingDetails {
   type?: string
@@ -48,14 +49,14 @@ export default function Step6ReviewSubmit({ listingData, onSubmit, formik, prope
   const [modalAction, setModalAction] = useState<string>('')
   const [comment, setComment] = useState('')
   const [rejectReason, setRejectReason] = useState('')
-  const { propertyDetailsData, propertyDetailsRefresh } = usePropertiesDetail({ id: value ?? '' })
+  const { propertyDetailsData, propertyDetailsFetchLoader, propertyDetailsRefresh } = usePropertiesDetail({ id: value ?? '' })
 
   const [agreedToTerms, setAgreedToTerms] = useState(false)
   const router = useRouter()
 
   const handleSubmit = () => {
     reset()
-    router.push('/properties')
+    router.push('/properties/list')
   }
 
   console.log('Property Details Data in ReviewSubmit:', propertyDetailsData)
@@ -87,17 +88,18 @@ export default function Step6ReviewSubmit({ listingData, onSubmit, formik, prope
 
         <div className="space-y-4">
           <div className="mb-10 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition p-4">
+            {propertyDetailsFetchLoader && <SkeletonLoader />}
             {propertyDetailsData && (
               <PropertyCard
-                key={String(propertyDetailsData.id ?? 'preview-id')}
+                key={String(propertyDetailsData?.id ?? 'preview-id')}
                 {...propertyDetailsData}
-                id={String(propertyDetailsData.id ?? 'preview-id')}
+                id={String(propertyDetailsData?.id ?? 'preview-id')}
                 language={t}
                 handleFavorite={handleFavorite}
-                handleShare={() => console.log('Share', propertyDetailsData.id)}
-                isUserFavorited={Boolean(propertyDetailsData.is_user_favorite)}
-                subtitle={propertyCategoryData?.find(c => c.id === propertyDetailsData.property_category_id)?.name ?? ''}
-                media={propertyDetailsData.media?.map(m => ({ ...m, thumbnail_url: m.thumbnail_url ?? undefined }))}
+                handleShare={() => console.log('Share', propertyDetailsData?.id)}
+                isUserFavorited={Boolean(propertyDetailsData?.is_user_favorite)}
+                subtitle={propertyCategoryData?.find(c => c.id === propertyDetailsData?.property_category_id)?.name ?? ''}
+                media={propertyDetailsData?.media?.map(m => ({ ...m, thumbnail_url: m.thumbnail_url ?? undefined }))}
                 property_size_unit={propertyDetailsData?.property_size_unit ?? undefined}
                 propertyPreviewMode={true}
               />

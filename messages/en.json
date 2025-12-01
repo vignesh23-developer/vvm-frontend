@@ -1,7 +1,7 @@
 {
   "Hero": {
     "title": "Welcome back! Choose Premium House",
-    "HeroMenu" : {
+    "HeroMenu": {
       "buy": "Buy",
       "rent": "Rent",
       "lease": "Lease",
@@ -9,10 +9,10 @@
       "pg": "PG",
       "plots": "Plots",
       "commercial": "Commercial",
-      "search" : "Search",
-      "budget" : "Budget",
-      "flat" : "Flat",
-      "add_more" : "Add more..."
+      "search": "Search",
+      "budget": "Budget",
+      "flat": "Flat",
+      "add_more": "Add more..."
     }
   },
   "Auth": {
@@ -52,12 +52,12 @@
     "pricing": "Pricing",
     "Dashboard": "Dashboard",
     "masters": "Masters",
-    "properties" : "Properties",
+    "properties": "Properties",
     "subscription": "Subscription",
     "payments": "Payments",
-    "leads" : "Leads",
+    "leads": "Leads",
     "users": "Users",
-    "support" : "Support",
+    "support": "Support",
     "profile": "Profile",
     "company profile": "Company Profile",
     "view subscriptions": "View Subscriptions",
@@ -87,9 +87,10 @@
       "promo code": "Promo Code",
       "referral management": "Referral Management",
       "properties management": "Properties Management",
+      "register your properties": "Register Your Properties",
       "properties pending approval": "Properties Pending Approval",
-      "favourite properties" : "Favourite Properties",
-      "reported properties" : "Reported Properties",
+      "favourite properties": "Favourite Properties",
+      "reported properties": "Reported Properties",
       "view enquiries": "View Enquiries",
       "saved searches": "Saved Searches",
       "recently viewed properties": "Recently Viewed Properties",
@@ -103,12 +104,11 @@
       "subscription master": "Subscription Master",
       "my subscription": "My Subscription",
       "user subscription": "User Subscription",
-      "view subscriptions" : "View Subscriptions",
+      "view subscriptions": "View Subscriptions",
       "view transactions": "View Transactions",
       "payment reports / revenue summary": "Payment Reports / Revenue Summary",
       "refund management": "Refund Management",
       "promo usage reports": "Promo Usage Reports"
-
     }
   },
   "PopularProperties": {
@@ -125,7 +125,7 @@
     "viewDetails": "View Details",
     "more": "More"
   },
-  "Testimonials" : {
+  "Testimonials": {
     "title": "Our Testimonials",
     "description": "Everything starts with building trust!"
   },
@@ -143,6 +143,7 @@
     "subscribe": "Subscribe"
   },
   "Footer": {
+    "on_this_page": "On this page",
     "our_story": "Our Story",
     "careers": "Careers",
     "our_team": "Our Team",
@@ -151,42 +152,43 @@
     "contact_us": "Contact Us",
     "help_center": "Help Center",
     "terms_of_service": "Terms of Service",
+    "privacy_policy": "Privacy Policy",
     "instagram": "Instagram",
     "facebook": "Facebook",
     "twitter_(𝕏)": "Twitter (𝕏)",
     "linked_in": "Linkedin",
-    "Headers" : {
-     "about": "About",
-     "support": "Support",
-     "our_services": "Our Services"
-  }
-},
-  
+    "Headers": {
+      "about": "About",
+      "support": "Support",
+      "our_services": "Our Services"
+    }
+  },
+
   "PropertiesListCard": {
-     "agent" : "Agent",
-     "operating_since": "Operating Since",
-     "carpet_area": "Carpet Area",
-     "status" : "Status",
-     "ready_to_move": "Ready to Move",
-     "transaction": "Transaction",
-     "property_size": "Property Size",
-     "listing_type": "Listing Type",
-     "resale": "Resale",
-     "contact_agent": "Contact Agent",
-     "get_phone_number": "Get Phone No.",
-     "view_details": "View Details",
-     "check_affordability": "Check Affordability",
-     "per_sqft": "per sqft",
-     "builder_name":"Bulider Name",
-     "agent_name": "Agent Name",
-     "properties_for_sale": "Properties\nFor Sale",
-     "properties_for_rent": "Properties\nFor Rent",
-     "deals_closed": "Deals\nClosed",
-     "team_members": "Team\nMembers",
-     "next" : "Next",
-     "previous": "Prev"
-    },
-    "AgencyDetails": {
+    "agent": "Agent",
+    "operating_since": "Operating Since",
+    "carpet_area": "Carpet Area",
+    "status": "Status",
+    "ready_to_move": "Ready to Move",
+    "transaction": "Transaction",
+    "property_size": "Property Size",
+    "listing_type": "Listing Type",
+    "resale": "Resale",
+    "contact_agent": "Contact Agent",
+    "get_phone_number": "Get Phone No.",
+    "view_details": "View Details",
+    "check_affordability": "Check Affordability",
+    "per_sqft": "per sqft",
+    "builder_name": "Bulider Name",
+    "agent_name": "Agent Name",
+    "properties_for_sale": "Properties\nFor Sale",
+    "properties_for_rent": "Properties\nFor Rent",
+    "deals_closed": "Deals\nClosed",
+    "team_members": "Team\nMembers",
+    "next": "Next",
+    "previous": "Prev"
+  },
+  "AgencyDetails": {
     "enquire_now": "Enquire Now",
     "enquire_description": "Let’s Start the Conversation",
     "contact_owner": "Contact Owner",
@@ -206,50 +208,44 @@
     "fetch_error": "Unable to load agency profile. Please try again later.",
     "send_enquiry": "Send Enquiry"
   },
-  "PropertiesDetails" : {
+  "PropertiesDetails": {
     "name": "Name",
-    "contact_owner" : "Contact Owner",
+    "contact_owner": "Contact Owner",
     "view_contact": "View Contact",
     "bed_rooms": "Bed Rooms",
     "bath_rooms": "Bath Rooms",
-    "balcony" : "Balcony",
-    "semi_furnished" : "Semi Furnished",
-    "super_built_up_area" : "Super Built-up Area",
-    "status" : "Status",
+    "balcony": "Balcony",
+    "semi_furnished": "Semi Furnished",
+    "super_built_up_area": "Super Built-up Area",
+    "status": "Status",
     "purpose": "Purpose",
     "listing_type": "Listing Type",
     "property_type": "Property Type",
     "floors": "Floors",
     "parking": "Parking",
     "age_of_building": "Age of Building",
-    "price" : "Price",
-    "booking_amount":"Booking_Amount",
+    "price": "Price",
+    "booking_amount": "Booking_Amount",
     "address": "Address",
     "gated_security": "Gated Security",
-    "description" : "Description",
+    "description": "Description",
     "amenities": "Amenities",
     "report_property": "Report",
     "enquire_property": "Enquire",
-    "agent" : "Agent",
+    "agent": "Agent",
     "loading": "Loading...",
     "more_photos": "More Photos"
   },
-    "PropertiesFilter": {
-      "properties" : "Properties",
-      "sort_by": "Sort By",
-      "relevance": "Relevance",
-      "new_projects": "New Projects",
-      "top_agents": "Top Agents",
-      "all_localities": "All Localities",
-      "price_low_to_high": "Price: Low to High",
-      "price_high_to_low": "Price: High to Low",
-      "newest_listings": "Newest Listings"
-    },
-  "About": {
-    "title": "ABOUT US – Vaazhga Valamudan Property Hub",
-    "header": "About Us – Vaazhga Valamudan Property Hub",
-    "description": "Welcome to **Vaazhga Valamudan – Property Hub**, Tamil Nadu's most **smart, transparent, and people-first** real estate marketplace.\n\nWe are not just a listing platform; we are a **dedicated digital ecosystem** built for and by the people of Tamil Nadu. Our mission is simple: to make property dealings **easy, secure, and accessible** for everyone—from individual owners in rural villages to professional promoters managing large projects.\n\n## Our Commitment to You:\n\nWe connect property buyers, sellers, agents, and promoters on one trusted digital space where:\n\n* Every listing is **verified** using robust authentication tools (like Aadhaar for agents)\n* Every agent is **accountable**, providing quality information and professional service\n* Every search is **focused**, covering both major cities and underserved rural areas\n\nWhether you're an agent selling a single plot or a promoter managing multiple housing projects, **Vaazhga Valamudan** provides the tools you need to reach serious, verified buyers across the state and among the NRI community—without middlemen, confusion, or hidden costs.\n\nWe combine modern technology, verified data, and Tamil-friendly support to bring genuine opportunities to every user.\n\n### Our Motto:\n\n**\"Grow together, succeed together — Vaazhga Valamudan!\"**\n\n*(Our True Success is all of us Lives with Prosperity.)*",
-    "explore_more": "EXPLORE MORE"
+  "PropertiesFilter": {
+    "properties": "Properties",
+    "sort_by": "Sort By",
+    "relevance": "Relevance",
+    "new_projects": "New Projects",
+    "top_agents": "Top Agents",
+    "all_localities": "All Localities",
+    "price_low_to_high": "Price: Low to High",
+    "price_high_to_low": "Price: High to Low",
+    "newest_listings": "Newest Listings"
   },
   "form": {
     "first_name": {
@@ -259,7 +255,6 @@
         "required": "First name is required",
         "minLength": "First name must be at least 2 characters",
         "maxLength": "First name must be less than 50 characters"
-
       }
     },
     "last_name": {
@@ -295,6 +290,14 @@
         "minLength": "Address must be at least 5 characters"
       }
     },
+    "otp": {
+      "label": "OTP",
+      "error": {
+        "required": "OTP is required",
+        "length": "OTP must be 6 digits",
+        "pattern": "OTP must contain only numbers"
+      }
+    },
     "land_mark": {
       "label": "Land Mark",
       "placeholder": "Enter your land mark",
@@ -324,12 +327,46 @@
         "minLength": "Name must be at least 2 characters",
         "maxLength": "Name must be less than 50 characters"
       }
-    },"message": {
+    },
+    "message": {
       "label": "Message",
       "placeholder": "Enter your message",
       "error": {
         "required": "Message is required"
       }
-  }
+    }
+  },
+  "About": {
+    "title": "ABOUT US – Vaazhga Valamudan Property Hub",
+    "header": "About Us – Vaazhga Valamudan Property Hub",
+    "description": "Welcome to **Vaazhga Valamudan – Property Hub**, Tamil Nadu's most **smart, transparent, and people-first** real estate marketplace.\n\nWe are not just a listing platform; we are a **dedicated digital ecosystem** built for and by the people of Tamil Nadu. Our mission is simple: to make property dealings **easy, secure, and accessible** for everyone—from individual owners in rural villages to professional promoters managing large projects.\n\n## Our Commitment to You:\n\nWe connect property buyers, sellers, agents, and promoters on one trusted digital space where:\n\n* Every listing is **verified** using robust authentication tools (like Aadhaar for agents)\n* Every agent is **accountable**, providing quality information and professional service\n* Every search is **focused**, covering both major cities and underserved rural areas\n\nWhether you're an agent selling a single plot or a promoter managing multiple housing projects, **Vaazhga Valamudan** provides the tools you need to reach serious, verified buyers across the state and among the NRI community—without middlemen, confusion, or hidden costs.\n\nWe combine modern technology, verified data, and Tamil-friendly support to bring genuine opportunities to every user.\n\n### Our Motto:\n\n**\"Grow together, succeed together — Vaazhga Valamudan!\"**\n\n*(Our True Success is all of us Lives with Prosperity.)*",
+    "explore_more": "EXPLORE MORE"
+  },
+  "helpCenter": {
+    "title": "We’re Here to Assist You",
+    "on_this_page": "On this page",
+    "content": "At **Vaazhga Valamudan Digital Marketplace**, customer satisfaction is our top priority.\n\nOur Help Center is dedicated to supporting **property owners, agents, promoters, and buyers** throughout their real-estate journey. Whether you need assistance with **account setup, property listing, subscription plans, or technical issues**, our support team is ready to help you with care and professionalism.\n\nYou can reach us through the following channels:\n- **Phone / WhatsApp:** +91 86800 89800\n- **Email:** admin@vaazhgavalamudan.com\n\nWe value your trust and strive to make property buying and selling in Tamil Nadu **transparent, easy, and reliable.**\n\nFor quick help, please visit our **FAQs** section or write to us directly — we’ll respond at the earliest."
+  },
+  "Terms": {
+    "title": "Terms of Service – Vaazhga Valamudan",
+    "on_this_page": "On this page",
+    "effectiveDate": "01 December 2025",
+    "content": "## 1. Introduction\n\nWelcome to **Vaazhga Valamudan – Property Hub**.\n\nThese **Terms of Service** govern your access to and use of our website, web apps, mobile apps, listings, and related services (collectively, the **\"Platform\"**).\n\nBy using the Platform, you agree to these Terms.\n\nIf you do not agree, please do not use the Platform.\n*--\n\n## 2. Platform Role: What Vaazhga Valamudan Is and Is Not\n\n**Vaazhga Valamudan** is a digital listing platform that connects property owners, agents, promoters, service providers, and buyers across Tamil Nadu.\n\n### Important Disclaimers:\n* **Vaazhga Valamudan does not** act as an agent, broker, escrow service, or legal advisor.\n* **Vaazhga Valamudan does not** participate in property transactions or receive commissions on sales.\n* All deals, negotiations, and legal due diligence are conducted **directly** between buyers, sellers, and/or their chosen agents.\n* Users must **independently verify** all documents and property details.\n*--\n\n## 3. Eligibility & Registration\n* You must be at least **18 years old** to register.\n* Agents and promoters must provide accurate identity details and complete **Aadhaar-based verification** when required by the Platform.\n* Accounts must be created in the registrant's **legal name** and use valid contact details.\n* Misrepresentation may lead to **account termination**.\n*--\n\n## 4. Account Responsibility\n* You are responsible for maintaining the confidentiality of your login credentials and for **all activity** that occurs under your account.\n* Notify Vaazhga Valamudan **immediately** of any suspected unauthorized use.\n*--\n\n## 5. Listing Rules & Content\n\n### Content Requirements:\n* Listings must be **accurate, truthful, and not misleading**.\n* No **obscene, illegal, or copyrighted content** may be posted.\n* **Contact details** may not be displayed in listing images or media.\n* Intentional display of contact details in images/videos is a **violation of these Terms**.\n\n### Upload Requirements:\n* Agents/promoters must upload photos and videos that they are legally **permitted to share**.\n* Vaazhga Valamudan may remove content suspected of **copyright infringement or fraud**.\n*--\n\n## 6. Verification, Badges & Aadhaar\n\n### Verification Process:\n* Vaazhga Valamudan uses Aadhaar-based verification to enable **\"Verified\" badges**.\n* Vaazhga Valamudan will store only verification references and hashed tokens, **not raw Aadhaar numbers**. (See Privacy Policy for details.)\n\n### Important Notice:\n* Having a Verified badge **is not a guarantee** of legal ownership or property authenticity.\n* Buyers must perform their own document verification.\n*--\n\n## 7. Pricing, Trial, Registration Fee & Vouchers\n\n### Platform Pricing:\n* Platform pricing (plans, promoter packs, add-ons) is displayed on the Platform and is **subject to change** with notice.\n\n### Special Onboarding Offer:\n* **Special Onboarding (Dec 1–25, 2025):** Registered agents will pay a **₹100 registration fee** (refundable to their wallet if conditions are met) — see specific promotional terms.\n\n### Trial Periods:\n* Trial and discount periods in 2026 (e.g., Jan 1–15 free; Jan 16–31 at 50% discount) are **promotional** and subject to change.\n* Vaazhga Valamudan will notify registered users of any changes.\n\n### Vouchers & Credits:\n* Vouchers and credits issued by Vaazhga Valamudan are **non-transferable** and subject to expiry and redemption rules as posted on the Platform.\n* Vaazhga Valamudan may set minimum redemption thresholds to prevent abuse.\n*--\n\n## 8. Payments, Refunds & Cancellations\n\n### Payment Processing:\n* Payments are processed via **third-party gateways** (e.g., Razorpay).\n* Payment disputes should be raised to Vaazhga Valamudan support and the relevant payment processor.\n\n### Refund Policy:\n* **Refund Policy:** Generally, there are **no refunds** after payment; exceptions are at Vaazhga Valamudan's sole discretion (see Support for details).\n* Promotional registrations that qualify for wallet credit will be credited as per the promotion rules.\n\n### Auto-Renewal:\n* **Subscription Auto-Renewal:** Paid subscriptions may **auto-renew**.\n* Users will receive reminders before renewal; you are responsible for ensuring your payment details are up-to-date.\n*--\n\n## 9. Lead Capture & Contact Flow\n\n### Contact Disclosure Rules:\n* Buyer contact details are revealed to agents **only after** mandatory enquiry/lead submission and verification rules are satisfied.\n\n### Usage Restrictions:\n* Agents **must not misuse** buyer contacts.\n* Misuse may result in **immediate account suspension**.\n*--\n\n## 10. Ratings, Reports & Takedown\n\n### User Reporting:\n* Users can **flag** listings and agents.\n* Vaazhga Valamudan will investigate all reports.\n\n### Enforcement Actions:\n* If a listing or agent is found to be fraudulent or in violation of these Terms, Vaazhga Valamudan may **suspend or terminate accounts** without prior notice.\n\n### Investigation Process:\n* Agents have a right to respond and provide evidence during the investigation.\n* Vaazhga Valamudan's investigation decisions are **final** for platform access purposes.\n*--\n\n## 11. Intellectual Property\n\n### Platform Ownership:\n* Vaazhga Valamudan owns the Platform content, trademarks, and layout.\n\n### Content Licensing:\n* Agents **retain ownership** of their own listing content but grant Vaazhga Valamudan a **non-exclusive license** to display and distribute it on the Platform and its promotional channels.\n\n### Brand Protection:\n* Do not copy or re-use Vaazhga Valamudan brand assets without express permission.\n*--\n\n## 12. Security & User Data\n\n### Security Measures:\n* Vaazhga Valamudan uses **industry-standard security measures**.\n* See the Privacy Policy for full details.\n\n### Liability Limitation:\n* Vaazhga Valamudan is **not responsible** for losses resulting from third-party security breaches if the user's own credentials were compromised.\n*--\n\n## 13. Limitation of Liability & Disclaimers\n\n### Platform Disclaimer:\n* Vaazhga Valamudan provides the Platform **\"as-is\"** and disclaims all implied warranties, including merchantability or fitness for a specific purpose.\n\n### Damage Limitations:\n* Vaazhga Valamudan is **not liable** for any indirect, incidental, special, or consequential damages arising from your use of the Platform.\n\n### Maximum Liability:\n* Maximum liability to a user in aggregate will be limited to the amount **actually paid** to Vaazhga Valamudan by that user in the prior **6 months** (where permitted by law).\n*--\n\n## 14. Indemnity\n* Users agree to **indemnify** Vaazhga Valamudan for any claims, losses, or damages resulting from their misuse of the Platform or violation of these Terms.\n*--\n\n## 15. Termination & Suspension\n\n### Account Suspension:\n* Vaazhga Valamudan may **suspend or terminate** accounts for violations, fraudulent activity, non-payment, or suspected abuse.\n\n### Permanent Ban:\n* Certain serious violations may result in a **permanent ban** and possible legal action.\n*--\n\n## 16. Governing Law & Dispute Resolution\n* These Terms are governed by the **laws of India**.\n* Any disputes will be subject to the exclusive jurisdiction of the courts in **Chennai**.\n*--\n\n## 17. Changes to Terms\n\n### Modification Rights:\n* Vaazhga Valamudan may **modify** these Terms.\n* Material changes will be notified **7–15 days prior** where practicable.\n\n### Acceptance of Changes:\n* **Continued use** of the Platform after the changes are posted implies your acceptance of the new Terms.\n*--\n\n## 18. Contact & Grievance\n\n### For Support or General Grievances:\n\n**Email:** admin@vaazhgavalamudan.com\n\n**Phone:** 86800 89800\n\n### For Data Grievances Under Applicable Laws:\n\n**Data Officer Email:** Admin@vaazhgavalamudan.com\n*--\n\n*End of Terms of Service*"
+  },
+  "privacyPolicy": {
+    "title": "Privacy Policy — Vaazhga Valamudan",
+    "on_this_page": "On this page",
+    "effectiveDate": "01 December 2025",
+    "content": "## 1. Introduction\n\n**Vaazhga Valamudan** respects your privacy.\n\nThis Privacy Policy explains what **personal information** we collect, how we use it, whom we share it with, and your rights regarding that data.\n\nBy using the Platform, you consent to our collection and use of your data as described in this Policy.\n\n---\n\n## 2. Data We Collect\n\nWe collect the following categories of data when you use our Platform:\n\n### a. Account & Identity Data:\n* Your name, email address, mobile number\n- **PAN** (where required for business accounts)\n- **Aadhaar references** (verification token/reference only)\n- Business name, promoter/company details\n\n### b. Listing Content:\n* Property descriptions, amenities, photos\n- Video links (e.g., YouTube)\n- Prices, location (district/town/village)\n- Map pins and video testimonials\n\n### c. Payment & Transaction Data:\n* Payment instrument tokens (processed securely via our payment gateway)\n- Invoices and transaction IDs\n\n### d. Usage Data:\n* IP address, device identifiers, browser type\n- Pages visited, searches performed, clicks\n- Session times and system logs\n\n### e. Communications Data:\n* Records of messages, support tickets\n- Agent testimonials\n- WhatsApp/Email records for service-related communications\n\n### f. Cookies & Analytics:\n* Data collected via cookies and similar technologies for session management and aggregated analytics\n\n---\n\n## 3. How We Use Data\n\nWe use the data we collect for the following purposes:\n* **To operate, provide, and improve** the Platform and its services\n* **To verify identity** (using the Aadhaar verification reference), process payments, and **prevent fraud**\n* **To send transactional messages** (such as payment receipts and expiry reminders) and promotional messages (only if you have opted-in)\n* **To display listings** to relevant users, support saved search alerts, and send push notifications\n* **For internal analytics,** product development, and detecting abuse or spam activity\n\n---\n\n## 4. Aadhaar Verification Handling\n\nWe treat your Aadhaar information with the utmost security:\n\n### Collection Process:\n* We only collect Aadhaar for **verification purposes** when necessary and exclusively through a **secure Aadhaar API provider**\n\n### Storage Policy:\n* **We DO NOT store raw Aadhaar numbers** on our servers\n* We only store verification references, hashed tokens, or masked IDs, adhering to legal and security best practices\n\n### Usage Limitations:\n* Use of Aadhaar is strictly for **identity verification and compliance**\n* More detailed information on this process is available upon request\n\n---\n\n## 5. Sharing & Third Parties\n\nWe may share your data, under strict confidentiality and security requirements, with:\n* **Payment Processors** (e.g., Razorpay) to process transactions securely\n* **Verification Providers** (Aadhaar API vendors) for identity checks\n* **Messaging Providers** (WhatsApp Business API, SMS gateways) for OTP and notification delivery\n* **Hosting/CDN Providers** (e.g., AWS S3/CloudFront) to store and deliver website assets\n* **Legal/Regulatory Authorities** when required by law (e.g., court orders, lawful requests)\n* **Business Partners** in an anonymized and aggregated form for analysis and reporting\n\n### Important Notice:\n\n**We will not sell your personal data.**\n\n---\n\n## 6. Data Retention\n* We retain account and listing data for as long as necessary to **provide the service** and **comply with our legal obligations**\n* Inactive accounts may be **deactivated or deleted** after a prolonged period of inactivity, as defined in our internal retention policy\n* While users may request data deletion, certain transactional and accounting data may be **retained for legal or tax compliance reasons**\n\n---\n\n## 7. Security Measures\n\nWe implement industry-standard security measures to protect your data, including:\n\n### Encryption & Protection:\n* **HTTPS/SSL encryption** for all data transferred over the internet\n* **Password hashing** and secure token-based session management\n\n### Access & Monitoring:\n* Regular backups, strict access controls\n* Periodic security audits and limited administrator access\n* **Two-Factor Authentication (2FA)** is recommended for admin access\n\n### Incident Response:\n* A formal incident response and reporting process is in place\n\n---\n\n## 8. User Rights & Choices\n\nYou have the following rights regarding your personal data:\n\n### Right to Access:\n* You can request a copy of the personal data we hold about you\n\n### Right to Correction:\n* You can update or correct your account information at any time\n\n### Right to Deletion:\n* You can request the deletion of your data (subject to our legal retention obligations)\n\n### Opt-out:\n* You may **opt out** of receiving marketing communications at any time via unsubscribe links in emails or through your account settings\n\n---\n\n## 9. Cookies & Tracking\n* We use cookies for **essential platform functions**, analytics, and optional user features (e.g., saved searches)\n* You can control cookies through your browser settings; however, disabling some cookies may **limit platform functionality**\n\n---\n\n## 10. Children's Privacy\n\nThe Platform is intended for users who are **18 years of age or older**.\n\nWe do not knowingly collect personal data from children under 18.\n\n---\n\n## 11. International Transfers\n\nYour data may be processed in **India** and, when necessary (e.g., for third-party service provision), by external providers in other jurisdictions.\n\nWe ensure that contractual protections are in place for all international data transfers.\n\n---\n\n## 12. Changes to this Policy\n\nWe may update this Policy periodically.\n\n**Material changes** will be posted with an updated effective date at the top of the policy.\n\n---\n\n## 13. Contact\n\nFor privacy-related queries or concerns, please contact us:\n\n**Email:** Admin@vaazhgavalamudan.com\n\n**Help/WhatsApp:** +91 86800 89800\n\n**Mail/Post:** Vaazhga Valamudan Digital Realty Solutions, No D-54/1, TS No. 106, SP ARCADE, 9A Cross West Extension, Thillai Nagar, Tiruchirappalli - 620018.\n\n---\n\n*End of Privacy Policy*"
+  },
+  "OurStory": {
+    "title": "Our Story & Our Promise — and Your Responsibility",
+    "on_this_page": "On this page",
+    "content": "# 🌱 Our Story\n\nThe idea for **\"Vaazhga Valamudan Property Hub - Tamil Nadu's trusted Digital Platform\"** was born from a simple observation:\n\nReal estate in Tamil Nadu is booming, yet honest and affordable digital spaces for local agents and sellers are rare.\n\n## We saw a clear pain point:\n* **Local agents** struggle with high advertising costs, unverified platforms, and an overload of fake leads.\n* **Buyers** waste time chasing unclear listings or fear engaging in fraudulent deals.\n\n## Our Solution:\n\nWe decided to fix that by building a clean, **Tamil Nadu-focused marketplace** that balances **affordability, technology, and trust.**\n\nStarted by a first-time entrepreneur with deep roots in Tamil Nadu and a passion for smart, fair business models, **Vaazhga Valamudan** is designed to help local agents grow their business digitally—without losing their personal touch or relying solely on expensive social media ads.\n\n## Our Core Belief:\n\nOur journey began with one strong belief:\n\n**\"Every verified property listing deserves a verified buyer.\"**\n\nThat belief drives every feature on our platform—from **Aadhaar verification** for every agent, seamless **WhatsApp integration**, and **YouTube-based listings**, to reward-based subscription plans that ensure agents can grow sustainably.\n\n---\n\n# 🤝 Our Promise — and Your Responsibility\n\nAt **Vaazhga Valamudan – Property Hub**, we create a trusted space for real estate transactions—but we do not collect any commission from property sales or closed deals.\n\n## What We Are:\n\nWe are purely a digital platform that connects verified buyers and agents.\n\n## What We Are Not:\n\n**We are not responsible for verifying property documents or final sale terms.**\n\nWe insist that buyers must always personally verify property details, legal documents, and agent credentials before making any payment or final decision.\n\n## Our Commitment to Trust:\n\nTo maintain trust, we enforce a strict **verification, star-rating, and report system** for agents.\n\nAny agent found posting fake or misleading listings may be **immediately terminated without prior notice** after internal investigation.\n\nWe expect every agent to act responsibly, build trust, and maintain a long-term relationship with our platform.\n\n---\n\n## Together, We Make a Difference:\n\n**Together, we make real estate safer, smarter, and beneficial for everyone.**"
+  },
+  "FAQ": {
+    "title": "Frequently Asked Questions (FAQ) — Vaazhga Valamudan",
+    "on_this_page": "On this page",
+    "content": "## General\n\n### Q: What is Vaazhga Valamudan?\n\n**A:** **Vaazhga Valamudan** is a Tamil Nadu-focused property listing platform connecting buyers, sellers, agents, and promoters.\n\nWe provide features like verified agent badges, lead reports, and promoter packs—but **we do not act as brokers** or collect commissions on property sales.\n\n### Q: Who can register?\n\n**A:** Anyone aged **18 or older** can register, including property owners, agents, promoters, service providers, or buyers.\n\nAgents are strongly encouraged to complete **Aadhaar verification** to receive a Verified badge.\n\n---\n\n## Registration & Verification\n\n### Q: Why do you ask for Aadhaar verification?\n\n**A:** Aadhaar verification helps build **trust** on the platform by confirming an agent's identity.\n\nVaazhga Valamudan stores only verification **references/tokens**, not your raw Aadhaar number.\n\nPlease see our **Privacy Policy** for full details.\n\n### Q: How much is the registration fee?\n\n**A:** For the December onboarding period, the fee is **₹100** (refundable to your wallet if the agent posts 3 valid listings).\n\nSpecific promotional terms apply, so please check the official banner on the site.\n\n### Q: I'm an agent. How many free listings can I post?\n\n**A:** Under the onboarding plan, verified agents can post multiple listings during December and January (per promotion terms).\n\nAfter the promotion ends, your posting limits will depend on the chosen **subscription plan:** Silver, Gold, Platinum, Diamond, or Promoter packs.\n\n---\n\n## Pricing & Payments\n\n### Q: Do you take commission on property sales?\n\n**A:** **No.** Vaazhga Valamudan is strictly a listings platform and **does not charge any commission** on completed property sales or rentals.\n\n### Q: What payment methods are accepted?\n\n**A:** Payments are processed via third-party gateways like **Razorpay**.\n\nAccepted methods depend on the gateway and typically include cards, UPI, and netbanking.\n\n### Q: Can I get a refund?\n\n**A:** Generally, payments for services are **non-refundable**.\n\nPromotional credits and wallet refunds are processed strictly according to the promotion terms.\n\nContact support for exceptional cases.\n\n---\n\n## Listings & Content\n\n### Q: Can I upload videos?\n\n**A:** Yes. We prefer **YouTube embeds** (to save server costs).\n\nPaid plans may receive additional direct video upload privileges based on administrative policy.\n\n### Q: Can buyers contact agents directly?\n\n**A:** Buyer contact information is revealed to agents **only after** a lead enquiry is submitted and our internal verification rules are met.\n\nThis ensures all leads are traceable and valid.\n\n### Q: How do I report a fake listing?\n\n**A:** Use the **\"Report\" button** available on any listing and provide the details.\n\nOur admin team will investigate and may suspend the listing or the agent if a violation is found.\n\n---\n\n## Promotions & Vouchers\n\n### Q: How does the ₹100 voucher work?\n\n**A:** Eligible agents who register in December and post 3 valid listings will receive **₹100 credited to their site wallet**.\n\nWallet credit can be used toward future subscription purchases per the voucher terms.\n\n### Q: How does the referral voucher work?\n\n**A:** Agents receive vouchers for verified referrals as part of the referral program.\n\nVoucher redemption rules and minimum thresholds are applied to prevent abuse.\n\n---\n\n## Privacy & Security\n\n### Q: Will my Aadhaar number be shared?\n\n**A:** **No.** We only use Aadhaar verification via secure providers and store a verification reference/token.\n\n**We do not publish your Aadhaar number.**\n\n### Q: What happens if someone hacks the site?\n\n**A:** We use industry-standard security measures, regular backups, and monitoring.\n\nIn the event of a security breach, we will notify affected users and take immediate remedial action.\n\n(See our **Security & Privacy Policy** for full details.)\n\n---\n\n## Listings & Integrity\n\n### Q: What action does Vaazhga Valamudan take against fake agents or fake listings?\n\n**A:** **Vaazhga Valamudan** is committed to maintaining a trustworthy platform.\n\nWe actively use our **Aadhaar verification** and **user reporting system** to combat fraud.\n\n**If a fake agent or misleading listing is identified**, **Vaazhga Valamudan** will immediately **suspend or terminate** the associated account without prior notice.\n\nOur reputation and the trust of the people of Tamil Nadu depend on real, reliable listings, and we enforce a **zero-tolerance policy** against dishonesty.\n\n### Q: What is expected from all site users (agents, sellers, and buyers)?\n\n**A:** We expect all users to act with **honesty and responsibility**.\n\n#### Trust and Real Details:\n* Provide only genuine information and **real listings**, as this is vital to our reputation and to earn the trust of the Tamil Nadu community.\n\n#### System Integrity:\n* Do not attempt to **falseplay or manipulate** the system.\n\n#### Error Reporting:\n* If you find any mistakes or errors on the website or mobile app, please **report them to the Admin immediately**.\n* Remember, **Vaazhga Valamudan is your site**, and your responsible actions help everyone succeed.\n\n---\n\n## Features Support\n\n### Q: Can agents request new features or website enhancements?\n\n**A: Yes, absolutely.** We welcome your input!\n\nAgents can request **Add-on features** or suggest any implementation improvements they need for more facility on our website or mobile app.\n\nOur Admin team will review the request and approve it if the request is valid.\n\nPlease contact our Admin without any hesitation.\n\n### Q: How do I find out about new offers and subscription packages?\n\n**A:** Special offers, discounts, and new subscription packages are **updated on our website and mobile app regularly**.\n\nAgents can simply check the designated promotions or pricing page on the Platform to use these offers.\n\n---\n\n## Contact Support\n\n### Q: How do I contact support?\n\n**A:** For support inquiries:\n\n#### General Support:\n* **Email:** admin@vaazhgavalamudan.com\n- **Phone:** 86800 89800\n\n#### Privacy/Data Queries:\n* Contact our Data Protection Officer at: admin@vaazhgavalamudan.com\n\n---\n\n*End of FAQ*"
   }
 }

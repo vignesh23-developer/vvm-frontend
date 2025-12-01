@@ -14,6 +14,7 @@ interface EnquiryPropertyModalProps {
   EnquiryModalOpen: boolean
   setEnquiryModalOpen: (open: boolean) => void
   propertyId: string | number
+  propertyDetailsRefresh: () => void
 }
 
 interface EnquiryFormValues {
@@ -25,7 +26,7 @@ interface EnquiryFormValues {
   message: string
 }
 
-const EnquiryPropertyModal = ({ EnquiryModalOpen, setEnquiryModalOpen, propertyId }: EnquiryPropertyModalProps) => {
+const EnquiryPropertyModal = ({ EnquiryModalOpen, setEnquiryModalOpen, propertyId, propertyDetailsRefresh }: EnquiryPropertyModalProps) => {
   const initialValues: EnquiryFormValues = {
     entity_type: 'property',
     entity_id: propertyId ? propertyId : null,
@@ -52,6 +53,7 @@ const EnquiryPropertyModal = ({ EnquiryModalOpen, setEnquiryModalOpen, propertyI
 
       if (Number(response.status) === 201) {
         toast.success('Enquiry submitted successfully!')
+        propertyDetailsRefresh()
       } else {
       }
       resetForm()

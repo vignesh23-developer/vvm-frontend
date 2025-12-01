@@ -23,6 +23,7 @@ export interface AdsDto {
   user_id: string
   view_count: number
   favorite_count?: number
+  contact_count?: number
   created_at: string
   updated_at: string
   media?: any[]

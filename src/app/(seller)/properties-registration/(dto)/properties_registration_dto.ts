@@ -211,7 +211,7 @@ export class FeaturePayloadDTO {
   option_ids: string[]
   value_text?: string
   value_number?: number
-  value_boolean?: boolean
+  value_boolean?: string
   is_mandator: boolean
 
   constructor(data: Partial<FeaturePayloadDTO>) {

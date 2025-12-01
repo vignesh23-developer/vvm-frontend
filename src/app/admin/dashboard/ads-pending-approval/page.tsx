@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
@@ -9,16 +9,18 @@ import Pagination from '@/components/ui/CustomComponent/Paginations/Pagination'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 import ModalComponent from '@/components/ui/CustomComponent/Modal/ModalComponent'
 import PropertyCard from '@/components/buyer/PropertyCard/PropertyCard'
-
 import { useAdsModeration } from '@/app/admin/dashboard/ads-pending-approval/(hooks)/useAdsModeration'
 import { AdsDto } from '@/app/(seller)/ads/dto/AdsDto'
 import { appEndpoints } from '@/services/endpoints'
 import { postMethod, getMethod } from '@/services/service'
+import { getUserRoles, hasRole, Roles } from '@/utils/roles/roles'
 
 const PAGE_SIZE = 10
 const AdsPendingApprovalPage = () => {
   const router = useRouter()
   const { user } = useAuth()
+  const userRoles = getUserRoles(user)
+  const onlyAdmin = hasRole(userRoles, [Roles.ADMIN])
   const [activeTab, setActiveTab] = useState<'pending' | 'rejected'>('pending')
   const [currentPage, setCurrentPage] = useState(1)
   const [tabCounts, setTabCounts] = useState<{ pending?: number; rejected?: number }>({})
@@ -120,6 +122,14 @@ const AdsPendingApprovalPage = () => {
     }
   }
 
+  const handleShare = useCallback(() => {
+    // if (typeof window !== 'undefined') {
+    //   navigator?.clipboard?.writeText(window.location.href)
+    //   toast.success('Link copied to clipboard')
+    // }
+    console.log('Share clicked')
+  }, [])
+
   const tabs = useMemo(
     () => [
       { key: 'pending', label: `Pending (${pendingCount ?? '...'})` },
@@ -188,7 +198,7 @@ const AdsPendingApprovalPage = () => {
               onSecondaryAction={() => openApprovalModal(ad, 'reject')}
               onThirdAction={() => router.push(`/adsDetails/${ad.id}`)}
               handleFavorite={() => handleFavoriteToggle(ad.id)}
-              handleShare={() => {}}
+              handleShare={handleShare}
               isUserFavorited={Boolean(ad.is_user_favorite)}
             />
           ))}
