@@ -180,98 +180,157 @@ interface Html2PdfOptions {
 }
 
 const exportToPDF = async (data: ExportRow[], columns: ExportColumn[], filename: string = 'export.pdf'): Promise<void> => {
-  if (typeof window === 'undefined') {
-    return
-  }
-
   // Only include visible columns
   const visibleColumns = columns.filter(col => col.visible !== false)
 
   // Create a temporary div to hold our table
   const element: HTMLDivElement = document.createElement('div')
+  element.style.position = 'fixed'
+  element.style.left = '-9999px'
+  element.style.top = '0'
+  element.style.zIndex = '-10'
+  element.style.pointerEvents = 'none'
+  element.style.backgroundColor = 'white'
+  element.style.color = 'black'
+  element.style.fontFamily = 'Arial, sans-serif'
+  element.style.fontSize = '12px'
+  element.style.width = '800px'
+  element.style.minHeight = '100px'
 
   // Create HTML table
   const table: HTMLTableElement = document.createElement('table')
   table.style.width = '100%'
   table.style.borderCollapse = 'collapse'
+  table.style.fontSize = '12px'
 
-  // Add header row
+  // Create table header
   const thead: HTMLTableSectionElement = document.createElement('thead')
   const headerRow: HTMLTableRowElement = document.createElement('tr')
-
   visibleColumns.forEach(col => {
     const th: HTMLTableCellElement = document.createElement('th')
     th.textContent = col.title
-    th.style.backgroundColor = '#2980b9'
-    th.style.color = 'white'
+    th.style.border = '1px solid #ddd'
     th.style.padding = '8px'
-    th.style.textAlign = 'left'
+    th.style.backgroundColor = '#f5f5f5'
+    th.style.fontWeight = 'bold'
     headerRow.appendChild(th)
   })
-
   thead.appendChild(headerRow)
   table.appendChild(thead)
 
-  // Add data rows
+  // Create table body
   const tbody: HTMLTableSectionElement = document.createElement('tbody')
-
-  data.forEach((item, rowIndex) => {
+  data.forEach(item => {
     const row: HTMLTableRowElement = document.createElement('tr')
-
-    // Add zebra striping
-    if (rowIndex % 2 === 1) {
-      row.style.backgroundColor = '#f5f5f5'
-    }
-
     visibleColumns.forEach(col => {
       const td: HTMLTableCellElement = document.createElement('td')
-      const cellValue = item[col.field]
+      const value = item[col.field]
 
-      if (col.render && cellValue !== undefined && cellValue !== null) {
-        const renderedValue = col.render(cellValue, item)
+      // Get rendered value if render function exists
+      if (col.render && value !== undefined && value !== null) {
+        const renderedValue = col.render(value, item)
         if (typeof renderedValue === 'string' || typeof renderedValue === 'number') {
           td.textContent = String(renderedValue)
         } else {
-          td.textContent = cellValue != null ? String(cellValue) : ''
+          td.textContent = value != null ? String(value) : ''
         }
       } else {
-        td.textContent = cellValue != null ? String(cellValue) : ''
+        td.textContent = value != null ? String(value) : ''
       }
 
+      td.style.border = '1px solid #ddd'
       td.style.padding = '8px'
-      td.style.borderBottom = '1px solid #ddd'
       row.appendChild(td)
     })
-
     tbody.appendChild(row)
   })
-
   table.appendChild(tbody)
 
   // Add title
   const title: HTMLHeadingElement = document.createElement('h2')
-  title.textContent = filename.replace('.pdf', '')
+  title.textContent = 'Data Export'
+  title.style.marginBottom = '20px'
+  title.style.textAlign = 'center'
 
-  // Add to container
   element.appendChild(title)
   element.appendChild(table)
 
-  // Convert to PDF
-  const opt: Html2PdfOptions = {
-    margin: 10,
-    filename: filename,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-  }
-
   document.body.appendChild(element)
 
+  // Wait for rendering
+  await new Promise(resolve => setTimeout(resolve, 1500))
+
   try {
-    const html2pdf = await loadHtml2Pdf()
-    await html2pdf().from(element).set(opt).save()
+    // Load libraries if not already loaded
+    await loadLibraries()
+
+    const html2canvas = (window as any).html2canvas
+    const pdf = new (window as any).jspdf.jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+    })
+
+    if (!html2canvas || !pdf) {
+      throw new Error('Required libraries not available. Ensure html2canvas and jsPDF are loaded correctly.')
+    }
+
+    // Convert element to canvas
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      allowTaint: true,
+      useCORS: true,
+      backgroundColor: 'white',
+      width: 800,
+      height: element.scrollHeight,
+      onclone: (clonedDoc: Document) => {
+        // Remove external stylesheets but keep inline styles
+        const stylesheets = clonedDoc.querySelectorAll('link[rel="stylesheet"]')
+        stylesheets.forEach((link: any) => {
+          link.remove()
+        })
+
+        // Remove problematic CSS custom properties and color functions
+        const allElements = clonedDoc.querySelectorAll('*')
+        allElements.forEach((el: any) => {
+          if (el.style) {
+            const cssText = el.style.cssText
+
+            // Remove any CSS containing lab(), lch(), or other unsupported color functions
+            if (cssText.includes('lab(') || cssText.includes('lch(') || cssText.includes('color(')) {
+              el.style.cssText = cssText
+                .replace(/lab\([^)]*\)/g, '')
+                .replace(/lch\([^)]*\)/g, '')
+                .replace(/color\([^)]*\)/g, '')
+            }
+          }
+        })
+      },
+    })
+
+    // Calculate PDF dimensions
+    const pdfWidth = pdf.internal.pageSize.getWidth()
+    const pdfHeight = pdf.internal.pageSize.getHeight()
+    const imgWidth = pdfWidth - 20 // 10mm margin on each side
+    const imgHeight = (canvas.height * imgWidth) / canvas.width
+    const pageContentHeight = pdfHeight - 20
+
+    // Add image to PDF with pagination achieved via offsets
+    const imgData = canvas.toDataURL('image/jpeg', 0.95)
+    let heightLeft = imgHeight - pageContentHeight
+    let position = 10
+
+    pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight)
+
+    while (heightLeft > 0) {
+      position = 10 - (imgHeight - heightLeft)
+      pdf.addPage()
+      pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight)
+      heightLeft -= pageContentHeight
+    }
+
+    pdf.save(filename)
   } catch (error) {
-    // Surface errors so callers can decide how to notify users.
     console.error('Failed to export PDF:', error)
     throw error instanceof Error ? error : new Error('Failed to export PDF. Please try again.')
   } finally {
@@ -279,42 +338,38 @@ const exportToPDF = async (data: ExportRow[], columns: ExportColumn[], filename:
   }
 }
 
-const loadHtml2Pdf = async (): Promise<Html2PdfFn> => {
+const loadLibraries = async (): Promise<void> => {
   if (typeof window === 'undefined') {
-    throw new Error('html2pdf can only be loaded in the browser')
+    throw new Error('Libraries can only be loaded in the browser')
   }
 
-  if (window.html2pdf) {
-    return window.html2pdf
+  if ((window as any).html2canvas && (window as any).jspdf) {
+    return
   }
 
-  await new Promise<void>((resolve, reject) => {
-    const existingScript = document.querySelector('script[data-html2pdf="true"]') as HTMLScriptElement | null
+  const loadScript = (src: string, check: string): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      if ((window as any)[check]) {
+        resolve()
+        return
+      }
 
-    if (existingScript) {
-      existingScript.addEventListener('load', () => resolve(), {
-        once: true,
-      })
-      existingScript.addEventListener('error', () => reject(new Error('Failed to load html2pdf library')))
-      return
-    }
-
-    const script = document.createElement('script')
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
-    script.async = true
-    script.dataset.html2pdf = 'true'
-
-    script.onload = () => resolve()
-    script.onerror = () => reject(new Error('Failed to load html2pdf library from CDN'))
-
-    document.body.appendChild(script)
-  })
-
-  if (!window.html2pdf) {
-    throw new Error('html2pdf library failed to initialize')
+      const script = document.createElement('script')
+      script.src = src
+      script.async = true
+      script.onload = () => resolve()
+      script.onerror = () => reject(new Error(`Failed to load ${check}`))
+      document.head.appendChild(script)
+    })
   }
 
-  return window.html2pdf
+  try {
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js', 'html2canvas')
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', 'jspdf')
+  } catch (error) {
+    console.error('Failed to load libraries:', error)
+    throw error
+  }
 }
 
 const defaultColors: DataTableColors = {

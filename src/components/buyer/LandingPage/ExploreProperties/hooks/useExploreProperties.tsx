@@ -18,7 +18,7 @@ const fetchExploreProperties = async (url: string) => {
 
 export function useExploreProperties(options: UseExplorePropertiesOptions = {}) {
   const router = useRouter()
-  const { page = 1, limit = 4 } = options
+  const { page, limit } = options
 
   const queryParams = new URLSearchParams()
 

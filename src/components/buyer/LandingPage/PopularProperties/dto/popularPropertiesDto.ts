@@ -1,6 +1,7 @@
 export interface PopularPropertyDto {
   id: number
   title: string
+  listing_type: string
   address_line: string
   rooms: number
   area: string

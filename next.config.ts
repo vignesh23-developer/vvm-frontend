@@ -11,8 +11,18 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'cdn.example.com',
+        hostname: 'vaazhga-valamudan-bizdev.s3.ap-south-1.amazonaws.com',
         pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'vaazhga-valamudan-web-storage.s3.ap-south-1.amazonaws.com',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdnjs.cloudflare.com',
+        pathname: '/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
       },
       {
         protocol: 'https',

@@ -10,6 +10,7 @@ export interface PropertyReports {
   report_type: string
   description?: string
   status: string
+  approval_status: string
   isActive?: boolean
 }
 

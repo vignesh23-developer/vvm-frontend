@@ -18,6 +18,7 @@ interface ReportPropertyModalProps {
   reportModalOpen: boolean
   setReportModalOpen: (open: boolean) => void
   propertyId: string | number
+  propertyDetailsRefresh: () => void
 }
 
 interface ReportFormValues {
@@ -29,7 +30,12 @@ interface ReportFormValues {
   reporter_id?: string | number | null
 }
 
-const ReportPropertyModal = ({ reportModalOpen, setReportModalOpen, propertyId }: ReportPropertyModalProps) => {
+const ReportPropertyModal = ({
+  reportModalOpen,
+  setReportModalOpen,
+  propertyId,
+  propertyDetailsRefresh,
+}: ReportPropertyModalProps & { propertyDetailsRefresh: () => void }) => {
   const { user } = useAuth()
   const options = [
     { value: 'FAKE_LISTING', label: 'Fake Listing' },
@@ -62,6 +68,7 @@ const ReportPropertyModal = ({ reportModalOpen, setReportModalOpen, propertyId }
       const response = (await postMethod(appEndpoints.createPropertyReport(propertyId as string), payload)) as ResponseDTO
       if (Number(response.status) === 201) {
         toast.success('Report submitted successfully!')
+        propertyDetailsRefresh()
       }
       resetForm()
       setReportModalOpen(false)

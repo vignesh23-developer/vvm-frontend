@@ -12,7 +12,8 @@ import Button from '@/components/ui/CustomComponent/Button/Button'
 import { Edit, Edit3, Eye, Trash2 } from 'lucide-react'
 import { onDeleteAd } from '@/app/(seller)/ads/(action)/ads_action'
 import toast from 'react-hot-toast'
-import { color } from 'framer-motion/dom'
+import { Roles, getUserRoles, hasRole, type UserRole } from '@/utils/roles/roles'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 
 // Chart data - these would ideally be calculated from the actual ads data
 const statusData = [
@@ -35,6 +36,9 @@ type AdsTableRow = AdsDto & Record<string, unknown>
 
 export default function AdsListPage() {
   const router = useRouter()
+  const { user, token } = useAuth()
+  const userRoles = getUserRoles(user)
+  const onlyAdmin = hasRole(userRoles, [Roles.ADMIN])
   const [currentPage, setCurrentPage] = useState(1)
   const [currentLimit, setCurrentLimit] = useState(10)
 
@@ -180,26 +184,33 @@ export default function AdsListPage() {
     }
   }
 
-  const actions = [
-    {
-      icon: Eye, // correct for view
-      onClick: handleView,
-      color: '#1e6897',
-      title: 'View',
-    },
-    {
-      icon: Edit3, // correct for edit
-      onClick: handleEdit,
-      color: '#1e6897',
-      title: 'Edit',
-    },
-    {
-      icon: Trash2, // correct for delete
-      onClick: handleDelete,
-      color: '#e02424',
-      title: 'Delete',
-    },
-  ]
+  const actions = useMemo(() => {
+    const base = [
+      {
+        icon: Eye, // correct for view
+        onClick: handleView,
+        color: '#1e6897',
+        title: 'View',
+      },
+      {
+        icon: Edit3, // correct for edit
+        onClick: handleEdit,
+        color: '#1e6897',
+        title: 'Edit',
+      },
+    ]
+
+    if (onlyAdmin) {
+      base.push({
+        icon: Trash2, // delete only for admins
+        onClick: handleDelete,
+        color: '#e02424',
+        title: 'Delete',
+      })
+    }
+
+    return base
+  }, [onlyAdmin, handleView, handleEdit, handleDelete])
 
   // Calculate status data from actual ads
   const calculateStatusData = () => {
@@ -251,13 +262,15 @@ export default function AdsListPage() {
           <p className="text-gray-500">Manage and oversee all listed ads.</p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <Button
-            type="button"
-            onClick={() => router.push('/admin/dashboard/ads-pending-approval')}
-            className="flex items-center gap-2 border border-[#7B1E1E] px-4 py-2 text-sm font-medium text-[#7B1E1E] rounded-md hover:bg-[#f5e6e6] transition"
-          >
-            View Pending Ads
-          </Button>
+          {onlyAdmin && (
+            <Button
+              type="button"
+              onClick={() => router.push('/admin/dashboard/ads-pending-approval')}
+              className="flex items-center gap-2 border border-[#7B1E1E] px-4 py-2 text-sm font-medium text-[#7B1E1E] rounded-md hover:bg-[#f5e6e6] transition"
+            >
+              View Pending Ads
+            </Button>
+          )}
           <Button
             type="button"
             onClick={() => router.push('/ads')}

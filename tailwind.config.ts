@@ -8,6 +8,9 @@ const config: Config = {
         sans: ['var(--font-geist-sans)', 'sans-serif'],
         mono: ['var(--font-geist-mono)', 'monospace'],
       },
+      colors: {
+        primary: 'lab(50% 40 30)',
+      },
     },
   },
   plugins: [],

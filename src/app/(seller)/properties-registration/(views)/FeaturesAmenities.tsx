@@ -5,6 +5,7 @@ import { Dispatch, SetStateAction } from 'react'
 import { FeatureMappingDTO, FeaturePayloadDTO } from '../(dto)/properties_registration_dto'
 import { PropertyCreationFormValues } from '../page'
 import LucideIconRenderer from '@/components/ui/CustomComponent/LucideIconRenderer/LucideIconRenderer'
+import { a, input } from 'framer-motion/client'
 
 interface Step4FeaturesAmenitiesProps {
   amenities: FeatureMappingDTO[]
@@ -22,8 +23,8 @@ export default function Step4FeaturesAmenities({
   hasInitialFeatureValues,
 }: Step4FeaturesAmenitiesProps) {
   const baseEntries = (inputFeatureData ?? []) as FeaturePayloadDTO[]
+  // console.log('Feature Entries:', inputFeatureData, amenities)
   const featureEntries = hasInitialFeatureValues ? ((formik.values.features ?? []) as FeaturePayloadDTO[]) : baseEntries
-
   const syncFeatureData = (next: FeaturePayloadDTO[]) => {
     setInputFeatureData(next)
     formik.setFieldValue('features', next)
@@ -45,6 +46,7 @@ export default function Step4FeaturesAmenities({
         feature_group_id: existing.feature_group_id ?? groupId,
         value_text: inputType === 'text' ? update.value_text ?? existing.value_text : existing.value_text,
         value_number: inputType === 'numeric' ? update.value_number ?? existing.value_number : existing.value_number,
+        value_boolean: inputType === 'boolean' ? update.value_boolean ?? existing.value_boolean : existing.value_boolean,
         option_ids: update.option_ids ? [...update.option_ids] : [...(existing.option_ids ?? [])],
         is_mandator: existing.is_mandator ?? update.is_mandator ?? false,
       })
@@ -52,6 +54,7 @@ export default function Step4FeaturesAmenities({
       const shouldRemove =
         (inputType === 'text' && (!updatedEntry.value_text || updatedEntry.value_text === 'EMPTY')) ||
         (inputType === 'numeric' && updatedEntry.value_number === undefined) ||
+        (inputType === 'boolean' && updatedEntry.value_boolean === undefined) ||
         (Array.isArray(updatedEntry.option_ids) && updatedEntry.option_ids.length === 0 && !inputType)
 
       if (shouldRemove) {
@@ -67,6 +70,7 @@ export default function Step4FeaturesAmenities({
         feature_group_id: groupId,
         value_text: update.value_text,
         value_number: update.value_number,
+        value_boolean: update.value_boolean,
         option_ids: update.option_ids ? [...update.option_ids] : [],
         is_mandator: update.is_mandator ?? false,
       })
@@ -74,7 +78,7 @@ export default function Step4FeaturesAmenities({
     }
   }
 
-  // 1️⃣ Group amenities by feature_group_id
+  //  Group amenities by feature_group_id
   const groupedAmenities = Object.values(
     amenities.reduce((acc, item) => {
       const groupId = item.feature_group_id
@@ -94,9 +98,9 @@ export default function Step4FeaturesAmenities({
     }, {} as Record<string, { groupName: string; groupId: string; categories: FeatureMappingDTO[] }>),
   )
 
-  console.log('Grouped Amenities:', groupedAmenities, amenities)
+  // console.log('Grouped Amenities:', groupedAmenities, amenities)
 
-  // 2️⃣ Render input field per category
+  // 2 Render input field per category
   const renderInputField = (feature: FeatureMappingDTO) => {
     const { feature_category_name, feature_category_id, feature_group_id, input_type, is_mandatory, options } = feature
 
@@ -145,7 +149,8 @@ export default function Step4FeaturesAmenities({
 
     // BOOLEAN
     if (input_type?.includes('boolean')) {
-      const checked = featureEntries.find(f => f.feature_category_id === feature_category_id)?.option_ids?.[0] === 'true'
+      const rawValue = featureEntries.find(f => f.feature_category_id === feature_category_id)?.value_boolean
+      const checked = typeof rawValue === 'string' ? rawValue === 'true' : !!rawValue
       return (
         <label key={feature_category_id} className="flex items-center space-x-2 cursor-pointer mb-4">
           <input
@@ -153,14 +158,19 @@ export default function Step4FeaturesAmenities({
             checked={checked}
             className="sr-only peer"
             onChange={e => {
-              updateFeatureData(feature_category_id ?? undefined, feature_group_id ?? undefined, {
-                option_ids: [String(e.target.checked)],
-                is_mandator: is_mandatory,
-              })
+              updateFeatureData(
+                feature_category_id ?? undefined,
+                feature_group_id ?? undefined,
+                {
+                  value_boolean: String(e.currentTarget.checked),
+                  is_mandator: is_mandatory,
+                },
+                'boolean',
+              )
             }}
           />
           <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-          <span className="text-gray-800">{feature_category_name}</span>
+          {feature_category_name} {is_mandatory && <span className="text-red-500">*</span>}
         </label>
       )
     }

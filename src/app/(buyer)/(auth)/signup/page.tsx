@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Formik, Form, FieldArray } from 'formik'
 import { useTranslations } from 'next-intl'
 import { MessageCircle } from 'lucide-react'
@@ -16,6 +16,8 @@ import toast from 'react-hot-toast'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { ResponseDTO } from '@/components/dto/response_dto'
+import OTPInput from '@/components/ui/OTPInput/OTPInput'
+import Button from '@/components/ui/CustomComponent/Button/Button'
 
 interface SignupFormValues {
   firstName: string
@@ -31,23 +33,15 @@ export default function SignupPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const phone = searchParams.get('phone') || ''
-  const [timeLeft, setTimeLeft] = useState(120) // 2 minutes
-
-  useEffect(() => {
-    if (timeLeft <= 0) return
-    const timer = setInterval(() => setTimeLeft(s => s - 1), 1000)
-    return () => clearInterval(timer)
-  }, [timeLeft])
-
-  const handleResend = () => {
-    if (timeLeft > 0) return
-    console.log('Resending OTP...')
-    setTimeLeft(120)
+  const handleResend = async () => {
+    try {
+      // call resend endpoint if needed, e.g. postMethod(appEndpoints.loginSendOtp, { phoneNumber: phone })
+      // toast.success('OTP resent')
+    } catch (err) {
+      console.error('Resend OTP failed', err)
+      toast.error('Failed to resend OTP')
+    }
   }
-
-  const formatTime = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
-
-  const canResend = timeLeft <= 0
 
   const [buttonType, setButtonType] = useState<'sms' | 'whatsapp'>('sms')
 
@@ -162,7 +156,7 @@ export default function SignupPage() {
               handleSignupSubmit(values, setSubmitting, buttonType)
             }}
           >
-            {({ values, isSubmitting }) => (
+            {({ values, setFieldValue, errors, touched, isSubmitting }) => (
               <Form className="mt-4 space-y-4">
                 {/* Input Fields */}
                 <motion.div
@@ -203,57 +197,26 @@ export default function SignupPage() {
 
                 {/* OTP */}
                 <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
-                  <FieldArray name="otp">
-                    {arrayHelpers => (
-                      <>
-                        <label className="block text-sm font-medium mb-1">{t('Auth.otp_verification')}</label>
-                        <div className="flex justify-between mt-4 mb-4">
-                          {values.otp.map((digit, index) => (
-                            <motion.input
-                              key={index}
-                              id={`otp-${index}`}
-                              type="text"
-                              maxLength={1}
-                              value={digit}
-                              onChange={e => {
-                                const value = e.target.value
-                                if (/^[0-9]?$/.test(value)) {
-                                  arrayHelpers.replace(index, value)
-                                  if (value && index < values.otp.length - 1) {
-                                    const nextInput = document.getElementById(`otp-${index + 1}`)
-                                    nextInput?.focus()
-                                  }
-                                }
-                              }}
-                              className="w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-900"
-                              whileFocus={{ scale: 1.1 }}
-                            />
-                          ))}
-                        </div>
-                      </>
-                    )}
-                  </FieldArray>
+                  <OTPInput
+                    length={6}
+                    value={values.otp}
+                    onChange={next => setFieldValue('otp', next)}
+                    initialTime={120}
+                    onResend={handleResend}
+                    error={touched.otp && errors.otp ? errors.otp : undefined}
+                  />
                 </motion.div>
-                {/* Resend OTP */}
-                <motion.p
-                  whileHover={canResend ? { scale: 1.02, color: '#14532d' } : {}}
-                  onClick={handleResend}
-                  className={`text-right mt-4 text-xs transition cursor-pointer
-        ${canResend ? 'text-green-700 hover:underline' : 'text-gray-400 cursor-not-allowed'}
-      `}
-                >
-                  {canResend ? t('Auth.resend_otp') : `${t('Auth.resend_in')} ${formatTime(timeLeft)}`}
-                </motion.p>
+
                 {/* WhatsApp Button */}
-                <motion.button
-                  type="submit"
-                  disabled={isSubmitting}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full bg-[#2B1B12] text-white text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-[#3d2616] disabled:opacity-60 cursor-pointer"
-                >
-                  <span>{isSubmitting ? 'Submitting...' : t('Auth.whatapp_button')}</span>
-                </motion.button>
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full bg-[#2B1B12] text-white text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-[#3d2616] disabled:opacity-60 cursor-pointer"
+                  >
+                    <span>{isSubmitting ? 'Submitting...' : t('Auth.whatapp_button')}</span>
+                  </Button>
+                </motion.div>
 
                 {/* Login Link */}
                 <motion.p className="text-center text-gray-600 text-xs" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
@@ -276,15 +239,15 @@ export default function SignupPage() {
                 </motion.div>
 
                 {/* Continue with SMS */}
-                <motion.button
-                  type="button"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full border border-gray-400 text-sm rounded-md py-2 flex items-center justify-center space-x-2 hover:bg-gray-50 cursor-pointer"
-                >
-                  <MessageCircle size={20} />
-                  <span>{t('Auth.continue_with_sms')}</span>
-                </motion.button>
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Button
+                    type="button"
+                    className="w-full border border-gray-400 text-sm rounded-md py-2 flex items-center justify-center space-x-2 hover:bg-gray-50 cursor-pointer"
+                  >
+                    <MessageCircle size={20} />
+                    <span>{t('Auth.continue_with_sms')}</span>
+                  </Button>
+                </motion.div>
               </Form>
             )}
           </Formik>

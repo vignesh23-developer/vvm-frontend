@@ -20,6 +20,7 @@ import { postMethod } from '@/services/service'
 
 import ReportAdModal from './modal/ReportAdModal'
 import EnquiryAdModal from './modal/EnquiryAdModal'
+import { getUserRoles, hasRole, Roles } from '@/utils/roles/roles'
 
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 40 },
@@ -40,6 +41,9 @@ const AdsDetailsPage = () => {
   const params = useParams<{ id: string | string[] }>()
   const router = useRouter()
   const { user } = useAuth()
+  const userRoles = getUserRoles(user)
+  const onlyAdmin = hasRole(userRoles, [Roles.ADMIN])
+
   const adIdParam = params?.id
   const adId = Array.isArray(adIdParam) ? adIdParam[0] : adIdParam
 
@@ -88,7 +92,7 @@ const AdsDetailsPage = () => {
         },
         {
           label: 'Total Enquiries',
-          value: adDetails?.enquiry_count ?? 0,
+          value: adDetails?.contact_count ?? 0,
           color: 'bg-[#DBEAFE]',
           iconColor: 'text-[#2563EB]',
           icon: <MessageSquare size={18} />,
@@ -172,10 +176,13 @@ const AdsDetailsPage = () => {
 
   if (adDetailsError || !adDetails) {
     return (
-      <div className="flex min-h-[50vh] items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">Unable to load ad details right now.</p>
-          <Button onClick={() => adDetailsRefresh()} className="bg-[#7B1E1E] text-white">
+      <div className="flex min-h-[50vh] items-center justify-center bg-gray-50 px-4">
+        <div className="bg-white shadow-md rounded-2xl p-8 max-w-md w-full text-center">
+          <p className="text-gray-700 text-lg font-medium mb-4">Unable to load ad details right now</p>
+
+          <p className="text-gray-500 text-sm mb-6">Please check your connection or try again.</p>
+
+          <Button onClick={() => adDetailsRefresh()} className="bg-[#7B1E1E] text-white px-6 py-2 rounded-lg hover:bg-[#8f2424] transition">
             Retry
           </Button>
         </div>
@@ -273,7 +280,7 @@ const AdsDetailsPage = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          {adDetails.approval_status === 'UNDER_REVIEW' && (
+          {adDetails.approval_status === 'UNDER_REVIEW' && onlyAdmin && (
             <motion.div
               variants={fadeInUp}
               whileHover={{ scale: 1.01 }}

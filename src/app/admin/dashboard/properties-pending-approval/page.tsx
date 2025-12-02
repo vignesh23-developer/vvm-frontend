@@ -15,6 +15,7 @@ import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 import { ResponseDTO } from '@/components/dto/response_dto'
 import ApproveOrRejectPropertyModal from '@/components/ui/CustomComponent/Modal/ApproveOrReject/ApproveOrRejectModal'
 import SkeletonLoader from '@/components/ui/CustomComponent/SkeletonLoader/SkeletonLoader'
+import toast from 'react-hot-toast'
 
 const PAGE_SIZE = 10
 
@@ -84,6 +85,14 @@ const PropertiesPage = () => {
       console.error('Error updating favorite:', err)
     }
   }
+
+  const handleShare = useCallback(() => {
+    // if (typeof window !== 'undefined') {
+    //   navigator?.clipboard?.writeText(window.location.href)
+    //   toast.success('Link copied to clipboard')
+    // }
+    console.log('Share clicked')
+  }, [])
 
   if (isLoading) {
     return (
@@ -162,7 +171,7 @@ const PropertiesPage = () => {
                   secondaryActionDisabled={pendingActionPropertyId === property.id}
                   thirdActionDisabled={pendingActionPropertyId === property.id}
                   handleFavorite={handleFavorite}
-                  handleShare={() => console.log('Share', property.id)}
+                  handleShare={handleShare}
                   isUserFavorited={property.is_user_favorite}
                 />
               ),

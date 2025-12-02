@@ -37,25 +37,19 @@ const mapFeatureValuesToPayload = (featureValues: any[] | undefined, mappings: F
       if (!categoryId) {
         return null
       }
-
+      console.log('Mapping feature value:', feature)
       const mapping = mappings?.find(m => m.feature_category_id === categoryId)
       const inputType = mapping?.input_type ?? feature?.feature_category?.input_type ?? ''
 
       let optionIds: string[] = []
       let valueText: string | undefined
       let valueNumber: number | undefined
+      let valueBoolean: string | undefined
 
       if (inputType.includes('boolean')) {
-        const rawBoolean = feature?.value_boolean ?? feature?.value ?? feature?.display_value
-        let boolValue = false
-        if (typeof rawBoolean === 'boolean') {
-          boolValue = rawBoolean
-        } else if (typeof rawBoolean === 'string') {
-          boolValue = rawBoolean.toLowerCase() === 'true' || rawBoolean === '1'
-        } else if (typeof rawBoolean === 'number') {
-          boolValue = rawBoolean === 1
-        }
-        optionIds = [String(boolValue)]
+        const rawBoolean = feature?.value_boolean ?? feature?.values
+        console.log('Raw Boolean Value:', rawBoolean)
+        valueBoolean = rawBoolean === true || rawBoolean === 'true' ? 'true' : 'false'
       } else if (inputType.includes('text')) {
         const rawText = feature?.value_text ?? feature?.display_value ?? feature?.value
         valueText = typeof rawText === 'string' ? rawText : rawText != null ? String(rawText) : ''
@@ -81,6 +75,7 @@ const mapFeatureValuesToPayload = (featureValues: any[] | undefined, mappings: F
         option_ids: optionIds,
         value_text: valueText,
         value_number: valueNumber,
+        value_boolean: valueBoolean,
         is_mandator: mapping?.is_mandatory ?? feature?.is_mandatory ?? false,
       })
     })
@@ -370,7 +365,8 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
 
   useEffect(() => {
     if (LRActionState?.error) {
-      toast.error('Faild to create Property')
+      toast.error(LRActionState?.message || 'Faild to create Property')
+      console.log('LRActionState error:', LRActionState?.message)
     }
     if (LRActionState?.success) {
       toast.success('Property Created Successfully')
@@ -390,6 +386,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
   useEffect(() => {
     if (UPPActionState?.error) {
       toast.error('Faild to create Property')
+      console.log('UPPActionState error:', UPPActionState?.message)
     }
     if (UPPActionState?.success) {
       toast.success('Property Media Added Successfully')
@@ -435,6 +432,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
             return (
               (feature.value_text && feature.value_text.trim() !== '') ||
               feature.value_number !== undefined ||
+              feature.value_boolean !== undefined ||
               (Array.isArray(feature.option_ids) && feature.option_ids.length > 0)
             )
           })

@@ -2,20 +2,22 @@
 
 import React, { createContext, useContext, useState, useMemo, useCallback } from 'react'
 
-type GLobalContextValue = {
-  value: string | null
+// Context value — allow any JSON-serializable value for flexibility
+type GlobalContextValue = {
+  value: any
   loading: boolean
-  setValue: (next: string | null) => void
+  setValue: (next: any) => void
   reset: () => void
 }
 
-const GlobalContext = createContext<GLobalContextValue | undefined>(undefined)
+const GlobalContext = createContext<GlobalContextValue | undefined>(undefined)
 
 export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
-  const [value, setValueState] = useState<string | null>(null)
+  const [value, setValueState] = useState<any>(null)
   const [loading, setLoading] = useState(false)
 
-  const setValue = useCallback((next: string | null) => {
+  // Accept any value (string | object | array | null). Keep as simple setter.
+  const setValue = useCallback((next: any) => {
     setValueState(next)
   }, [])
 

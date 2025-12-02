@@ -39,6 +39,7 @@ import formatName from '@/utils/converter/formatName'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { appEndpoints } from '@/services/endpoints'
 import { getMethod } from '@/services/service'
+import { Roles, getUserRoles, hasRole, type UserRole } from '@/utils/roles/roles'
 
 export interface NavLink {
   label: string
@@ -63,7 +64,8 @@ interface NavItem {
   label: string
   href: string
   icon: ReactNode
-  subMenu?: { label: string; href: string; icon?: ReactNode }[]
+  roles?: UserRole[]
+  subMenu?: { label: string; href: string; icon?: ReactNode; roles?: UserRole[] }[]
 }
 
 const DEFAULT_LINKS = [
@@ -77,6 +79,7 @@ const DEFAULT_LINKS = [
 const DASHBOARD_SECTIONS: NavItem[] = [
   {
     label: 'masters',
+    roles: [Roles.ADMIN],
     href: '/admin/dashboard/masters',
     icon: <Shield size={16} />,
     subMenu: [
@@ -90,14 +93,16 @@ const DASHBOARD_SECTIONS: NavItem[] = [
   },
   {
     label: 'properties',
+    roles: [Roles.ADMIN, Roles.AGENT, Roles.BUYER],
     href: '/properties',
     icon: <Building size={16} />,
     subMenu: [
-      { label: 'properties management', href: '/properties/list' },
-      { label: 'properties pending approval', href: '/admin/dashboard/properties-pending-approval' },
-      { label: 'favourite properties', href: '/admin/dashboard/property-favorite' },
-      { label: 'reported properties', href: '/admin/dashboard/property-reports' },
-      { label: 'view enquiries', href: '/admin/dashboard/property-enquiry' },
+      { label: 'properties management', href: '/properties/list', roles: [Roles.ADMIN, Roles.AGENT] },
+      { label: 'register your properties', href: '/properties-registration', roles: [Roles.BUYER] },
+      { label: 'properties pending approval', href: '/admin/dashboard/properties-pending-approval', roles: [Roles.ADMIN] },
+      { label: 'favourite properties', href: '/admin/dashboard/property-favorite', roles: [Roles.BUYER, Roles.AGENT, Roles.ADMIN] },
+      { label: 'reported properties', href: '/admin/dashboard/property-reports', roles: [Roles.ADMIN, Roles.AGENT] },
+      { label: 'view enquiries', href: '/admin/dashboard/property-enquiry', roles: [Roles.ADMIN, Roles.AGENT] },
       // { label: 'saved searches', href: '/admin/dashboard/saved-searches' },
       // { label: 'recently viewed properties', href: '/admin/dashboard/recently-viewed' },
       // { label: 'contact requests', href: '/admin/dashboard/contact-requests' },
@@ -105,19 +110,21 @@ const DASHBOARD_SECTIONS: NavItem[] = [
   },
   {
     label: 'ads',
+    roles: [Roles.ADMIN, Roles.AGENT, Roles.BUYER],
     href: '/ads/list',
     icon: <Megaphone size={16} />,
     subMenu: [
-      { label: 'ads management', href: '/ads/list' },
-      { label: 'ads pending approval', href: '/admin/dashboard/ads-pending-approval' },
+      { label: 'ads management', href: '/ads/list', roles: [Roles.ADMIN, Roles.AGENT] },
+      { label: 'ads pending approval', href: '/admin/dashboard/ads-pending-approval', roles: [Roles.ADMIN] },
       // { label: 'view recent ads', href: '/admin/dashboard/recent-ads' },
-      { label: 'favourite ads', href: '/admin/dashboard/favourite-ads' },
-      { label: 'reported ads', href: '/admin/dashboard/ads-reports' },
-      { label: 'view enquiries', href: '/admin/dashboard/ads-enquiry' },
+      { label: 'favourite ads', href: '/admin/dashboard/favourite-ads', roles: [Roles.ADMIN, Roles.AGENT, Roles.BUYER] },
+      { label: 'reported ads', href: '/admin/dashboard/ads-reports', roles: [Roles.ADMIN, Roles.AGENT] },
+      { label: 'view enquiries', href: '/admin/dashboard/ads-enquiry', roles: [Roles.ADMIN, Roles.AGENT] },
     ],
   },
   {
     label: 'subscription',
+    roles: [Roles.ADMIN],
     href: '/admin/dashboard/subscription-master',
     icon: <CreditCard size={16} />,
     subMenu: [
@@ -128,6 +135,7 @@ const DASHBOARD_SECTIONS: NavItem[] = [
   },
   {
     label: 'payments',
+    roles: [Roles.ADMIN],
     href: '/admin/dashboard/view-transactions',
     icon: <CreditCard size={16} />,
     subMenu: [
@@ -183,6 +191,26 @@ export default function Navbar({
       return next
     })
 
+  const userRoles = getUserRoles(user)
+  const visibleDashboardSections = DASHBOARD_SECTIONS.map(section => {
+    const filteredSubMenu =
+      section.subMenu?.filter(sub => {
+        if (!sub.roles) return true
+        return hasRole(userRoles, sub.roles)
+      }) ?? []
+
+    return {
+      ...section,
+      subMenu: filteredSubMenu,
+    }
+  }).filter(section => {
+    const hasSectionAccess = !section.roles || hasRole(userRoles, section.roles)
+    const hasVisibleChildren = section.subMenu ? section.subMenu.length > 0 : true
+    return hasSectionAccess && hasVisibleChildren
+  })
+
+  console.log('userRoles in Navbar before filtering sections:', userRoles)
+
   useEffect(() => {
     if (!token || !user) return
     console.log('Fetching user details in Navbar useEffect:', user)
@@ -193,7 +221,7 @@ export default function Navbar({
     }
 
     fetchData()
-  }, [companyProfileId, token, user])
+  }, [token, user])
 
   console.log('userValue in Navbar useEffect:', user, companyProfileId)
 
@@ -244,8 +272,6 @@ export default function Navbar({
     setLocale(lang)
     router.refresh()
   }
-
-  console.log('userValue in Navbar:', user, companyProfileId)
 
   const handleLogout = () => {
     // Clear auth token and redirect to login
@@ -306,7 +332,7 @@ export default function Navbar({
                       <Home size={16} /> {t('Navbar.Dashboard')}
                     </Link>
 
-                    {DASHBOARD_SECTIONS?.map((section: NavItem) => (
+                    {visibleDashboardSections.map((section: NavItem) => (
                       <div key={section.label} className="border-t border-gray-100 mt-2 pt-2">
                         <Button
                           onClick={() => toggleSection(section.label)}
@@ -445,7 +471,7 @@ export default function Navbar({
                 <Home size={16} /> {t('Navbar.Dashboard')}
               </Link>
 
-              {DASHBOARD_SECTIONS.map((section: NavItem) => (
+              {visibleDashboardSections.map((section: NavItem) => (
                 <div key={section.label} className="w-full mt-2 border-t border-white/20 pt-2">
                   <Button
                     onClick={() => toggleSection(section.label)}

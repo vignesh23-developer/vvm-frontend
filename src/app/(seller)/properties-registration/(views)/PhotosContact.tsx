@@ -456,7 +456,7 @@ export default function Step5PhotosContact({ formik, uploadPending }: Step5Photo
                 <Button
                   type="button"
                   onClick={submitForm}
-                  disabled={isUploading || items.length === 0}
+                  disabled={isUploading || !formik.dirty}
                   className={`w-full py-3 rounded-lg text-white font-medium flex items-center justify-center gap-2 ${
                     isUploading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#7B1E1E] hover:bg-[#641717]'
                   }`}

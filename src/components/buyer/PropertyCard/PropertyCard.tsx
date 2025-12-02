@@ -1,9 +1,10 @@
 'use client'
 
 import { type ReactNode } from 'react'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { hasRole, Roles, getUserRoles } from '@/utils/roles/roles'
 import { motion, type Variants } from 'framer-motion'
 import { Heart, Share, Ruler, Building2, Home, ChevronDown, MapPin, Eye } from 'lucide-react'
-import Link from 'next/link'
 import Image from 'next/image'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import FavoriteButton from '@/components/ui/CustomComponent/FavoriteButton/FavoriteButton'
@@ -60,7 +61,7 @@ interface PropertiesCardProps {
   onSecondaryAction?: () => void
   onThirdAction?: () => void
   handleFavorite: (propertyId: string) => void
-  handleShare: (propertyId: string) => void
+  handleShare?: () => void
   isUserFavorited?: boolean
   primaryActionLabel?: string
   secondaryActionLabel?: string
@@ -73,6 +74,10 @@ interface PropertiesCardProps {
 
 /* ------------------------------ Main Component ------------------------------ */
 export default function PropertyCard(props: PropertiesCardProps) {
+  const { user } = useAuth()
+  const userRoles = getUserRoles(user)
+  const onlyAdmin = hasRole(userRoles, [Roles.ADMIN])
+
   const {
     id,
     title,
@@ -178,6 +183,7 @@ export default function PropertyCard(props: PropertiesCardProps) {
         secondaryDisabled={secondaryActionDisabled}
         thirdDisabled={thirdActionDisabled}
         propertyPreviewMode={propertyPreviewMode}
+        onlyAdmin={onlyAdmin}
       />
     </motion.div>
   )
@@ -248,7 +254,7 @@ const InfoSection = ({
           favoriteCount={favorite_count}
         />
 
-        <button onClick={() => handleShare(id)} className="h-9 w-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition">
+        <button onClick={handleShare} className="h-9 w-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition">
           <Share size={18} />
         </button>
       </div>
@@ -287,6 +293,7 @@ const ActionSection = ({
   secondaryDisabled,
   thirdDisabled,
   propertyPreviewMode,
+  onlyAdmin,
 }: any) => (
   <div className="flex w-full flex-col justify-between bg-[#ECECEC] p-4 lg:w-[240px]">
     <div className="text-left lg:text-right">
@@ -295,7 +302,7 @@ const ActionSection = ({
     </div>
     {propertyPreviewMode ? (
       <div className="mt-2 mb-24 text-sm text-gray-500">This property is under review.</div>
-    ) : approval_status === 'UNDER_REVIEW' ? (
+    ) : approval_status === 'UNDER_REVIEW' && onlyAdmin ? (
       <div className="mt-4 flex w-full flex-col gap-3">
         {buttons.primary && <ActionButton label={buttons.primary} variant="primary" onClick={onPrimaryAction} disabled={primaryDisabled} />}
         {buttons.secondary && <ActionButton label={buttons.secondary} variant="secondary" onClick={onSecondaryAction} disabled={secondaryDisabled} />}
