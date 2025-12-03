@@ -27,6 +27,12 @@ export const appEndpoints = {
   getAllProperties: '/properties',
   getAllPropertiesList: '/properties/search/list',
   getAllPropertyDistrictSummary: '/properties/search/district-summary',
+  // New Search Service Endpoints
+  publicSearchProperties: '/search/properties',
+  publicSearchPropertyFilters: '/search/properties-filters',
+  publicSearchAgents: '/search/agents',
+  publicSearchAgentsAutocomplete: '/search/agents/autocomplete',
+  publicSearchAgentsFilters: '/search/agents/filters',
   getPropertiesByID: (propertyId: string) => `/properties/${propertyId}`,
   updatePropertiesByID: (propertyId: string) => `/properties/${propertyId}`,
   deletePropertiesByID: (propertyId: string) => `/properties/${propertyId}`,

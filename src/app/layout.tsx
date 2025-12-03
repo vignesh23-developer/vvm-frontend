@@ -8,6 +8,7 @@ import { GlobalProvider } from '@/hooks/GlobalContext/GlobalContext'
 import { cookies } from 'next/headers'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import ConnectivityNotifier from '@/components/common/ConnectivityNotifier'
+import LoadingAnimation from '../components/ui/loader/LoadingAnimation'
 // Font setup
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -47,6 +48,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="ta" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body suppressHydrationWarning className="font-sans antialiased bg-gray-50 text-gray-900 min-h-screen">
+         {/* client-only loader (renders GSAP animation, hides itself when complete) */}
+         <LoadingAnimation />
+
         <AuthProvider initialUser={initialUser} initialToken={initialToken}>
           <GlobalProvider>
             <TranslationProvider>

@@ -105,8 +105,8 @@ export default function SwiperWrapper<T>({
               className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full transition-all duration-300
                 ${
                   activeIndex === idx
-                    ? 'bg-gray-800 scale-110'
-                    : 'bg-gray-300 hover:bg-gray-500'
+                    ? 'bg-yellow-500 scale-110 shadow-[0_0_10px_rgba(250,204,21,0.8)]'
+                    : 'bg-yellow-200 hover:bg-yellow-300'
                 }`}
             />
           ))}

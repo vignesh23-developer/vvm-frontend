@@ -3,150 +3,189 @@
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { motion } from 'framer-motion'
+import { useState, useEffect } from 'react'
 import Button from '@/components/ui/CustomComponent/Button/Button'
+import { MaskContainer } from '../../../../components/ui/svg-mask-effect'
+import { BackgroundLines } from '../../../../components/ui/background-lines'
+
+// Skeleton Loader for App Promo
+const AppPromoSkeleton = () => {
+  return (
+    <section className="w-full py-12 overflow-hidden bg-gradient-to-r from-yellow-50/80 to-white">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-12 items-center gap-12 animate-pulse">
+        {/* Left Skeleton */}
+        <div className="lg:col-span-5 space-y-8">
+          <div className="h-6 w-32 bg-gray-200 rounded-full" />
+          <div className="h-12 w-full bg-gray-300 rounded-lg" />
+          <div className="h-4 w-full bg-gray-200 rounded" />
+          <div className="h-4 w-3/4 bg-gray-200 rounded" />
+          <div className="flex gap-4">
+            <div className="h-12 w-40 bg-gray-200 rounded" />
+            <div className="h-12 w-40 bg-gray-200 rounded" />
+          </div>
+          <div className="h-12 w-full bg-gray-200 rounded-md" />
+        </div>
+
+        {/* Right Skeleton */}
+        <div className="lg:col-span-7">
+          <div className="h-[28rem] lg:h-[36rem] bg-gray-200 rounded-2xl" />
+        </div>
+      </div>
+    </section>
+  )
+}
 
 export default function AppPromo() {
   const t = useTranslations()
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Simulate loading delay
+    const timer = setTimeout(() => setIsLoading(false), 400)
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (isLoading) {
+    return <AppPromoSkeleton />
+  }
 
   return (
-    <section className="w-full bg-gradient-to-r from-[#ECF1F8] to-[#D9D9D9] py-10 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 items-center gap-12">
-        {/* Left content */}
-        <motion.div
-          className="space-y-8"
-          initial={{ opacity: 0, x: -80 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
-          viewport={{ once: true }}
-        >
-          <motion.h2
-            className="text-3xl lg:text-5xl font-extrabold text-gray-900 leading-tight"
-            initial={{ y: 30, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            viewport={{ once: true }}
-          >
-            {t('AppPromo.title')}
-          </motion.h2>
-
-          <motion.p
-            className="text-gray-600 max-w-xl"
-            initial={{ y: 30, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.7, delay: 0.4 }}
-            viewport={{ once: true }}
-          >
-            {t('AppPromo.description')}
-          </motion.p>
-
-          {/* Store buttons */}
-          <motion.div
-            className="flex flex-wrap gap-4"
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            viewport={{ once: true }}
+    <motion.section
+      className="w-full py-12 overflow-hidden bg-gradient-to-r from-yellow-50/80 to-white"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.6 }}
+    >
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-12 items-center gap-12">
+        {/* Left: wrapped in MaskContainer to reveal primary color on hover */}
+        <div className="lg:col-span-5">
+          <MaskContainer
+            revealBg="#3b1804"
+            revealSize={320}
+            className="group rounded-2xl"
           >
             <motion.div
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: 'spring', stiffness: 200 }}
+              initial={{ opacity: 0, x: -60 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7 }}
+              viewport={{ once: true }}
+              className="space-y-8 relative z-10 px-4 py-6"
             >
-              <Image
-                src="/googleplay.png"
-                alt="Get it on Google Play"
-                width={160}
-                height={48}
-                className="cursor-pointer drop-shadow-sm"
-              />
-            </motion.div>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: 'spring', stiffness: 200 }}
-            >
-              <Image
-                src="/appstore.png"
-                alt="Download on the App Store"
-                width={160}
-                height={48}
-                className="cursor-pointer drop-shadow-sm"
-              />
-            </motion.div>
-          </motion.div>
+              <h3 className="text-sm font-semibold text-yellow-700 uppercase inline-block px-3 py-1 rounded-full bg-yellow-50 border border-yellow-100">
+                Get Benefit
+              </h3>
 
-          {/* Subscription */}
-          <motion.div
-            className="space-y-3"
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <p className="text-gray-700 font-medium">{t('AppPromo.message')}</p>
-            <form className="flex max-w-md rounded-md overflow-hidden border border-gray-300 focus-within:ring-2 focus-within:ring-blue-500">
-              <input
-                type="email"
-                placeholder={t('AppPromo.placeholder')}
-                className="w-full px-4 py-3 text-gray-700 focus:outline-none"
-              />
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+              {/* smooth color transition using CSS variables provided by MaskContainer */}
+              <h2
+                className="text-3xl lg:text-5xl font-extrabold leading-tight"
+                style={{
+                  color: 'var(--title-color, #3b1804)',
+                  transition: 'color 350ms cubic-bezier(.2,.9,.2,1)',
+                }}
               >
-                <Button
-                  type="submit"
-                  variant="primary"
-                  size="medium"
-                  className="px-6 py-3 bg-gray-900 text-white"
-                  hover="hover:bg-gray-800 transition"
-                  onClick={() => {}}
+                {t('AppPromo.title') || 'Experience tours like never before'}
+              </h2>
+
+              <p
+                className="max-w-xl"
+                style={{
+                  color: 'var(--body-color, #4b5563)',
+                  transition: 'color 350ms cubic-bezier(.2,.9,.2,1)',
+                }}
+              >
+                {t('AppPromo.description') ||
+                  'High-quality video tours, 3D staged placeholders and curated property highlights — discover homes with confidence.'}
+              </p>
+
+              <div className="flex flex-wrap gap-4">
+                <Image
+                  src="/googleplay.png"
+                  alt="Get it on Google Play"
+                  width={160}
+                  height={48}
+                  className="cursor-pointer drop-shadow-sm"
+                />
+                <Image
+                  src="/appstore.png"
+                  alt="Download on the App Store"
+                  width={160}
+                  height={48}
+                  className="cursor-pointer drop-shadow-sm"
+                />
+              </div>
+
+              <form className="flex max-w-md rounded-md overflow-hidden border border-yellow-200 focus-within:ring-2 focus-within:ring-yellow-300">
+                <input
+                  type="email"
+                  placeholder={t('AppPromo.placeholder') || 'Your email'}
+                  className="w-full px-4 py-3 text-gray-700 focus:outline-none bg-transparent"
+                />
+                <div>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    size="medium"
+                    className="px-6 py-3 bg-[#3b1804] text-white"
+                  >
+                    {t('AppPromo.subscribe') || 'Notify me'}
+                  </Button>
+                </div>
+              </form>
+            </motion.div>
+          </MaskContainer>
+        </div>
+
+        {/* Right: larger / integrated with BackgroundLines */}
+        <div className="lg:col-span-7">
+          <BackgroundLines className="h-[28rem] lg:h-[36rem] rounded-2xl overflow-hidden">
+            <motion.div
+              initial={{ opacity: 0, x: 60 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+              className="relative flex justify-center items-center w-full h-full p-6"
+            >
+              <div className="w-[460px] h-[280px] lg:w-[520px] lg:h-[320px] relative perspective-1000">
+                {/* back shape */}
+                <motion.div
+                  initial={{ rotateY: -12, scale: 0.95, y: -8 }}
+                  whileHover={{ rotateY: -6, y: -12, scale: 1 }}
+                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                  className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-amber-200 to-yellow-50 shadow-xl transform -rotate-3"
+                />
+
+                {/* middle phone-like card (bigger) */}
+                <motion.div
+                  initial={{ rotateY: 6, scale: 0.98 }}
+                  whileHover={{ rotateY: 0, scale: 1.02 }}
+                  transition={{ duration: 0.5 }}
+                  className="absolute left-6 top-4 w-[340px] h-[220px] lg:w-[380px] lg:h-[240px] rounded-2xl bg-white shadow-2xl border border-yellow-100 overflow-hidden"
                 >
-                  {t('AppPromo.subscribe')}
-                </Button>
-              </motion.div>
-            </form>
-          </motion.div>
-        </motion.div>
+                  <div className="w-full h-full bg-[linear-gradient(135deg,#fff8eb_0%,#fffefc_60%)] flex items-center justify-center">
+                    {/* placeholder 3D staged room */}
+                    <div className="w-5/6 h-4/5 rounded-lg bg-gradient-to-b from-amber-100 to-white shadow-inner flex items-end p-4">
+                      <div className="w-full">
+                        <div className="h-3 bg-[#3b1804] rounded-md w-2/3 mb-2 opacity-90" />
+                        <div className="h-2 bg-amber-300 rounded-md w-1/3" />
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
 
-        {/* Right content - Phone mockups */}
-        {/* <motion.div
-          className="flex justify-center relative"
-          initial={{ opacity: 0, x: 80 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.9, ease: 'easeOut' }}
-          viewport={{ once: true }}
-        > */}
-        {/* Example animated mockups */}
-        {/* <motion.div
-            className="absolute top-6 left-12 w-44 h-96 transform -rotate-6 shadow-xl hidden lg:block"
-            initial={{ rotate: -10, opacity: 0, y: 50 }}
-            whileInView={{ rotate: -6, opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.4 }}
-            viewport={{ once: true }}
-          >
-            <Image
-              src="/Frame-545.png"
-              alt="Phone mockup back"
-              fill
-              className="object-contain"
-            />
-          </motion.div> */}
-
-        {/* <motion.div
-            className="relative w-52 h-[28rem] shadow-2xl"
-            initial={{ scale: 0.8, opacity: 0, y: 60 }}
-            whileInView={{ scale: 1, opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <Image
-              src="/Frame-546.png"
-              alt="Phone mockup front"
-              fill
-              className="object-contain"
-            />
-          </motion.div> */}
-        {/* </motion.div> */}
+                {/* front glossy card (phone mockup) - larger */}
+                <motion.div
+                  initial={{ y: 10, scale: 0.98 }}
+                  whileHover={{ y: -6, scale: 1.03 }}
+                  transition={{ duration: 0.45 }}
+                  className="absolute right-0 bottom-0 w-[260px] h-[420px] lg:w-[300px] lg:h-[480px] rounded-3xl bg-gradient-to-br from-white to-yellow-50 shadow-2xl border border-yellow-100 overflow-hidden transform translate-y-4"
+                >
+                  <div className="w-full h-full bg-[url('/Frame-546.png')] bg-center bg-cover" />
+                </motion.div>
+              </div>
+            </motion.div>
+          </BackgroundLines>
+        </div>
       </div>
-    </section>
+    </motion.section>
   )
 }

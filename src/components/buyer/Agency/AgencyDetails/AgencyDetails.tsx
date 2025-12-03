@@ -15,7 +15,7 @@ import { ResponseDTO } from '@/components/dto/response_dto'
 import { toast } from 'react-hot-toast'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import CustumLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
-import { Loader2, CalendarDays, Building2, Handshake, MapPin, Mail, Phone, ShieldCheck, CircleUserRound } from 'lucide-react'
+import { Loader2, CalendarDays, Building2, Handshake, MapPin, Mail, Phone, ShieldCheck, CircleUserRound, X, ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface InfoItemProps {
@@ -75,12 +75,152 @@ const dummyProperties = [
   },
 ]
 
+// Image Card Component with Hover Effects
+interface ImageCardProps {
+  img: string
+  idx: number
+  propertyName: string
+  totalImages: number
+  onImageClick: () => void
+}
+
+const ImageCard = ({ img, idx, propertyName, totalImages, onImageClick }: ImageCardProps) => {
+  const [isHovered, setIsHovered] = useState(false)
+
+  return (
+    <motion.div
+      className="group relative h-48 w-full overflow-hidden rounded-3xl border border-stone-200 bg-stone-100/50 shadow-md cursor-pointer"
+      initial={{ opacity: 0, y: 20, scale: 0.92 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+      transition={{ duration: 0.45, ease: 'easeOut' }}
+      whileHover={{
+        scale: 1.05,
+        y: -6,
+        transition: { duration: 0.3 },
+      }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      onClick={onImageClick}
+    >
+      <Image
+        src={img}
+        alt={`${propertyName} ${idx + 1}`}
+        fill
+        className="object-cover transition-transform duration-700 group-hover:scale-110"
+        sizes="(max-width:640px)100vw,33vw"
+      />
+
+      {/* Blurry Overlay - Only on Hover (No Dark Background) */}
+      <motion.div
+        className="absolute inset-0 backdrop-blur-md pointer-events-none z-[1]"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isHovered ? 1 : 0 }}
+        transition={{ duration: 0.3 }}
+      />
+
+      {/* Expand Icon - Only on Hover */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[2]">
+        <motion.div
+          className="h-16 w-16 rounded-full border-2 border-amber-500 bg-amber-500/20 backdrop-blur-sm flex items-center justify-center"
+          initial={{ opacity: 0, scale: 0.8, rotate: 0 }}
+          animate={{
+            opacity: isHovered ? 1 : 0,
+            scale: isHovered ? 1 : 0.8,
+            rotate: isHovered ? 90 : 0,
+          }}
+          transition={{ duration: 0.3, type: 'spring', stiffness: 200 }}
+        >
+          <Maximize2 className="text-amber-500" size={28} strokeWidth={2.5} />
+        </motion.div>
+      </div>
+
+      {/* Image Counter */}
+      <div className="absolute bottom-3 left-3 rounded-full bg-black/50 backdrop-blur-sm px-3 py-1.5 z-[3]">
+        <span className="text-xs font-semibold text-white">
+          {idx + 1}/{totalImages}
+        </span>
+      </div>
+    </motion.div>
+  )
+}
+
 export default function AgencyDetails({ name }: { name: string }) {
   const t = useTranslations()
-  const [selectedProperty, setSelectedProperty] = useState<any>(dummyProperties[0] ?? null)
+  const [selectedProperty, setSelectedProperty] = useState<any>(null)
   const [agencyData, setAgencyData] = useState<AgentCompanyProfile | null>(null)
   const [isFetching, setIsFetching] = useState<boolean>(true)
   const [fetchError, setFetchError] = useState<string | null>(null)
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null)
+  const [isImageLoading, setIsImageLoading] = useState<boolean>(false)
+  const [isAutoPlay, setIsAutoPlay] = useState<boolean>(true)
+  const [carouselDirection, setCarouselDirection] = useState<number>(1)
+
+  // Keyboard navigation for image popup and body scroll lock
+  useEffect(() => {
+    if (selectedImageIndex === null || !selectedProperty) {
+      document.body.style.overflow = ''
+      return
+    }
+
+    // Lock body scroll when popup is open
+    document.body.style.overflow = 'hidden'
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSelectedImageIndex(null)
+        setIsImageLoading(false)
+        setIsAutoPlay(false)
+      } else if (e.key === 'ArrowRight' && selectedProperty.images.length > 1) {
+        setSelectedImageIndex(prev => (prev! < selectedProperty.images.length - 1 ? prev! + 1 : 0))
+        setIsImageLoading(true)
+        setCarouselDirection(1)
+      } else if (e.key === 'ArrowLeft' && selectedProperty.images.length > 1) {
+        setSelectedImageIndex(prev => (prev! > 0 ? prev! - 1 : selectedProperty.images.length - 1))
+        setIsImageLoading(true)
+        setCarouselDirection(-1)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+      document.body.style.overflow = ''
+    }
+  }, [selectedImageIndex, selectedProperty])
+
+  // Auto-play carousel
+  useEffect(() => {
+    if (selectedImageIndex === null || !selectedProperty || !isAutoPlay || selectedProperty.images.length <= 1) {
+      return
+    }
+
+    const interval = setInterval(() => {
+      setSelectedImageIndex(prev => {
+        if (prev === null) return null
+        const nextIndex = prev + carouselDirection
+        if (nextIndex >= selectedProperty.images.length) {
+          setCarouselDirection(-1)
+          return selectedProperty.images.length - 1
+        }
+        if (nextIndex < 0) {
+          setCarouselDirection(1)
+          return 0
+        }
+        return nextIndex
+      })
+      setIsImageLoading(true)
+    }, 4000) // Change image every 4 seconds
+
+    return () => clearInterval(interval)
+  }, [selectedImageIndex, selectedProperty, isAutoPlay, carouselDirection])
+
+  // Initialize selectedProperty after component mounts
+  useEffect(() => {
+    if (dummyProperties.length > 0 && !selectedProperty) {
+      setSelectedProperty(dummyProperties[0])
+    }
+  }, [])
 
   useEffect(() => {
     let isMounted = true
@@ -197,6 +337,52 @@ export default function AgencyDetails({ name }: { name: string }) {
 
   console.log('fetcherror', fetchError)
 
+  // Skeleton Loader Component
+  const PropertyGallerySkeleton = () => (
+    <div className="w-full max-w-5xl space-y-6">
+      {/* Filter Buttons Skeleton */}
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        {[1, 2, 3, 4, 5].map(i => (
+          <div
+            key={i}
+            className="h-9 w-24 animate-pulse rounded-full bg-gradient-to-r from-stone-200 via-stone-100 to-stone-200"
+          />
+        ))}
+      </div>
+
+      {/* Gallery Card Skeleton */}
+      <div className="relative overflow-hidden rounded-[2rem] border border-stone-200 bg-white/80 p-6 shadow-lg">
+        {/* Decorative Glow */}
+        <div className="absolute -top-10 -left-10 h-40 w-40 bg-amber-200/20 blur-3xl rounded-full" />
+        <div className="absolute -bottom-10 -right-10 h-44 w-44 bg-stone-300/20 blur-3xl rounded-full" />
+
+        {/* Header Skeleton */}
+        <div className="mb-6 flex items-center justify-between">
+          <div className="space-y-2">
+            <div className="h-4 w-32 animate-pulse rounded bg-gradient-to-r from-stone-200 via-stone-100 to-stone-200" />
+            <div className="h-6 w-40 animate-pulse rounded bg-gradient-to-r from-stone-200 via-stone-100 to-stone-200" />
+          </div>
+          <div className="h-7 w-20 animate-pulse rounded-full bg-gradient-to-r from-stone-200 via-stone-100 to-stone-200" />
+        </div>
+
+        {/* Image Grid Skeleton */}
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3">
+          {[1, 2, 3, 4, 5, 6].map(i => (
+            <motion.div
+              key={i}
+              className="relative h-48 w-full overflow-hidden rounded-3xl bg-gradient-to-br from-stone-200 via-stone-100 to-stone-200"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: i * 0.1 }}
+            >
+              <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-stone-200 via-stone-100 to-stone-200 bg-[length:200%_100%]" />
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-stone-100 via-white to-stone-50 py-10 px-4 sm:px-6 lg:px-0">
       <div className="mx-auto w-full max-w-6xl space-y-10">
@@ -303,7 +489,7 @@ export default function AgencyDetails({ name }: { name: string }) {
                   {dummyProperties.map(p => {
                     const isActive = selectedProperty?.id === p.id
                     return (
-                      <button
+                      <motion.button
                         key={p.id}
                         type="button"
                         onClick={() => setSelectedProperty(p)}
@@ -312,28 +498,32 @@ export default function AgencyDetails({ name }: { name: string }) {
                             ? 'border-amber-400 bg-amber-50 text-amber-800 shadow-sm'
                             : 'border-stone-200 bg-white text-stone-700 hover:border-amber-200 hover:text-amber-700'
                         }`}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: p.id * 0.05 }}
                       >
                         {p.name}
-                      </button>
+                      </motion.button>
                     )
                   })}
                 </div>
               </div>
 
-              {/* Inline gallery viewer with animation */}
+              {/* Skeleton Loader or Gallery */}
+              {isFetching ? (
+                <PropertyGallerySkeleton />
+              ) : (
               <AnimatePresence initial={false} mode="wait">
                 {selectedProperty && (
                   <motion.div
                     key={selectedProperty.id}
-                    initial={{ opacity: 0, y: 25, scale: 0.96, filter: 'blur(0px)' }}
-                    animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
-                    exit={{ opacity: 0, y: 20, scale: 0.96, filter: 'blur(0px)' }}
+                    initial={{ opacity: 0, y: 25, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 20, scale: 0.96 }}
                     transition={{ duration: 0.5, ease: 'easeOut' }}
-                    className="
-        mt-8 w-full max-w-5xl rounded-[2rem] border border-stone-200 
-        bg-white/80 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.16)]
-        backdrop-blur-xl relative overflow-hidden
-      "
+                    className="mt-8 w-full max-w-5xl rounded-[2rem] border border-stone-200 bg-white/80 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.16)] backdrop-blur-xl relative overflow-hidden"
                   >
                     {/* Decorative Glow Behind Card */}
                     <div className="absolute -top-10 -left-10 h-40 w-40 bg-amber-200/40 blur-3xl rounded-full pointer-events-none" />
@@ -343,13 +533,11 @@ export default function AgencyDetails({ name }: { name: string }) {
                     <div className="mb-6 flex flex-wrap items-center justify-between gap-3 relative z-10">
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-700">Selected Property</p>
-
                         <h3 className="mt-1 text-xl font-bold text-stone-900 relative inline-block">
                           {selectedProperty.name}
                           <span className="absolute left-0 -bottom-1 h-[3px] w-full bg-amber-500/60 rounded-full scale-x-0 origin-left animate-[grow_0.6s_ease-out_forwards]" />
                         </h3>
                       </div>
-
                       <span className="inline-flex h-7 items-center rounded-full bg-stone-100 px-3 text-xs text-stone-600">
                         {selectedProperty.images.length} Images
                       </span>
@@ -369,53 +557,266 @@ export default function AgencyDetails({ name }: { name: string }) {
                       }}
                     >
                       {selectedProperty.images.map((img: string, idx: number) => (
-                        <motion.div
+                        <ImageCard
                           key={idx}
-                          className="
-              group relative h-48 w-full overflow-hidden 
-              rounded-3xl border border-stone-200 bg-stone-100/50 
-              shadow-md hover:shadow-lg transition-all duration-500
-            "
-                          initial={{ opacity: 0, y: 20, scale: 0.92 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                          transition={{ duration: 0.45, ease: 'easeOut' }}
-                          whileHover={{
-                            scale: 1.04,
-                            y: -4,
-                            rotate: 0.3,
-                            boxShadow: '0 15px 40px rgba(0,0,0,0.25)',
+                          img={img}
+                          idx={idx}
+                          propertyName={selectedProperty.name}
+                          totalImages={selectedProperty.images.length}
+                          onImageClick={() => {
+                            setSelectedImageIndex(idx)
+                            setIsImageLoading(true)
+                            setIsAutoPlay(true)
+                            setCarouselDirection(1)
+                          }}
+                        />
+                      ))}
+                    </motion.div>
+                  </motion.div>
+                  )}
+                </AnimatePresence>
+              )}
+            </section>
+
+            {/* Image Popup Modal with Parallax Carousel */}
+            <AnimatePresence>
+              {selectedImageIndex !== null && selectedProperty && (
+                <>
+                  <motion.div
+                    className="fixed inset-0 z-[9999] bg-gradient-to-br from-black/98 via-black/95 to-black/98 backdrop-blur-md"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.4 }}
+                    onClick={() => {
+                      setSelectedImageIndex(null)
+                      setIsImageLoading(false)
+                      setIsAutoPlay(false)
+                    }}
+                  />
+                  
+                  <motion.div
+                    className="fixed inset-0 z-[10000] flex items-center justify-center p-4 overflow-hidden"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.4 }}
+                    onClick={e => e.stopPropagation()}
+                  >
+                    {/* Close Button */}
+                    <motion.button
+                      className="absolute top-6 right-6 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-lg border border-white/20 text-white transition-all hover:bg-white/20 hover:scale-110 shadow-lg"
+                      onClick={() => {
+                        setSelectedImageIndex(null)
+                        setIsImageLoading(false)
+                        setIsAutoPlay(false)
+                      }}
+                      whileHover={{ scale: 1.1, rotate: 90 }}
+                      whileTap={{ scale: 0.9 }}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      <X size={24} />
+                    </motion.button>
+
+                    {/* Auto-play Toggle */}
+                    {selectedProperty.images.length > 1 && (
+                      <motion.button
+                        className="absolute top-6 left-6 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-lg border border-white/20 text-white transition-all hover:bg-white/20 hover:scale-110 shadow-lg"
+                        onClick={e => {
+                          e.stopPropagation()
+                          setIsAutoPlay(!isAutoPlay)
+                        }}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.3 }}
+                        title={isAutoPlay ? 'Pause slideshow' : 'Play slideshow'}
+                      >
+                        {isAutoPlay ? (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className="flex gap-1"
+                          >
+                            <div className="h-3 w-1 bg-white rounded" />
+                            <div className="h-3 w-1 bg-white rounded" />
+                          </motion.div>
+                        ) : (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className="w-0 h-0 border-l-[8px] border-l-white border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1"
+                          />
+                        )}
+                      </motion.button>
+                    )}
+
+                    {/* Navigation Buttons */}
+                    {selectedProperty.images.length > 1 && (
+                      <>
+                        <motion.button
+                          className="absolute left-6 top-1/2 -translate-y-1/2 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-white/10 backdrop-blur-lg border border-white/20 text-white transition-all hover:bg-white/20 hover:scale-110 shadow-lg"
+                          onClick={e => {
+                            e.stopPropagation()
+                            setSelectedImageIndex(
+                              selectedImageIndex > 0 ? selectedImageIndex - 1 : selectedProperty.images.length - 1
+                            )
+                            setIsImageLoading(true)
+                            setIsAutoPlay(false)
+                            setCarouselDirection(-1)
+                          }}
+                          whileHover={{ scale: 1.1, x: -4 }}
+                          whileTap={{ scale: 0.9 }}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.2 }}
+                        >
+                          <ChevronLeft size={28} />
+                        </motion.button>
+                        <motion.button
+                          className="absolute right-6 top-1/2 -translate-y-1/2 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-white/10 backdrop-blur-lg border border-white/20 text-white transition-all hover:bg-white/20 hover:scale-110 shadow-lg"
+                          onClick={e => {
+                            e.stopPropagation()
+                            setSelectedImageIndex(
+                              selectedImageIndex < selectedProperty.images.length - 1 ? selectedImageIndex + 1 : 0
+                            )
+                            setIsImageLoading(true)
+                            setIsAutoPlay(false)
+                            setCarouselDirection(1)
+                          }}
+                          whileHover={{ scale: 1.1, x: 4 }}
+                          whileTap={{ scale: 0.9 }}
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.2 }}
+                        >
+                          <ChevronRight size={28} />
+                        </motion.button>
+                      </>
+                    )}
+
+                    {/* Parallax Carousel Container */}
+                    <div className="relative w-full max-w-7xl h-[90vh] flex items-center justify-center overflow-hidden">
+                      {/* Background Images for Parallax Effect */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        {selectedProperty.images.map((img: string, idx: number) => {
+                          const offset = idx - selectedImageIndex
+                          const isActive = idx === selectedImageIndex
+                          const absOffset = Math.abs(offset)
+                          
+                          if (absOffset > 2) return null // Only show nearby images
+                          
+                          return (
+                            <motion.div
+                              key={idx}
+                              className="absolute"
+                              initial={false}
+                              animate={{
+                                x: offset * 100,
+                                scale: isActive ? 1 : 0.7,
+                                opacity: isActive ? 0.3 : Math.max(0, 0.3 - absOffset * 0.15),
+                                zIndex: isActive ? 10 : 5 - absOffset,
+                              }}
+                              transition={{
+                                type: 'spring',
+                                stiffness: 300,
+                                damping: 30,
+                                mass: 0.8,
+                              }}
+                              style={{
+                                filter: isActive ? 'blur(0px)' : `blur(${absOffset * 10}px)`,
                           }}
                         >
                           <Image
                             src={img}
                             alt={`${selectedProperty.name} ${idx + 1}`}
-                            fill
-                            className="object-cover transition-all duration-500 group-hover:scale-110"
-                            sizes="(max-width:640px)100vw,33vw"
-                          />
+                                width={1200}
+                                height={800}
+                                className="max-h-[70vh] w-auto object-contain rounded-xl opacity-50"
+                                priority={isActive}
+                              />
+                            </motion.div>
+                          )
+                        })}
+                      </div>
 
-                          {/* Glossy Shine Effect */}
-                          <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500">
-                            <div
-                              className="
-                absolute inset-0 bg-gradient-to-r 
-                from-transparent via-white/20 to-transparent 
-                translate-x-[-120%] group-hover:translate-x-[120%]
-                duration-700 
-              "
+                      {/* Main Image with Parallax */}
+                      <motion.div
+                        className="relative z-10 max-h-[90vh] max-w-[95vw]"
+                        initial={{ opacity: 0, x: carouselDirection * 100, scale: 0.9 }}
+                        animate={{
+                          opacity: isImageLoading ? 0 : 1,
+                          x: 0,
+                          scale: 1,
+                        }}
+                        exit={{ opacity: 0, x: -carouselDirection * 100, scale: 0.9 }}
+                        transition={{
+                          type: 'spring',
+                          stiffness: 300,
+                          damping: 30,
+                          mass: 0.8,
+                        }}
+                        key={selectedImageIndex}
+                      >
+                        {isImageLoading && (
+                          <div className="absolute inset-0 flex items-center justify-center z-10">
+                            <motion.div
+                              className="h-16 w-16 rounded-full border-4 border-amber-500/30 border-t-amber-500"
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                             />
                           </div>
-
-                          {/* Bottom Gradient */}
-                          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition duration-300" />
+                        )}
+                        <Image
+                          src={selectedProperty.images[selectedImageIndex]}
+                          alt={`${selectedProperty.name} ${selectedImageIndex + 1}`}
+                          width={1600}
+                          height={900}
+                          className="max-h-[90vh] w-auto rounded-2xl object-contain shadow-2xl"
+                          priority
+                          onLoad={() => setIsImageLoading(false)}
+                          onLoadingComplete={() => setIsImageLoading(false)}
+                        />
                         </motion.div>
-                      ))}
+                    </div>
+
+                    {/* Image Counter with Progress */}
+                    <motion.div
+                      className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                    >
+                      <div className="rounded-full bg-black/60 backdrop-blur-lg border border-white/20 px-6 py-3 shadow-xl">
+                        <div className="flex items-center gap-4">
+                          <span className="text-sm font-semibold text-white">
+                            {selectedImageIndex + 1} / {selectedProperty.images.length}
+                          </span>
+                          {selectedProperty.images.length > 1 && (
+                            <div className="flex gap-1">
+                              {selectedProperty.images.map((_: string, idx: number) => (
+                                <motion.div
+                                  key={idx}
+                                  className={`h-1.5 rounded-full transition-all ${
+                                    idx === selectedImageIndex ? 'bg-amber-500 w-8' : 'bg-white/30 w-1.5'
+                                  }`}
+                                  initial={{ width: idx === selectedImageIndex ? 8 : 6 }}
+                                  animate={{ width: idx === selectedImageIndex ? 32 : 6 }}
+                                  transition={{ duration: 0.3 }}
+                                />
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </motion.div>
                   </motion.div>
+                </>
                 )}
               </AnimatePresence>
-            </section>
 
             {/* <section className="grid grid-cols-1 gap-8 lg:grid-cols-3">
               <div className="space-y-8 lg:col-span-2">

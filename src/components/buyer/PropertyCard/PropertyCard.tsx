@@ -146,10 +146,11 @@ export default function PropertyCard(props: PropertiesCardProps) {
       initial="hidden"
       animate="visible"
       whileHover="hover"
-      className="flex w-full flex-col overflow-hidden rounded-2xl bg-white shadow-md hover:shadow-lg lg:flex-row"
+      className="flex w-full flex-col overflow-hidden rounded-2xl bg-white/95 shadow-md ring-1 ring-gray-100 hover:shadow-xl hover:ring-yellow-200 lg:flex-row transition-shadow duration-300"
     >
+      {/* Left: Image + Agent */}
       <div className="flex-1">
-        <div className="flex flex-col gap-4 p-3 lg:flex-row">
+        <div className="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row">
           <ImageSection imageUrl={imageUrl} title={title} agent={agent} operatingSince={operatingSince} labels={labels} />
           <InfoSection
             id={id}
@@ -170,6 +171,7 @@ export default function PropertyCard(props: PropertiesCardProps) {
         </div>
       </div>
 
+      {/* Right: Price / CTAs */}
       <ActionSection
         price={formatPrice(Number(price))}
         approval_status={approval_status}
@@ -203,21 +205,27 @@ const ImageSection = ({
   operatingSince: string
   labels: any
 }) => (
-  <motion.div className="flex flex-col items-start overflow-hidden rounded-md sm:w-auto" variants={imageHover} initial="rest" whileHover="hover">
+  <motion.div
+    className="flex flex-col items-start overflow-hidden rounded-xl bg-gradient-to-br from-gray-50 to-white shadow-sm sm:w-auto"
+    variants={imageHover}
+    initial="rest"
+    whileHover="hover"
+  >
     <Image
       src={imageUrl}
       alt={title}
-      width={250}
-      height={150}
-      className="h-40 w-full rounded-md object-cover transition-transform duration-500 sm:w-[250px]"
+      width={260}
+      height={180}
+      className="h-40 w-full object-cover sm:w-[260px]"
     />
-    <p className="ml-1 mt-2 text-sm text-gray-700 sm:ml-2">
-      {labels.agent}: {agent}
-      <br />
-      <span className="text-xs text-gray-500">
+    <div className="w-full px-3 py-2">
+      <p className="text-sm font-semibold text-gray-900">
+        {labels.agent}: {agent}
+      </p>
+      <p className="text-xs text-gray-500">
         {labels.since}: {operatingSince}
-      </span>
-    </p>
+      </p>
+    </div>
   </motion.div>
 )
 
@@ -239,28 +247,32 @@ const InfoSection = ({
   favorite_count,
 }: any) => (
   <div className="flex flex-1 flex-col justify-between">
-    <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-      <div>
-        <h2 className="text-lg font-semibold">{title}</h2>
-        <p className="text-[#747474] font-medium underline">{subtitle}</p>
+    <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-start">
+      <div className="space-y-1">
+        <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+        {subtitle && <p className="text-xs sm:text-sm font-medium text-yellow-700">{subtitle}</p>}
       </div>
 
-      <div className="flex items-center gap-3 text-gray-600">
+      <div className="flex items-center gap-2 text-gray-600">
         <FavoriteButton
           propertyId={id}
           isUserFavorited={isUserFavorited}
           onToggleFavorite={handleFavorite}
-          size={25}
+          size={22}
           favoriteCount={favorite_count}
         />
 
-        <button onClick={handleShare} className="h-9 w-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition">
+        <button
+          type="button"
+          onClick={handleShare}
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm hover:border-blue-300 hover:text-blue-500 transition-colors"
+        >
           <Share size={18} />
         </button>
       </div>
     </div>
 
-    <div className="mt-3 flex w-full flex-col divide-y divide-gray-200 rounded-md bg-[#F5F5F5] text-sm sm:flex-row sm:divide-y-0 sm:divide-x">
+    <div className="mt-3 flex w-full flex-col divide-y divide-gray-200 rounded-xl bg-gray-50 text-sm sm:flex-row sm:divide-y-0 sm:divide-x">
       <PropertyTag icon={<Building2 size={18} />} label={labels.status} value={status} />
       <PropertyTag
         icon={<Ruler size={18} />}
@@ -271,12 +283,12 @@ const InfoSection = ({
       <PropertyTag icon={<Home size={18} />} label={labels.listing_type} value={listing_type} />
     </div>
 
-    <p className="mt-3 flex items-center text-sm text-gray-600">
-      <MapPin size={30} color="#d41111" className="mr-1.5" />
-      {address_line}
+    <p className="mt-3 flex items-center text-xs sm:text-sm text-gray-700">
+      <MapPin size={24} color="#d41111" className="mr-1.5 flex-shrink-0" />
+      <span className="line-clamp-2">{address_line}</span>
     </p>
 
-    <p className="mt-1 line-clamp-3 text-sm text-gray-500">{description}</p>
+    <p className="mt-2 line-clamp-3 text-xs sm:text-sm text-gray-600">{description}</p>
   </div>
 )
 
@@ -295,10 +307,13 @@ const ActionSection = ({
   propertyPreviewMode,
   onlyAdmin,
 }: any) => (
-  <div className="flex w-full flex-col justify-between bg-[#ECECEC] p-4 lg:w-[240px]">
-    <div className="text-left lg:text-right">
-      <h3 className="text-xl font-bold">{'₹ ' + price}</h3>
-      <p className="text-sm text-gray-500">{`${property_size} ${property_size_unit}`}</p>
+  <div className="flex w-full flex-col justify-between bg-gradient-to-b from-[#1F130B] via-[#1A120B] to-[#111111] px-4 py-4 sm:px-5 sm:py-6 lg:w-[250px]">
+    <div className="text-left lg:text-right space-y-1">
+      <p className="text-[10px] uppercase tracking-[0.16em] text-yellow-400/90 font-semibold">
+        {approval_status === 'APPROVED' ? 'Featured Listing' : approval_status.replace(/_/g, ' ')}
+      </p>
+      <h3 className="text-xl font-bold text-white">{'₹ ' + price}</h3>
+      <p className="text-xs sm:text-sm text-gray-300">{`${property_size || '--'} ${property_size_unit || ''}`}</p>
     </div>
     {propertyPreviewMode ? (
       <div className="mt-2 mb-24 text-sm text-gray-500">This property is under review.</div>

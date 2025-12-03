@@ -34,6 +34,11 @@ const nextConfig: NextConfig = {
         hostname: 'yt3.ggpht.com', // YouTube profile/channel images
         pathname: '**',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com', // Unsplash images
+        pathname: '**',
+      },
     ],
   },
 }

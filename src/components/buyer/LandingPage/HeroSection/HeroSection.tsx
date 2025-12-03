@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { MapPin, Home, ChevronDown, IndianRupee, Search } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -12,6 +12,7 @@ import LucideIconRenderer from '@/components/ui/CustomComponent/LucideIconRender
 export default function HeroSection() {
   const t = useTranslations()
   const router = useRouter()
+  const [isHeroLoading, setIsHeroLoading] = useState(true)
   const [currentTab, setCurrentTab] = useState('buy')
   const [location, setLocation] = useState('')
   const [showBudget, setShowBudget] = useState(false)
@@ -28,6 +29,22 @@ export default function HeroSection() {
   const [selectedType, setSelectedType] = useState<Category | null>(null)
   const { categories, error, isLoading, mutateCategories } = usePropertyCategories()
   const tabKeys: string[] = ['buy', 'rent', 'lease']
+
+  // Background carousel images (external URLs)
+  const heroImages = [
+    'https://www.roofandfloor.com/project/7124/gallery/Coco_Enclave_1.jpg',
+    'https://drahomes.in/images/dra-polaris.jpg',
+    'https://images.homify.com/v1511876426/p/photo/image/2339212/vijay-_15-_mycut.jpg',
+  ]
+  const [activeBgIndex, setActiveBgIndex] = useState(0)
+
+  // Auto-rotate hero background every 7 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveBgIndex(prev => (prev + 1) % heroImages.length)
+    }, 7000)
+    return () => clearInterval(interval)
+  }, [heroImages.length])
 
   // Animation variants
   const containerVariants: Variants = {
@@ -49,11 +66,50 @@ export default function HeroSection() {
 
   const budgetOptions = ['Below 10 Lakhs', '10–20 Lakhs', '20–30 Lakhs', '30–50 Lakhs', '50 Lakhs – 1 Crore', '1–2 Crores', 'Above 2 Crores']
 
+  // Simulate a short loading state for hero (for skeleton)
+  useEffect(() => {
+    const timer = setTimeout(() => setIsHeroLoading(false), 500)
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (isHeroLoading) {
+    return (
+      <main className="relative min-h-[80vh] sm:min-h-screen w-full overflow-hidden bg-gradient-to-br from-yellow-50 via-white to-yellow-100">
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="relative z-10 flex items-center justify-center px-4 py-8 min-h-[80vh] sm:min-h-screen">
+          <div className="w-full max-w-4xl mx-auto rounded-3xl bg-white/10 border border-yellow-200/40 backdrop-blur-md px-4 py-8 sm:px-8 sm:py-12 animate-pulse">
+            <div className="h-8 sm:h-10 w-2/3 mx-auto bg-yellow-100/70 rounded-full mb-6" />
+            <div className="h-12 sm:h-14 w-full bg-white/10 rounded-2xl mb-4" />
+            <div className="h-12 sm:h-14 w-full bg-white/10 rounded-2xl" />
+          </div>
+        </div>
+      </main>
+    )
+  }
+
   return (
-    <main className="relative min-h-[80vh] sm:min-h-screen w-full bg-cover bg-center" style={{ backgroundImage: "url('/hero.png')" }}>
-      <div className="absolute inset-0 flex items-center justify-center px-4 py-8">
+    <main className="relative min-h-[80vh] sm:min-h-screen w-full overflow-hidden">
+      {/* Background carousel layer */}
+      <div className="absolute inset-0">
+        {heroImages.map((src, index) => (
+          <motion.div
+            key={src}
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url('${src}')`,
+            }}
+            initial={{ opacity: index === activeBgIndex ? 1 : 0 }}
+            animate={{ opacity: index === activeBgIndex ? 1 : 0 }}
+            transition={{ duration: 1.2, ease: 'easeInOut' }}
+          />
+        ))}
+        {/* Chocolate & gold gradient overlay to keep text readable */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-[#2a1407]/70 to-black/60" />
+      </div>
+
+      <div className="relative z-10 flex items-center justify-center px-4 py-8 min-h-[80vh] sm:min-h-screen">
         <motion.div
-          className="w-full max-w-4xl mx-auto rounded-3xl bg-black/50 text-white px-4 py-6 sm:px-8 sm:py-10 text-center"
+          className="w-full max-w-4xl mx-auto rounded-3xl bg-gradient-to-br from-[#2a1407]/95 via-[#2a1407]/90 to-[#3b1804]/95 text-white px-4 py-6 sm:px-8 sm:py-10 text-center border border-yellow-300/40 shadow-[0_24px_80px_rgba(0,0,0,0.6)]"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -75,7 +131,7 @@ export default function HeroSection() {
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setCurrentTab(tab)}
                   className={`py-2 px-3 rounded-lg text-sm font-medium transition ${
-                    currentTab === tab ? 'bg-yellow-400 text-black' : 'bg-white/20 hover:bg-white/30'
+                    currentTab === tab ? 'bg-yellow-400 text-[#2a1407]' : 'bg-white/10 hover:bg-white/20'
                   }`}
                 >
                   {t(`Hero.HeroMenu.${tab}`)}
@@ -91,7 +147,11 @@ export default function HeroSection() {
                     type="button"
                     variant="tertiary"
                     size="small"
-                    className={`pb-1 ${currentTab === tab ? 'text-yellow-400 border-b-2 border-yellow-400' : 'hover:text-yellow-400 transition'}`}
+                    className={`pb-1 transition ${
+                      currentTab === tab
+                        ? 'text-yellow-300 border-b-2 border-yellow-300'
+                        : 'text-white/80 hover:text-yellow-200'
+                    }`}
                     onClick={() => setCurrentTab(tab)}
                   >
                     {t(`Hero.HeroMenu.${tab}`)}
