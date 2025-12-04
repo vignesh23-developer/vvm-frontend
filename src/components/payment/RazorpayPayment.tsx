@@ -13,6 +13,8 @@ interface RazorpayPaymentProps {
   planName: string
   amount: number
   onClose?: () => void
+  planAction: 'current' | 'upgrade' | 'downgrade' | 'subscribe'
+  activeSubscriptionId?: number
 }
 
 declare global {
@@ -21,7 +23,14 @@ declare global {
   }
 }
 
-export default function RazorpayPayment({ planId, planName, amount, onClose }: RazorpayPaymentProps) {
+export default function RazorpayPayment({ 
+  planId, 
+  planName, 
+  amount, 
+  onClose, 
+  planAction,
+  activeSubscriptionId
+}: RazorpayPaymentProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [razorpayLoaded, setRazorpayLoaded] = useState(false)
@@ -53,6 +62,44 @@ export default function RazorpayPayment({ planId, planName, amount, onClose }: R
     loadRazorpay()
   }, [])
 
+  // Determine button appearance based on planAction
+  const buttonType = planAction
+  let buttonText = 'Subscribe'
+  let buttonClass = 'px-4 py-2 bg-[#3b1804] text-white rounded hover:bg-[#5a2a0a] transition-colors'
+
+  switch (buttonType) {
+    case 'current':
+      buttonText = 'Current Plan'
+      buttonClass = 'px-4 py-2 bg-gray-400 text-white rounded cursor-not-allowed'
+      break
+    case 'upgrade':
+      buttonText = 'Upgrade'
+      buttonClass = 'px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors'
+      break
+    case 'downgrade':
+      buttonText = 'Downgrade'
+      buttonClass = 'px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors'
+      break
+    case 'subscribe':
+    default:
+      buttonText = 'Subscribe'
+      buttonClass = 'px-4 py-2 bg-[#3b1804] text-white rounded hover:bg-[#5a2a0a] transition-colors'
+  }
+
+  // Early return after all hooks are called
+  if (buttonType === 'current') {
+    return (
+      <button
+        disabled
+        className={buttonClass}
+      >
+        {buttonText}
+      </button>
+    )
+  }
+
+  const targetPrice = amount / 100 // Convert from paise to rupees
+
   const handlePayment = async () => {
     try {
       setLoading(true)
@@ -72,11 +119,36 @@ export default function RazorpayPayment({ planId, planName, amount, onClose }: R
 
       const userId = userData.id
 
-      // Create subscription order
-      const orderResponse = await postMethod(
-        appEndpoints.createSubscriptionOrder(userId),
-        { plan_id: planId }
-      )
+      // Determine which endpoint to call based on button type
+      let orderResponse
+      
+      if (buttonType === 'upgrade' && activeSubscriptionId) {
+        // Create upgrade order
+        orderResponse = await postMethod(
+          appEndpoints.createUpgradeOrder(userId, activeSubscriptionId),
+          { 
+            newPlanId: planId,
+            amount: targetPrice
+          }
+        )
+      } else if (buttonType === 'downgrade' && activeSubscriptionId) {
+        // Create downgrade order
+        orderResponse = await postMethod(
+          appEndpoints.createDowngradeOrder(userId, activeSubscriptionId),
+          { 
+            newPlanId: planId,
+            amount: targetPrice
+          }
+        )
+      } else {
+        // Create subscription order (initial subscribe)
+        orderResponse = await postMethod(
+          appEndpoints.createSubscriptionOrder(userId),
+          { 
+            plan_id: planId
+          }
+        )
+      }
 
       if (orderResponse.error) {
         toast.error(orderResponse.message || 'Failed to create order')
@@ -140,10 +212,10 @@ export default function RazorpayPayment({ planId, planName, amount, onClose }: R
             // Success
             toast.success('Subscription activated successfully!')
             setLoading(false)
-            
+
             // Redirect to subscriptions page
             router.push('/view-subscriptions')
-            
+
             if (onClose) {
               onClose()
             }
@@ -192,16 +264,16 @@ export default function RazorpayPayment({ planId, planName, amount, onClose }: R
   }
 
   return (
+
     <button
       onClick={handlePayment}
       disabled={loading}
-      className={`px-6 py-2 rounded font-medium transition-colors ${
-        loading
-          ? 'bg-gray-400 text-white cursor-not-allowed'
-          : 'bg-[#3b1804] text-white hover:bg-[#5a2a0a]'
-      }`}
+      className={`px-6 py-2 rounded font-medium capitalize transition-colors ${loading
+        ? 'bg-gray-400 text-white cursor-not-allowed'
+        : 'bg-[#3b1804] text-white hover:bg-[#5a2a0a]'
+        }`}
     >
-      {loading ? 'Processing...' : 'Subscribe'}
+      {loading ? 'Processing...' : planAction}
     </button>
   )
 }
