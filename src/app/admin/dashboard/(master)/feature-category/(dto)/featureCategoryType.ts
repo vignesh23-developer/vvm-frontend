@@ -64,3 +64,8 @@ export interface FeatureCategoryFormProps {
   submitLabel?: string
   isEdit?: boolean
 }
+
+export interface FeatureCategoryTableProps {
+  page: number
+  limit: number
+}

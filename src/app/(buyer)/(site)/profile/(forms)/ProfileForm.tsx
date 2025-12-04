@@ -22,7 +22,8 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialValues, validationSche
   const handleSubmit = async (values: any) => {
     console.log('Form submitted with values:', values)
     const payload = {
-      fullName: values.firstName + values.lastName,
+      firstName: values.firstName,
+      lastName: values.lastName,
       email: values.email,
     }
     try {

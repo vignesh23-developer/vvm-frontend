@@ -10,7 +10,6 @@ import Button from '@/components/ui/CustomComponent/Button/Button'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { useExploreProperties } from './hooks/useExploreProperties'
-import { string } from 'zod'
 import { ExplorePropertyDto } from './dto/explorePropertiesDto'
 import { formatPrice } from '@/utils/converter/formatPrice'
 import ExplorePropertiesSkeleton from './ExplorePropertiesSkeleton'
@@ -37,46 +36,13 @@ const cardVariants: Variants = {
 export default function ExploreProperties() {
   const t = useTranslations()
   const router = useRouter()
-  const [limit, setLimit] = useState(10)
+  const [limit, setLimit] = useState(4)
   const [page, setPage] = useState(1)
   const { items, total, isLoading, error, handleSeeMore } = useExploreProperties({ limit, page })
 
   const safeItems = Array.isArray(items) ? items : []
   const filteredItems = safeItems?.filter((item: ExplorePropertyDto) => item.district)
-  // const properties = [
-  //   {
-  //     city: 'Coimbatore',
-  //     priceRange: '₹ 2.24 L – 4.65 Cr',
-  //     count: 288,
-  //     rating: 5,
-  //     tags: ['Land', 'Plots', 'House', 'Commercial', 'Projects'],
-  //     image: '/Ellipse.png',
-  //   },
-  //   {
-  //     city: 'Chennai',
-  //     priceRange: '₹ 4.1 L – 5.2 Cr',
-  //     count: 310,
-  //     rating: 4,
-  //     tags: ['Flats', 'Villa', 'Commercial'],
-  //     image: '/Ellipse.png',
-  //   },
-  //   {
-  //     city: 'Bangalore',
-  //     priceRange: '₹ 3.5 L – 6.8 Cr',
-  //     count: 410,
-  //     rating: 5,
-  //     tags: ['Plots', 'Villa', 'House'],
-  //     image: '/Ellipse.png',
-  //   },
-  //   {
-  //     city: 'Hyderabad',
-  //     priceRange: '₹ 2.8 L – 5.0 Cr',
-  //     count: 250,
-  //     rating: 5,
-  //     tags: ['Land', 'Projects', 'Commercial'],
-  //     image: '/Ellipse.png',
-  //   },
-  // ]
+  const display_value = filteredItems.slice(0, limit)
 
   return (
     <section className="py-12 bg-gray-100">
@@ -109,7 +75,7 @@ export default function ExploreProperties() {
               whileInView="visible"
               viewport={{ once: true, amount: 0.2 }}
             >
-              {filteredItems?.map((p: ExplorePropertyDto) => (
+              {display_value?.map((p: ExplorePropertyDto) => (
                 <ExploreCard key={p.district} item={p} variants={cardVariants} />
               ))}
             </motion.div>

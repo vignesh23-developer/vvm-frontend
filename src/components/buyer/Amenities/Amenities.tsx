@@ -22,23 +22,25 @@ const Amenities: React.FC<AmenitiesProps> = ({ title, PropertyAmenities = [] }) 
             <section key={groupName} className="rounded-xl border border-gray-100 p-4 shadow-sm hover:shadow transition">
               <h3 className="text-lg font-semibold text-[#7B1E1E] mb-3 border-b border-gray-100 pb-2">{groupName}</h3>
 
-              {Object.entries(categories).map(([categoryName, options]) => (
-                <div key={categoryName} className="mb-4">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">{categoryName}</h4>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {Object.entries(categories).map(([categoryName, options]) => (
+                  <div key={categoryName} className="mb-4">
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">{categoryName}</h4>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                    {options.map((opt, idx) => (
-                      <div
-                        key={`${opt.name}-${idx}`}
-                        className="flex items-center gap-2 rounded-md border border-gray-200 bg-gray-50 hover:bg-gray-100 px-3 py-2 transition"
-                      >
-                        {opt.icon && <LucideIconRenderer iconName={opt.icon as any} size={16} color="#374151" />}
-                        <span className="text-sm text-gray-700 font-medium">{opt.name}</span>
-                      </div>
-                    ))}
+                    <div className="flex flex-wrap gap-2">
+                      {options.map((opt, idx) => (
+                        <div
+                          key={`${opt.name}-${idx}`}
+                          className="flex items-center gap-2 rounded-md border border-gray-200 bg-gray-50 hover:bg-gray-100 px-3 py-2 transition"
+                        >
+                          {opt.icon && <LucideIconRenderer iconName={opt.icon as any} size={16} color="#374151" />}
+                          <span className="text-sm text-gray-700 font-medium">{opt.name}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </section>
           ))}
         </div>
@@ -67,7 +69,7 @@ const extractGroupedAmenities = (featureValues: any[]): GroupedAmenities => {
 
   for (const f of featureValues) {
     const inputType = f?.feature_category?.input_type ?? f?.input_type
-    if (!['single_select', 'multi_select'].includes(inputType)) continue
+    if (!['single_select', 'multi_select', 'text', 'numeric', 'boolean', 'units'].includes(inputType)) continue
 
     const groupName = f?.feature_group?.name ?? 'Other'
     const categoryName = f?.feature_category?.name ?? 'General'
@@ -82,6 +84,11 @@ const extractGroupedAmenities = (featureValues: any[]): GroupedAmenities => {
           icon: opt.icon ?? '',
         })),
       )
+    } else if (f.values !== undefined && f.values !== null && f.values !== '') {
+      result[groupName][categoryName].push({
+        name: String(f.values),
+        icon: '',
+      })
     }
   }
 

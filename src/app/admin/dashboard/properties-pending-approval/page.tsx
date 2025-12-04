@@ -193,6 +193,7 @@ const PropertiesPage = () => {
         approveOrRejectReason={modalAction}
         userId={user?.id || ''}
         property={selectedProperty}
+        propertyRefresh={mutateProperties}
       />
     </div>
   )

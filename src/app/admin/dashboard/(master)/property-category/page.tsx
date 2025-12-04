@@ -2,7 +2,7 @@
 
 import { Plus, Settings, Edit3, Trash2 } from 'lucide-react'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
-import { useMemo, useCallback } from 'react'
+import { useMemo, useCallback, useState } from 'react'
 import { usePropertyCategories } from '@/app/admin/dashboard/(master)/property-category/(hooks)/usePropertyCategories'
 import { PropertyCategory } from '@/app/admin/dashboard/(master)/property-category/(dto)/propertyCategoryType'
 import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
@@ -11,8 +11,11 @@ import Button from '@/components/ui/CustomComponent/Button/Button'
 type PropertyCategoryTableRow = PropertyCategory & Record<string, unknown>
 
 export default function PropertyCategoryPage() {
-  const { categories, total, error, isLoading, handleAdd, handleCategoryMapping, handleEdit, handleDelete, mutateCategories } =
-    usePropertyCategories()
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+  const { categories, total, error, isLoading, handleAdd, handleCategoryMapping, handleEdit, handleDelete, mutateCategories } = usePropertyCategories(
+    { page, limit },
+  )
 
   // Columns definition
 
@@ -109,12 +112,18 @@ export default function PropertyCategoryPage() {
         actions={actions}
         fetchData={fetchCategories}
         loading={isLoading}
-        isPagination={true}
         allowExport
         allowGrouping
         allowRefresh
+        isPagination={true}
         onRefresh={handleRefresh}
+        initialPage={page}
+        pageSize={limit}
         totalItemsData={total}
+        totalPageData={Math.ceil((total ?? 0) / (limit || 1))}
+        pageSizeOptions={[5, 10, 25, 50, 100]}
+        setPage={setPage}
+        setCurrentPageSize={setLimit}
       />
     </div>
   )

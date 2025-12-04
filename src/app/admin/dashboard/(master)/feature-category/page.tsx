@@ -9,7 +9,9 @@ import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 
 type FeatureCategoryTableRow = FeatureCategory & Record<string, unknown>
 export default function FeatureCategoryPage() {
-  const { categories, error, total, isLoading, handleAdd, handleEdit, handleDelete, mutateCategories } = useFeatureCategories()
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+  const { categories, error, total, isLoading, handleAdd, handleEdit, handleDelete, mutateCategories } = useFeatureCategories({ page, limit })
 
   const columns = useMemo(
     () => [
@@ -88,12 +90,18 @@ export default function FeatureCategoryPage() {
           actions={actions}
           fetchData={fetchCategories}
           loading={isLoading}
-          isPagination={true}
           allowExport
           allowGrouping
           allowRefresh
-          totalItemsData={total}
           onRefresh={handleRefresh}
+          isPagination={true}
+          initialPage={page}
+          pageSize={limit}
+          totalItemsData={total}
+          totalPageData={Math.ceil((total ?? 0) / (limit || 1))}
+          pageSizeOptions={[5, 10, 25, 50, 100]}
+          setPage={setPage}
+          setCurrentPageSize={setLimit}
         />
       </div>
     </div>
