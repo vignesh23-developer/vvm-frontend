@@ -2,7 +2,7 @@
 
 import { Plus, Settings, Edit3, Trash2 } from 'lucide-react'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
-import { useMemo, useCallback } from 'react'
+import { useMemo, useCallback, useState } from 'react'
 import { useAdsCategories } from '@/app/admin/dashboard/ads-category/(hooks)/useAdsCategories'
 import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
 import Button from '@/components/ui/CustomComponent/Button/Button'
@@ -11,9 +11,12 @@ import { AdsCategory } from './(dto)/adsCategoryType'
 type AdsCategoryTableRow = AdsCategory & Record<string, unknown>
 
 export default function AdsCategoryPage() {
-  const { categories, error, isLoading, handleAdd, handleEdit, handleDelete } = useAdsCategories()
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
 
-  // ✅ Columns definition
+  const { categories, total, error, isLoading, handleAdd, handleEdit, handleDelete } = useAdsCategories({ page, limit })
+
+  // Columns definition
 
   const columns = useMemo(
     () => [
@@ -70,7 +73,7 @@ export default function AdsCategoryPage() {
     }
   }, [categories])
 
-  // ✅ Handle loading and error states
+  // Handle loading and error states
   if (error) return <div className="p-6 text-red-600">Failed to load ads categories.</div>
 
   if (isLoading) return <CustomLoader text="Loading ads categories..." />
@@ -95,6 +98,14 @@ export default function AdsCategoryPage() {
         allowExport
         allowGrouping
         allowRefresh
+        isPagination={true}
+        initialPage={page}
+        pageSize={limit}
+        totalItemsData={total}
+        totalPageData={Math.ceil((total ?? 0) / (limit || 1))}
+        pageSizeOptions={[5, 10, 25, 50, 100]}
+        setPage={setPage}
+        setCurrentPageSize={setLimit}
       />
     </div>
   )

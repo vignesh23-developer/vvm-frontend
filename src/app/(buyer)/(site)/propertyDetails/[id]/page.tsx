@@ -88,7 +88,7 @@ const PropertyDetailsSkeleton = () => {
     <div className="w-full bg-gray-50 min-h-screen animate-pulse">
       {/* Image Gallery Skeleton */}
       <div className="h-[500px] md:h-[600px] bg-gray-200" />
-      
+
       {/* Header Card Skeleton */}
       <div className="max-w-7xl mx-auto px-4 md:px-8 -mt-20 relative z-10">
         <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8">
@@ -273,7 +273,7 @@ const page = () => {
     try {
       const response = await postMethod(appEndpoints.toggleFavorite, { entity_type: 'property', entity_id: propertyId })
       if (!response.error) {
-      propertyDetailsRefresh()
+        propertyDetailsRefresh()
         toast.success(propertyDetailsData?.is_user_favorite ? 'Removed from favorites' : 'Added to favorites')
       }
     } catch (err) {
@@ -329,7 +329,7 @@ const page = () => {
       })
       .map((item: any) => item.url)
   }, [propertyDetailsData?.media])
-  
+
   // Images used in the hero gallery (max 4 tiles; rest via "View All")
   const galleryImages = useMemo(() => {
     const maxGridSlots = 4
@@ -386,9 +386,8 @@ const page = () => {
       if (propertyDetailsData.property_size) {
         coreCandidates.push({
           label: 'Size',
-          value: `${propertyDetailsData.property_size} ${
-            propertyDetailsData.property_size_unit || 'sqft'
-          }`,
+          value: `${propertyDetailsData.property_size} ${propertyDetailsData.property_size_unit || 'sqft'
+            }`,
         })
       }
 
@@ -448,16 +447,16 @@ const page = () => {
   const keyFeatures = useMemo(() => {
     const features: string[] = []
     const featureValues = propertyDetailsData?.feature_values || []
-    
+
     // Extract features from feature_values (amenities, highlights, etc.)
     featureValues.forEach((feature: any) => {
       if (feature.feature_category_name && feature.values) {
         const categoryName = feature.feature_category_name.toLowerCase()
         // Include relevant features like amenities, highlights, etc.
-        if (categoryName.includes('amenity') || 
-            categoryName.includes('feature') || 
-            categoryName.includes('highlight') ||
-            categoryName.includes('facility')) {
+        if (categoryName.includes('amenity') ||
+          categoryName.includes('feature') ||
+          categoryName.includes('highlight') ||
+          categoryName.includes('facility')) {
           if (feature.feature_options && feature.feature_options.length > 0) {
             // If it has options, add option names
             feature.feature_options.forEach((option: any) => {
@@ -470,13 +469,13 @@ const page = () => {
         }
       }
     })
-    
+
     // If no features found, extract from description (first few sentences)
     if (features.length === 0 && propertyDetailsData?.description) {
       const sentences = propertyDetailsData.description.split(/[.!?]+/).filter(s => s.trim().length > 20)
       features.push(...sentences.slice(0, 6).map(s => s.trim()))
     }
-    
+
     // Return unique features, limit to 6
     return [...new Set(features)].slice(0, 6)
   }, [propertyDetailsData])
@@ -484,19 +483,19 @@ const page = () => {
   // Property Insights Data - Using only API data
   const propertyInsights = useMemo(
     () => [
-    {
-      label: 'Number of Reports',
-      value: propertyDetailsData?.reports?.length || 0,
+      {
+        label: 'Number of Reports',
+        value: propertyDetailsData?.reports?.length || 0,
         icon: BarChart3,
-    },
-    {
-      label: 'Total Enquiries',
-      value: propertyDetailsData?.enquiry_count || 0,
-      icon: MessageSquare,
-    },
-    {
-      label: 'Page Views',
-      value: propertyDetailsData?.view_count || 0,
+      },
+      {
+        label: 'Total Enquiries',
+        value: propertyDetailsData?.enquiry_count || 0,
+        icon: MessageSquare,
+      },
+      {
+        label: 'Page Views',
+        value: propertyDetailsData?.view_count || 0,
         icon: Eye,
       },
     ],
@@ -509,8 +508,8 @@ const page = () => {
       Array.isArray(similarProperties) && similarProperties.length > 0
         ? similarProperties
         : Array.isArray(popularSimilarProperties)
-        ? popularSimilarProperties
-        : []
+          ? popularSimilarProperties
+          : []
 
     if (base.length === 0) return []
 
@@ -584,17 +583,17 @@ const page = () => {
   }
 
   return (
-    <motion.main 
-      initial="hidden" 
-      animate="visible" 
-      variants={staggerContainer} 
+    <motion.main
+      initial="hidden"
+      animate="visible"
+      variants={staggerContainer}
       className="w-full bg-gray-50 min-h-screen"
     >
-        {/* Hero Section with Image Gallery */}
+      {/* Hero Section with Image Gallery */}
       <div className="relative bg-white">
-      <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           {/* Image Gallery - full banner for single image, responsive grid for multiple */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6 }}
@@ -779,7 +778,7 @@ const page = () => {
                 </div>
               </div>
             )}
-            
+
             {/* Floating Action Buttons */}
             <div className="absolute top-6 right-6 flex gap-3 z-10">
               <motion.button
@@ -801,11 +800,11 @@ const page = () => {
                   favoriteCount={propertyDetailsData?.favorite_count}
                 />
               </motion.div>
-          </div>
-        </motion.div>
+            </div>
+          </motion.div>
 
           {/* Property Header Card */}
-          <motion.div 
+          <motion.div
             variants={fadeInUp}
             className="relative -mt-20 mx-4 md:mx-8 z-10"
           >
@@ -821,7 +820,7 @@ const page = () => {
                   </div>
 
                   {/* Title & Location */}
-                <div>
+                  <div>
                     <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
                       {propertyDetailsData?.title || 'Property Title'}
                     </h1>
@@ -877,7 +876,7 @@ const page = () => {
 
                 {/* Right Section - Price */}
                 <div className="lg:text-right space-y-4">
-                  <motion.div 
+                  <motion.div
                     whileHover={cardHover}
                     className="bg-gradient-to-br from-yellow-50 to-yellow-100/50 rounded-xl p-6 border border-yellow-200"
                   >
@@ -896,16 +895,16 @@ const page = () => {
                   <div className="flex items-center gap-2 text-sm justify-end">
                     <div className="h-2 w-2 rounded-full bg-yellow-600"></div>
                     <span className="text-gray-700 font-medium">Under Construction</span>
-                        </div>
+                  </div>
                   <p className="text-sm text-gray-600">Possession in October 2026</p>
-                  
+
                   <Button
                     type="button"
                     className="w-full lg:w-auto bg-[#2a1407] text-white hover:bg-[#3b1804] px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all"
                   >
                     Show Interest
                   </Button>
-                      </div>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -921,7 +920,7 @@ const page = () => {
             <motion.div variants={fadeInUp} className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {propertyOverviewCards.map((card, idx) => {
                 const Icon = card.icon
-                    return (
+                return (
                   <motion.div
                     key={idx}
                     variants={fadeInUp}
@@ -930,7 +929,7 @@ const page = () => {
                   >
                     <div className="inline-flex p-2 rounded-lg mb-2 bg-yellow-50 border border-yellow-200">
                       <Icon size={20} className="text-yellow-600" />
-                        </div>
+                    </div>
                     <p className="text-xs font-semibold text-gray-600 mb-1">{card.label}</p>
                     <p className="text-sm font-bold text-gray-900">{card.value || 'N/A'}</p>
                   </motion.div>
@@ -939,7 +938,7 @@ const page = () => {
             </motion.div>
 
             {/* Details Sections - rendered as stacked cards */}
-            <motion.div variants={fadeInUp} className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+            <motion.div variants={fadeInUp} className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm min-h-[900px]">
               <div className="p-6 space-y-10">
                 {/* Overview */}
                 <motion.div
@@ -949,35 +948,40 @@ const page = () => {
                   transition={{ duration: 0.3 }}
                   className="space-y-6"
                 >
-                      {/* Key Features */}
-                      {keyFeatures.length > 0 && (
-                        <div>
-                          <h3 className="text-xl font-bold text-gray-900 mb-4">Key Features</h3>
-                          <div className="grid md:grid-cols-2 gap-3">
-                            {keyFeatures.map((feature, idx) => (
-                              <motion.div
-                                key={idx}
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: idx * 0.1 }}
-                                className="flex items-start gap-3"
-                              >
-                                <CheckCircle2 size={18} className="text-yellow-600 mt-0.5 flex-shrink-0" />
-                                <span className="text-gray-700 text-sm">{feature}</span>
-                              </motion.div>
-                            ))}
-              </div>
+                  {/* Key Features */}
+                  {keyFeatures.length > 0 && (
+                    <div className="flex flex-col md:flex-row gap-6 ">
+                      {/* Features List */}
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-gray-900 mb-4">Key Features</h3>
+                        <div className="grid md:grid-cols-2 gap-3">
+                          {keyFeatures.map((feature, idx) => (
+                            <motion.div
+                              key={idx}
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: idx * 0.1 }}
+                              className="flex items-start gap-3"
+                            >
+                              <CheckCircle2 size={18} className="text-yellow-600 mt-0.5 flex-shrink-0" />
+                              <span className="text-gray-700 text-sm">{feature}</span>
+                            </motion.div>
+                          ))}
                         </div>
-                      )}
-
-              {/* Description */}
-                      <div className="pt-6 border-t border-gray-200">
-                        <h3 className="text-xl font-bold text-gray-900 mb-4">About the Property</h3>
-                        <p className="text-gray-700 leading-relaxed">
-                          {propertyDetailsData?.description || 
-                            'This is a charming residential project spread across prime location. It features modern architecture with spacious apartments designed to provide comfort and luxury. The project enjoys excellent connectivity and is surrounded by all essential amenities including schools, hospitals, shopping centers, and recreational facilities.'}
-                        </p>
                       </div>
+
+
+                    </div>
+                  )}
+
+                  {/* Description */}
+                  <div className="pt-4 border-t border-gray-200">
+                    <h3 className="text-xl font-bold text-gray-900 mb-4">About the Property</h3>
+                    <p className="text-gray-700 leading-relaxed">
+                      {propertyDetailsData?.description ||
+                        'This is a charming residential project spread across prime location. It features modern architecture with spacious apartments designed to provide comfort and luxury. The project enjoys excellent connectivity and is surrounded by all essential amenities including schools, hospitals, shopping centers, and recreational facilities.'}
+                    </p>
+                  </div>
                 </motion.div>
 
                 {/* Amenities */}
@@ -987,80 +991,163 @@ const page = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Amenities 
-                    title="Amenities" 
-                    PropertyAmenities={propertyDetailsData?.feature_values} 
+                  <Amenities
+                    title="Amenities"
+                    PropertyAmenities={propertyDetailsData?.feature_values}
                   />
                 </motion.div>
 
+                {/* Conditional Ad Carousel - fills empty space when content is short */}
+                {/* {((propertyDetailsData?.feature_values?.length || 0) < 3 || keyFeatures.length < 4) && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.4 }}
+                    className="mt-8 px-6 pb-6"
+                  >
+                    <h3 className="text-xl font-bold text-gray-900 mb-4">Featured Properties</h3>
+                    {popularSimilarProperties && popularSimilarProperties.length > 0 ? (
+                      <motion.div
+                        className="w-full h-64 md:h-80 rounded-xl overflow-hidden shadow-lg relative group"
+                        whileHover={{ scale: 1.02 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <motion.div
+                          className="w-full h-full relative"
+                          animate={{
+                            backgroundImage: popularSimilarProperties
+                              .slice(0, 8)
+                              .map((prop: any) => {
+                                const primaryMedia = prop?.media?.find((m: any) => m.is_primary) || prop?.media?.[0]
+                                return `url(${primaryMedia?.url || '/ads-1.jpg'})`
+                              }),
+                          }}
+                          transition={{
+                            duration: popularSimilarProperties.length * 2,
+                            repeat: Infinity,
+                            ease: 'linear',
+                          }}
+                          style={{
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                          }}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                          <div className="absolute bottom-6 left-6 right-6 text-white">
+                            <p className="text-lg font-bold mb-1">Explore More Properties</p>
+                            <p className="text-sm opacity-90">Discover your dream home today</p>
+                          </div>
+                        </motion.div>
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        className="w-full h-64 md:h-80 rounded-xl overflow-hidden shadow-lg relative group"
+                        whileHover={{ scale: 1.02 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <motion.div
+                          className="w-full h-full"
+                          animate={{
+                            backgroundImage: [
+                              'url(/ads-1.jpg)',
+                              'url(/ads-2.jpg)',
+                              'url(/ads-3.jpg)',
+                              'url(/ads-4.jpg)',
+                              'url(/ads-5.jpg)',
+                              'url(/ads-6.jpg)',
+                              'url(/ads-7.jpg)',
+                              'url(/ads-8.jpg)',
+                            ],
+                          }}
+                          transition={{
+                            duration: 16,
+                            repeat: Infinity,
+                            ease: 'linear',
+                          }}
+                          style={{
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                          }}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
+                          <div className="absolute bottom-6 left-6 right-6 text-white">
+                            <p className="text-lg font-bold mb-1">Explore More Properties</p>
+                            <p className="text-sm opacity-90">Discover your dream home today</p>
+                          </div>
+                        </motion.div>
+                      </motion.div>
+                    )}
+                  </motion.div>
+                )} */}
+
                 {/* (Floor Plans and About Project mock sections removed) */}
-           
+
               </div>
-        </motion.div>
+            </motion.div>
 
           </div>
 
           {/* Right Sidebar */}
-        <motion.aside
-          variants={fadeInUp}
-          className="space-y-6"
-        >
-          {/* Property Insights - compact summary cards (first card in sidebar) */}
-          <motion.div
+          <motion.aside
             variants={fadeInUp}
-            className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm"
+            className="space-y-6"
           >
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-xl font-bold text-gray-900">Property Insights</h3>
-                <p className="text-xs text-gray-500 mt-1">Quick snapshot of engagement on this listing</p>
-              </div>
-              <span className="text-xs font-medium text-gray-500">Analytics &amp; Statistics</span>
-            </div>
-            <div className="grid md:grid-cols-3 lg:grid-cols-1 gap-4">
-              {propertyInsights.map((insight, idx) => {
-                const Icon = insight.icon
-                return (
-                  <motion.div
-                    key={idx}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.08 }}
-                    whileHover={{ y: -3, boxShadow: '0 18px 40px rgba(0,0,0,0.07)' }}
-                    className="relative flex flex-col justify-between rounded-2xl bg-gradient-to-br from-yellow-50/50 to-white px-5 py-4 border border-yellow-100"
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="h-11 w-11 rounded-2xl bg-white shadow-sm border border-yellow-100 flex items-center justify-center">
-                          <Icon size={22} className="text-yellow-600" />
-                        </div>
-                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                          {insight.label}
-                        </p>
-                      </div>
-                      <p className="text-2xl md:text-3xl font-extrabold text-[#2a1407]">{insight.value}</p>
-                    </div>
-
-                    <div className="mt-2 h-1.5 rounded-full bg-gray-200 overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${Math.min((Number(insight.value) || 0) / 100 * 100, 100)}%` }}
-                        transition={{ duration: 0.8, delay: idx * 0.15 }}
-                        className="h-full rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600"
-                      />
-                    </div>
-                  </motion.div>
-                )
-              })}
-            </div>
-          </motion.div>
-
-          {/* Approve / Reject Section */}
-          {propertyDetailsData?.approval_status === 'UNDER_REVIEW' && (
+            {/* Property Insights - compact summary cards (first card in sidebar) */}
             <motion.div
+              variants={fadeInUp}
+              className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">Property Insights</h3>
+                  <p className="text-xs text-gray-500 mt-1">Quick snapshot of engagement on this listing</p>
+                </div>
+                <span className="text-xs font-medium text-gray-500">Analytics &amp; Statistics</span>
+              </div>
+              <div className="grid md:grid-cols-3 lg:grid-cols-1 gap-4">
+                {propertyInsights.map((insight, idx) => {
+                  const Icon = insight.icon
+                  return (
+                    <motion.div
+                      key={idx}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.08 }}
+                      whileHover={{ y: -3, boxShadow: '0 18px 40px rgba(0,0,0,0.07)' }}
+                      className="relative flex flex-col justify-between rounded-2xl bg-gradient-to-br from-yellow-50/50 to-white px-5 py-4 border border-yellow-100"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="h-11 w-11 rounded-2xl bg-white shadow-sm border border-yellow-100 flex items-center justify-center">
+                            <Icon size={22} className="text-yellow-600" />
+                          </div>
+                          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                            {insight.label}
+                          </p>
+                        </div>
+                        <p className="text-2xl md:text-3xl font-extrabold text-[#2a1407]">{insight.value}</p>
+                      </div>
+
+                      <div className="mt-2 h-1.5 rounded-full bg-gray-200 overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${Math.min((Number(insight.value) || 0) / 100 * 100, 100)}%` }}
+                          transition={{ duration: 0.8, delay: idx * 0.15 }}
+                          className="h-full rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600"
+                        />
+                      </div>
+                    </motion.div>
+                  )
+                })}
+              </div>
+            </motion.div>
+
+            {/* Approve / Reject Section */}
+            {propertyDetailsData?.approval_status === 'UNDER_REVIEW' && (
+              <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-              whileHover={{ scale: 1.01 }}
+                whileHover={{ scale: 1.01 }}
                 className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm"
               >
                 <h2 className="text-lg font-semibold text-gray-800 text-center mb-5">Approve or Reject</h2>
@@ -1085,12 +1172,12 @@ const page = () => {
                   >
                     Reject
                   </Button>
-              </div>
-            </motion.div>
-          )}
+                </div>
+              </motion.div>
+            )}
 
             {/* Contact Form Card */}
-              <motion.div
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               whileHover={{ scale: 1.01 }}
@@ -1153,10 +1240,10 @@ const page = () => {
                   Connect →
                 </Button>
               </div>
-              </motion.div>
+            </motion.div>
 
-          {/* Contact Owner */}
-              {/* <motion.div
+            {/* Contact Owner */}
+            {/* <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               whileHover={{ scale: 1.01 }}
@@ -1204,7 +1291,7 @@ const page = () => {
                 </div>
               </motion.div> */}
           </motion.aside>
-      </div>
+        </div>
       </div>
 
       {/* Full-width Location Map Section */}
@@ -1218,20 +1305,20 @@ const page = () => {
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="rounded-3xl border border-gray-200 bg-white shadow-md overflow-hidden">
             <div className="h-[400px] w-full">
-                         {/* Location (text only, map moved to full-width section below) */}
-                         <motion.div
-                  key="location"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="space-y-2 p-8"
-                >
-                  <h3 className="text-xl font-bold text-gray-900">Location</h3>
-                  <p className="text-sm text-gray-600">
-                    {propertyDetailsData?.address_line ||
-                      'Located in a well-connected neighbourhood with easy access to schools, hospitals, shopping and public transport.'}
-                  </p>
-                </motion.div>
+              {/* Location (text only, map moved to full-width section below) */}
+              <motion.div
+                key="location"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-2 p-8"
+              >
+                <h3 className="text-xl font-bold text-gray-900">Location</h3>
+                <p className="text-sm text-gray-600">
+                  {propertyDetailsData?.address_line ||
+                    'Located in a well-connected neighbourhood with easy access to schools, hospitals, shopping and public transport.'}
+                </p>
+              </motion.div>
               <MapView
                 center={{
                   lat: Number(propertyDetailsData?.latitude) || 12.9177477,
@@ -1306,15 +1393,15 @@ const page = () => {
                 <div>
                   <p className="text-xs font-semibold text-yellow-700 uppercase tracking-wide">✨ Discover</p>
                   <h3 className="text-lg font-bold text-[#2a1407] mt-1">Scratch to Reveal Fun Facts</h3>
-            </div>
+                </div>
                 <span className="px-2 py-1 rounded-full bg-yellow-500 text-[10px] font-semibold text-white uppercase tracking-wide">
                   Interactive
                 </span>
               </div>
-              
+
               {!funFactRevealed ? (
                 <div className="relative">
-                  <div 
+                  <div
                     className="relative h-32 bg-gradient-to-r from-gray-300 to-gray-400 rounded-lg cursor-grab active:cursor-grabbing overflow-hidden"
                     onMouseDown={(e) => {
                       const rect = e.currentTarget.getBoundingClientRect()
@@ -1369,14 +1456,14 @@ const page = () => {
                       <p className="text-xl font-bold text-yellow-600 mb-2">🎯 Property Highlights</p>
                       <p className="text-sm text-gray-700 text-center">Scratch to discover interesting facts about this property!</p>
                     </div>
-                    <div className="scratch-overlay absolute inset-0 bg-gradient-to-br from-gray-600 to-gray-800" 
+                    <div className="scratch-overlay absolute inset-0 bg-gradient-to-br from-gray-600 to-gray-800"
                       style={{ clipPath: 'circle(100% at 50% 50%)' }}
                     />
                   </div>
                   <p className="text-xs text-gray-600 mt-2 text-center">👆 Drag your mouse or finger to scratch!</p>
                 </div>
               ) : (
-                  <motion.div
+                <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   className="space-y-3"
@@ -1415,20 +1502,20 @@ const page = () => {
             </motion.div>
 
             {/* Interactive Quiz for Recommendations */}
-          <motion.div
+            <motion.div
               whileHover={{ scale: 1.01 }}
               className="rounded-2xl bg-white border border-gray-200 p-5 shadow-sm"
             >
               <div className="flex items-center gap-3 mb-4">
                 <div className="h-10 w-10 rounded-full bg-yellow-50 border border-yellow-200 flex items-center justify-center">
                   <Home size={18} className="text-yellow-600" />
-                      </div>
-                      <div>
+                </div>
+                <div>
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">🎯 Quick Match</p>
                   <p className="text-sm font-semibold text-gray-900">Find Your Perfect Home</p>
-                      </div>
-                    </div>
-              
+                </div>
+              </div>
+
               {!showQuizResult ? (
                 <div className="space-y-3">
                   <div>
@@ -1446,7 +1533,7 @@ const page = () => {
                       ))}
                     </select>
                   </div>
-                  
+
                   <div>
                     <label className="text-xs font-medium text-gray-700 mb-1 block">Preferred Location</label>
                     <select
@@ -1462,7 +1549,7 @@ const page = () => {
                       ))}
                     </select>
                   </div>
-                  
+
                   <Button
                     type="button"
                     disabled={isQuizLoading}
@@ -1493,8 +1580,8 @@ const page = () => {
                           typeof totalFromApi === 'number'
                             ? totalFromApi
                             : Array.isArray((res?.data as any)?.data)
-                            ? (res.data as any).data.length
-                            : 0
+                              ? (res.data as any).data.length
+                              : 0
 
                         setQuizResultCount(count)
                         setShowQuizResult(true)
@@ -1568,7 +1655,7 @@ const page = () => {
                   >
                     Try Again
                   </button>
-                  </motion.div>
+                </motion.div>
               )}
             </motion.div>
           </motion.div>
@@ -1576,10 +1663,10 @@ const page = () => {
       </motion.section>
 
       {/* Similar Projects Carousel Section */}
-          {filteredSimilarProperties.length > 0 && (
+      {filteredSimilarProperties.length > 0 && (
         <motion.section
           initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.6 }}
           className="max-w-7xl mx-auto px-4 md:px-8 py-12"
@@ -1589,10 +1676,10 @@ const page = () => {
               <div className="flex items-center gap-2 mb-2">
                 <Sparkles className="w-5 h-5 text-yellow-600" />
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Similar Projects</h2>
-            </div>
+              </div>
               <p className="text-gray-600">Explore other properties you might be interested in</p>
             </div>
-            
+
             {/* Carousel Navigation Buttons */}
             {!isLoadingSimilar && !isLoadingPopularSimilar && filteredSimilarProperties.length > 0 && (
               <div className="hidden md:flex items-center gap-2">
@@ -1669,7 +1756,7 @@ const page = () => {
                 }}
               >
                 {filteredSimilarProperties.map((property: any, idx: number) => (
-          <motion.div
+                  <motion.div
                     key={property.id || idx}
                     initial={{ opacity: 0, x: 20 }}
                     whileInView={{ opacity: 1, x: 0 }}
@@ -1702,23 +1789,23 @@ const page = () => {
                         {property.address_line || 'Location not available'}
                       </p>
                       <div className="flex items-center justify-between">
-                      <div>
+                        <div>
                           <p className="text-xs text-gray-500 mb-1">Price</p>
                           <p className="text-lg font-bold text-[#2a1407]">
                             ₹{formatPrice(Number(property.price)) || 'Price on request'}
                           </p>
-                      </div>
+                        </div>
                         <div className="text-right">
                           <p className="text-xs text-gray-500 mb-1">Size</p>
                           <p className="text-sm font-semibold text-gray-700">
                             {property.property_size ? `${property.property_size} ${property.property_size_unit || 'sqft'}` : 'N/A'}
                           </p>
-                    </div>
+                        </div>
                       </div>
                     </div>
                   </motion.div>
-              ))}
-            </div>
+                ))}
+              </div>
 
               {/* Scroll Indicator Dots */}
               {filteredSimilarProperties.length > 4 && (
@@ -1742,28 +1829,28 @@ const page = () => {
       )}
 
       {/* Modals */}
-        <ApproveOrRejectPropertyModal
-          approveOrRejectModalOpen={approveOrRejectModalOpen}
-          setApproveOrRejectModalOpen={setApproveOrRejectModalOpen}
-          approveOrRejectReason={approveOrRejectReason}
-          userId={user ? user?.id : ''}
-          property={propertyDetailsData ? propertyDetailsData : ''}
-          propertyDetailsRefresh={propertyDetailsRefresh}
-        />
+      <ApproveOrRejectPropertyModal
+        approveOrRejectModalOpen={approveOrRejectModalOpen}
+        setApproveOrRejectModalOpen={setApproveOrRejectModalOpen}
+        approveOrRejectReason={approveOrRejectReason}
+        userId={user ? user?.id : ''}
+        property={propertyDetailsData ? propertyDetailsData : ''}
+        propertyRefresh={propertyDetailsRefresh}
+      />
 
-        <ReportPropertyModal
-          reportModalOpen={reportModalOpen}
-          setReportModalOpen={setReportModalOpen}
-          propertyId={propertyId ? String(propertyId) : ''}
-          propertyDetailsRefresh={propertyDetailsRefresh}
-        />
+      <ReportPropertyModal
+        reportModalOpen={reportModalOpen}
+        setReportModalOpen={setReportModalOpen}
+        propertyId={propertyId ? String(propertyId) : ''}
+        propertyDetailsRefresh={propertyDetailsRefresh}
+      />
 
-        <EnquiryPropertyModal
-          EnquiryModalOpen={enquiryModalOpen}
-          setEnquiryModalOpen={setEnquiryModalOpen}
-          propertyId={propertyId ? String(propertyId) : ''}
-          propertyDetailsRefresh={propertyDetailsRefresh}
-        />
+      <EnquiryPropertyModal
+        EnquiryModalOpen={enquiryModalOpen}
+        setEnquiryModalOpen={setEnquiryModalOpen}
+        propertyId={propertyId ? String(propertyId) : ''}
+        propertyDetailsRefresh={propertyDetailsRefresh}
+      />
 
       {/* Image Gallery Modal Carousel - Only show if there's an actual image */}
       <AnimatePresence>
@@ -1884,7 +1971,7 @@ const page = () => {
                     <div className="text-center text-white">
                       <Camera size={64} className="mx-auto mb-4 opacity-50" />
                       <p className="text-lg opacity-75">Image not available</p>
-      </div>
+                    </div>
                   </div>
                 )}
               </motion.div>

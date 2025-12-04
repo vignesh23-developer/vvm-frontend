@@ -48,7 +48,7 @@ export default function AdsListPage() {
 
   // Create a map for quick category lookup
   const categoryMap = useMemo(() => {
-    return categories.reduce((acc, cat) => {
+    return categories.reduce((acc: any, cat: any) => {
       acc[cat.id] = cat.name
       return acc
     }, {} as Record<string, string>)

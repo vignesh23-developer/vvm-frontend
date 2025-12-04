@@ -199,47 +199,50 @@ export function usePublicPropertySearch<T = any>({
 
     try {
       const response = await getMethod<any>(appEndpoints.publicSearchProperties, query)
-      
-      // Handle nested response structure: response.data.data or response.data
-      // Backend returns: { statusCode: 200, data: { data: [...], total: X, page: Y, limit: Z } }
-      const responseData = response.data?.data || response.data
-      const actualData = responseData?.data || responseData
-      const total = responseData?.total || (Array.isArray(actualData) ? actualData.length : 0)
 
-      // Log the response for debugging
-      console.log('✅ Property Search API Response:', {
-        statusCode: (response as any).statusCode || 200,
-        total: total,
-        itemsCount: Array.isArray(actualData) ? actualData.length : 0,
-        hasFilters: !!(responseData as any)?.filters,
-        message: (response as any).message || responseData?.message || 'Success',
-        responseStructure: {
-          hasData: !!response.data,
-          hasNestedData: !!response.data?.data,
-          isArray: Array.isArray(actualData),
-        },
+      // The backend now returns a consistent search payload, but we keep this
+      // parser flexible to support older nested formats too.
+      // Supported shapes (inside ResponseDTO.data):
+      // 1) { data: [...], total, page, limit }
+      // 2) { items: [...], total, page, limit }
+      // 3) [ ... ] (bare array)
+      const dtoPayload = response.data
+
+      // Unwrap one level of nesting if the payload itself has a "data" object
+      const container =
+        dtoPayload && typeof dtoPayload === 'object' && !Array.isArray(dtoPayload) && 'data' in dtoPayload
+          ? (dtoPayload as any).data
+          : dtoPayload
+
+      let items: T[] = []
+      let total = 0
+
+      if (Array.isArray(container)) {
+        items = container as T[]
+        total = items.length
+      } else if (container && typeof container === 'object') {
+        const obj = container as any
+        if (Array.isArray(obj.items)) {
+          items = obj.items as T[]
+        } else if (Array.isArray(obj.data)) {
+          items = obj.data as T[]
+        }
+        total = typeof obj.total === 'number' ? obj.total : items.length
+      }
+
+      console.log('✅ Property Search API Response (normalized):', {
+        raw: dtoPayload,
+        container,
+        itemsCount: items.length,
+        total,
       })
 
-      // Handle case when Elasticsearch is unavailable
-      if ((response as any).message?.includes('unavailable') || responseData?.message?.includes('unavailable')) {
-        console.warn('⚠️ Search temporarily unavailable - Elasticsearch may be down')
+      if (!Array.isArray(items)) {
+        console.warn('⚠️ Property search response did not contain a list – defaulting to empty list.')
         return { items: [], total: 0 }
       }
 
-      // Validate response structure
-      if (!actualData || !Array.isArray(actualData)) {
-        console.warn('⚠️ Invalid response structure:', {
-          response,
-          responseData,
-          actualData,
-        })
-        return { items: [], total: 0 }
-      }
-
-      return {
-        items: actualData,
-        total: typeof total === 'number' ? total : actualData.length,
-      }
+      return { items, total }
     } catch (error) {
       console.error('❌ Property Search API Error:', error)
       return { items: [], total: 0 }

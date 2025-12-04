@@ -622,6 +622,7 @@ const PropertiesListing = ({ params }: { params: string }) => {
               onClear={handleClearFilters}
               isOpen={isFiltersOpen}
               onToggle={() => setIsFiltersOpen(!isFiltersOpen)}
+              pageType={params === 'agency' ? 'agency' : 'property'}
             />
           )}
 

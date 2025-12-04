@@ -25,7 +25,7 @@ export default function useLandRegistration() {
     mutate: propertyCategoryRefresh,
   } = useSWR<ResponseDTO>(`${appEndpoints.getAllPropertyCategories}?activeOnly=true`, fetcher)
 
-  const propertyCategoryResult: Array<PropertyCategory> = propertyCategoryFetchVal?.data
+  const propertyCategoryResult: Array<PropertyCategory> = propertyCategoryFetchVal?.data?.data
 
   async function onGetPropertyCategoryFeatureMapping(id: string): Promise<PropertyCategoryFeatureMappingResponse> {
     console.log('Fetching feature mapping for category ID:', id)

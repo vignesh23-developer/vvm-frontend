@@ -5,12 +5,12 @@ import useSWR, { mutate } from 'swr'
 import { useRouter } from 'next/navigation'
 import { appEndpoints } from '@/services/endpoints'
 import { getMethod, patchMethod } from '@/services/service'
-import { FeatureCategory } from '@/app/admin/dashboard/(master)/feature-category/(dto)/featureCategoryType'
+import { FeatureCategory, FeatureCategoryTableProps } from '@/app/admin/dashboard/(master)/feature-category/(dto)/featureCategoryType'
 import toast from 'react-hot-toast'
 import { ResponseDTO } from '@/components/dto/response_dto'
 
 // Custom Hook
-export function useFeatureCategories() {
+export function useFeatureCategories({ page = 1, limit = 10 } = {} as FeatureCategoryTableProps) {
   const router = useRouter()
 
   // Fetcher function
@@ -20,7 +20,12 @@ export function useFeatureCategories() {
   }
 
   //  SWR Data Fetch
-  const { data, error, isLoading, mutate: mutateCategories } = useSWR<ResponseDTO>(`${appEndpoints.getAllFeatureCategories}?activeOnly=true`, fetcher)
+  const {
+    data,
+    error,
+    isLoading,
+    mutate: mutateCategories,
+  } = useSWR<ResponseDTO>(`${appEndpoints.getAllFeatureCategories}?activeOnly=true&page=${page}&limit=${limit}`, fetcher)
 
   // CRUD Operations
   const handleAdd = useCallback(() => {
@@ -57,7 +62,7 @@ export function useFeatureCategories() {
   }
 
   return {
-    categories: data?.data ?? [],
+    categories: data?.data?.data ?? [],
     total: data?.data?.total ?? 0,
     error,
     isLoading,

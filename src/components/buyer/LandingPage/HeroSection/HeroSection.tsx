@@ -104,7 +104,7 @@ export default function HeroSection() {
           />
         ))}
         {/* Chocolate & gold gradient overlay to keep text readable */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-[#2a1407]/70 to-black/60" />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/50 via-[#2a1407]/40 to-black/50" />
       </div>
 
       <div className="relative z-10 flex items-center justify-center px-4 py-8 min-h-[80vh] sm:min-h-screen">
@@ -130,9 +130,8 @@ export default function HeroSection() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setCurrentTab(tab)}
-                  className={`py-2 px-3 rounded-lg text-sm font-medium transition ${
-                    currentTab === tab ? 'bg-yellow-400 text-[#2a1407]' : 'bg-white/10 hover:bg-white/20'
-                  }`}
+                  className={`py-2 px-3 rounded-lg text-sm font-medium transition ${currentTab === tab ? 'bg-yellow-400 text-[#2a1407]' : 'bg-white/10 hover:bg-white/20'
+                    }`}
                 >
                   {t(`Hero.HeroMenu.${tab}`)}
                 </motion.button>
@@ -147,11 +146,10 @@ export default function HeroSection() {
                     type="button"
                     variant="tertiary"
                     size="small"
-                    className={`pb-1 transition ${
-                      currentTab === tab
-                        ? 'text-yellow-300 border-b-2 border-yellow-300'
-                        : 'text-white/80 hover:text-yellow-200'
-                    }`}
+                    className={`pb-1 transition ${currentTab === tab
+                      ? 'text-yellow-300 border-b-2 border-yellow-300'
+                      : 'text-white/80 hover:text-yellow-200'
+                      }`}
                     onClick={() => setCurrentTab(tab)}
                   >
                     {t(`Hero.HeroMenu.${tab}`)}

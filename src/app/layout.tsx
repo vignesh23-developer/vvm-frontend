@@ -47,9 +47,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="ta" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body suppressHydrationWarning className="font-sans antialiased bg-gray-50 text-gray-900 min-h-screen">
-         {/* client-only loader (renders GSAP animation, hides itself when complete) */}
-         <LoadingAnimation />
+      <body suppressHydrationWarning className="font-sans antialiased bg-gradient-to-b from-yellow-50 via-white to-yellow-50 text-gray-900 min-h-screen">
+        {/* client-only loader (renders GSAP animation, hides itself when complete) */}
+        <LoadingAnimation />
 
         <AuthProvider initialUser={initialUser} initialToken={initialToken}>
           <GlobalProvider>

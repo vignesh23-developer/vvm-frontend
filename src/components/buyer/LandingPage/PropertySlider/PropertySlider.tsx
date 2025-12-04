@@ -11,7 +11,7 @@ interface Slide {
   title: string
 }
 
-// Skeleton Loader for Property Slider
+// Skeleton Loader for Property Slider (unchanged)
 const PropertySliderSkeleton = () => {
   return (
     <div className="py-10 bg-gradient-to-b from-yellow-50 via-white to-yellow-50">
@@ -40,10 +40,14 @@ export default function PropertySlider() {
   const [imagesLoaded, setImagesLoaded] = useState(0)
 
   const Property: Slide[] = [
-    { id: 1, image: '/image-17.png', title: 'Imagine. Inspire. Live.' },
-    { id: 2, image: '/image-18.png', title: 'Search. Discover. Move In' },
-    { id: 3, image: '/image-18.png', title: 'Search. Discover. Move In' },
-    { id: 4, image: '/image-18.png', title: 'Search. Discover. Move In' },
+    { id: 1, image: '/ads-1.jpg', title: 'Imagine. Inspire. Live.' },
+    { id: 2, image: '/ads-2.jpg', title: 'Search. Discover. Move In' },
+    { id: 3, image: '/ads-3.jpg', title: 'Find Your Dream Home' },
+    { id: 4, image: '/ads-4.jpg', title: 'Luxury Living Awaits' },
+    { id: 5, image: '/ads-5.jpg', title: 'Your Perfect Space' },
+    { id: 6, image: '/ads-6.jpg', title: 'Modern Living Redefined' },
+    { id: 7, image: '/ads-7.jpg', title: 'Invest in Your Future' },
+    { id: 8, image: '/ads-8.jpg', title: 'Where Comfort Meets Style' },
   ]
 
   useEffect(() => {
@@ -67,12 +71,12 @@ export default function PropertySlider() {
 
   // Animation Variants
   const slideVariants = {
-    hidden: { opacity: 0, scale: 0.9, y: 50 },
-    visible: { 
-      opacity: 1, 
-      scale: 1, 
+    hidden: { opacity: 0, scale: 0.95, y: 20 },
+    visible: {
+      opacity: 1,
+      scale: 1,
       y: 0,
-      transition: { duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] as const }
+      transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as const }
     },
   }
 
@@ -81,7 +85,7 @@ export default function PropertySlider() {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.2,
+        staggerChildren: 0.1,
         delayChildren: 0.1,
       },
     },
@@ -93,24 +97,25 @@ export default function PropertySlider() {
 
   return (
     <motion.section
-      className="py-10 bg-gradient-to-b from-yellow-50 via-white to-yellow-50"
+      className="py-12 bg-gradient-to-b from-yellow-50 via-white to-yellow-50"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SwiperWrapper
           data={Property}
           showPagination
           autoplay
           breakpoints={{
             640: { slidesPerView: 1, spaceBetween: 16 },
-            1024: { slidesPerView: 2, spaceBetween: 20 },
+            768: { slidesPerView: 2, spaceBetween: 20 },
+            1024: { slidesPerView: 3, spaceBetween: 24 },
           }}
           renderItem={item => (
             <motion.div
               key={item.id}
-              className="relative w-full aspect-[4/3] sm:aspect-[16/9] rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden"
+              className="relative w-full overflow-hidden rounded-2xl shadow-lg group aspect-[4/3] md:aspect-[3/4] lg:aspect-[4/5]"
               variants={slideVariants}
             >
               {/* Background Image */}
@@ -118,13 +123,21 @@ export default function PropertySlider() {
                 src={item.image}
                 alt={item.title}
                 fill
-                className="object-cover"
+                className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
                 priority
-                onLoad={handleImageLoad}
+                onLoadingComplete={handleImageLoad}
               />
 
-              {/* Subtle chocolate & gold gradient overlay for mood */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-black/30 via-[#2a1407]/20 to-transparent" />
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300" />
+
+              {/* Content */}
+              {/* <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                <h3 className="text-xl md:text-2xl font-bold text-white mb-2 drop-shadow-md leading-tight">
+                  {item.title}
+                </h3>
+                <div className="h-1 w-12 bg-yellow-500 rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+              </div> */}
             </motion.div>
           )}
         />

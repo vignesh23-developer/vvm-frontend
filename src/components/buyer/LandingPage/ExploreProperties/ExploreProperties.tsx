@@ -34,12 +34,14 @@ const cardVariants: Variants = {
 export default function ExploreProperties() {
   const t = useTranslations()
   const router = useRouter()
-  const [limit, setLimit] = useState(10)
+  const [limit, setLimit] = useState(4)
   const [page, setPage] = useState(1)
   const { items, total, isLoading, error, handleSeeMore } = useExploreProperties({ limit, page })
 
   const safeItems = Array.isArray(items) ? items : []
   const filteredItems = safeItems?.filter((item: ExplorePropertyDto) => item.district)
+
+  const display_value = filteredItems.slice(0, limit)
 
   // Safely get description; fall back to default text if the key is missing
   let exploreDescription =
@@ -174,7 +176,7 @@ export default function ExploreProperties() {
               whileInView="visible"
               viewport={{ once: true, amount: 0.2 }}
             >
-              {filteredItems?.map((p: ExplorePropertyDto) => (
+              {display_value?.map((p: ExplorePropertyDto) => (
                 <ExploreCard key={p.district} item={p} variants={cardVariants} />
               ))}
             </motion.div>

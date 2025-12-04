@@ -43,6 +43,7 @@ interface AdvancedFiltersProps {
   onClear: () => void
   isOpen: boolean
   onToggle: () => void
+  pageType?: 'property' | 'agency' // To distinguish between property and agency pages
 }
 
 type PriceRange = { label: string; min: number; max: number | null }
@@ -96,6 +97,7 @@ export default function AdvancedFilters({
   onClear,
   isOpen,
   onToggle,
+  pageType = 'property', // Default to property page
 }: AdvancedFiltersProps) {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     price: true,
@@ -112,38 +114,37 @@ export default function AdvancedFilters({
       console.log('🔍 Filter Options API Call:', url)
       try {
         const response = await getMethod<any>(url)
-        
-        // Handle nested response structure: response.data.data.filters
-        const filters = response.data?.data?.filters || response.data?.filters || {}
-        const innerMessage = response.data?.data?.message || response.data?.message || (response as any).message
-        
-        console.log('✅ Filter Options API Response:', {
-          statusCode: (response as any).statusCode || 200,
-          hasFilters: Object.keys(filters).length > 0,
-          filterKeys: Object.keys(filters),
-          filterCounts: Object.keys(filters).reduce((acc, key) => {
-            const value = filters[key]
-            if (Array.isArray(value)) {
-              acc[key] = value.length
-            } else if (value && typeof value === 'object') {
-              acc[key] = Object.keys(value).length
-            } else {
-              acc[key] = 0
-            }
-            return acc
-          }, {} as Record<string, number>),
-          message: innerMessage || 'Success',
-          elasticsearchAvailable: innerMessage !== 'No filters available',
-        })
-        
-        // Return with normalized structure
-        return {
-          ...response,
-          data: {
-            ...response.data,
-            filters: filters,
-          }
+
+        // The backend now provides a consistent filters payload, but this parser
+        // still supports older nested formats.
+        // Supported shapes (inside ResponseDTO.data):
+        // 1) { filters: {...} }
+        // 2) { data: { filters: {...} } }
+        // 3) { data: { data: { filters: {...} } } }  (legacy)
+        const dtoPayload = response.data
+
+        let container = dtoPayload as any
+        if (container && typeof container === 'object' && 'data' in container && !Array.isArray(container.data)) {
+          container = container.data
         }
+        if (container && typeof container === 'object' && 'data' in container && !Array.isArray(container.data)) {
+          container = container.data
+        }
+
+        const filters = (container && container.filters) || {}
+        const message =
+          (container && (container as any).message) ||
+          (dtoPayload && (dtoPayload as any).message) ||
+          undefined
+
+        console.log('✅ Filter Options API Response (normalized):', {
+          raw: dtoPayload,
+          container,
+          filterKeys: Object.keys(filters),
+          message,
+        })
+
+        return { data: { filters, message } }
       } catch (error) {
         console.error('❌ Filter Options API Error:', error)
         return { data: { filters: {} } }
@@ -152,22 +153,25 @@ export default function AdvancedFilters({
   )
   
   // Extract filter options from backend response
-  // Backend returns nested structure: { statusCode: 200, data: { data: { filters: {...} } } }
-  // The actual response structure from the logs shows: response.data.data.filters
-  // But the normalized response from our fetcher should have: response.data.filters
-  const backendFilters = filtersMeta?.data?.filters || filtersMeta?.data?.data?.filters || {}
+  // After normalization above we always expect: { data: { filters: {...}, message?: string } }
+  // but we keep a small fallback for any older shapes.
+  const filtersMetaData = filtersMeta as any
+  const backendFilters = filtersMetaData?.data?.filters || filtersMetaData?.data?.data?.filters || {}
+  const backendMessage = filtersMetaData?.data?.message as string | undefined
   
-  // Log filter availability for debugging
+  // Log filter availability for debugging (more neutral messaging)
   if (Object.keys(backendFilters).length === 0) {
-    console.warn('⚠️ No filter data from backend - using default values. Elasticsearch may be unavailable or no data indexed.')
+    console.info('ℹ️ No filter buckets received from backend – falling back to default filter options.', {
+      backendMessage,
+    })
     console.log('📊 Filter Meta Structure:', {
-      hasData: !!filtersMeta?.data,
-      hasNestedData: !!filtersMeta?.data?.data,
-      hasFilters: !!filtersMeta?.data?.filters || !!filtersMeta?.data?.data?.filters,
-      dataKeys: filtersMeta?.data ? Object.keys(filtersMeta.data) : [],
-      nestedDataKeys: filtersMeta?.data?.data ? Object.keys(filtersMeta.data.data) : [],
-      filtersKeys: filtersMeta?.data?.filters ? Object.keys(filtersMeta.data.filters) : 
-                   (filtersMeta?.data?.data?.filters ? Object.keys(filtersMeta.data.data.filters) : []),
+      hasData: !!filtersMetaData?.data,
+      hasNestedData: !!filtersMetaData?.data?.data,
+      hasFilters: !!filtersMetaData?.data?.filters || !!filtersMetaData?.data?.data?.filters,
+      dataKeys: filtersMetaData?.data ? Object.keys(filtersMetaData.data) : [],
+      nestedDataKeys: filtersMetaData?.data?.data ? Object.keys(filtersMetaData.data.data) : [],
+      filtersKeys: filtersMetaData?.data?.filters ? Object.keys(filtersMetaData.data.filters) : 
+                   (filtersMetaData?.data?.data?.filters ? Object.keys(filtersMetaData.data.data.filters) : []),
     })
   } else {
     console.log('✅ Backend filters loaded:', {
@@ -186,16 +190,13 @@ export default function AdvancedFilters({
     return buckets.map(b => b.value || b.label).filter(Boolean)
   }
   
-  // Values driven by backend where available, with sensible fallbacks.
-  const listingTypes = transformFilterBuckets(backendFilters.listing_types).length > 0
-    ? transformFilterBuckets(backendFilters.listing_types)
-    : defaultListingTypes
-    
-  const statuses = transformFilterBuckets(backendFilters.statuses).length > 0
-    ? transformFilterBuckets(backendFilters.statuses)
-    : defaultStatuses
+  // Values driven purely by backend – no local fallbacks.
+  const listingTypes = transformFilterBuckets(backendFilters.listing_types)
 
-  // Price ranges - backend provides min/max, we create ranges from that
+  const statuses = transformFilterBuckets(backendFilters.statuses)
+
+  // Price ranges - backend provides min/max, we create ranges from that.
+  // If backend doesn't send stats, the list stays empty.
   const backendPriceStats = backendFilters.price
   const priceRanges: PriceRange[] = backendPriceStats?.min !== undefined && backendPriceStats?.max !== undefined
     ? [
@@ -203,31 +204,28 @@ export default function AdvancedFilters({
         { label: `${(backendPriceStats.min / 1000).toFixed(0)}k - ${(backendPriceStats.max / 1000).toFixed(0)}k`, min: backendPriceStats.min, max: backendPriceStats.max },
         { label: `${(backendPriceStats.max / 1000).toFixed(0)}k+`, min: backendPriceStats.max, max: null },
       ]
-    : defaultPriceRanges
+    : []
 
-  // These sections use backend data where available, with local defaults as fallback
-  const propertyTypes = defaultPropertyTypes
-  const bedrooms = transformFilterBuckets(backendFilters.bhk).length > 0
-    ? transformFilterBuckets(backendFilters.bhk)
-    : defaultBedrooms
-  const bathrooms = transformFilterBuckets(backendFilters.bathrooms).length > 0
-    ? transformFilterBuckets(backendFilters.bathrooms)
-    : defaultBathrooms
-  const locations = transformFilterBuckets(backendFilters.cities).length > 0
-    ? transformFilterBuckets(backendFilters.cities)
-    : defaultLocations
-  const amenities = transformFilterBuckets(backendFilters.amenities).length > 0
-    ? transformFilterBuckets(backendFilters.amenities)
-    : defaultAmenities
+  // These sections now use backend data only. If backend doesn't send buckets,
+  // the corresponding filter list will be empty.
+  const propertyTypes =
+    transformFilterBuckets((backendFilters as any).property_types || (backendFilters as any).property_categories)
+
+  const bedrooms = transformFilterBuckets(backendFilters.bhk)
+  const bathrooms = transformFilterBuckets(backendFilters.bathrooms)
+  const locations = transformFilterBuckets(backendFilters.cities)
+  const districts = transformFilterBuckets((backendFilters as any).districts)
+  const states = transformFilterBuckets((backendFilters as any).states)
+  const amenities = transformFilterBuckets(backendFilters.amenities)
+
+  // These remain local-only toggles (no backend buckets), but they don't affect API params
+  // beyond simple flags, so we keep the UX defaults.
   const verifiedOptions = defaultVerifiedOptions
   const featuredOptions = defaultFeaturedOptions
-  const furnishingOptions = transformFilterBuckets(backendFilters.furnishing).length > 0
-    ? transformFilterBuckets(backendFilters.furnishing)
-    : defaultFurnishing
-  const facingOptions = defaultFacing // Backend doesn't provide facing aggregations
-  const parkingOptions = transformFilterBuckets(backendFilters.parking).length > 0
-    ? transformFilterBuckets(backendFilters.parking)
-    : defaultParking
+
+  const furnishingOptions = transformFilterBuckets(backendFilters.furnishing)
+  const facingOptions = defaultFacing // still local; backend doesn't provide facing aggregations
+  const parkingOptions = transformFilterBuckets(backendFilters.parking)
   const sortOptions = defaultSortOptions
 
   const toggleSection = (section: string) => {
@@ -327,6 +325,8 @@ export default function AdvancedFilters({
               bedrooms={bedrooms}
               bathrooms={bathrooms}
               locations={locations}
+              districts={districts}
+              states={states}
               amenities={amenities}
               verifiedOptions={verifiedOptions}
               featuredOptions={featuredOptions}
@@ -334,6 +334,7 @@ export default function AdvancedFilters({
               facingOptions={facingOptions}
               parkingOptions={parkingOptions}
               sortOptions={sortOptions}
+              pageType={pageType}
             />
           </motion.div>
         )}
@@ -408,6 +409,8 @@ export default function AdvancedFilters({
                 bedrooms={bedrooms}
                 bathrooms={bathrooms}
                 locations={locations}
+                districts={districts}
+                states={states}
                 amenities={amenities}
                 verifiedOptions={verifiedOptions}
                 featuredOptions={featuredOptions}
@@ -415,6 +418,7 @@ export default function AdvancedFilters({
                 facingOptions={facingOptions}
                 parkingOptions={parkingOptions}
                 sortOptions={sortOptions}
+                pageType={pageType}
               />
             </motion.div>
           </>
@@ -439,6 +443,8 @@ function FilterContent({
   bedrooms,
   bathrooms,
   locations,
+  districts,
+  states,
   amenities,
   verifiedOptions,
   featuredOptions,
@@ -446,6 +452,7 @@ function FilterContent({
   facingOptions,
   parkingOptions,
   sortOptions,
+  pageType = 'property',
 }: {
   filters: FilterState
   updateFilter: (key: keyof FilterState, value: any) => void
@@ -461,6 +468,8 @@ function FilterContent({
   bedrooms: string[]
   bathrooms: string[]
   locations: string[]
+  districts: string[]
+  states: string[]
   amenities: string[]
   verifiedOptions: string[]
   featuredOptions: string[]
@@ -468,6 +477,7 @@ function FilterContent({
   facingOptions: string[]
   parkingOptions: string[]
   sortOptions: { value: string; label: string }[]
+  pageType?: 'property' | 'agency'
 }) {
   return (
     <>
@@ -492,40 +502,291 @@ function FilterContent({
       })()}
 
       <div className="space-y-4">
-        {/* Price Range Presets */}
-        <FilterSection
-          title="Price Range"
-          isExpanded={expandedSections.price}
-          onToggle={() => toggleSection('price')}
-        >
-          <div className="space-y-3">
-            {priceRanges.map((range, idx) => (
-              <label key={idx} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
-                <input
-                  type="checkbox"
-                  checked={filters.priceRangePreset.includes(range.label)}
-                  onChange={() => {
-                    const updated = filters.priceRangePreset.includes(range.label)
-                      ? filters.priceRangePreset.filter(p => p !== range.label)
-                      : [...filters.priceRangePreset, range.label]
-                    updateFilter('priceRangePreset', updated)
-                    if (!filters.priceRangePreset.includes(range.label)) {
-                      updateFilter('priceRange', [range.min, range.max])
-                    }
-                  }}
-                  className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
-                />
-                <span className="text-sm text-gray-700">{range.label}</span>
-              </label>
-            ))}
-            <div className="pt-2 border-t border-gray-200">
-              <div className="flex items-center gap-3 mb-2">
+        {/* Price Range Presets - Only show on property page if more than 1 range */}
+        {pageType === 'property' && priceRanges.length > 1 && (
+          <FilterSection
+            title="Price Range"
+            isExpanded={expandedSections.price}
+            onToggle={() => toggleSection('price')}
+          >
+            <div className="space-y-3">
+              {priceRanges.map((range, idx) => (
+                <label key={idx} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                  <input
+                    type="checkbox"
+                    checked={filters.priceRangePreset.includes(range.label)}
+                    onChange={() => {
+                      const updated = filters.priceRangePreset.includes(range.label)
+                        ? filters.priceRangePreset.filter(p => p !== range.label)
+                        : [...filters.priceRangePreset, range.label]
+                      updateFilter('priceRangePreset', updated)
+                      if (!filters.priceRangePreset.includes(range.label)) {
+                        updateFilter('priceRange', [range.min, range.max])
+                      }
+                    }}
+                    className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
+                  />
+                  <span className="text-sm text-gray-700">{range.label}</span>
+                </label>
+              ))}
+              <div className="pt-2 border-t border-gray-200">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="flex-1">
+                    <label className="text-xs text-gray-500 mb-1 block">Min</label>
+                    <input
+                      type="number"
+                      value={filters.priceRange[0] || ''}
+                      onChange={(e) => updateFilter('priceRange', [Number(e.target.value) || 0, filters.priceRange[1]])}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                      placeholder="0"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-xs text-gray-500 mb-1 block">Max</label>
+                    <input
+                      type="number"
+                      value={filters.priceRange[1] === 100000000 ? '' : filters.priceRange[1]}
+                      onChange={(e) => updateFilter('priceRange', [filters.priceRange[0], Number(e.target.value) || 100000000])}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                      placeholder="No limit"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </FilterSection>
+        )}
+
+        {/* Property Category - Only show on property page if more than 1 type */}
+        {pageType === 'property' && propertyTypes.length > 1 && (
+          <FilterSection
+            title="Property Category"
+            isExpanded={expandedSections.propertyType}
+            onToggle={() => toggleSection('propertyType')}
+          >
+            <div className="space-y-2">
+              {propertyTypes.map((type: string) => (
+                <label key={type} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                  <input
+                    type="checkbox"
+                    checked={filters.propertyType.includes(type)}
+                    onChange={() => toggleArrayFilter('propertyType', type)}
+                    className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
+                  />
+                  <span className="text-sm text-gray-700">{type}</span>
+                </label>
+              ))}
+            </div>
+          </FilterSection>
+        )}
+
+        {/* Bedrooms - Only show on property page if more than 1 option */}
+        {pageType === 'property' && bedrooms.length > 1 && (
+          <FilterSection
+            title="Bedrooms"
+            isExpanded={expandedSections.bedrooms}
+            onToggle={() => toggleSection('bedrooms')}
+          >
+            <div className="flex flex-wrap gap-2">
+              {bedrooms.map((bed: string) => (
+                <button
+                  key={bed}
+                  type="button"
+                  onClick={() => toggleArrayFilter('bedrooms', bed)}
+                  className={cn(
+                    "px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                    filters.bedrooms.includes(bed)
+                      ? "bg-yellow-500 text-[#2a1407] border-2 border-yellow-600"
+                      : "bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200"
+                  )}
+                >
+                  {bed} BHK
+                </button>
+              ))}
+            </div>
+          </FilterSection>
+        )}
+
+        {/* Bathrooms - Only show on property page if more than 1 option */}
+        {pageType === 'property' && bathrooms.length > 1 && (
+          <FilterSection
+            title="Bathrooms"
+            isExpanded={expandedSections.bathrooms}
+            onToggle={() => toggleSection('bathrooms')}
+          >
+            <div className="flex flex-wrap gap-2">
+              {bathrooms.map((bath: string) => (
+                <button
+                  key={bath}
+                  type="button"
+                  onClick={() => toggleArrayFilter('bathrooms', bath)}
+                  className={cn(
+                    "px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                    filters.bathrooms.includes(bath)
+                      ? "bg-yellow-500 text-[#2a1407] border-2 border-yellow-600"
+                      : "bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200"
+                  )}
+                >
+                  {bath}
+                </button>
+              ))}
+            </div>
+          </FilterSection>
+        )}
+
+        {/* Location (Cities) - Show on both pages if more than 1 location */}
+        {locations.length > 1 && (
+          <FilterSection
+            title="Location"
+            isExpanded={expandedSections.location}
+            onToggle={() => toggleSection('location')}
+          >
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {locations.map((location: string) => (
+                <label key={location} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                  <input
+                    type="checkbox"
+                    checked={filters.location.includes(location)}
+                    onChange={() => toggleArrayFilter('location', location)}
+                    className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
+                  />
+                  <span className="text-sm text-gray-700">{location}</span>
+                </label>
+              ))}
+            </div>
+          </FilterSection>
+        )}
+
+        {/* Listing Type - Only show on property page if more than 1 type */}
+        {pageType === 'property' && listingTypes.length > 1 && (
+          <FilterSection
+            title="Listing Type"
+            isExpanded={expandedSections.listingType}
+            onToggle={() => toggleSection('listingType')}
+          >
+            <div className="space-y-2">
+              {listingTypes.map((type: string) => (
+                <label key={type} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                  <input
+                    type="checkbox"
+                    checked={filters.listingType.includes(type)}
+                    onChange={() => toggleArrayFilter('listingType', type)}
+                    className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
+                  />
+                  <span className="text-sm text-gray-700">{type}</span>
+                </label>
+              ))}
+            </div>
+          </FilterSection>
+        )}
+
+        {/* Status - Only show on property page if more than 1 status */}
+        {pageType === 'property' && statuses.length > 1 && (
+          <FilterSection
+            title="Status"
+            isExpanded={expandedSections.status}
+            onToggle={() => toggleSection('status')}
+          >
+            <div className="space-y-2">
+              {statuses.map((status: string) => (
+                <label key={status} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                  <input
+                    type="checkbox"
+                    checked={filters.status.includes(status)}
+                    onChange={() => toggleArrayFilter('status', status)}
+                    className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
+                  />
+                  <span className="text-sm text-gray-700">{status}</span>
+                </label>
+              ))}
+            </div>
+          </FilterSection>
+        )}
+
+        {/* Amenities - Only show on property page if more than 1 amenity */}
+        {pageType === 'property' && amenities.length > 1 && (
+          <FilterSection
+            title="Amenities"
+            isExpanded={expandedSections.amenities}
+            onToggle={() => toggleSection('amenities')}
+          >
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {amenities.map((amenity: string) => (
+                <label key={amenity} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                  <input
+                    type="checkbox"
+                    checked={filters.amenities.includes(amenity)}
+                    onChange={() => toggleArrayFilter('amenities', amenity)}
+                    className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
+                  />
+                  <span className="text-sm text-gray-700">{amenity}</span>
+                </label>
+              ))}
+            </div>
+          </FilterSection>
+        )}
+
+        {/* Districts - Show on agency page if more than 1 district */}
+        {pageType === 'agency' && districts.length > 1 && (
+          <FilterSection
+            title="Districts"
+            isExpanded={expandedSections.district || false}
+            onToggle={() => toggleSection('district')}
+          >
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {districts.map((district: string) => (
+                <label key={district} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                  <input
+                    type="checkbox"
+                    checked={filters.district.includes(district)}
+                    onChange={() => toggleArrayFilter('district', district)}
+                    className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
+                  />
+                  <span className="text-sm text-gray-700">{district}</span>
+                </label>
+              ))}
+            </div>
+          </FilterSection>
+        )}
+
+        {/* States - Show on agency page if more than 1 state */}
+        {pageType === 'agency' && states.length > 1 && (
+          <FilterSection
+            title="States"
+            isExpanded={expandedSections.state || false}
+            onToggle={() => toggleSection('state')}
+          >
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {states.map((state: string) => (
+                <label key={state} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                  <input
+                    type="checkbox"
+                    checked={filters.state.includes(state)}
+                    onChange={() => toggleArrayFilter('state', state)}
+                    className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
+                  />
+                  <span className="text-sm text-gray-700">{state}</span>
+                </label>
+              ))}
+            </div>
+          </FilterSection>
+        )}
+
+        {/* Size Range - Only show on property page (manual input) */}
+        {pageType === 'property' && (
+          <FilterSection
+            title="Size Range (sqft)"
+            isExpanded={expandedSections.sizeRange || false}
+            onToggle={() => toggleSection('sizeRange')}
+          >
+            <div className="pt-2">
+              <div className="flex items-center gap-3">
                 <div className="flex-1">
                   <label className="text-xs text-gray-500 mb-1 block">Min</label>
                   <input
                     type="number"
-                    value={filters.priceRange[0] || ''}
-                    onChange={(e) => updateFilter('priceRange', [Number(e.target.value) || 0, filters.priceRange[1]])}
+                    value={filters.sizeRange[0] || ''}
+                    onChange={(e) => updateFilter('sizeRange', [Number(e.target.value) || 0, filters.sizeRange[1]])}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
                     placeholder="0"
                   />
@@ -534,308 +795,68 @@ function FilterContent({
                   <label className="text-xs text-gray-500 mb-1 block">Max</label>
                   <input
                     type="number"
-                    value={filters.priceRange[1] === 100000000 ? '' : filters.priceRange[1]}
-                    onChange={(e) => updateFilter('priceRange', [filters.priceRange[0], Number(e.target.value) || 100000000])}
+                    value={filters.sizeRange[1] || ''}
+                    onChange={(e) => updateFilter('sizeRange', [filters.sizeRange[0], Number(e.target.value) || 0])}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
                     placeholder="No limit"
                   />
                 </div>
               </div>
             </div>
-          </div>
-        </FilterSection>
+          </FilterSection>
+        )}
 
-        {/* Verified & Featured */}
-        <FilterSection
-          title="Property Type"
-          isExpanded={expandedSections.verified}
-          onToggle={() => toggleSection('verified')}
-        >
-          <div className="space-y-2">
-            {verifiedOptions.map((option: string) => (
-              <label key={option} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
-                <input
-                  type="checkbox"
-                  checked={filters.verified.includes(option)}
-                  onChange={() => toggleArrayFilter('verified', option)}
-                  className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
-                />
-                <span className="text-sm text-gray-700">{option}</span>
-              </label>
-            ))}
-            {featuredOptions.map((option: string) => (
-              <label key={option} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
-                <input
-                  type="checkbox"
-                  checked={filters.featured.includes(option)}
-                  onChange={() => toggleArrayFilter('featured', option)}
-                  className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
-                />
-                <span className="text-sm text-gray-700">{option}</span>
-              </label>
-            ))}
-          </div>
-        </FilterSection>
-
-        {/* Property Category */}
-        <FilterSection
-          title="Property Category"
-          isExpanded={expandedSections.propertyType}
-          onToggle={() => toggleSection('propertyType')}
-        >
-          <div className="space-y-2">
-            {propertyTypes.map((type: string) => (
-              <label key={type} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
-                <input
-                  type="checkbox"
-                  checked={filters.propertyType.includes(type)}
-                  onChange={() => toggleArrayFilter('propertyType', type)}
-                  className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
-                />
-                <span className="text-sm text-gray-700">{type}</span>
-              </label>
-            ))}
-          </div>
-        </FilterSection>
-
-        {/* Bedrooms */}
-        <FilterSection
-          title="Bedrooms"
-          isExpanded={expandedSections.bedrooms}
-          onToggle={() => toggleSection('bedrooms')}
-        >
-          <div className="flex flex-wrap gap-2">
-            {bedrooms.map((bed: string) => (
-              <button
-                key={bed}
-                type="button"
-                onClick={() => toggleArrayFilter('bedrooms', bed)}
-                className={cn(
-                  "px-4 py-2 rounded-lg text-sm font-medium transition-all",
-                  filters.bedrooms.includes(bed)
-                    ? "bg-yellow-500 text-[#2a1407] border-2 border-yellow-600"
-                    : "bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200"
-                )}
-              >
-                {bed} BHK
-              </button>
-            ))}
-          </div>
-        </FilterSection>
-
-        {/* Bathrooms */}
-        <FilterSection
-          title="Bathrooms"
-          isExpanded={expandedSections.bathrooms}
-          onToggle={() => toggleSection('bathrooms')}
-        >
-          <div className="flex flex-wrap gap-2">
-            {bathrooms.map((bath: string) => (
-              <button
-                key={bath}
-                type="button"
-                onClick={() => toggleArrayFilter('bathrooms', bath)}
-                className={cn(
-                  "px-4 py-2 rounded-lg text-sm font-medium transition-all",
-                  filters.bathrooms.includes(bath)
-                    ? "bg-yellow-500 text-[#2a1407] border-2 border-yellow-600"
-                    : "bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200"
-                )}
-              >
-                {bath}
-              </button>
-            ))}
-          </div>
-        </FilterSection>
-
-        {/* Location */}
-        <FilterSection
-          title="Location"
-          isExpanded={expandedSections.location}
-          onToggle={() => toggleSection('location')}
-        >
-          <div className="space-y-2 max-h-48 overflow-y-auto">
-            {locations.map((location: string) => (
-              <label key={location} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
-                <input
-                  type="checkbox"
-                  checked={filters.location.includes(location)}
-                  onChange={() => toggleArrayFilter('location', location)}
-                  className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
-                />
-                <span className="text-sm text-gray-700">{location}</span>
-              </label>
-            ))}
-          </div>
-        </FilterSection>
-
-        {/* Listing Type */}
-        <FilterSection
-          title="Listing Type"
-          isExpanded={expandedSections.listingType}
-          onToggle={() => toggleSection('listingType')}
-        >
-          <div className="space-y-2">
-            {listingTypes.map((type: string) => (
-              <label key={type} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
-                <input
-                  type="checkbox"
-                  checked={filters.listingType.includes(type)}
-                  onChange={() => toggleArrayFilter('listingType', type)}
-                  className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
-                />
-                <span className="text-sm text-gray-700">{type}</span>
-              </label>
-            ))}
-          </div>
-        </FilterSection>
-
-        {/* Status */}
-        <FilterSection
-          title="Status"
-          isExpanded={expandedSections.status}
-          onToggle={() => toggleSection('status')}
-        >
-          <div className="space-y-2">
-            {statuses.map((status: string) => (
-              <label key={status} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
-                <input
-                  type="checkbox"
-                  checked={filters.status.includes(status)}
-                  onChange={() => toggleArrayFilter('status', status)}
-                  className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
-                />
-                <span className="text-sm text-gray-700">{status}</span>
-              </label>
-            ))}
-          </div>
-        </FilterSection>
-
-        {/* Amenities */}
-        <FilterSection
-          title="Amenities"
-          isExpanded={expandedSections.amenities}
-          onToggle={() => toggleSection('amenities')}
-        >
-          <div className="space-y-2 max-h-48 overflow-y-auto">
-            {amenities.map((amenity: string) => (
-              <label key={amenity} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
-                <input
-                  type="checkbox"
-                  checked={filters.amenities.includes(amenity)}
-                  onChange={() => toggleArrayFilter('amenities', amenity)}
-                  className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
-                />
-                <span className="text-sm text-gray-700">{amenity}</span>
-              </label>
-            ))}
-          </div>
-        </FilterSection>
-
-        {/* Size Range */}
-        <FilterSection
-          title="Size Range (sqft)"
-          isExpanded={expandedSections.sizeRange || false}
-          onToggle={() => toggleSection('sizeRange')}
-        >
-          <div className="pt-2">
-            <div className="flex items-center gap-3">
-              <div className="flex-1">
-                <label className="text-xs text-gray-500 mb-1 block">Min</label>
-                <input
-                  type="number"
-                  value={filters.sizeRange[0] || ''}
-                  onChange={(e) => updateFilter('sizeRange', [Number(e.target.value) || 0, filters.sizeRange[1]])}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                  placeholder="0"
-                />
-              </div>
-              <div className="flex-1">
-                <label className="text-xs text-gray-500 mb-1 block">Max</label>
-                <input
-                  type="number"
-                  value={filters.sizeRange[1] || ''}
-                  onChange={(e) => updateFilter('sizeRange', [filters.sizeRange[0], Number(e.target.value) || 0])}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                  placeholder="No limit"
-                />
-              </div>
+        {/* Furnishing - Only show on property page if more than 1 option */}
+        {pageType === 'property' && furnishingOptions.length > 1 && (
+          <FilterSection
+            title="Furnishing"
+            isExpanded={expandedSections.furnishing || false}
+            onToggle={() => toggleSection('furnishing')}
+          >
+            <div className="flex flex-wrap gap-2">
+              {furnishingOptions.map((option: string) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => toggleArrayFilter('furnishing', option)}
+                  className={cn(
+                    "px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                    filters.furnishing.includes(option)
+                      ? "bg-yellow-500 text-[#2a1407] border-2 border-yellow-600"
+                      : "bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200"
+                  )}
+                >
+                  {option}
+                </button>
+              ))}
             </div>
-          </div>
-        </FilterSection>
+          </FilterSection>
+        )}
 
-        {/* Furnishing */}
-        <FilterSection
-          title="Furnishing"
-          isExpanded={expandedSections.furnishing || false}
-          onToggle={() => toggleSection('furnishing')}
-        >
-          <div className="flex flex-wrap gap-2">
-            {furnishingOptions.map((option: string) => (
-              <button
-                key={option}
-                type="button"
-                onClick={() => toggleArrayFilter('furnishing', option)}
-                className={cn(
-                  "px-4 py-2 rounded-lg text-sm font-medium transition-all",
-                  filters.furnishing.includes(option)
-                    ? "bg-yellow-500 text-[#2a1407] border-2 border-yellow-600"
-                    : "bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200"
-                )}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
-        </FilterSection>
+        {/* Parking - Only show on property page if more than 1 option */}
+        {pageType === 'property' && parkingOptions.length > 1 && (
+          <FilterSection
+            title="Parking"
+            isExpanded={expandedSections.parking || false}
+            onToggle={() => toggleSection('parking')}
+          >
+            <div className="space-y-2">
+              {parkingOptions.map((option: string) => (
+                <label key={option} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                  <input
+                    type="checkbox"
+                    checked={filters.parking.includes(option)}
+                    onChange={() => toggleArrayFilter('parking', option)}
+                    className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
+                  />
+                  <span className="text-sm text-gray-700">{option}</span>
+                </label>
+              ))}
+            </div>
+          </FilterSection>
+        )}
 
-        {/* Facing */}
-        <FilterSection
-          title="Facing"
-          isExpanded={expandedSections.facing || false}
-          onToggle={() => toggleSection('facing')}
-        >
-          <div className="flex flex-wrap gap-2">
-            {facingOptions.map((option: string) => (
-              <button
-                key={option}
-                type="button"
-                onClick={() => toggleArrayFilter('facing', option)}
-                className={cn(
-                  "px-4 py-2 rounded-lg text-sm font-medium transition-all",
-                  filters.facing.includes(option)
-                    ? "bg-yellow-500 text-[#2a1407] border-2 border-yellow-600"
-                    : "bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200"
-                )}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
-        </FilterSection>
-
-        {/* Parking */}
-        <FilterSection
-          title="Parking"
-          isExpanded={expandedSections.parking || false}
-          onToggle={() => toggleSection('parking')}
-        >
-          <div className="space-y-2">
-            {parkingOptions.map((option: string) => (
-              <label key={option} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
-                <input
-                  type="checkbox"
-                  checked={filters.parking.includes(option)}
-                  onChange={() => toggleArrayFilter('parking', option)}
-                  className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
-                />
-                <span className="text-sm text-gray-700">{option}</span>
-              </label>
-            ))}
-          </div>
-        </FilterSection>
-
-        {/* Sort By */}
+        {/* Sort By - Always show (UI helper) */}
         <FilterSection
           title="Sort By"
           isExpanded={expandedSections.sortBy || false}
