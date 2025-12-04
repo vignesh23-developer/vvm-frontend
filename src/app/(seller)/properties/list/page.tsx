@@ -257,6 +257,9 @@ export default function PropertiesPage() {
             setPage={setPage}
             setCurrentPageSize={setLimit}
             onRefresh={handleRefresh}
+            allowExport
+            allowGrouping
+            allowRefresh
           />
         </div>
         {/* Sidebar */}

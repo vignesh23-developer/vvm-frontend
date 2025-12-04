@@ -125,13 +125,6 @@ export default function AgencyDetails({ name }: { name: string }) {
     }
   }, [name, t])
 
-  const initialValues: EnquiryFormValues = {
-    name: '',
-    email: '',
-    phone: '',
-    message: '',
-  }
-
   const establishedYear = useMemo(() => {
     if (!agencyData?.createdAt) return '—'
     const year = new Date(agencyData.createdAt).getFullYear()

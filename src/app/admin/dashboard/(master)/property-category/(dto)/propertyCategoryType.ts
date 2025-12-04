@@ -26,3 +26,7 @@ export interface PropertyCategoryFormProps {
   /** Optional — Change button state for add/edit */
   isEdit?: boolean
 }
+export interface PropertyCategoryTableProps {
+  page: number
+  limit: number
+}

@@ -19,7 +19,7 @@ interface ApproveOrRejectPropertyModalProps {
   approveOrRejectReason: string
   userId: string | number
   property: any
-  propertyDetailsRefresh?: () => void
+  propertyRefresh?: () => void
 }
 
 // Options
@@ -37,7 +37,7 @@ const ApproveOrRejectPropertyModal = ({
   approveOrRejectReason,
   userId,
   property,
-  propertyDetailsRefresh,
+  propertyRefresh,
 }: ApproveOrRejectPropertyModalProps) => {
   const [loading, setLoading] = useState(false)
 
@@ -70,8 +70,8 @@ const ApproveOrRejectPropertyModal = ({
       } else {
         toast.success(`Property ${approveOrRejectReason}d successfully`)
         setApproveOrRejectModalOpen(false)
-        if (propertyDetailsRefresh) {
-          propertyDetailsRefresh()
+        if (propertyRefresh) {
+          propertyRefresh()
         }
       }
     } catch (error) {

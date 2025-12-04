@@ -1,7 +1,7 @@
 'use client'
 
 import { Plus, Edit3, Trash2 } from 'lucide-react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
 import { useFeatureGroup } from '@/app/admin/dashboard/(master)/feature-group/(hooks)/useFeatureGroup'
 import { FeatureGroup } from '@/app/admin/dashboard/(master)/feature-group/(dto)/FeatureGroupType'
@@ -10,16 +10,9 @@ import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 type FeatureGroupTableRow = FeatureGroup & Record<string, unknown>
 
 export default function FeatureGroupPage() {
-  const {
-    groups,
-    total,
-    error,
-    isLoading,
-    handleAdd,
-    handleEdit,
-    handleDelete,
-    mutateGroups, // now included
-  } = useFeatureGroup()
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+  const { groups, total, error, isLoading, handleAdd, handleEdit, handleDelete, mutateGroups } = useFeatureGroup({ page, limit })
 
   // Columns definition
 
@@ -73,9 +66,9 @@ export default function FeatureGroupPage() {
     const latestGroups = (groups ?? []) as FeatureGroupTableRow[]
     return {
       data: latestGroups,
-      totalItems: latestGroups.length,
+      totalItems: typeof total === 'number' ? total : latestGroups.length,
     }
-  }, [groups])
+  }, [groups, total])
 
   const handleRefresh = async () => {
     await mutateGroups()
@@ -86,6 +79,8 @@ export default function FeatureGroupPage() {
     secondary: '#E5F4FB',
     accent: '#15557C',
   }
+
+  console.log('Feature Groups:', groups)
 
   //  Handle loading and error states
   if (error) return <div className="p-6 text-red-600">Failed to load feature group.</div>
@@ -117,9 +112,14 @@ export default function FeatureGroupPage() {
           allowExport
           allowGrouping
           allowRefresh
+          initialPage={page}
+          pageSize={limit}
           totalItemsData={total}
+          totalPageData={Math.ceil((total ?? 0) / (limit || 1))}
+          pageSizeOptions={[5, 10, 25, 50, 100]}
+          setPage={setPage}
+          setCurrentPageSize={setLimit}
           onRefresh={handleRefresh}
-          colors={Colors}
         />
       </div>
     </div>

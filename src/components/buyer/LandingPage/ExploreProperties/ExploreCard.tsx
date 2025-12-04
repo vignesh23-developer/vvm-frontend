@@ -25,12 +25,22 @@ export default function ExploreCard({ item, variants }: ExploreCardProps) {
           {item.count} Properties
         </p>
 
-        <Link href={`/properties_list/agency`}>
-          <p className="flex items-center gap-2 font-semibold text-gray-800 mb-3">
-            <HatGlasses size={18} className="text-gray-600" />
-            {item.createdByCount} Agents
-          </p>
-        </Link>
+        {item.noOfAgents > 0 && (
+          <Link href={`/properties_list/agency`}>
+            <p className="flex items-center gap-2 font-semibold text-gray-800 mb-3">
+              <HatGlasses size={18} className="text-gray-600" />
+              {item.noOfAgents} Agents
+            </p>
+          </Link>
+        )}
+
+        <div className="mt-4 text-start">
+          {item.propertyCategories?.map((category, index) => (
+            <span key={index} className="inline-block bg-[#E0F7FA] text-[#00796B] text-xs font-medium mr-2 mb-2 px-3 py-1 rounded-full">
+              {category}
+            </span>
+          ))}
+        </div>
       </div>
 
       <div className="h-[120px] bg-[#B0BEC5] shadow-md relative flex flex-col items-start justify-end">

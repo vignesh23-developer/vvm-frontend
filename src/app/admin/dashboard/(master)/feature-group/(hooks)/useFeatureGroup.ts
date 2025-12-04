@@ -5,12 +5,12 @@ import useSWR from 'swr'
 import { useRouter } from 'next/navigation'
 import { appEndpoints } from '@/services/endpoints'
 import { getMethod, patchMethod } from '@/services/service'
-import { FeatureGroup } from '@/app/admin/dashboard/(master)/feature-group/(dto)/FeatureGroupType'
+import { FeatureGroup, FeatureGroupTableProps } from '@/app/admin/dashboard/(master)/feature-group/(dto)/FeatureGroupType'
 import toast from 'react-hot-toast'
 import { ResponseDTO } from '@/components/dto/response_dto'
 
 // Custom hook for managing property categories
-export function useFeatureGroup() {
+export function useFeatureGroup({ page = 1, limit = 10 } = {} as FeatureGroupTableProps) {
   const router = useRouter()
 
   // Fetcher using our generic API helper
@@ -20,7 +20,12 @@ export function useFeatureGroup() {
   }
 
   // SWR handles caching, revalidation, and errors
-  const { data, error, isLoading, mutate: mutateGroups } = useSWR<ResponseDTO>(`${appEndpoints.getAllFeatureGroups}`, fetcher)
+  const {
+    data,
+    error,
+    isLoading,
+    mutate: mutateGroups,
+  } = useSWR<ResponseDTO>(`${appEndpoints.getAllFeatureGroups}?page=${page}&limit=${limit}`, fetcher)
 
   // CRUD handlers
   const handleAdd = useCallback(() => {
@@ -49,7 +54,7 @@ export function useFeatureGroup() {
   }
 
   return {
-    groups: data?.data as FeatureGroup[] | undefined,
+    groups: data?.data?.data as FeatureGroup[] | undefined,
     total: data?.data?.total as number | undefined,
     error,
     isLoading,

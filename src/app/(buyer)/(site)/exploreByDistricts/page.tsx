@@ -81,7 +81,7 @@ function ExploreByDistrict() {
 
     switch (sortBy) {
       case 'agents':
-        return next.sort((a, b) => (b.createdByCount ?? 0) - (a.createdByCount ?? 0))
+        return next.sort((a, b) => (b.noOfAgents ?? 0) - (a.noOfAgents ?? 0))
       case 'alphabetical':
         return next.sort((a, b) => String(a.district).localeCompare(String(b.district)))
       default:
@@ -111,7 +111,7 @@ function ExploreByDistrict() {
   }, [properties])
 
   const totalProperties = useMemo(() => properties.reduce((sum, item) => sum + (item.count ?? 0), 0), [properties])
-  const totalAgents = useMemo(() => properties.reduce((sum, item) => sum + (item.createdByCount ?? 0), 0), [properties])
+  const totalAgents = useMemo(() => properties.reduce((sum, item) => sum + (item.noOfAgents ?? 0), 0), [properties])
   const budgetRange = useMemo(() => {
     if (!properties.length) {
       return { min: 0, max: 0 }
@@ -396,7 +396,7 @@ const quickFilterOptions: QuickFilterOption[] = [
     id: 'agentHeavy',
     label: 'Agent-heavy districts',
     helper: '25+ verified agents active',
-    predicate: item => (item.createdByCount ?? 0) >= 25,
+    predicate: item => (item.noOfAgents ?? 0) >= 25,
   },
 ]
 
