@@ -26,13 +26,7 @@ export default function Step1BasicDetails({ formik }: Step1BasicDetailsProps) {
       <div className="space-y-6">
         {/* Title */}
         <div>
-          <FormikTextField
-            isrequired
-            type="text"
-            placeholder="e.g., iPhone 14 Pro Max"
-            label="Title"
-            name="title"
-          />
+          <FormikTextField isrequired type="text" placeholder="e.g., iPhone 14 Pro Max" label="Title" name="title" />
         </div>
 
         {/* Description */}
@@ -52,9 +46,7 @@ export default function Step1BasicDetails({ formik }: Step1BasicDetailsProps) {
             className={`mt-2 w-full px-4 py-3 border rounded-lg shadow-sm resize-none focus:ring-2 focus:ring-[#7B1E1E] focus:outline-none
               ${errors.description && touched.description ? 'border-red-300 bg-red-50' : 'border-gray-300'}`}
           />
-          {touched.description && errors.description && (
-            <p className="text-red-600 text-xs mt-1">{errors.description}</p>
-          )}
+          {touched.description && errors.description && <p className="text-red-600 text-xs mt-1">{errors.description}</p>}
           <div className="text-xs text-gray-500 mt-1">{values.description.length}/500 characters</div>
         </div>
 
@@ -68,10 +60,6 @@ export default function Step1BasicDetails({ formik }: Step1BasicDetailsProps) {
               <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-[#7B1E1E]" />
               <span className="ml-2 text-sm text-gray-500">Loading categories...</span>
             </div>
-          ) : categories.length === 0 ? (
-            <div className="mt-3 p-4 bg-gray-50 rounded-lg text-center text-sm text-gray-500">
-              No categories available
-            </div>
           ) : (
             <select
               name="category_id"
@@ -80,19 +68,17 @@ export default function Step1BasicDetails({ formik }: Step1BasicDetailsProps) {
               className="mt-2 w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-[#7B1E1E] focus:outline-none"
             >
               <option value="">Select a category</option>
-              {categories
-                .filter(category => category.isActive)
-                .sort((a, b) => a.sortOrder - b.sortOrder)
-                .map(category => (
+              {(categories ?? [])
+                .filter((category: any) => Boolean(category?.isActive))
+                .sort((a: any, b: any) => (a?.sortOrder ?? 0) - (b?.sortOrder ?? 0))
+                .map((category: any) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
                   </option>
                 ))}
             </select>
           )}
-          {touched.category_id && errors.category_id && (
-            <p className="text-red-600 text-xs mt-1">{errors.category_id}</p>
-          )}
+          {touched.category_id && errors.category_id && <p className="text-red-600 text-xs mt-1">{errors.category_id}</p>}
         </div>
 
         {/* Price and Price Unit */}
@@ -115,9 +101,7 @@ export default function Step1BasicDetails({ formik }: Step1BasicDetailsProps) {
             </div>
 
             <div className="sm:col-span-4">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Price Unit
-              </label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Price Unit</label>
               <div className="relative">
                 <input
                   type="text"
@@ -125,15 +109,9 @@ export default function Step1BasicDetails({ formik }: Step1BasicDetailsProps) {
                   disabled
                   className="w-full h-[42px] px-4 py-2 border border-gray-300 rounded-lg shadow-sm bg-gray-100 text-gray-700 cursor-not-allowed"
                 />
-                <input
-                  type="hidden"
-                  name="price_unit"
-                  value="INR"
-                />
+                <input type="hidden" name="price_unit" value="INR" />
               </div>
-              {touched.price_unit && errors.price_unit && (
-                <p className="text-red-600 text-xs mt-1">{errors.price_unit}</p>
-              )}
+              {touched.price_unit && errors.price_unit && <p className="text-red-600 text-xs mt-1">{errors.price_unit}</p>}
             </div>
           </div>
         </div>
