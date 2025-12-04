@@ -3,5 +3,6 @@ export interface ExplorePropertyDto {
   count: number
   minAmount: number
   maxAmount: number
-  createdByCount: number
+  noOfAgents: number
+  propertyCategories: Array<string>
 }

@@ -8,17 +8,19 @@ import { Facebook, Instagram, Twitter, Linkedin } from 'lucide-react'
 import FooterColumn from './FooterColumn'
 
 const aboutLinks = [
+  { label: 'agents', href: '/agents' },
   { label: 'our_story', href: '/our-story' },
   { label: 'careers', href: '/careers' },
   { label: 'our_team', href: '/team' },
   { label: 'resources', href: '/resources' },
+  { label: 'services_provider', href: '/services-provider' },
 ]
 
 const supportLinks = [
   { label: 'faq', href: '/faq' },
   { label: 'contact_us', href: '/contact-us' },
-  { label: 'help_center', href: '/help-center' },
-  { label: 'terms_of_service', href: '/terms' },
+  { label: 'refund_policy', href: '/refund-policy' },
+  { label: 'terms_of_conditions', href: '/terms' },
   { label: 'privacy_policy', href: '/privacy-policy' },
 ]
 
@@ -70,22 +72,22 @@ export default function Footer() {
             </ul>
           </div>
         </div>
-        <p className="text-center text-sm text-gray-400 mt-8 col-span-full">
+        <p className="text-center text-sm text-white mt-8 col-span-full">
           Designed by{' '}
           <Link
             href="https://www.bizdevinfotech.com/"
             target="_blank"
             rel="noopener noreferrer"
             title="Bizdev Information Technology"
-            className="hover:text-white underline"
+            className="text-[#D4AF37] hover:underline"
           >
             Bizdev Information Technology
           </Link>{' '}
           | &copy; {new Date().getFullYear()}{' '}
-          <Link href="/" title="Vaazhga Valamudan" className="hover:text-white underline">
+          <Link href="/" title="Vaazhga Valamudan" className="text-[#D4AF37] hover:underline">
             Vaazhga Valamudan
           </Link>
-          . All rights reserved.
+          , All rights reserved.
         </p>
       </div>
     </footer>

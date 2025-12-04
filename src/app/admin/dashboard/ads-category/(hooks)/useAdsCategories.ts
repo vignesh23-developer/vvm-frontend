@@ -6,32 +6,24 @@ import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { appEndpoints } from '@/services/endpoints'
 import { getMethod, patchMethod } from '@/services/service'
-import { AdsCategory } from '../(dto)/adsCategoryType'
+import { AdsCategory, AdsCategoryProps } from '../(dto)/adsCategoryType'
+import { ResponseDTO } from '@/components/dto/response_dto'
 
 // Hook
-export function useAdsCategories() {
+export function useAdsCategories({ page = 1, limit = 10 } = {} as AdsCategoryProps) {
   const router = useRouter()
 
   // 🔹 Generic fetcher for SWR
-  const fetcher = async (url: string): Promise<AdsCategory[]> => {
-    try {
-      const { data, error, message } = await getMethod<AdsCategory[]>(url)
-
-      if (error) {
-        toast.error(message || 'Failed to fetch categories')
-        console.error('Error fetching categories:', message)
-        return []
-      }
-
-      return Array.isArray(data) ? data : []
-    } catch (err) {
-      console.error('Failed to fetch categories:', err)
-      return []
-    }
+  const fetcher = async (url: string) => {
+    const response = await getMethod(url)
+    return response
   }
 
   // 🔹 SWR data hook
-  const { data: categories = [], error, isLoading, mutate } = useSWR(`${appEndpoints.getAllAdsCategories}?activeOnly=true`, fetcher)
+  const { data, error, isLoading, mutate } = useSWR<ResponseDTO>(
+    `${appEndpoints.getAllAdsCategories}?activeOnly=true&page=${page}&limit=${limit}`,
+    fetcher,
+  )
 
   // 🔹 Handlers
   const navigate = useCallback((path: string) => router.push(path), [router])
@@ -55,8 +47,10 @@ export function useAdsCategories() {
     [mutate],
   )
 
+  console.log('Ads Categories Data:', data)
   return {
-    categories,
+    categories: data?.data?.data ?? [],
+    total: data?.data?.data?.total ?? 0,
     error,
     isLoading,
     handleAdd,

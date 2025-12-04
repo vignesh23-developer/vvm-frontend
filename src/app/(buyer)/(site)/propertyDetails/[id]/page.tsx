@@ -438,7 +438,7 @@ const page = () => {
           approveOrRejectReason={approveOrRejectReason}
           userId={user ? user?.id : ''}
           property={propertyDetailsData ? propertyDetailsData : ''}
-          propertyDetailsRefresh={propertyDetailsRefresh}
+          propertyRefresh={propertyDetailsRefresh}
         />
 
         <ReportPropertyModal

@@ -24,3 +24,8 @@ export interface FeatureGroupFormProps {
   /** Optional — Change button state for add/edit */
   isEdit?: boolean
 }
+
+export interface FeatureGroupTableProps {
+  page: number
+  limit: number
+}
