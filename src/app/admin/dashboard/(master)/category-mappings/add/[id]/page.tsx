@@ -51,12 +51,16 @@ export default function AddPropertyCategoryMapping() {
 
         // Fetch property category
         const propertyCategoryMappingRes = await getMethod(appEndpoints.getPropertyCategoryFeatureMappingByID(id))
+
         const propertyCategoryData = propertyCategoryMappingRes?.data as PropertyCategory | undefined
         if (propertyCategoryData) setPropertyCategory(propertyCategoryData)
 
         // Fetch all features
         const featureRes = await getMethod(appEndpoints.getAllFeatureCategories)
-        const featureData = Array.isArray(featureRes?.data) ? (featureRes.data as any[]) : []
+        console.log('featureRes', featureRes)
+        const featureData = Array.isArray((featureRes as any)?.data?.data) ? ((featureRes as any).data.data as any[]) : []
+
+        console.log('featureData', featureData)
         if (featureData.length) {
           const formatted = featureData.map((f: any) => ({
             id: f.id,
