@@ -37,7 +37,9 @@ export function useUserSubscription() {
         const userData = getLocalStorageItem(LOCAL_STORAGE_NAME.userData) as { id: string } | null
 
         if (!userData?.id) {
-          router.push('/login')
+          if (isMounted) {
+            router.push('/login')
+          }
           return
         }
 
@@ -46,7 +48,9 @@ export function useUserSubscription() {
         if (!isMounted) return
 
         if (response.error) {
-          setError(response.message || 'Failed to fetch subscriptions')
+          if (isMounted) {
+            setError(response.message || 'Failed to fetch subscriptions')
+          }
           return
         }
 
@@ -54,7 +58,9 @@ export function useUserSubscription() {
         const subscriptions: UserSubscription[] = Array.isArray(rawData) ? rawData : rawData ? [rawData] : []
         const activeSubscription = subscriptions.find(subscription => subscription.isActive == true)
 
-        setActiveSubscription(activeSubscription || null)
+        if (isMounted) {
+          setActiveSubscription(activeSubscription || null)
+        }
       } catch (err) {
         if (isMounted) {
           setError('An error occurred while fetching subscriptions')
