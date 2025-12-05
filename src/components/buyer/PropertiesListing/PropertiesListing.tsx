@@ -84,8 +84,6 @@ const PropertiesListing = ({ params }: { params: string }) => {
   const { agentCompanyProfileData, agentCompanyProfileFetchErr, agentCompanyProfileFetchLoader, agentCompanyProfileRefresh } =
     useAgentCompanyProfile()
 
-  console.log('agentCompanyProfileData', agentCompanyProfileData)
-
   console.log('properties', properties)
 
   const totalItems =
@@ -140,32 +138,15 @@ const PropertiesListing = ({ params }: { params: string }) => {
       <div className="flex flex-col lg:flex-row gap-6 px-4 sm:px-6 pb-8">
         {/* Left Section - Properties */}
         <div className="flex-1 space-y-6">
-          {params === 'explore_by_category' && (
-            <>
-              {isLoadingProperties
-                ? Array.from({ length: limit }).map((_, index) => <SkeletonLoader key={`property-skeleton-${index}`} />)
-                : properties.map((property, index) => (
-                    <PropertyCard
-                      key={property.id ?? index}
-                      {...property}
-                      language={t}
-                      primaryActionLabel="View Details"
-                      onPrimaryAction={() => router.push(`/propertyDetails/${property.id}`)}
-                      handleFavorite={handleFavorite}
-                      handleShare={handleShare}
-                      isUserFavorited={property.is_user_favorite}
-                    />
-                  ))}
-            </>
-          )}
-
           {params === 'agency' && (
             <>
-              {agentCompanyProfileFetchLoader
-                ? Array.from({ length: limit }).map((_, index) => <SkeletonLoader key={`agency-skeleton-${index}`} />)
-                : agentCompanyProfileData?.map((agentProperty, index) => (
-                    <AgentCard key={agentProperty.id ?? index} {...agentProperty} language={t} />
-                  ))}
+              {agentCompanyProfileFetchLoader ? (
+                Array.from({ length: limit }).map((_, index) => <SkeletonLoader key={`agency-skeleton-${index}`} />)
+              ) : agentCompanyProfileData.length === 0 ? (
+                <p className="text-gray-600">No agents found.</p>
+              ) : (
+                agentCompanyProfileData?.map((agentProperty, index) => <AgentCard key={agentProperty.id ?? index} {...agentProperty} language={t} />)
+              )}
             </>
           )}
 

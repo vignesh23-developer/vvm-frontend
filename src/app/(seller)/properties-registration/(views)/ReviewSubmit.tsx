@@ -42,14 +42,14 @@ export default function Step6ReviewSubmit({ listingData, onSubmit, formik, prope
   // only formik is currently accepted for potential future use
   const t = useTranslations()
   const { user } = useAuth()
-  const { value, reset } = useGlobalContext()
+  const { globalValue, reset } = useGlobalContext()
   const { values } = formik
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedProperty, setSelectedProperty] = useState<PropertyDetailsResponseDto | null>(null)
   const [modalAction, setModalAction] = useState<string>('')
   const [comment, setComment] = useState('')
   const [rejectReason, setRejectReason] = useState('')
-  const { propertyDetailsData, propertyDetailsFetchLoader, propertyDetailsRefresh } = usePropertiesDetail({ id: value ?? '' })
+  const { propertyDetailsData, propertyDetailsFetchLoader, propertyDetailsRefresh } = usePropertiesDetail({ id: globalValue ?? '' })
 
   const [agreedToTerms, setAgreedToTerms] = useState(false)
   const router = useRouter()

@@ -4,11 +4,9 @@ import { Formik, Form } from 'formik'
 import { useState } from 'react'
 import * as Yup from 'yup'
 import { toast } from 'react-hot-toast'
-
 import ModalComponent from '@/components/ui/CustomComponent/Modal/ModalComponent'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import FormikSelectField from '@/components/ui/Formik/FormikSelectField/FormikSelectField'
-import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
 
 import { appEndpoints } from '@/services/endpoints'
 import { patchMethod } from '@/services/service'
@@ -22,7 +20,7 @@ interface PropertyStatusChangeModalProps {
 
 // Options
 const statusOptions = [
-  { label: 'PENDING', value: 'PENDING' },
+  { label: 'RENTED', value: 'RENTED' },
   { label: 'AVAILABLE', value: 'AVAILABLE' },
   { label: 'SOLD', value: 'SOLD' },
 ]
@@ -35,11 +33,11 @@ const PropertyStatusChangeModal = ({ isOpenStatusModal, setIsOpenStatusModal, pr
     status: Yup.string().required('Please select a status'),
   })
 
-  // --- Approve/Reject handler ---
+  // ---property status handler ---
   const handleAction = async (values: any) => {
     setLoading(true)
 
-    const endpoint = appEndpoints.updatePropertiesByID(propertyId)
+    const endpoint = appEndpoints.updatePropertyStatus(propertyId)
 
     const payload = {
       status: values.status,
@@ -51,7 +49,7 @@ const PropertyStatusChangeModal = ({ isOpenStatusModal, setIsOpenStatusModal, pr
       if (response.error) {
         toast.error(`Failed to ${values.status} property: ${response.message}`)
       } else {
-        toast.success(`Property ${values.status}d successfully`)
+        toast.success(`Property ${values.status} successfully`)
         setIsOpenStatusModal(false)
         if (propertyRefresh) {
           propertyRefresh()
