@@ -1,5 +1,5 @@
 import { appEndpoints } from '@/services/endpoints'
-import PricingPlansClient from './PricingPlansClient'
+import PricingPlansClient from '@/components/Plans/PricingPlansClient'
 
 // Force dynamic rendering - don't try to statically generate this page
 export const dynamic = 'force-dynamic'

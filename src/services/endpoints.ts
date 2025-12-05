@@ -16,6 +16,15 @@ export const appEndpoints = {
   getUserProfile: '/profile',
   updateUserProfile: '/profile',
   getUserHistory: '/profile/login-history',
+
+
+  // KYC enpoints
+  getUserKycStatus: '/kyc/status',
+  createKycOrder:'/kyc/initiate-order',
+  verifyKycOrder:'/kyc/verify-order',
+  initiateKyc: '/kyc/initiate',
+  completeKyc: '/kyc/complete',
+
   // Roles Endpoints
   createRole: '/roles',
   getAllRoles: '/roles',
@@ -143,12 +152,19 @@ export const appEndpoints = {
   // subscription
   getPublicPlans: '/subscription-plans?includeItems=true',
   getPublicPlan: (planId: string) => `/subscription-plans/${planId}`,
-
-  getUserSubscription: (userId: string) => `/users/${userId}/subscription`,
+  getUserSubscription: (userId: string) => `/users/${userId}/subscriptions`,
   createSubscriptionOrder: (userId: string) => `/users/${userId}/subscribe/order`,
   verifySubscriptionPayment: (userId: string) => `/users/${userId}/subscribe/verify`,
-
+  createUpgradeOrder: (userId: string, subscriptionId: number) => `/users/${userId}/subscription/${subscriptionId}/upgrade/order`,
+  createDowngradeOrder: (userId: string, subscriptionId: number) => `/users/${userId}/subscription/${subscriptionId}/downgrade/order`,
+  cancelSubscription: (userId: string, subscriptionId: number) => `/users/${userId}/subscription/${subscriptionId}/cancel`,
+  
+  // Addons
   getUserAddons: (userId: string) => `/users/${userId}/add-ons`,
   createAddonOrder: (userId: string) => `/users/${userId}/addons/order`,
   verifyAddonPayment: (userId: string) => `/users/${userId}/addons/verify`,
+  purchaseAddon: (userId: string) => `/users/${userId}/add-ons`,
+  getFeatureAccess: (userId: string, featureName: string) => `/users/${userId}/features/${featureName}/access`,
+  getFeatureUsage: (userId: string) => `/users/${userId}/features/usage`,
+  recordFeatureUsage: (userId: string, featureName: string) => `/users/${userId}/features/${featureName}/usage`,
 }
