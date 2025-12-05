@@ -9,6 +9,7 @@ import { cookies } from 'next/headers'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import ConnectivityNotifier from '@/components/common/ConnectivityNotifier'
 import LoadingAnimation from '../components/ui/loader/LoadingAnimation'
+import ScrollToTop from '@/components/common/ScrollToTop'
 // Font setup
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -58,7 +59,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               {/*  Page Content */}
 
               <main className="min-h-screen">{children}</main>
-
+               <ScrollToTop />
               {/*  Toast Notifications */}
               <Toaster position="top-right" reverseOrder={false} />
             </TranslationProvider>
