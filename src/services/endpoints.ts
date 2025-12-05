@@ -16,6 +16,15 @@ export const appEndpoints = {
   getUserProfile: '/profile',
   updateUserProfile: '/profile',
   getUserHistory: '/profile/login-history',
+
+
+  // KYC enpoints
+  getUserKycStatus: '/kyc/status',
+  createKycOrder:'/kyc/initiate-order',
+  verifyKycOrder:'/kyc/verify-order',
+  initiateKyc: '/kyc/initiate',
+  completeKyc: '/kyc/complete',
+
   // Roles Endpoints
   createRole: '/roles',
   getAllRoles: '/roles',

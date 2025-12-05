@@ -5,10 +5,13 @@ import { useParams } from 'next/navigation'
 import ProfileForm from '../(forms)/ProfileForm'
 import { ProfileValidationSchema } from '../(validation)/ProfileValidation'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { useUserSubscription } from '@/components/Plans/hooks/useUserSubscription'
+import KYCStatus from '@/components/kyc/KYCStatus'
 
 const ProfilePage = () => {
   const { id } = useParams()
   const { user } = useAuth()
+  const { activeSubscription } = useUserSubscription()
   const [initialValues, setInitialValues] = useState({
     firstName: '',
     lastName: '',
@@ -35,6 +38,7 @@ const ProfilePage = () => {
   return (
     <div className="p-6">
       <ProfileForm initialValues={initialValues} validationSchema={ProfileValidationSchema} isEdit={!!id} />
+      <KYCStatus />
     </div>
   )
 }
