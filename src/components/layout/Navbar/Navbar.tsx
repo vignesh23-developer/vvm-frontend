@@ -281,7 +281,7 @@ export default function Navbar({
   }
 
   return (
-    <nav className="sticky top-0 z-50 shadow-md text-white transition-colors duration-300" style={{ backgroundColor: bgColor }}>
+    <nav className="fixed top-0 left-0 right-0 z-50 shadow-md text-white transition-colors duration-300" style={{ backgroundColor: bgColor }}>
       <div className="flex items-center justify-between px-4 sm:px-6 md:px-8 lg:px-12 py-3 md:py-4">
         {/* Logo */}
         <Link href="/" className="flex items-center">

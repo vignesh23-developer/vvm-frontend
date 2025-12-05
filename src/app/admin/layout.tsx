@@ -3,6 +3,7 @@
 import Navbar from '@/components/layout/Navbar/Navbar'
 import Footer from '@/components/layout/Footer/Footer'
 import Breadcrumbs from '@/components/ui/CustomComponent/Breadcrumbs/Breadcrumbs'
+import ScrollToTop from '@/components/common/ScrollToTop'
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -13,7 +14,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 bg-transparent">
+      <main className="flex-1 bg-transparent pt-16">
         <div className="p-5 flex items-center justify-between border-b border-gray-200 bg-white">
           <Breadcrumbs />
         </div>
@@ -26,6 +27,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <footer className="shrink-0 bg-white border-t border-gray-200">
         <Footer />
       </footer>
+      <ScrollToTop />
     </div>
   )
 }
