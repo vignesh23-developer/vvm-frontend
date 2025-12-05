@@ -55,6 +55,7 @@ interface PropertiesCardProps {
   agent?: string
   operatingSince?: string
   subtitle?: string
+  property_category_name?: string
   language?: (key: string) => string
   pricePerSqft?: string
   onPrimaryAction?: () => void
@@ -96,6 +97,7 @@ export default function PropertyCard(props: PropertiesCardProps) {
     isUserFavorited = false,
     agent = 'N/A',
     operatingSince = 'N/A',
+    property_category_name = 'N/A',
     handleFavorite,
     handleShare,
     language,
@@ -154,6 +156,7 @@ export default function PropertyCard(props: PropertiesCardProps) {
           <InfoSection
             id={id}
             title={title}
+            property_category_name={property_category_name}
             subtitle={subtitle}
             description={description}
             status={status}
@@ -224,6 +227,7 @@ const ImageSection = ({
 const InfoSection = ({
   id,
   title,
+  property_category_name,
   subtitle,
   description,
   status,
@@ -242,7 +246,7 @@ const InfoSection = ({
     <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
       <div>
         <h2 className="text-lg font-semibold">{title}</h2>
-        <p className="text-[#747474] font-medium underline">{subtitle}</p>
+        <p className="text-[#747474] font-medium underline">{property_category_name || subtitle}</p>
       </div>
 
       <div className="flex items-center gap-3 text-gray-600">

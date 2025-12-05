@@ -22,26 +22,11 @@ import { ResponseDTO } from '@/components/dto/response_dto'
 
 export default function OtpVerification() {
   const t = useTranslations()
+  const { globalValue, reset } = useGlobalContext()
   const { setUser, setToken } = useAuth()
-  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const phone = searchParams.get('phone')
-
-  const handleResend = async () => {
-    setIsLoading(true)
-
-    try {
-      // Example: await postMethod(appEndpoints.loginSendOtp, { phoneNumber: phone })
-      // Show toast on success
-      // toast.success('OTP resent')
-    } catch (err) {
-      console.error('Resend OTP failed', err)
-      toast.error('Failed to resend OTP')
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  // const searchParams = useSearchParams()
+  // const phone = searchParams.get('phone')
 
   type OtpValues = {
     otp: string[]
@@ -54,7 +39,7 @@ export default function OtpVerification() {
   // Handle Submit
   const handleSubmit = async (values: OtpValues, { setSubmitting }: FormikHelpers<OtpValues>) => {
     try {
-      if (!phone) {
+      if (!globalValue?.phoneNumber) {
         toast.error('Missing phone number. Please restart the login process.')
         return
       }
@@ -67,7 +52,7 @@ export default function OtpVerification() {
       }
 
       const payload = {
-        phoneNumber: phone,
+        phoneNumber: globalValue?.phoneNumber,
         otp: otpValue,
       }
 
@@ -87,11 +72,11 @@ export default function OtpVerification() {
       if (response?.status === '200') {
         const token = response.data?.accessToken
         const userData = response.data?.user
-
         // console.log('user', response.data)
         if (token) {
           setUser(userData || null)
           setToken(token)
+          reset()
           const successMessage = response.data?.message || response.message || 'OTP verified successfully'
           toast.success(successMessage)
           router.push('/')
@@ -175,7 +160,7 @@ export default function OtpVerification() {
                     value={values.otp}
                     onChange={next => setFieldValue('otp', next)}
                     initialTime={120}
-                    onResend={handleResend}
+                    reSendData={globalValue}
                     error={touched.otp && errors.otp ? errors.otp : undefined}
                   />
                 </motion.div>

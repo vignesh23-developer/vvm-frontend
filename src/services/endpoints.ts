@@ -25,9 +25,12 @@ export const appEndpoints = {
   // Properties Endpoints
   createProperty: '/properties',
   getAllProperties: '/properties',
+  // elastic search endpoints
+  getSearchByProperties: '/search/properties',
   getAllPropertiesList: '/properties/search/list',
   getAllPropertyDistrictSummary: '/properties/search/district-summary',
   getPropertiesByID: (propertyId: string) => `/properties/${propertyId}`,
+  getAgentPropertiesById: `/properties/my-properties`,
   updatePropertiesByID: (propertyId: string) => `/properties/${propertyId}`,
   deletePropertiesByID: (propertyId: string) => `/properties/${propertyId}`,
   getPropertyFavorite: '/properties/favorites',

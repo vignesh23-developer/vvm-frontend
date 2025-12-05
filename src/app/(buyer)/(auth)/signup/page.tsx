@@ -18,6 +18,7 @@ import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { ResponseDTO } from '@/components/dto/response_dto'
 import OTPInput from '@/components/ui/OTPInput/OTPInput'
 import Button from '@/components/ui/CustomComponent/Button/Button'
+import { useGlobalContext } from '@/hooks/GlobalContext/GlobalContext'
 
 interface SignupFormValues {
   firstName: string
@@ -29,26 +30,19 @@ interface SignupFormValues {
 
 export default function SignupPage() {
   const t = useTranslations()
+  const { globalValue, reset } = useGlobalContext()
   const { setUser, setToken } = useAuth()
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const phone = searchParams.get('phone') || ''
-  const handleResend = async () => {
-    try {
-      // call resend endpoint if needed, e.g. postMethod(appEndpoints.loginSendOtp, { phoneNumber: phone })
-      // toast.success('OTP resent')
-    } catch (err) {
-      console.error('Resend OTP failed', err)
-      toast.error('Failed to resend OTP')
-    }
-  }
+  // const searchParams = useSearchParams()
+  // const phone = searchParams.get('phone') || ''
 
   const [buttonType, setButtonType] = useState<'sms' | 'whatsapp'>('sms')
 
   const initialValues: SignupFormValues = {
     firstName: '',
     lastName: '',
-    phone: phone,
+    phone: globalValue?.phoneNumber || '',
     email: '',
     otp: ['', '', '', '', '', ''],
   }
@@ -58,7 +52,7 @@ export default function SignupPage() {
     console.log('Formik Submitted:', { ...values, otpValue, buttonType })
 
     const payload = {
-      phoneNumber: phone,
+      phoneNumber: globalValue?.phoneNumber,
       otp: otpValue,
       user: {
         firstName: values.firstName,
@@ -82,6 +76,7 @@ export default function SignupPage() {
         if (token) {
           setUser(userData)
           setToken(token)
+          reset()
           const successMessage = response.data?.message || response.message || 'OTP verified successfully'
           toast.success(successMessage)
           router.push('/')
@@ -202,7 +197,7 @@ export default function SignupPage() {
                     value={values.otp}
                     onChange={next => setFieldValue('otp', next)}
                     initialTime={120}
-                    onResend={handleResend}
+                    reSendData={globalValue}
                     error={touched.otp && errors.otp ? errors.otp : undefined}
                   />
                 </motion.div>

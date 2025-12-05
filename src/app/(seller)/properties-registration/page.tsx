@@ -170,7 +170,8 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
     onGetPropertyCategoryFeatureMapping,
   } = useLandRegistration()
 
-  const { value, setValue } = useGlobalContext()
+  const { globalValue, setGlobalValue } = useGlobalContext()
+  console.log(globalValue, 'value in property reg page')
   const { user } = useAuth()
   const [valueData, setValueData] = useState<any>(null)
   const fectchPropertiesById = async (id: string | undefined) => {
@@ -356,7 +357,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
     if (ULRActionState?.success) {
       toast.success('Property Updated Successfully')
       console.log('property id:', ULRActionState?.data?.id)
-      setValue(ULRActionState?.data?.id)
+      setGlobalValue(ULRActionState?.data?.id)
       // setLocalStorageItem(LOCAL_STORAGE_NAME.propertyId, ULRActionState?.data?.id)
       setCurrentStep(step => step + 1)
       setIsEdit(true)
@@ -371,7 +372,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
     if (LRActionState?.success) {
       toast.success('Property Created Successfully')
       console.log('property id:', LRActionState?.data?.id)
-      setValue(LRActionState?.data?.id)
+      setGlobalValue(LRActionState?.data?.id)
       // setLocalStorageItem(LOCAL_STORAGE_NAME.propertyId, LRActionState?.data?.id)
       setCurrentStep(step => step + 1)
       setIsEdit(true)
@@ -476,7 +477,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
 
           var payload = LandRegistrationData?.toObject()
 
-          const contextPropertyId = value
+          const contextPropertyId = globalValue
 
           console.log('log on data sss properties:', contextPropertyId, propertiesId)
 
@@ -493,7 +494,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
         }
 
         if (currentStep === 5) {
-          const contextPropertyId = value
+          const contextPropertyId = globalValue
           console.log(contextPropertyId, 'local')
           const propertyId = propertiesId ? propertiesId : contextPropertyId
           console.log('Step 5 submit - propertyId:', propertyId, propertiesId, contextPropertyId, 'uploadType:', values?.uploadType)

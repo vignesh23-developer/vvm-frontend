@@ -5,10 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Formik, Form } from 'formik'
 import { useTranslations } from 'next-intl'
-import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
-import { AgencyEnquirySchema } from '@/utils/validations/agency/AgencyValidationSchema'
 import AgentCompanyProfile from '@/components/buyer/PropertiesListing/dto/agentCompanyProfile'
-import { EnquiryFormValues } from '@/data/component/agencyDetailsTypes'
 import { getMethod, postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import { ResponseDTO } from '@/components/dto/response_dto'
@@ -47,40 +44,37 @@ function InfoItem({ label, value, icon, href }: InfoItemProps) {
   return content
 }
 
-const dummyProperties = [
-  {
-    id: 1,
-    name: 'Green Villa',
-    images: ['/about1.png', '/about2.png', '/about3.png', '/about1.png', '/about2.png'],
-  },
-  {
-    id: 2,
-    name: 'Sunset Apartment',
-    images: ['/about2.png', '/about1.png'],
-  },
-  {
-    id: 3,
-    name: 'Ocean View Home',
-    images: ['/about3.png', '/about1.png', '/about3.png'],
-  },
-  {
-    id: 4,
-    name: 'View Home',
-    images: ['/about3.png', '/about2.png', '/about1.png'],
-  },
-  {
-    id: 5,
-    name: 'Home',
-    images: ['/about3.png', '/about1.png'],
-  },
-]
-
 export default function AgencyDetails({ name }: { name: string }) {
   const t = useTranslations()
-  const [selectedProperty, setSelectedProperty] = useState<any>(dummyProperties[0] ?? null)
+  const [selectedProperty, setSelectedProperty] = useState<any | null>(null)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [agentIdProperties, setAgentIdProperties] = useState<any>(null)
   const [agencyData, setAgencyData] = useState<AgentCompanyProfile | null>(null)
   const [isFetching, setIsFetching] = useState<boolean>(true)
   const [fetchError, setFetchError] = useState<string | null>(null)
+
+  const fetchAgentGetById = async (id: any) => {
+    setIsLoading(true)
+    try {
+      const response: ResponseDTO = await getMethod(appEndpoints.getAgentPropertiesById + `?agentId=${id}`)
+
+      // Normalize status check (api might return number or string)
+      const ok = response && String(response.status) === '200'
+
+      if (ok) {
+        const payload = response?.data?.data ?? response?.data ?? null
+        return payload as any
+      }
+
+      toast.error(response?.message || 'Failed to fetch agent details')
+      return null
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to fetch agent details')
+      return null
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   useEffect(() => {
     let isMounted = true
@@ -96,6 +90,19 @@ export default function AgencyDetails({ name }: { name: string }) {
 
         if (response?.status === '200') {
           const payload = Array.isArray(response?.data) ? (response.data as AgentCompanyProfile[])[0] : (response?.data as AgentCompanyProfile | null)
+          const agentId = payload?.id
+          fetchAgentGetById(agentId).then(agentProperties => {
+            if (!agentProperties || !Array.isArray(agentProperties) || agentProperties.length === 0) {
+              setAgentIdProperties([])
+              setSelectedProperty(null)
+              return
+            }
+
+            setAgentIdProperties(agentProperties)
+            const first = agentProperties[0]
+            // ensure media is at least an empty array to avoid render errors
+            setSelectedProperty({ ...first, media: first?.media ?? [] })
+          })
           setAgencyData(payload ?? null)
 
           if (!payload) {
@@ -164,31 +171,6 @@ export default function AgencyDetails({ name }: { name: string }) {
   const contactName = agencyData?.contact_name || agencyData?.user?.firstName || ''
   const companyLogo = agencyData?.companyLogo || '/agency.png'
   const isVerified = Boolean(agencyData?.isVerified)
-
-  const handleSubmit = async (values: EnquiryFormValues, { resetForm, setSubmitting }: any) => {
-    const payload = {
-      entity_type: 'agency',
-      entity_id: agencyData?.id,
-      ...values,
-    }
-
-    try {
-      const response = await postMethod(appEndpoints.createPropertyEnquiry, payload)
-
-      if (Number(response.status) === 201) {
-        toast.success('Enquiry submitted successfully!')
-        resetForm()
-      } else {
-        toast.error(response?.message || 'Failed to submit enquiry')
-      }
-    } catch (error: any) {
-      toast.error(error?.message || 'Failed to submit enquiry')
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  console.log('fetcherror', fetchError)
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-stone-100 via-white to-stone-50 py-10 px-4 sm:px-6 lg:px-0">
@@ -292,25 +274,31 @@ export default function AgencyDetails({ name }: { name: string }) {
               {/* Properties grid (centered) */}
               <div className="w-full max-w-4xl">
                 <h2 className="mb-4 text-center text-lg font-semibold tracking-wide text-stone-900">Properties by this agency</h2>
-                <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-                  {dummyProperties.map(p => {
-                    const isActive = selectedProperty?.id === p.id
-                    return (
-                      <button
-                        key={p.id}
-                        type="button"
-                        onClick={() => setSelectedProperty(p)}
-                        className={`rounded-full border px-4 py-2 text-xs font-semibold transition focus:outline-none focus:ring-2 focus:ring-amber-300 ${
-                          isActive
-                            ? 'border-amber-400 bg-amber-50 text-amber-800 shadow-sm'
-                            : 'border-stone-200 bg-white text-stone-700 hover:border-amber-200 hover:text-amber-700'
-                        }`}
-                      >
-                        {p.name}
-                      </button>
-                    )
-                  })}
-                </div>
+                {isLoading ? (
+                  <div className="flex justify-center py-10">
+                    <Loader2 className="h-8 w-8 animate-spin text-amber-600" />
+                  </div>
+                ) : (
+                  <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                    {agentIdProperties?.map((p: any) => {
+                      const isActive = selectedProperty?.id === p.id
+                      return (
+                        <button
+                          key={p.id}
+                          type="button"
+                          onClick={() => setSelectedProperty(p)}
+                          className={`rounded-full border px-4 py-2 text-xs font-semibold transition focus:outline-none focus:ring-2 focus:ring-amber-300 ${
+                            isActive
+                              ? 'border-amber-400 bg-amber-50 text-amber-800 shadow-sm'
+                              : 'border-stone-200 bg-white text-stone-700 hover:border-amber-200 hover:text-amber-700'
+                          }`}
+                        >
+                          {p.title}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* Inline gallery viewer with animation */}
@@ -338,13 +326,13 @@ export default function AgencyDetails({ name }: { name: string }) {
                         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-700">Selected Property</p>
 
                         <h3 className="mt-1 text-xl font-bold text-stone-900 relative inline-block">
-                          {selectedProperty.name}
+                          {selectedProperty.title}
                           <span className="absolute left-0 -bottom-1 h-[3px] w-full bg-amber-500/60 rounded-full scale-x-0 origin-left animate-[grow_0.6s_ease-out_forwards]" />
                         </h3>
                       </div>
 
                       <span className="inline-flex h-7 items-center rounded-full bg-stone-100 px-3 text-xs text-stone-600">
-                        {selectedProperty.images.length} Images
+                        {selectedProperty?.media?.length ?? 0} Images
                       </span>
                     </div>
 
@@ -361,9 +349,9 @@ export default function AgencyDetails({ name }: { name: string }) {
                         },
                       }}
                     >
-                      {selectedProperty.images.map((img: string, idx: number) => (
+                      {selectedProperty?.media.map((img: any, idx: number) => (
                         <motion.div
-                          key={idx}
+                          key={img?.url ?? idx}
                           className="
               group relative h-48 w-full overflow-hidden 
               rounded-3xl border border-stone-200 bg-stone-100/50 
@@ -381,8 +369,8 @@ export default function AgencyDetails({ name }: { name: string }) {
                           }}
                         >
                           <Image
-                            src={img}
-                            alt={`${selectedProperty.name} ${idx + 1}`}
+                            src={img?.url}
+                            alt={`${selectedProperty.title} ${idx + 1}`}
                             fill
                             className="object-cover transition-all duration-500 group-hover:scale-110"
                             sizes="(max-width:640px)100vw,33vw"
@@ -409,99 +397,6 @@ export default function AgencyDetails({ name }: { name: string }) {
                 )}
               </AnimatePresence>
             </section>
-
-            {/* <section className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-              <div className="space-y-8 lg:col-span-2">
-                <div className="rounded-3xl border border-stone-200 bg-white p-8 shadow-sm">
-                  <h2 className="text-xl font-semibold text-stone-900">{t('AgencyDetails.about_heading')}</h2>
-                  <p className="mt-3 text-sm leading-relaxed text-stone-600">{agencyData?.description || t('AgencyDetails.about_placeholder')}</p>
-
-                  <div className="mt-6 grid gap-4 text-sm sm:grid-cols-2">
-                    <InfoItem label={t('AgencyDetails.primary_contact')} value={contactName || '—'} />
-                    <InfoItem label={t('AgencyDetails.gst_number')} value={agencyData?.gstNumber || '—'} />
-                    <InfoItem label={t('AgencyDetails.service_regions')} value={serviceRegions} />
-                    <InfoItem
-                      label={t('AgencyDetails.verification_status')}
-                      value={isVerified ? t('AgencyDetails.verified') : t('AgencyDetails.not_verified')}
-                    />
-                  </div>
-                </div>
-
-                <div className="rounded-3xl border border-stone-200 bg-white p-8 shadow-sm">
-                  <h3 className="text-lg font-semibold text-stone-900">{t('AgencyDetails.contact_information')}</h3>
-                  <div className="mt-4 space-y-3 text-sm text-stone-600">
-                    <InfoItem label={t('AgencyDetails.primary_contact')} value={contactName || '—'} icon={<CircleUserRound size={16} />} />
-                    <InfoItem
-                      label={t('form.email.label')}
-                      value={contactEmail || '—'}
-                      icon={<Mail size={16} />}
-                      href={contactEmail ? `mailto:${contactEmail}` : undefined}
-                    />
-                    <InfoItem
-                      label={t('form.phone_number.label')}
-                      value={contactPhone || '—'}
-                      icon={<Phone size={16} />}
-                      href={contactPhone ? `tel:${contactPhone}` : undefined}
-                    />
-                    <InfoItem
-                      label={t('AgencyDetails.address_heading')}
-                      value={fullAddress || t('AgencyDetails.address_placeholder')}
-                      icon={<MapPin size={16} />}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <aside className="lg:col-span-1">
-                <div className="sticky top-24 rounded-3xl border border-stone-200 bg-white p-7 shadow-lg">
-                  <h3 className="text-xl font-semibold text-stone-900">{t('AgencyDetails.enquire_now')}</h3>
-                  <p className="mb-6 mt-2 text-sm text-stone-600">{t('AgencyDetails.enquire_description')}</p>
-
-                  <Formik initialValues={initialValues} validationSchema={AgencyEnquirySchema(t)} onSubmit={handleSubmit}>
-                    {({ isSubmitting }) => (
-                      <Form className="space-y-4">
-                        <FormikTextField
-                          label={t('form.name.label')}
-                          type="text"
-                          name="name"
-                          placeholder={t('form.name.placeholder')}
-                          className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm shadow-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
-                        />
-                        <FormikTextField
-                          label={t('form.email.label')}
-                          type="email"
-                          name="email"
-                          placeholder={t('form.email.placeholder')}
-                          className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm shadow-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
-                        />
-                        <FormikTextField
-                          label={t('form.phone_number.label')}
-                          type="tel"
-                          name="phone"
-                          placeholder={t('form.phone_number.placeholder')}
-                          className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm shadow-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
-                        />
-                        <FormikTextField
-                          label={t('form.message.label')}
-                          type="textarea"
-                          name="message"
-                          placeholder={t('form.message.placeholder')}
-                          className="h-28 w-full resize-none rounded-xl border border-stone-300 px-4 py-3 text-sm shadow-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
-                        />
-                        <Button
-                          type="submit"
-                          disabled={isSubmitting || !agencyData?.id}
-                          className="flex w-full items-center justify-center gap-2 rounded-full bg-amber-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:bg-stone-300"
-                        >
-                          {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                          {t('AgencyDetails.send_enquiry')}
-                        </Button>
-                      </Form>
-                    )}
-                  </Formik>
-                </div>
-              </aside>
-            </section> */}
           </div>
         )}
       </div>

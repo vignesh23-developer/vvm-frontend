@@ -17,12 +17,14 @@ import toast from 'react-hot-toast'
 import { usePathname, useRouter } from 'next/navigation'
 import { ResponseDTO } from '@/components/dto/response_dto'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { useGlobalContext } from '@/hooks/GlobalContext/GlobalContext'
 interface AuthFormValues {
   phone: string
 }
 
 const Login = () => {
   const t = useTranslations()
+  const { setGlobalValue } = useGlobalContext()
   const submitChannelRef = useRef<'sms' | 'whatsapp'>('sms')
   const [isLoading, setIsLoading] = useState(false)
   const [activeChannel, setActiveChannel] = useState<'sms' | 'whatsapp' | null>(null)
@@ -69,9 +71,13 @@ const Login = () => {
           isExistingUser?: boolean
         }
         if (responseData.isExistingUser) {
-          router.push(`/otp-verification?phone=${encodeURIComponent(values.phone)}`)
+          // router.push(`/otp-verification?phone=${encodeURIComponent(values.phone)}`)
+          setGlobalValue(payload)
+          router.push(`/otp-verification`)
         } else {
-          router.push(`/signup?phone=${encodeURIComponent(values.phone)}`)
+          // router.push(`/signup?phone=${encodeURIComponent(values.phone)}`)
+          setGlobalValue(payload)
+          router.push(`/signup`)
         }
         const successMessage = responseData?.message || responseData?.data?.message || 'OTP sent successfully'
         toast.success(successMessage)
@@ -196,12 +202,12 @@ const Login = () => {
                 </motion.div>
 
                 {/* Login Link */}
-                <motion.p className="text-center text-gray-600 text-xs" variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}>
+                {/* <motion.p className="text-center text-gray-600 text-xs" variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}>
                   {t('Auth.login_message')}{' '}
                   <a href="/signup" className="font-semibold text-green-900 hover:underline">
                     {t('Auth.signup')}
                   </a>
-                </motion.p>
+                </motion.p> */}
 
                 {/* Divider */}
                 <motion.div className="flex items-center justify-center space-x-2" variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}>

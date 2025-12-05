@@ -2,6 +2,10 @@
 
 import React, { useRef, useState, useEffect } from 'react'
 import Button from '../CustomComponent/Button/Button'
+import { appEndpoints } from '@/services/endpoints'
+import { postMethod } from '@/services/service'
+import { ResponseDTO } from '@/components/dto/response_dto'
+import toast from 'react-hot-toast'
 
 type Props = {
   length?: number
@@ -13,7 +17,7 @@ type Props = {
   // Resend handling
   showResend?: boolean
   initialTime?: number // seconds
-  onResend?: () => Promise<void> | void
+  reSendData?: any
   // Validation error (optional) - can be string or array from Formik/Yup
   error?: string | string[] | null
 }
@@ -27,11 +31,12 @@ export default function OTPInput({
   inputClassName = '',
   showResend = true,
   initialTime = 120,
-  onResend,
+  reSendData,
   error = null,
 }: Props) {
   const inputsRef = useRef<Array<HTMLInputElement | null>>([])
   const [timeLeft, setTimeLeft] = useState<number>(initialTime)
+  const [isLoading, setIsLoading] = useState(false)
   const timerRef = useRef<number | null>(null)
 
   useEffect(() => {
@@ -127,6 +132,26 @@ export default function OTPInput({
     }
   }
 
+  const handleResend = async () => {
+    setIsLoading(true)
+
+    try {
+      const response = (await postMethod(appEndpoints.loginSendOtp, reSendData)) as ResponseDTO
+      console.log('Resend OTP response:', response)
+      if (response.status === '200') {
+        toast.success('OTP resent successfully')
+      } else {
+        toast.error(response.message || 'Failed to resend OTP')
+      }
+    } catch (err) {
+      console.error('Resend OTP failed', err)
+      toast.error('Failed to resend OTP')
+    } finally {
+      setIsLoading(false)
+      resetTimer()
+    }
+  }
+
   return (
     <div>
       <div className="flex justify-between mb-4">
@@ -164,18 +189,8 @@ export default function OTPInput({
               Resend in {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}
             </span>
           ) : (
-            <Button
-              type="button"
-              onClick={async () => {
-                try {
-                  if (onResend) await onResend()
-                } finally {
-                  resetTimer()
-                }
-              }}
-              className="text-green-700 hover:underline"
-            >
-              Resend OTP
+            <Button type="button" onClick={handleResend} className="text-green-700 hover:underline">
+              {isLoading ? 'Resending...' : 'Resend OTP'}
             </Button>
           )}
         </div>
