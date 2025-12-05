@@ -85,7 +85,7 @@ export default function Footer() {
           </Link>{' '}
           | &copy; {new Date().getFullYear()}{' '}
           <Link href="/" title="Vaazhga Valamudan" className="text-[#D4AF37] hover:underline">
-            Vaazhga Valamudan
+            Vaazhga Valamudan - Bhuvaneswari Koothachi
           </Link>
           , All rights reserved.
         </p>
