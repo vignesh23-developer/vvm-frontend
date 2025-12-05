@@ -6,6 +6,7 @@ import { appEndpoints } from '@/services/endpoints'
 import { PropertiesDto } from '@/app/(seller)/properties/dto/PropertiesDto'
 import { deleteMethod, getMethod, patchMethod, putMethod } from '@/services/service'
 import toast from 'react-hot-toast'
+import { ResponseDTO } from '@/components/dto/response_dto'
 
 interface ApiResponse<T> {
   data?: T
@@ -56,35 +57,12 @@ export function useSearchProperties(options: UsePropertiesOptions = {}) {
   const swrKey = queryParams.toString() ? `${appEndpoints.getSearchByProperties}?${queryParams.toString()}` : appEndpoints.getSearchByProperties
 
   // Fetcher using our generic API helper
-  const fetcher = async (url: string): Promise<PropertiesFetcherResult> => {
-    try {
-      const response = await getMethod<ApiResponse<PropertiesDto[]>>(url)
-      console.log('API response:', response)
-      if (response.error) {
-        console.error('API error while fetching properties:', response.message)
-        return { items: [], total: 0 }
-      }
-
-      const payload = response.data?.data
-      const metaTotal = response.data?.meta?.total
-      const nestedTotal = response.data?.total
-
-      if (Array.isArray(payload)) {
-        return {
-          items: payload,
-          total: typeof metaTotal === 'number' ? metaTotal : typeof nestedTotal === 'number' ? nestedTotal : payload.length,
-        }
-      }
-
-      console.warn('Unexpected data format:', response.data)
-      return { items: [], total: 0 }
-    } catch (error) {
-      console.error('Failed to fetch properties:', error)
-      return { items: [], total: 0 }
-    }
+  const fetcher = async (url: string) => {
+    const response = await getMethod(url)
+    return response
   }
   // SWR handles caching, revalidation, and errors
-  const { data, error, isLoading: isLoadingProperties, mutate: mutateProperties } = useSWR<PropertiesFetcherResult>(swrKey, fetcher)
+  const { data, error, isLoading: isLoadingProperties, mutate: mutateProperties } = useSWR<ResponseDTO>(swrKey, fetcher)
 
   // Function to approve or reject a property
   const handlePropertyAction = async (
@@ -146,12 +124,12 @@ export function useSearchProperties(options: UsePropertiesOptions = {}) {
       toast.error('Failed to update status')
     }
   }
-  const properties = data?.items ?? []
-  const total = data?.total ?? properties.length
+
+  console.log('SWR Properties data:', data?.data?.data?.data, 'Error:', error)
 
   return {
-    properties: properties ?? [],
-    total,
+    properties: data?.data?.data?.data ?? [],
+    total: data?.data?.data?.total ?? data?.data?.data?.data?.length,
     error,
     handleView,
     handleEdit,

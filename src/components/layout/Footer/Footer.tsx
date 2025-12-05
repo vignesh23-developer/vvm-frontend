@@ -20,7 +20,7 @@ const supportLinks = [
   { label: 'faq', href: '/faq' },
   { label: 'contact_us', href: '/contact-us' },
   { label: 'refund_policy', href: '/refund-policy' },
-  { label: 'terms_of_conditions', href: '/terms' },
+  { label: 'terms_and_conditions', href: '/terms' },
   { label: 'privacy_policy', href: '/privacy-policy' },
 ]
 
