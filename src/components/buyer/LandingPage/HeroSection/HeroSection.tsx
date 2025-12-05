@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Formik } from 'formik'
+import * as Yup from 'yup'
 import { MapPin, Home, ChevronDown, IndianRupee, Search } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { motion, Variants } from 'framer-motion'
@@ -13,7 +14,7 @@ import LucideIconRenderer from '@/components/ui/CustomComponent/LucideIconRender
 export default function HeroSection() {
   const t = useTranslations()
   const router = useRouter()
-  const [currentTab, setCurrentTab] = useState('buy')
+  const [currentTab, setCurrentTab] = useState('sale')
   const [showBudget, setShowBudget] = useState(false)
   const [showType, setShowType] = useState(false)
   // Lightweight category shape used in this component
@@ -24,13 +25,14 @@ export default function HeroSection() {
   }
   interface SearchParams {
     location?: string
+    listingType?: string
     type?: string | number
     budget?: string
   }
 
   const [selectedType, setSelectedType] = useState<Category | null>(null)
   const { categories, error, isLoading, mutateCategories } = usePropertyCategories()
-  const tabKeys: string[] = ['buy', 'rent', 'lease']
+  const tabKeys: string[] = ['sale', 'rent', 'lease']
 
   // Animation variants
   const containerVariants: Variants = {
@@ -52,10 +54,11 @@ export default function HeroSection() {
 
   const budgetOptions = ['Below 10 Lakhs', '10–20 Lakhs', '20–30 Lakhs', '30–50 Lakhs', '50 Lakhs – 1 Crore', '1–2 Crores', 'Above 2 Crores']
   const handleSearch = (values: SearchParams) => {
-    const typeName = categories?.find(c => String(c.id) === String(values.type))?.name ?? ''
+    // const typeName = categories?.find(c => String(c.id) === String(values.type))?.name ?? ''
     const queryParams = new URLSearchParams({
       location: encodeURIComponent(values.location || ''),
-      type: encodeURIComponent(typeName),
+      type: encodeURIComponent(values.type ? String(values.type) : ''),
+      listingType: currentTab.toUpperCase(),
       budget: encodeURIComponent(values.budget || ''),
     })
     router.push(`/properties-list?${queryParams.toString()}`)
@@ -113,8 +116,14 @@ export default function HeroSection() {
           </motion.div>
 
           {/* Search Bar (Formik) */}
-          <Formik initialValues={{ location: '', type: '', budget: '' }} onSubmit={values => handleSearch(values)}>
-            {({ values, setFieldValue, handleSubmit }) => (
+          <Formik
+            initialValues={{ location: '', type: '', budget: '' }}
+            validationSchema={Yup.object({
+              location: Yup.string().trim().required('Location is required'),
+            })}
+            onSubmit={values => handleSearch(values)}
+          >
+            {({ values, setFieldValue, handleSubmit, errors, touched, handleBlur }) => (
               <motion.div variants={itemVariants} className="bg-white text-black rounded-2xl px-3 py-4 sm:px-2 sm:py-2 shadow-lg relative">
                 {/* -------------- Mobile UI -------------- */}
                 <div className="flex flex-col gap-3 sm:hidden">
@@ -124,15 +133,16 @@ export default function HeroSection() {
                       <MapPin className="w-5 h-5 text-gray-600" />
 
                       <input
+                        name="location"
                         type="text"
                         value={values.location}
                         onChange={e => setFieldValue('location', e.target.value)}
+                        onBlur={handleBlur}
                         placeholder="Enter location"
                         className="bg-transparent outline-none font-medium text-black placeholder-gray-400 w-full"
                       />
+                      {touched.location && errors.location && <div className="text-red-500 text-sm mt-1">{errors.location}</div>}
                     </div>
-
-                    <span className="text-gray-500 text-sm whitespace-nowrap">{t('Hero.HeroMenu.add_more')}</span>
                   </motion.div>
 
                   {/* Property Type Select */}
@@ -219,6 +229,7 @@ export default function HeroSection() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     className="flex items-center justify-center gap-2 bg-black text-white py-3 rounded-xl hover:bg-gray-800 transition font-medium"
+                    disabled={!values.location || (!!touched.location && !!errors.location)}
                     onClick={() => handleSubmit()}
                   >
                     <Search className="w-5 h-5" />
@@ -233,14 +244,15 @@ export default function HeroSection() {
                     <MapPin className="w-5 h-5 text-gray-600" />
 
                     <input
+                      name="location"
                       type="text"
                       placeholder="Enter location"
                       value={values.location}
                       onChange={e => setFieldValue('location', e.target.value)}
+                      onBlur={handleBlur}
                       className="bg-transparent outline-none font-medium w-full placeholder:text-gray-400"
                     />
-
-                    {/* <span className="text-gray-500 text-sm whitespace-nowrap">{t('Hero.HeroMenu.add_more')}</span> */}
+                    {touched.location && errors.location && <div className="text-red-500 text-sm mt-1">{errors.location}</div>}
                   </div>
 
                   {/* Property Type */}
@@ -319,6 +331,7 @@ export default function HeroSection() {
                       onClick={() => handleSubmit()}
                       icon={<Search className="w-5 h-5" />}
                       className="flex items-center gap-2 bg-black text-white px-7 py-3 rounded-xl hover:bg-gray-800 transition"
+                      disabled={!values.location || (!!touched.location && !!errors.location)}
                     >
                       {t('Hero.HeroMenu.search')}
                     </Button>

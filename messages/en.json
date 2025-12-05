@@ -3,6 +3,7 @@
     "title": "Welcome back! Choose Premium House",
     "HeroMenu": {
       "buy": "Buy",
+      "sale": "Sale",
       "rent": "Rent",
       "lease": "Lease",
       "new_projects": "New Projects",

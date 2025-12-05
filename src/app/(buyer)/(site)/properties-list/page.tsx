@@ -40,6 +40,7 @@ const PropertiesListPage = () => {
   const searchParams = useSearchParams()
   const params = {
     location: decodeURIComponent(searchParams.get('location') || ''),
+    listingType: decodeURIComponent(searchParams.get('listingType') || ''),
     type: decodeURIComponent(searchParams.get('type') || ''),
     budget: decodeURIComponent(searchParams.get('budget') || ''),
   }
@@ -53,6 +54,7 @@ const PropertiesListPage = () => {
     page,
     limit,
     location: params.location,
+    listingType: params.listingType,
     type: params.type,
     budget: params.budget,
   })
