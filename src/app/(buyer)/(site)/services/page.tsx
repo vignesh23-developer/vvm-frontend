@@ -31,7 +31,7 @@ const Service = () => {
   }
 
   return (
-    <main className="w-full bg-gray-50 overflow-hidden">
+    <main className="w-full  overflow-hidden">
       {/* Hero Section */}
       <section className="relative w-full h-[400px] flex items-center justify-center">
         <Image

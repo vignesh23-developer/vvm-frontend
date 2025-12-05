@@ -68,7 +68,7 @@ export default function EnquiryAdModal({ open, onClose, adId }: EnquiryAdModalPr
               <Button type="button" onClick={onClose} className="border border-gray-300 text-gray-700 px-4 py-2 text-sm">
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting} className="bg-[#7B1E1E] text-white px-4 py-2 text-sm">
+              <Button type="submit" disabled={isSubmitting} className="bg-[#2a1407] text-white px-4 py-2 text-sm">
                 {isSubmitting ? 'Sending...' : 'Send'}
               </Button>
             </div>

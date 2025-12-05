@@ -156,7 +156,7 @@ const AdsPendingApprovalPage = () => {
               key={tab.key}
               onClick={() => handleTabChange(tab.key as 'pending' | 'rejected')}
               className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition focus:ring-2 focus:ring-offset-2 ${
-                isActive ? 'border-[#7B1E1E] bg-[#7B1E1E] text-white' : 'border-gray-200 text-gray-700 hover:text-[#7B1E1E]'
+                isActive ? 'border-[#2a1407] bg-[#2a1407] text-white' : 'border-gray-200 text-gray-700 hover:text-[#2a1407]'
               }`}
             >
               {tab.label}
@@ -221,7 +221,7 @@ const AdsPendingApprovalPage = () => {
             <Button className="border px-4 py-2 text-sm" onClick={closeApprovalModal} disabled={approvalSubmitting}>
               Cancel
             </Button>
-            <Button className="bg-[#7B1E1E] text-white px-4 py-2 text-sm" onClick={handleApprovalSubmit} disabled={approvalSubmitting}>
+            <Button className="bg-[#2a1407] text-white px-4 py-2 text-sm" onClick={handleApprovalSubmit} disabled={approvalSubmitting}>
               {approvalSubmitting ? 'Processing...' : 'Confirm'}
             </Button>
           </div>
@@ -238,7 +238,7 @@ const AdsPendingApprovalPage = () => {
               <select
                 value={rejectReason}
                 onChange={e => setRejectReason(e.target.value)}
-                className="w-full rounded-md border px-3 py-2 text-sm focus:border-[#7B1E1E] focus:ring-[#7B1E1E]"
+                className="w-full rounded-md border px-3 py-2 text-sm focus:border-[#2a1407] focus:ring-[#2a1407]"
               >
                 <option value="">Select a reason</option>
                 <option value="FAKE_INFO">Fake Information</option>
@@ -250,7 +250,7 @@ const AdsPendingApprovalPage = () => {
               <textarea
                 value={approvalComment}
                 onChange={e => setApprovalComment(e.target.value)}
-                className="w-full rounded-md border px-3 py-2 text-sm focus:border-[#7B1E1E] focus:ring-[#7B1E1E]"
+                className="w-full rounded-md border px-3 py-2 text-sm focus:border-[#2a1407] focus:ring-[#2a1407]"
                 placeholder="Rejection notes (optional)"
                 rows={3}
               />

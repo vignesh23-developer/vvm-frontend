@@ -135,7 +135,7 @@ export default function LocationSearchBox({
             if (typeof onChange === 'function') onChange(v)
           }}
           placeholder={placeholder}
-          className="w-full flex border border-gray-300 rounded-md mb-4 pr-10 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#7B1E1E]"
+          className="w-full flex border border-gray-300 rounded-md mb-4 pr-10 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#2a1407]"
         />
 
         {value && (

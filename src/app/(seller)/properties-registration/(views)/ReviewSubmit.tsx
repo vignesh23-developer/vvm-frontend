@@ -42,14 +42,14 @@ export default function Step6ReviewSubmit({ listingData, onSubmit, formik, prope
   // only formik is currently accepted for potential future use
   const t = useTranslations()
   const { user } = useAuth()
-  const { value, reset } = useGlobalContext()
+  const { globalValue, reset } = useGlobalContext()
   const { values } = formik
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedProperty, setSelectedProperty] = useState<PropertyDetailsResponseDto | null>(null)
   const [modalAction, setModalAction] = useState<string>('')
   const [comment, setComment] = useState('')
   const [rejectReason, setRejectReason] = useState('')
-  const { propertyDetailsData, propertyDetailsFetchLoader, propertyDetailsRefresh } = usePropertiesDetail({ id: value ?? '' })
+  const { propertyDetailsData, propertyDetailsFetchLoader, propertyDetailsRefresh } = usePropertiesDetail({ id: globalValue ?? '' })
 
   const [agreedToTerms, setAgreedToTerms] = useState(false)
   const router = useRouter()
@@ -151,7 +151,7 @@ export default function Step6ReviewSubmit({ listingData, onSubmit, formik, prope
             onClick={handleSubmit}
             disabled={!agreedToTerms}
             className={`w-full md:w-auto px-8 py-3 rounded-lg font-medium transition-all duration-200 ${
-              agreedToTerms ? 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer' : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              agreedToTerms ? 'bg-gradient-to-r from-yellow-500 to-yellow-600  hover:bg-blue-700 text-white cursor-pointer' : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
           >
             Submit Listing

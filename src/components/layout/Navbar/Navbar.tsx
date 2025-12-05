@@ -327,16 +327,16 @@ export default function Navbar({
 
                 {/* Main Dropdown */}
                 {isOpen && (
-                  <div className="absolute right-0 mt-2 bg-white text-[#3b1804] rounded-lg shadow-lg w-70 py-2 z-50 max-h-[70vh] overflow-y-auto">
-                    <Link href="/admin/dashboard" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
+                  <div className="absolute right-0 mt-2 bg-gradient-to-br from-white to-yellow-50 text-[#2a1407] rounded-lg shadow-lg border border-yellow-200 w-70 py-2 z-50 max-h-[70vh] overflow-y-auto">
+                    <Link href="/admin/dashboard" className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition">
                       <Home size={16} /> {t('Navbar.Dashboard')}
                     </Link>
 
                     {visibleDashboardSections.map((section: NavItem) => (
-                      <div key={section.label} className="border-t border-gray-100 mt-2 pt-2">
+                      <div key={section.label} className="border-t border-yellow-200 mt-2 pt-2">
                         <Button
                           onClick={() => toggleSection(section.label)}
-                          className="flex items-center justify-between w-full px-4 py-2 text-sm font-semibold text-[#3b1804] hover:bg-gray-100 rounded-md transition"
+                          className="flex items-center justify-between w-full px-4 py-2 text-sm font-semibold text-[#2a1407] hover:bg-yellow-50 rounded-md transition"
                         >
                           <span className="flex items-center gap-2">
                             {section.icon}
@@ -351,9 +351,9 @@ export default function Navbar({
                               <Link
                                 key={String(links.href)}
                                 href={String(links.href)}
-                                className="flex items-center gap-2 px-4 py-1 hover:bg-gray-100 rounded-md text-sm transition"
+                                className="flex items-center gap-2 px-4 py-1 hover:bg-yellow-50 rounded-md text-sm transition"
                               >
-                                <span className="text-gray-500">
+                                <span className="text-yellow-600">
                                   <ChevronRight size={16} />
                                 </span>
                                 {t(`Navbar.subMenus.${links.label}`)}
@@ -384,13 +384,13 @@ export default function Navbar({
                 </Button>
 
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 bg-white text-[#3b1804] rounded-lg shadow-lg w-44 py-2 z-50">
-                    <div className="px-4 py-2 border-b border-gray-200">
-                      <span className="font-semibold text-sm truncate block">
+                  <div className="absolute right-0 mt-2 bg-gradient-to-br from-white to-yellow-50 text-[#2a1407] rounded-lg shadow-lg border border-yellow-200 w-44 py-2 z-50">
+                    <div className="px-4 py-2 border-b border-yellow-200">
+                      <span className="font-semibold text-sm truncate block text-[#2a1407]">
                         {formatName(user?.firstName)} {formatName(user?.lastName)}
                       </span>
                     </div>
-                    <Link href={`/profile/${user?.id}`} className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
+                    <Link href={`/profile/${user?.id}`} className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition">
                       <User size={16} /> {t('Navbar.profile')}
                     </Link>
                     <Link
@@ -399,19 +399,19 @@ export default function Navbar({
                           ? `/company-profile/${companyProfileId}` // EDIT MODE
                           : `/company-profile` // ADD MODE
                       }
-                      className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition"
+                      className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition"
                     >
                       <Building2 size={16} /> {t('Navbar.company profile')}
                     </Link>
-                    <Link href="/view-subscriptions" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
+                    <Link href="/view-subscriptions" className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition">
                       <Crown size={16} /> {t('Navbar.view subscriptions')}
                     </Link>
-                    <Link href="/view-transactions" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm transition">
+                    <Link href="/view-transactions" className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition">
                       <BadgeIndianRupee size={16} /> {t('Navbar.view transactions')}
                     </Link>
                     <Button
                       onClick={handleLogout}
-                      className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-gray-100 text-sm transition"
+                      className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-yellow-50 text-sm transition"
                     >
                       <LogOut size={16} /> {t('Navbar.logout')}
                     </Button>
@@ -423,7 +423,7 @@ export default function Navbar({
             showLoginButton && (
               <Link
                 href="/login"
-                className="flex items-center gap-2 bg-white text-[#3b1804] px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition text-sm md:text-base"
+                className="flex items-center gap-2 bg-gradient-to-r from-yellow-50 to-yellow-100/50 text-[#2a1407] border border-yellow-200 px-4 py-2 rounded-lg font-medium hover:from-yellow-100 hover:to-yellow-200/50 transition text-sm md:text-base"
               >
                 {t('Auth.login')} <ArrowRight size={18} />
               </Link>

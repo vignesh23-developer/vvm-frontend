@@ -44,11 +44,11 @@ const Agents = () => {
   }, [content])
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12">
-      <div className="bg-white rounded-lg shadow-sm p-6">
+    <div className="max-w-7xl mx-auto px-4 py-12 bg-gradient-to-br from-yellow-50 via-white to-yellow-50 min-h-screen">
+      <div className="bg-gradient-to-br from-white to-yellow-50/20 rounded-lg shadow-sm border border-yellow-200 p-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{title}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-[#2a1407]">{title}</h1>
           </div>
         </div>
 
@@ -58,15 +58,15 @@ const Agents = () => {
           </main>
 
           <aside className="md:col-span-1 hidden md:block">
-            <div className="sticky top-24 border rounded-md p-4 bg-gray-50">
-              <h3 className="text-sm font-semibold mb-3">{tocLabel}</h3>
+            <div className="sticky top-24 border border-yellow-200 rounded-md p-4 bg-gradient-to-br from-yellow-50 to-yellow-100/30">
+              <h3 className="text-sm font-semibold mb-3 text-[#2a1407]">{tocLabel}</h3>
               <nav>
                 <ul className="space-y-2 text-sm">
                   {toc.map(item => (
                     <li key={item.id} style={{ paddingLeft: `${(item.level - 1) * 12}px` }}>
                       <a
                         href={`#${item.id}`}
-                        className="text-gray-700 hover:text-gray-900"
+                        className="text-gray-700 hover:text-yellow-700"
                         onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
                           e.preventDefault()
                           const el = document.getElementById(item.id)

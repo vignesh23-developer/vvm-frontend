@@ -182,7 +182,7 @@ const AdsDetailsPage = () => {
 
           <p className="text-gray-500 text-sm mb-6">Please check your connection or try again.</p>
 
-          <Button onClick={() => adDetailsRefresh()} className="bg-[#7B1E1E] text-white px-6 py-2 rounded-lg hover:bg-[#8f2424] transition">
+          <Button onClick={() => adDetailsRefresh()} className="bg-[#2a1407] text-white px-6 py-2 rounded-lg hover:bg-[#8f2424] transition">
             Retry
           </Button>
         </div>
@@ -380,7 +380,7 @@ const AdsDetailsPage = () => {
             <Button className="border px-4 py-2 text-sm" onClick={closeApproveModal} disabled={approvalSubmitting}>
               Cancel
             </Button>
-            <Button className="bg-[#7B1E1E] text-white px-4 py-2 text-sm" onClick={handleApproveSubmit} disabled={approvalSubmitting}>
+            <Button className="bg-[#2a1407] text-white px-4 py-2 text-sm" onClick={handleApproveSubmit} disabled={approvalSubmitting}>
               {approvalSubmitting ? 'Processing...' : 'Confirm'}
             </Button>
           </div>
@@ -397,7 +397,7 @@ const AdsDetailsPage = () => {
               <select
                 value={rejectReason}
                 onChange={e => setRejectReason(e.target.value)}
-                className="w-full rounded-md border px-3 py-2 text-sm focus:border-[#7B1E1E] focus:ring-[#7B1E1E]"
+                className="w-full rounded-md border px-3 py-2 text-sm focus:border-[#2a1407] focus:ring-[#2a1407]"
               >
                 <option value="">Select a reason</option>
                 <option value="FAKE_INFO">Fake Information</option>
@@ -409,7 +409,7 @@ const AdsDetailsPage = () => {
               <textarea
                 value={approvalComment}
                 onChange={e => setApprovalComment(e.target.value)}
-                className="w-full rounded-md border px-3 py-2 text-sm focus:border-[#7B1E1E] focus:ring-[#7B1E1E]"
+                className="w-full rounded-md border px-3 py-2 text-sm focus:border-[#2a1407] focus:ring-[#2a1407]"
                 placeholder="Rejection notes (optional)"
                 rows={3}
               />

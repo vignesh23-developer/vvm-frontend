@@ -4,28 +4,28 @@ import React, { createContext, useContext, useState, useMemo, useCallback } from
 
 // Context value — allow any JSON-serializable value for flexibility
 type GlobalContextValue = {
-  value: any
+  globalValue: any
   loading: boolean
-  setValue: (next: any) => void
+  setGlobalValue: (next: any) => void
   reset: () => void
 }
 
 const GlobalContext = createContext<GlobalContextValue | undefined>(undefined)
 
 export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
-  const [value, setValueState] = useState<any>(null)
+  const [globalValue, setGlobalValueState] = useState<any>(null)
   const [loading, setLoading] = useState(false)
 
   // Accept any value (string | object | array | null). Keep as simple setter.
-  const setValue = useCallback((next: any) => {
-    setValueState(next)
+  const setGlobalValue = useCallback((next: any) => {
+    setGlobalValueState(next)
   }, [])
 
   const reset = useCallback(() => {
-    setValueState(null)
+    setGlobalValueState(null)
   }, [])
 
-  const contextValue = useMemo(() => ({ value, loading, setValue, reset }), [value, loading, setValue, reset])
+  const contextValue = useMemo(() => ({ globalValue, loading, setGlobalValue, reset }), [globalValue, loading, setGlobalValue, reset])
 
   return <GlobalContext.Provider value={contextValue}>{children}</GlobalContext.Provider>
 }

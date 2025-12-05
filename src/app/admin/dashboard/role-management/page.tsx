@@ -78,7 +78,7 @@ export default function RoleManagementPage() {
         <button
           onClick={handleAdd}
           type="button"
-          className="flex items-center gap-2 rounded-md bg-[#7B1E1E] px-4 py-2 text-sm font-medium text-white shadow-md transition hover:bg-[#641717]"
+          className="flex items-center gap-2 rounded-md bg-[#2a1407] px-4 py-2 text-sm font-medium text-white shadow-md transition hover:bg-[#641717]"
         >
           <Plus size={16} /> Add Role
         </button>

@@ -152,7 +152,7 @@ export default function LocationPickerModal({ open, setOpen, initialLat, initial
           <Button type="button" className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button type="button" className="px-4 py-2 rounded bg-[#7B1E1E] text-white hover:bg-blue-700" onClick={handleSave}>
+          <Button type="button" className="px-4 py-2 rounded bg-[#2a1407] text-white hover:bg-blue-700" onClick={handleSave}>
             Save Location
           </Button>
         </div>

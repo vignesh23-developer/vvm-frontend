@@ -122,7 +122,7 @@ const ApproveOrRejectPropertyModal = ({
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="bg-[#7B1E1E] px-4 py-2 text-sm text-white hover:bg-[#661919] disabled:bg-gray-400"
+                  className="bg-[#2a1407] px-4 py-2 text-sm text-white hover:bg-[#661919] disabled:bg-gray-400"
                 >
                   {loading ? 'Processing...' : 'Confirm'}
                 </Button>

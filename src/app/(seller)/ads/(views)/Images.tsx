@@ -576,7 +576,7 @@ export default function AdsImages({ adId, onUploaded, mode = 'create' }: AdsImag
           <h3 className="text-lg font-medium text-gray-900 mb-4">Upload New Images</h3>
           <div
             className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
-              isDraggingOverArea ? 'border-[#7B1E1E] bg-[#FEF2F2]' : 'border-gray-300 hover:border-[#7B1E1E] hover:bg-[#FEF2F2]'
+              isDraggingOverArea ? 'border-[#2a1407] bg-[#FEF2F2]' : 'border-gray-300 hover:border-[#2a1407] hover:bg-[#FEF2F2]'
             }`}
             onDragOver={e => { e.preventDefault(); e.stopPropagation() }}
             onDragEnter={e => { e.preventDefault(); e.stopPropagation(); setIsDraggingOverArea(true) }}
@@ -591,7 +591,7 @@ export default function AdsImages({ adId, onUploaded, mode = 'create' }: AdsImag
           >
             <input ref={fileInputRef} type="file" multiple accept=".jpg,.jpeg,.png" onChange={handleFileInput} className="hidden" />
             <div className="mx-auto w-16 h-16 bg-[#FEE2E2] rounded-full flex items-center justify-center mb-3">
-              <Upload size={28} className="text-[#7B1E1E]" />
+              <Upload size={28} className="text-[#2a1407]" />
             </div>
             <p className="text-gray-700 font-medium">Click to upload or drag and drop</p>
             <p className="text-gray-500 text-sm mt-1">JPG or PNG files (max 5MB)</p>
@@ -730,7 +730,7 @@ export default function AdsImages({ adId, onUploaded, mode = 'create' }: AdsImag
                 variant="primary"
                 onClick={uploadAll}
                 disabled={isUploading || items.length === 0}
-                className={`px-6 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors ${
+                className={`px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-yellow-500 to-yellow-600  rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors ${
                   (isUploading || items.length === 0) ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >

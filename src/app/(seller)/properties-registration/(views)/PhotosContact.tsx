@@ -334,7 +334,7 @@ export default function Step5PhotosContact({ formik, uploadPending }: Step5Photo
                               onChange={() => setFieldValue(`propertyPhoto.${idx}.is_primary`, !val.is_primary)}
                               className="sr-only peer"
                             />
-                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r from-yellow-500 to-yellow-600 "></div>
                             <span className="text-gray-800">Is Primary</span>
                           </label>
                           <ErrorMessage name={`propertyPhoto.${idx}.is_primary`} component="p" className="text-red-600 text-xs mt-1" />
@@ -458,7 +458,7 @@ export default function Step5PhotosContact({ formik, uploadPending }: Step5Photo
                   onClick={submitForm}
                   disabled={isUploading || !formik.dirty}
                   className={`w-full py-3 rounded-lg text-white font-medium flex items-center justify-center gap-2 ${
-                    isUploading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#7B1E1E] hover:bg-[#641717]'
+                    isUploading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#2a1407] hover:bg-[#641717]'
                   }`}
                 >
                   {isUploading ? (

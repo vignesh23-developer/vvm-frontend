@@ -100,7 +100,7 @@ export default function Pagination({
               onClick={() => setPage(pageNumber)}
               disabled={isLoading}
               className={`inline-flex h-8 w-8 items-center justify-center rounded-md border text-sm ${
-                page === pageNumber ? 'border-blue-600 bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
+                page === pageNumber ? 'border-yellow-500 bg-gradient-to-r from-yellow-500 to-yellow-600  text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
               }`}
             >
               {pageNumber}

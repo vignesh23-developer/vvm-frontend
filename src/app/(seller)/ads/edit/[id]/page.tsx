@@ -71,7 +71,7 @@ export default function AdsEditPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-[#7B1E1E] mx-auto" />
+          <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-[#2a1407] mx-auto" />
           <p className="mt-4 text-gray-600">Loading ad details...</p>
         </div>
       </div>
@@ -85,7 +85,7 @@ export default function AdsEditPage() {
           <p className="text-red-600 mb-4">{error || 'Ad not found'}</p>
           <button
             onClick={() => router.push('/ads/list')}
-            className="px-4 py-2 bg-[#7B1E1E] text-white rounded-lg hover:bg-[#641717]"
+            className="px-4 py-2 bg-[#2a1407] text-white rounded-lg hover:bg-[#641717]"
           >
             Back to Ads List
           </button>

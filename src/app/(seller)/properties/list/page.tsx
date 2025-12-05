@@ -139,7 +139,7 @@ export default function PropertiesPage() {
         onClick: (row: PropertiesTableRow) => {
           void handleView(row.id)
         },
-        color: '#1e6897',
+        color: '#2a1407',
         title: 'View',
       },
       {
@@ -147,7 +147,7 @@ export default function PropertiesPage() {
         onClick: (row: PropertiesTableRow) => {
           void handleEdit(row.id)
         },
-        color: '#1e6897',
+        color: '#2a1407',
         title: 'Edit',
       },
     ]
@@ -160,7 +160,7 @@ export default function PropertiesPage() {
           onClick: (row: PropertiesTableRow) => {
             void handleStatusChange(row.id)
           },
-          color: '#1e6897',
+          color: '#2a1407',
           title: 'Change Status',
         },
         {
@@ -209,17 +209,17 @@ export default function PropertiesPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 bg-gradient-to-br from-yellow-50 via-white to-yellow-50 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Properties</h1>
-          <p className="text-gray-500">Manage and oversee all listed properties.</p>
+          <h1 className="text-3xl font-bold text-[#2a1407]">Properties</h1>
+          <p className="text-gray-600">Manage and oversee all listed properties.</p>
         </div>
         <Button
           type="button"
           onClick={() => router.push('/properties-registration')}
-          className="flex items-center gap-2 bg-[#7B1E1E] px-4 py-2 text-sm font-medium text-white rounded-md shadow-md hover:bg-[#641717] transition"
+          className="flex items-center gap-2 bg-[#2a1407] hover:from-[#3b1804] hover:to-[#2a1407] px-4 py-2 text-sm font-medium text-white rounded-md shadow-md transition"
         >
           Properties Registration
           <ArrowRight size={16} />
@@ -231,7 +231,7 @@ export default function PropertiesPage() {
           <Button
             type="button"
             onClick={() => router.push('/admin/dashboard/properties-pending-approval')}
-            className="flex items-center gap-2 bg-[#7B1E1E] hover:bg-[#641717] text-white text-sm font-medium px-4 py-2 rounded-md shadow-md transition-colors"
+            className="flex items-center gap-2 bg-[#2a1407] hover:from-[#3b1804] hover:to-[#2a1407] text-white text-sm font-medium px-4 py-2 rounded-md shadow-md transition-colors"
           >
             View your pending properties
             <ArrowRight size={16} />
@@ -242,7 +242,7 @@ export default function PropertiesPage() {
       {/* Layout */}
       <div className="">
         {/* Table Section */}
-        <div className="bg-white rounded-xl shadow p-4">
+        <div className="bg-gradient-to-br from-white to-yellow-50/20 rounded-xl shadow border border-yellow-200 p-4">
           <DataTable
             columns={columns}
             actions={actions}

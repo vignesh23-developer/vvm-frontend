@@ -129,7 +129,7 @@ export default function Pagination({
                 aria-current={isActive ? 'page' : undefined}
                 aria-label={`Go to page ${pageNumber}`}
                 className={`min-w-[38px] h-9 flex items-center justify-center rounded-full text-sm font-medium transition-all border
-                ${isActive ? 'bg-[#7B1E1E] text-white shadow-sm border-[#7B1E1E]' : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-200'}`}
+                ${isActive ? 'bg-[#2a1407] text-white shadow-sm border-[#2a1407]' : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-200'}`}
               >
                 {pageNumber}
               </Button>

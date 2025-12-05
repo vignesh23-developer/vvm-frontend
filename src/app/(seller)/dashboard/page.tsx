@@ -69,7 +69,7 @@ const leads = [
 ]
 
 const pieData = [
-  { name: 'New', value: 40, color: '#3B82F6' },
+  { name: 'New', value: 40, color: '#2a1407' },
   { name: 'Pending', value: 20, color: '#FACC15' },
   { name: 'Converted', value: 25, color: '#22C55E' },
   { name: 'Lost', value: 15, color: '#EF4444' },
@@ -88,10 +88,10 @@ const barData = [
 /* ---------------- COMPONENTS ---------------- */
 const StatusBadge = ({ status }: { status: string }) => {
   const colors: Record<string, string> = {
-    New: 'bg-blue-100 text-blue-700',
-    Pending: 'bg-yellow-100 text-yellow-700',
-    Converted: 'bg-green-100 text-green-700',
-    Lost: 'bg-red-100 text-red-700',
+    New: 'bg-gradient-to-r from-yellow-50 to-yellow-100/50 text-[#2a1407] border border-yellow-200',
+    Pending: 'bg-gradient-to-r from-yellow-100 to-yellow-200/50 text-yellow-800 border border-yellow-300',
+    Converted: 'bg-green-100 text-green-700 border border-green-200',
+    Lost: 'bg-red-100 text-red-700 border border-red-200',
   }
   return (
     <span
@@ -118,9 +118,9 @@ const leadColumns = [
 ]
 
 const StatsCard = ({ label, value }: { label: string; value: number }) => (
-  <div className="bg-white rounded-lg p-4 flex flex-col items-center justify-center shadow-sm text-center">
-    <h2 className="text-xl sm:text-2xl font-bold">{value.toLocaleString()}</h2>
-    <p className="text-gray-500 text-sm mt-1">{label}</p>
+  <div className="bg-gradient-to-br from-white to-yellow-50/30 rounded-lg p-4 flex flex-col items-center justify-center shadow-sm border border-yellow-200 text-center">
+    <h2 className="text-xl sm:text-2xl font-bold text-[#2a1407]">{value.toLocaleString()}</h2>
+    <p className="text-gray-600 text-sm mt-1">{label}</p>
   </div>
 )
 
@@ -131,7 +131,7 @@ const QuickActionButton = ({
   icon: any
   label: string
 }) => (
-  <button className="w-full border rounded-md px-3 py-2 text-sm flex items-center justify-center gap-2 bg-gray-50 hover:bg-gray-100 transition">
+  <button className="w-full border border-yellow-200 rounded-md px-3 py-2 text-sm flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-50 to-yellow-100/50 hover:from-yellow-100 hover:to-yellow-200/50 text-[#2a1407] transition">
     <Icon className="w-4 h-4 shrink-0" />{' '}
     <span className="truncate">{label}</span>
   </button>
@@ -140,11 +140,11 @@ const QuickActionButton = ({
 /* ---------------- MAIN PAGE ---------------- */
 export default function DashboardPage() {
   return (
-    <div className="p-4 sm:p-6 space-y-6 bg-gray-50 min-h-screen">
+    <div className="p-4 sm:p-6 space-y-6 bg-gradient-to-br from-yellow-50 via-white to-yellow-50 min-h-screen">
       {/* Header */}
       <header className="space-y-1">
-        <h1 className="text-xl sm:text-2xl font-bold">Leads Dashboard</h1>
-        <p className="text-gray-500 text-sm">
+        <h1 className="text-xl sm:text-2xl font-bold text-[#2a1407]">Leads Dashboard</h1>
+        <p className="text-gray-600 text-sm">
           Track, manage, and convert your leads efficiently.
         </p>
       </header>
@@ -159,8 +159,8 @@ export default function DashboardPage() {
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Table Section */}
-        <section className="lg:col-span-2 bg-white rounded-lg p-4 shadow-sm overflow-x-auto">
-          <h2 className="text-lg font-semibold mb-4">Leads Table</h2>
+        <section className="lg:col-span-2 bg-gradient-to-br from-white to-yellow-50/20 rounded-lg p-4 shadow-sm border border-yellow-200 overflow-x-auto">
+          <h2 className="text-lg font-semibold text-[#2a1407] mb-4">Leads Table</h2>
           <div className="w-full">
             <Table
               columns={leadColumns}
@@ -178,9 +178,9 @@ export default function DashboardPage() {
         {/* Charts + Actions */}
         <aside className="space-y-6">
           {/* Charts */}
-          <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm space-y-6">
+          <div className="bg-gradient-to-br from-white to-yellow-50/20 rounded-lg p-4 sm:p-6 shadow-sm border border-yellow-200 space-y-6">
             <div>
-              <h3 className="font-semibold mb-2">Leads by Status</h3>
+              <h3 className="font-semibold text-[#2a1407] mb-2">Leads by Status</h3>
               <ResponsiveContainer width="100%" height={200}>
                 <PieChart>
                   <Pie data={pieData} dataKey="value" outerRadius={70}>
@@ -194,21 +194,21 @@ export default function DashboardPage() {
             </div>
 
             <div>
-              <h3 className="font-semibold mb-2">Leads Over Week</h3>
+              <h3 className="font-semibold text-[#2a1407] mb-2">Leads Over Week</h3>
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={barData}>
                   <XAxis dataKey="name" />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="value" fill="#3B82F6" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="value" fill="#2a1407" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm space-y-4">
-            <h3 className="font-semibold">Quick Actions</h3>
+          <div className="bg-gradient-to-br from-white to-yellow-50/20 rounded-lg p-4 sm:p-6 shadow-sm border border-yellow-200 space-y-4">
+            <h3 className="font-semibold text-[#2a1407]">Quick Actions</h3>
             <QuickActionButton icon={Upload} label="Import Leads" />
             <QuickActionButton icon={Download} label="Export Leads" />
           </div>

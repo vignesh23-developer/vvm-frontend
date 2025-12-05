@@ -18,6 +18,7 @@ import {
 } from '@/app/admin/dashboard/(master)/feature-category/(dto)/featureCategoryType'
 import { FeatureCategoryValidationSchema } from './FeatureCategoryValidation'
 import toast from 'react-hot-toast'
+import { ResponseDTO } from '@/components/dto/response_dto'
 
 export interface FeatureCategoryFormProps {
   initialValues: FeatureCategoryFormValues
@@ -77,33 +78,17 @@ export default function FeatureCategoryForm({ initialValues, onSubmit, submitLab
     setDraggedIndex(null)
   }
 
-  const fetcher = async (url: string): Promise<FeatureGroup[]> => {
-    try {
-      const response = await getMethod<FeatureGroup[]>(url)
-      console.log('Fetched feature group ResponseDTO:', response)
-
-      if (response.error) {
-        toast.error(response.message || 'Failed to fetch feature groups')
-        console.error('API error while fetching feature groups:', response.message)
-        return []
-      }
-
-      if (Array.isArray(response.data)) {
-        return response.data
-      }
-
-      console.warn('Unexpected data format:', response.data)
-      return []
-    } catch (error) {
-      console.error('Failed to fetch feature groups:', error)
-      return []
-    }
+  const fetcher = async (url: string) => {
+    const response = await getMethod<FeatureGroup[]>(url)
+    console.log('Fetched feature group ResponseDTO:', response)
+    return response
   }
 
-  const { data: featureGroups, error: groupError, isLoading } = useSWR<FeatureGroup[]>(`${appEndpoints.getAllFeatureGroups}?activeOnly=true`, fetcher)
+  const { data, error: groupError, isLoading } = useSWR<ResponseDTO>(`${appEndpoints.getAllFeatureGroups}?activeOnly=true`, fetcher)
 
+  const featureGroups = data?.data?.data || []
   const featureGroupOptions =
-    featureGroups?.map(group => ({
+    featureGroups?.map((group: any) => ({
       value: group.id,
       label: group.name,
     })) || []

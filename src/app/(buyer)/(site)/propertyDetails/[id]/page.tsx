@@ -35,6 +35,7 @@ import {
   Camera,
   Play,
 } from 'lucide-react'
+import FavoriteButton from '@/components/ui/CustomComponent/FavoriteButton/FavoriteButton'
 import type { LucideIcon } from 'lucide-react'
 import Amenities from '@/components/buyer/Amenities/Amenities'
 import { useTranslations } from 'next-intl'
@@ -47,7 +48,6 @@ import { useSimilarProperties } from '../(hooks)/useSimilarProperties'
 import { usePopularProperties } from '@/components/buyer/LandingPage/PopularProperties/hooks/usePopularProperties'
 import MapView from '@/components/ui/map/MapView'
 import Image from 'next/image'
-import FavoriteButton from '@/components/ui/CustomComponent/FavoriteButton/FavoriteButton'
 import { appEndpoints } from '@/services/endpoints'
 import { getMethod, postMethod } from '@/services/service'
 import EnquiryPropertyModal from './modal/EnquiryPropertyModal'
@@ -791,14 +791,26 @@ const page = () => {
               >
                 <Share2 size={18} />
               </motion.button>
-              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                <FavoriteButton
-                  propertyId={propertyId || ''}
-                  isUserFavorited={propertyDetailsData?.is_user_favorite}
-                  onToggleFavorite={handleFavorite}
-                  size={40}
-                  favoriteCount={propertyDetailsData?.favorite_count}
-                />
+              <motion.div 
+                whileHover={{ scale: 1.1 }} 
+                whileTap={{ scale: 0.9 }}
+                className="relative"
+              >
+                <button
+                  onClick={() => handleFavorite(propertyId || '')}
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm text-gray-700 shadow-lg transition hover:bg-white hover:text-[#2a1407]"
+                  aria-label="Favorite property"
+                >
+                  <Heart 
+                    size={18} 
+                    className={propertyDetailsData?.is_user_favorite ? 'fill-red-500 text-red-500' : ''}
+                  />
+                </button>
+                {(propertyDetailsData?.favorite_count ?? 0) > 0 && (
+                  <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#2a1407] text-[10px] font-semibold text-yellow-200 shadow-md">
+                    {propertyDetailsData?.favorite_count ?? 0}
+                  </span>
+                )}
               </motion.div>
             </div>
           </motion.div>
@@ -808,7 +820,7 @@ const page = () => {
             variants={fadeInUp}
             className="relative -mt-20 mx-4 md:mx-8 z-10"
           >
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 md:p-8">
+            <div className="bg-gradient-to-br from-white to-yellow-50/20 rounded-2xl shadow-xl border border-yellow-200 p-6 md:p-8">
               <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
                 {/* Left Section */}
                 <div className="flex-1 space-y-4">
@@ -821,7 +833,7 @@ const page = () => {
 
                   {/* Title & Location */}
                   <div>
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                    <h1 className="text-3xl md:text-4xl font-bold text-[#2a1407] mb-2">
                       {propertyDetailsData?.title || 'Property Title'}
                     </h1>
                     <p className="flex items-center gap-2 text-gray-600 text-sm md:text-base">
@@ -847,7 +859,7 @@ const page = () => {
                       <Button
                         type="button"
                         onClick={() => setEnquiryModalOpen(true)}
-                        className="w-full bg-[#2a1407] text-white py-2.5 rounded-full font-semibold flex items-center justify-center gap-2 shadow-sm hover:bg-[#3b1804]"
+                        className="w-full bg-[#2a1407] text-white py-2.5 rounded-full font-semibold flex items-center justify-center gap-2 shadow-sm hover:from-[#3b1804] hover:to-[#2a1407] transition-all"
                       >
                         <MessageSquare size={18} />
                         Enquire Now
@@ -856,7 +868,7 @@ const page = () => {
                         <Button
                           type="button"
                           onClick={() => setReportModalOpen(true)}
-                          className="flex-1 bg-white border border-gray-200 rounded-full py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center justify-center gap-1"
+                          className="flex-1 bg-white border border-yellow-200 rounded-full py-2.5 px-4 text-sm text-gray-700 hover:bg-yellow-50 flex items-center justify-center gap-1 transition-all"
                         >
                           <Flag size={16} />
                           <span>Report</span>
@@ -864,7 +876,7 @@ const page = () => {
                         <Button
                           type="button"
                           onClick={handleDownloadBrochure}
-                          className="flex-1 bg-white border border-gray-200 rounded-full py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center justify-center gap-1"
+                          className="flex-1 bg-white border border-yellow-200 rounded-full py-2.5 px-4 text-sm text-gray-700 hover:bg-yellow-50 flex items-center justify-center gap-1 transition-all"
                         >
                           <Download size={16} />
                           <span>Brochure</span>
@@ -878,7 +890,7 @@ const page = () => {
                 <div className="lg:text-right space-y-4">
                   <motion.div
                     whileHover={cardHover}
-                    className="bg-gradient-to-br from-yellow-50 to-yellow-100/50 rounded-xl p-6 border border-yellow-200"
+                    className="bg-gradient-to-br from-yellow-50 to-yellow-100/50 rounded-xl p-6 border border-yellow-200 shadow-sm"
                   >
                     <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">Price</p>
                     <p className="text-3xl md:text-4xl font-bold text-[#2a1407] mb-2">
@@ -900,7 +912,7 @@ const page = () => {
 
                   <Button
                     type="button"
-                    className="w-full lg:w-auto bg-[#2a1407] text-white hover:bg-[#3b1804] px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+                    className="w-full lg:w-auto bg-[#2a1407] text-white hover:from-[#3b1804] hover:to-[#2a1407] px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all"
                   >
                     Show Interest
                   </Button>
@@ -925,9 +937,9 @@ const page = () => {
                     key={idx}
                     variants={fadeInUp}
                     whileHover={cardHover}
-                    className="rounded-xl border border-gray-200 bg-white p-4 text-center transition-all cursor-pointer shadow-sm hover:shadow-md"
+                    className="rounded-xl border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/30 p-4 text-center transition-all cursor-pointer shadow-sm hover:shadow-md hover:border-yellow-300"
                   >
-                    <div className="inline-flex p-2 rounded-lg mb-2 bg-yellow-50 border border-yellow-200">
+                    <div className="inline-flex p-2 rounded-lg mb-2 bg-gradient-to-br from-yellow-50 to-yellow-100/50 border border-yellow-200 shadow-sm">
                       <Icon size={20} className="text-yellow-600" />
                     </div>
                     <p className="text-xs font-semibold text-gray-600 mb-1">{card.label}</p>
@@ -938,7 +950,7 @@ const page = () => {
             </motion.div>
 
             {/* Details Sections - rendered as stacked cards */}
-            <motion.div variants={fadeInUp} className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm min-h-[900px]">
+            <motion.div variants={fadeInUp} className="bg-gradient-to-br from-white to-yellow-50/20 rounded-xl border border-yellow-200 overflow-hidden shadow-sm min-h-[900px]">
               <div className="p-6 space-y-10">
                 {/* Overview */}
                 <motion.div
@@ -953,7 +965,7 @@ const page = () => {
                     <div className="flex flex-col md:flex-row gap-6 ">
                       {/* Features List */}
                       <div className="flex-1">
-                        <h3 className="text-xl font-bold text-gray-900 mb-4">Key Features</h3>
+                        <h3 className="text-xl font-bold text-[#2a1407] mb-4">Key Features</h3>
                         <div className="grid md:grid-cols-2 gap-3">
                           {keyFeatures.map((feature, idx) => (
                             <motion.div
@@ -975,8 +987,8 @@ const page = () => {
                   )}
 
                   {/* Description */}
-                  <div className="pt-4 border-t border-gray-200">
-                    <h3 className="text-xl font-bold text-gray-900 mb-4">About the Property</h3>
+                  <div className="pt-4 border-t border-yellow-200">
+                    <h3 className="text-xl font-bold text-[#2a1407] mb-4">About the Property</h3>
                     <p className="text-gray-700 leading-relaxed">
                       {propertyDetailsData?.description ||
                         'This is a charming residential project spread across prime location. It features modern architecture with spacious apartments designed to provide comfort and luxury. The project enjoys excellent connectivity and is surrounded by all essential amenities including schools, hospitals, shopping centers, and recreational facilities.'}
@@ -1092,7 +1104,41 @@ const page = () => {
             variants={fadeInUp}
             className="space-y-6"
           >
-            {/* Property Insights - compact summary cards (first card in sidebar) */}
+            {/* Approve / Reject Section - Moved Above Property Insights */}
+            {propertyDetailsData?.approval_status === 'UNDER_REVIEW' && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                whileHover={{ scale: 1.01 }}
+                className="bg-gradient-to-br from-white to-yellow-50/20 border border-yellow-200 rounded-xl p-6 shadow-sm"
+              >
+                <h2 className="text-lg font-semibold text-[#2a1407] text-center mb-5">Approve or Reject</h2>
+                <div className="flex items-center justify-center gap-4">
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setApproveOrRejectModalOpen(true)
+                      setApproveOrRejectReason('approve')
+                    }}
+                    className="px-6 py-2.5 rounded-lg border border-emerald-600 text-emerald-700 font-medium hover:bg-emerald-600 hover:text-white transition-all"
+                  >
+                    Approve
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setApproveOrRejectModalOpen(true)
+                      setApproveOrRejectReason('reject')
+                    }}
+                    className="px-6 py-2.5 rounded-lg border border-red-600 text-red-600 font-medium hover:bg-red-600 hover:text-white transition-all"
+                  >
+                    Reject
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Property Insights - compact summary cards */}
             <motion.div
               variants={fadeInUp}
               className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm"
@@ -1142,40 +1188,6 @@ const page = () => {
               </div>
             </motion.div>
 
-            {/* Approve / Reject Section */}
-            {propertyDetailsData?.approval_status === 'UNDER_REVIEW' && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                whileHover={{ scale: 1.01 }}
-                className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm"
-              >
-                <h2 className="text-lg font-semibold text-gray-800 text-center mb-5">Approve or Reject</h2>
-                <div className="flex items-center justify-center gap-4">
-                  <Button
-                    type="button"
-                    onClick={() => {
-                      setApproveOrRejectModalOpen(true)
-                      setApproveOrRejectReason('approve')
-                    }}
-                    className="px-6 py-2.5 rounded-lg border border-emerald-600 text-emerald-700 font-medium hover:bg-emerald-600 hover:text-white transition-all"
-                  >
-                    Approve
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={() => {
-                      setApproveOrRejectModalOpen(true)
-                      setApproveOrRejectReason('reject')
-                    }}
-                    className="px-6 py-2.5 rounded-lg border border-red-600 text-red-600 font-medium hover:bg-red-600 hover:text-white transition-all"
-                  >
-                    Reject
-                  </Button>
-                </div>
-              </motion.div>
-            )}
-
             {/* Contact Form Card */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -1221,24 +1233,24 @@ const page = () => {
                 <input
                   type="text"
                   placeholder="Your Name"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 rounded-lg border border-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400 transition-all bg-white"
                 />
                 <input
                   type="email"
                   placeholder="Your Email"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 rounded-lg border border-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400 transition-all bg-white"
                 />
                 <input
                   type="tel"
                   placeholder="Your Phone"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 rounded-lg border border-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400 transition-all bg-white"
                 />
-                <Button
-                  type="button"
-                  className="w-full bg-[#2a1407] text-white hover:bg-[#3b1804] py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all"
-                >
-                  Connect →
-                </Button>
+                  <Button
+                    type="button"
+                    className="w-full bg-[#2a1407] text-white hover:from-[#3b1804] hover:to-[#2a1407] py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+                  >
+                    Connect →
+                  </Button>
               </div>
             </motion.div>
 
@@ -1313,7 +1325,7 @@ const page = () => {
                 transition={{ duration: 0.3 }}
                 className="space-y-2 p-8"
               >
-                <h3 className="text-xl font-bold text-gray-900">Location</h3>
+                <h3 className="text-xl font-bold text-[#2a1407]">Location</h3>
                 <p className="text-sm text-gray-600">
                   {propertyDetailsData?.address_line ||
                     'Located in a well-connected neighbourhood with easy access to schools, hospitals, shopping and public transport.'}
@@ -1504,15 +1516,15 @@ const page = () => {
             {/* Interactive Quiz for Recommendations */}
             <motion.div
               whileHover={{ scale: 1.01 }}
-              className="rounded-2xl bg-white border border-gray-200 p-5 shadow-sm"
+              className="rounded-2xl bg-gradient-to-br from-white to-yellow-50/20 border border-yellow-200 p-5 shadow-sm"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="h-10 w-10 rounded-full bg-yellow-50 border border-yellow-200 flex items-center justify-center">
+                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-yellow-50 to-yellow-100/50 border border-yellow-200 flex items-center justify-center shadow-sm">
                   <Home size={18} className="text-yellow-600" />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">🎯 Quick Match</p>
-                  <p className="text-sm font-semibold text-gray-900">Find Your Perfect Home</p>
+                  <p className="text-xs font-semibold text-yellow-700 uppercase tracking-wide">🎯 Quick Match</p>
+                  <p className="text-sm font-semibold text-[#2a1407]">Find Your Perfect Home</p>
                 </div>
               </div>
 
@@ -1593,7 +1605,7 @@ const page = () => {
                         setIsQuizLoading(false)
                       }
                     }}
-                    className="w-full bg-gray-900 text-white hover:bg-black disabled:opacity-60 py-2.5 rounded-lg text-xs font-semibold transition-all"
+                    className="w-full bg-[#2a1407] text-white hover:from-[#3b1804] hover:to-[#2a1407] disabled:opacity-60 py-2.5 rounded-lg text-xs font-semibold transition-all"
                   >
                     {isQuizLoading ? 'Searching…' : '🎯 Get My Matches'}
                   </Button>
@@ -1641,7 +1653,7 @@ const page = () => {
                       toast.success('Redirecting to property listings...')
                       router.push('/properties')
                     }}
-                    className="w-full bg-[#2a1407] text-white hover:bg-[#3b1804] py-2.5 rounded-lg text-xs font-semibold transition-all"
+                    className="w-full bg-[#2a1407] text-white hover:from-[#3b1804] hover:to-[#2a1407] py-2.5 rounded-lg text-xs font-semibold transition-all"
                   >
                     View Matched Properties →
                   </Button>
@@ -1675,7 +1687,7 @@ const page = () => {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Sparkles className="w-5 h-5 text-yellow-600" />
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Similar Projects</h2>
+                <h2 className="text-3xl md:text-4xl font-bold text-[#2a1407]">Similar Projects</h2>
               </div>
               <p className="text-gray-600">Explore other properties you might be interested in</p>
             </div>
@@ -1783,7 +1795,7 @@ const page = () => {
                       </div>
                     </div>
                     <div className="p-4">
-                      <h3 className="font-bold text-gray-900 mb-1 line-clamp-1">{property.title || 'Property'}</h3>
+                      <h3 className="font-bold text-[#2a1407] mb-1 line-clamp-1">{property.title || 'Property'}</h3>
                       <p className="text-sm text-gray-600 mb-3 line-clamp-1 flex items-center gap-1">
                         <MapPin size={14} className="text-yellow-600 flex-shrink-0" />
                         {property.address_line || 'Location not available'}

@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Formik } from 'formik'
 import { MapPin, Home, ChevronDown, IndianRupee, Search } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { motion, Variants } from 'framer-motion'
@@ -14,16 +15,18 @@ export default function HeroSection() {
   const router = useRouter()
   const [isHeroLoading, setIsHeroLoading] = useState(true)
   const [currentTab, setCurrentTab] = useState('buy')
-  const [location, setLocation] = useState('')
   const [showBudget, setShowBudget] = useState(false)
   const [showType, setShowType] = useState(false)
-
-  const [selectedBudget, setSelectedBudget] = useState<string | null>(null)
   // Lightweight category shape used in this component
   interface Category {
     id: string | number
     name: string
     icon?: string
+  }
+  interface SearchParams {
+    location?: string
+    type?: string | number
+    budget?: string
   }
 
   const [selectedType, setSelectedType] = useState<Category | null>(null)
@@ -64,7 +67,26 @@ export default function HeroSection() {
     },
   }
 
-  const budgetOptions = ['Below 10 Lakhs', '10–20 Lakhs', '20–30 Lakhs', '30–50 Lakhs', '50 Lakhs – 1 Crore', '1–2 Crores', 'Above 2 Crores']
+  const [budgetRange, setBudgetRange] = useState<[number, number]>([0, 100000000])
+  const budgetMin = 0
+  const budgetMax = 100000000
+
+  const formatBudgetDisplay = (min: number, max: number) => {
+    if (min === budgetMin && max === budgetMax) return t('Hero.HeroMenu.budget')
+    if (min === budgetMin) return `Up to ₹${(max / 100000).toFixed(0)} Lakhs`
+    if (max === budgetMax) return `Above ₹${(min / 100000).toFixed(0)} Lakhs`
+    return `₹${(min / 100000).toFixed(0)} - ₹${(max / 100000).toFixed(0)} Lakhs`
+  }
+
+  const handleSearch = (values: SearchParams) => {
+    const typeName = categories?.find(c => String(c.id) === String(values.type))?.name ?? ''
+    const queryParams = new URLSearchParams({
+      location: encodeURIComponent(values.location || ''),
+      type: encodeURIComponent(typeName),
+      budget: encodeURIComponent(values.budget || ''),
+    })
+    router.push(`/properties-list?${queryParams.toString()}`)
+  }
 
   // Simulate a short loading state for hero (for skeleton)
   useEffect(() => {
@@ -86,7 +108,6 @@ export default function HeroSection() {
       </main>
     )
   }
-
   return (
     <main className="relative min-h-[80vh] sm:min-h-screen w-full overflow-hidden">
       {/* Background carousel layer */}
@@ -159,212 +180,323 @@ export default function HeroSection() {
             </div>
           </motion.div>
 
-          {/* Search Bar */}
-          <motion.div variants={itemVariants} className="bg-white text-black rounded-2xl px-3 py-4 sm:px-2 sm:py-2 shadow-lg relative">
-            {/* -------------- Mobile UI -------------- */}
-            <div className="flex flex-col gap-3 sm:hidden">
-              {/* Location */}
-              <motion.div whileHover={{ scale: 1.02 }} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-2 flex-1">
-                  <MapPin className="w-5 h-5 text-gray-600" />
+          {/* Search Bar (Formik) */}
+          <Formik initialValues={{ location: '', type: '', budget: '' }} onSubmit={values => handleSearch(values)}>
+            {({ values, setFieldValue, handleSubmit }) => (
+              <motion.div variants={itemVariants} className="bg-white text-black rounded-2xl px-3 py-4 sm:px-2 sm:py-2 shadow-lg relative">
+                {/* -------------- Mobile UI -------------- */}
+                <div className="flex flex-col gap-3 sm:hidden">
+                  {/* Location */}
+                  <motion.div whileHover={{ scale: 1.02 }} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-2 flex-1">
+                      <MapPin className="w-5 h-5 text-gray-600" />
 
-                  <input
-                    type="text"
-                    value={location}
-                    onChange={e => setLocation(e.target.value)}
-                    placeholder="Enter location"
-                    className="bg-transparent outline-none font-medium text-black placeholder-gray-400 w-full"
-                  />
+                      <input
+                        type="text"
+                        value={values.location}
+                        onChange={e => setFieldValue('location', e.target.value)}
+                        placeholder="Enter location"
+                        className="bg-transparent outline-none font-medium text-black placeholder-gray-400 w-full"
+                      />
+                    </div>
+
+                    <span className="text-gray-500 text-sm whitespace-nowrap">{t('Hero.HeroMenu.add_more')}</span>
+                  </motion.div>
+
+                  {/* Property Type Select */}
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    className="relative flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                    onClick={() => {
+                      setShowType(!showType)
+                      setShowBudget(false)
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      {categories && values.type && (
+                        <LucideIconRenderer
+                          iconName={categories.find(c => String(c.id) === String(values.type))?.icon as any}
+                          className="w-5 h-5 text-gray-700"
+                        />
+                      )}
+
+                      <span className="font-medium">
+                        {categories && values.type ? categories.find(c => String(c.id) === String(values.type))?.name : t('Hero.HeroMenu.flat')}
+                      </span>
+                    </div>
+
+                    <ChevronDown className="w-4 h-4 text-gray-500" />
+
+                    {/* Dropdown */}
+                    {showType && (
+                      <div className="absolute top-full left-0 mt-2 w-full bg-white rounded-lg shadow-md z-20 p-2">
+                        {categories?.map(item => (
+                          <div
+                            key={item.id}
+                            className="p-2 hover:bg-gray-100 cursor-pointer rounded-md text-sm"
+                            onClick={() => {
+                              setFieldValue('type', item.id)
+                              setShowType(false)
+                            }}
+                          >
+                            <span className="font-medium flex items-center gap-2">
+                              <LucideIconRenderer iconName={item.icon as any} /> {item.name}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </motion.div>
+
+                  {/* Budget Range Input */}
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    className="relative flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setShowBudget(!showBudget)
+                      setShowType(false)
+                    }}
+                  >
+                    <div className="flex items-center space-x-2 flex-1">
+                      <IndianRupee className="w-5 h-5" />
+                      <span className="font-medium">{formatBudgetDisplay(budgetRange[0], budgetRange[1])}</span>
+                    </div>
+                    <ChevronDown className="w-4 h-4 text-gray-500" />
+
+                    {/* Range Input Dropdown */}
+                    {showBudget && (
+                      <div 
+                        className="absolute top-full left-0 mt-2 w-full bg-white rounded-lg shadow-md z-20 p-4"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between text-xs text-gray-600 mb-2">
+                            <span>₹{(budgetRange[0] / 100000).toFixed(0)} Lakhs</span>
+                            <span>₹{(budgetRange[1] / 100000).toFixed(0)} Lakhs</span>
+                          </div>
+                          <div className="relative">
+                            <input
+                              type="range"
+                              min={budgetMin}
+                              max={budgetMax}
+                              value={budgetRange[0]}
+                              onChange={(e) => {
+                                const newMin = Number(e.target.value)
+                                if (newMin < budgetRange[1]) {
+                                  setBudgetRange([newMin, budgetRange[1]])
+                                  setFieldValue('budget', `${newMin}-${budgetRange[1]}`)
+                                }
+                              }}
+                              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#2a1407]"
+                              style={{
+                                background: `linear-gradient(to right, #2a1407 0%, #2a1407 ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100}%, #e5e7eb ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100}%, #e5e7eb 100%)`
+                              }}
+                            />
+                            <input
+                              type="range"
+                              min={budgetMin}
+                              max={budgetMax}
+                              value={budgetRange[1]}
+                              onChange={(e) => {
+                                const newMax = Number(e.target.value)
+                                if (newMax > budgetRange[0]) {
+                                  setBudgetRange([budgetRange[0], newMax])
+                                  setFieldValue('budget', `${budgetRange[0]}-${newMax}`)
+                                }
+                              }}
+                              className="absolute top-0 w-full h-2 bg-transparent rounded-lg appearance-none cursor-pointer accent-[#2a1407]"
+                            />
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setBudgetRange([budgetMin, budgetMax])
+                                setFieldValue('budget', '')
+                                setShowBudget(false)
+                              }}
+                              className="flex-1 px-3 py-1.5 text-xs bg-gray-100 hover:bg-gray-200 rounded-md transition"
+                            >
+                              Reset
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setShowBudget(false)}
+                              className="flex-1 px-3 py-1.5 text-xs bg-[#2a1407] text-white rounded-md hover:bg-[#3b1804] transition"
+                            >
+                              Apply
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </motion.div>
+
+                  {/* Search Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center justify-center gap-2 bg-black text-white py-3 rounded-xl hover:bg-gray-800 transition font-medium"
+                    onClick={() => handleSubmit()}
+                  >
+                    <Search className="w-5 h-5" />
+                    <span>{t('Hero.HeroMenu.search')}</span>
+                  </motion.button>
                 </div>
 
-                <span className="text-gray-500 text-sm whitespace-nowrap">{t('Hero.HeroMenu.add_more')}</span>
-              </motion.div>
+                {/* -------------- Desktop UI -------------- */}
+                <div className="hidden sm:flex items-center gap-4 relative">
+                  {/* Location */}
+                  <div className="flex items-center gap-2 flex-1 min-w-[140px] rounded-lg px-3 py-2">
+                    <MapPin className="w-5 h-5 text-gray-600" />
 
-              {/* Property Type Select */}
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                className="relative flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                onClick={() => {
-                  setShowType(!showType)
-                  setShowBudget(false)
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  {selectedType && <LucideIconRenderer iconName={selectedType.icon as any} className="w-5 h-5 text-gray-700" />}
+                    <input
+                      type="text"
+                      placeholder="Enter location"
+                      value={values.location}
+                      onChange={e => setFieldValue('location', e.target.value)}
+                      className="bg-transparent outline-none font-medium w-full placeholder:text-gray-400"
+                    />
 
-                  <span className="font-medium">{selectedType?.name || t('Hero.HeroMenu.flat')}</span>
+                    {/* <span className="text-gray-500 text-sm whitespace-nowrap">{t('Hero.HeroMenu.add_more')}</span> */}
+                  </div>
+
+                  {/* Property Type */}
+                  <div
+                    className="flex items-center space-x-2 flex-1 min-w-[140px] relative cursor-pointer"
+                    onClick={() => {
+                      setShowType(!showType)
+                      setShowBudget(false)
+                    }}
+                  >
+                    <span className="font-medium flex items-center gap-2">
+                      {categories && values.type && (
+                        <LucideIconRenderer iconName={categories.find(c => String(c.id) === String(values.type))?.icon as any} />
+                      )}
+                      {categories && values.type ? categories.find(c => String(c.id) === String(values.type))?.name : t('Hero.HeroMenu.flat')}
+                    </span>
+
+                    <ChevronDown className="w-4 h-4 text-gray-500" />
+
+                    {showType && (
+                      <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-md z-20 p-2">
+                        {categories?.map(item => (
+                          <div
+                            key={item.id}
+                            className="p-2 hover:bg-gray-100 cursor-pointer rounded-md text-sm"
+                            onClick={() => {
+                              setFieldValue('type', item.id)
+                              setShowType(false)
+                            }}
+                          >
+                            <span className="font-medium flex items-center gap-2">
+                              <LucideIconRenderer iconName={item.icon as any} /> {item.name}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Budget Range Input */}
+                  <div
+                    className="flex items-center space-x-2 flex-1 min-w-[140px] relative cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setShowBudget(!showBudget)
+                      setShowType(false)
+                    }}
+                  >
+                    <IndianRupee className="w-5 h-5" />
+                    <span className="font-medium">{formatBudgetDisplay(budgetRange[0], budgetRange[1])}</span>
+                    <ChevronDown className="w-4 h-4 text-gray-500" />
+
+                    {showBudget && (
+                      <div 
+                        className="absolute top-full left-0 mt-2 w-80 bg-white rounded-lg shadow-md z-20 p-4"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between text-xs text-gray-600 mb-2">
+                            <span>₹{(budgetRange[0] / 100000).toFixed(0)} Lakhs</span>
+                            <span>₹{(budgetRange[1] / 100000).toFixed(0)} Lakhs</span>
+                          </div>
+                          <div className="relative">
+                            <input
+                              type="range"
+                              min={budgetMin}
+                              max={budgetMax}
+                              value={budgetRange[0]}
+                              onChange={(e) => {
+                                const newMin = Number(e.target.value)
+                                if (newMin < budgetRange[1]) {
+                                  setBudgetRange([newMin, budgetRange[1]])
+                                  setFieldValue('budget', `${newMin}-${budgetRange[1]}`)
+                                }
+                              }}
+                              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#2a1407]"
+                              style={{
+                                background: `linear-gradient(to right, #2a1407 0%, #2a1407 ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100}%, #e5e7eb ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100}%, #e5e7eb 100%)`
+                              }}
+                            />
+                            <input
+                              type="range"
+                              min={budgetMin}
+                              max={budgetMax}
+                              value={budgetRange[1]}
+                              onChange={(e) => {
+                                const newMax = Number(e.target.value)
+                                if (newMax > budgetRange[0]) {
+                                  setBudgetRange([budgetRange[0], newMax])
+                                  setFieldValue('budget', `${budgetRange[0]}-${newMax}`)
+                                }
+                              }}
+                              className="absolute top-0 w-full h-2 bg-transparent rounded-lg appearance-none cursor-pointer accent-[#2a1407]"
+                            />
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setBudgetRange([budgetMin, budgetMax])
+                                setFieldValue('budget', '')
+                                setShowBudget(false)
+                              }}
+                              className="flex-1 px-3 py-1.5 text-xs bg-gray-100 hover:bg-gray-200 rounded-md transition"
+                            >
+                              Reset
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setShowBudget(false)}
+                              className="flex-1 px-3 py-1.5 text-xs bg-[#2a1407] text-white rounded-md hover:bg-[#3b1804] transition"
+                            >
+                              Apply
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Search Button */}
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button
+                      type="button"
+                      variant="primary"
+                      size="large"
+                      onClick={() => handleSubmit()}
+                      icon={<Search className="w-5 h-5" />}
+                      className="flex items-center gap-2 bg-black text-white px-7 py-3 rounded-xl hover:bg-gray-800 transition"
+                    >
+                      {t('Hero.HeroMenu.search')}
+                    </Button>
+                  </motion.div>
                 </div>
-
-                <ChevronDown className="w-4 h-4 text-gray-500" />
-
-                {/* Dropdown */}
-                {showType && (
-                  <div className="absolute top-full left-0 mt-2 w-full bg-white rounded-lg shadow-md z-20 p-2">
-                    {categories?.map(item => (
-                      <div
-                        key={item.id}
-                        className="p-2 hover:bg-gray-100 cursor-pointer rounded-md text-sm"
-                        onClick={() => {
-                          setSelectedType(item as Category)
-                          setShowType(false)
-                        }}
-                      >
-                        <span className="font-medium flex items-center gap-2">
-                          <LucideIconRenderer iconName={item.icon as any} /> {item.name}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </motion.div>
-
-              {/* Budget Select */}
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                className="relative flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                onClick={() => {
-                  setShowBudget(!showBudget)
-                  setShowType(false)
-                }}
-              >
-                <div className="flex items-center space-x-2">
-                  <IndianRupee className="w-5 h-5" />
-                  <span className="font-medium">{selectedBudget || t('Hero.HeroMenu.budget')}</span>
-                </div>
-                <ChevronDown className="w-4 h-4 text-gray-500" />
-
-                {/* Dropdown */}
-                {showBudget && (
-                  <div className="absolute top-full left-0 mt-2 w-full bg-white rounded-lg shadow-md z-20 p-2">
-                    {budgetOptions.map(budget => (
-                      <div
-                        key={budget}
-                        className="p-2 hover:bg-gray-100 cursor-pointer rounded-md text-sm"
-                        onClick={() => {
-                          setSelectedBudget(budget)
-                          setShowBudget(false)
-                        }}
-                      >
-                        {budget}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </motion.div>
-
-              {/* Search Button */}
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center justify-center gap-2 bg-black text-white py-3 rounded-xl hover:bg-gray-800 transition font-medium"
-                onClick={() => {
-                  router.push(`/properties_list/explore_by_category?location=${location}&type=${selectedType?.name}&budget=${selectedBudget}`)
-                }}
-              >
-                <Search className="w-5 h-5" />
-                <span>{t('Hero.HeroMenu.search')}</span>
-              </motion.button>
-            </div>
-
-            {/* -------------- Desktop UI -------------- */}
-            <div className="hidden sm:flex items-center gap-4 relative">
-              {/* Location */}
-              <div className="flex items-center gap-2 flex-1 min-w-[140px] rounded-lg px-3 py-2">
-                <MapPin className="w-5 h-5 text-gray-600" />
-
-                <input
-                  type="text"
-                  placeholder="Enter location"
-                  value={location}
-                  onChange={e => setLocation(e.target.value)}
-                  className="bg-transparent outline-none font-medium w-full placeholder:text-gray-400"
-                />
-
-                {/* <span className="text-gray-500 text-sm whitespace-nowrap">{t('Hero.HeroMenu.add_more')}</span> */}
-              </div>
-
-              {/* Property Type */}
-              <div
-                className="flex items-center space-x-2 flex-1 min-w-[140px] relative cursor-pointer"
-                onClick={() => {
-                  setShowType(!showType)
-                  setShowBudget(false)
-                }}
-              >
-                <span className="font-medium flex items-center gap-2">
-                  {selectedType && <LucideIconRenderer iconName={selectedType.icon as any} />}
-                  {selectedType?.name ?? t('Hero.HeroMenu.flat')}
-                </span>
-
-                <ChevronDown className="w-4 h-4 text-gray-500" />
-
-                {showType && (
-                  <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-md z-20 p-2">
-                    {categories?.map(item => (
-                      <div
-                        key={item.id}
-                        className="p-2 hover:bg-gray-100 cursor-pointer rounded-md text-sm"
-                        onClick={() => {
-                          setSelectedType(item as Category)
-                          setShowType(false)
-                        }}
-                      >
-                        <span className="font-medium flex items-center gap-2">
-                          <LucideIconRenderer iconName={item.icon as any} /> {item.name}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Budget */}
-              <div
-                className="flex items-center space-x-2 flex-1 min-w-[140px] relative cursor-pointer"
-                onClick={() => {
-                  setShowBudget(!showBudget)
-                  setShowType(false)
-                }}
-              >
-                <IndianRupee className="w-5 h-5" />
-                <span className="font-medium">{selectedBudget || t('Hero.HeroMenu.budget')}</span>
-                <ChevronDown className="w-4 h-4 text-gray-500" />
-
-                {showBudget && (
-                  <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-md z-20 p-2">
-                    {budgetOptions.map(budget => (
-                      <div
-                        key={budget}
-                        className="p-2 hover:bg-gray-100 cursor-pointer rounded-md text-sm"
-                        onClick={() => {
-                          setSelectedBudget(budget)
-                          setShowBudget(false)
-                        }}
-                      >
-                        {budget}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Search Button */}
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button
-                  type="button"
-                  variant="primary"
-                  size="large"
-                  onClick={() =>
-                    router.push(`/properties_list/explore_by_category?location=${location}&type=${selectedType?.name}&budget=${selectedBudget}`)
-                  }
-                  icon={<Search className="w-5 h-5" />}
-                  className="flex items-center gap-2 bg-black text-white px-7 py-3 rounded-xl hover:bg-gray-800 transition"
-                >
-                  {t('Hero.HeroMenu.search')}
-                </Button>
-              </motion.div>
-            </div>
-          </motion.div>
+            )}
+          </Formik>
         </motion.div>
       </div>
     </main>

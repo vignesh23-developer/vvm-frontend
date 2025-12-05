@@ -111,7 +111,7 @@ export default function Step2Location({ formik }: Step2LocationProps) {
               value={values.latitude}
               onChange={handleChange}
               placeholder="e.g., 40.7128"
-              className="mt-2 w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-[#7B1E1E] focus:outline-none"
+              className="mt-2 w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-[#2a1407] focus:outline-none"
             />
           </div>
 
@@ -126,7 +126,7 @@ export default function Step2Location({ formik }: Step2LocationProps) {
               value={values.longitude}
               onChange={handleChange}
               placeholder="e.g., -74.0060"
-              className="mt-2 w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-[#7B1E1E] focus:outline-none"
+              className="mt-2 w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-[#2a1407] focus:outline-none"
             />
           </div>
         </div>
@@ -136,7 +136,7 @@ export default function Step2Location({ formik }: Step2LocationProps) {
           <button
             type="button"
             onClick={() => setIsMapView(!isMapView)}
-            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#7B1E1E] focus:ring-offset-2 transition-colors duration-150"
+            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#2a1407] focus:ring-offset-2 transition-colors duration-150"
           >
             📍 Pick Location from Map
           </button>

@@ -18,6 +18,7 @@ import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { ResponseDTO } from '@/components/dto/response_dto'
 import OTPInput from '@/components/ui/OTPInput/OTPInput'
 import Button from '@/components/ui/CustomComponent/Button/Button'
+import { useGlobalContext } from '@/hooks/GlobalContext/GlobalContext'
 
 interface SignupFormValues {
   firstName: string
@@ -29,26 +30,19 @@ interface SignupFormValues {
 
 export default function SignupPage() {
   const t = useTranslations()
+  const { globalValue, reset } = useGlobalContext()
   const { setUser, setToken } = useAuth()
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const phone = searchParams.get('phone') || ''
-  const handleResend = async () => {
-    try {
-      // call resend endpoint if needed, e.g. postMethod(appEndpoints.loginSendOtp, { phoneNumber: phone })
-      // toast.success('OTP resent')
-    } catch (err) {
-      console.error('Resend OTP failed', err)
-      toast.error('Failed to resend OTP')
-    }
-  }
+  // const searchParams = useSearchParams()
+  // const phone = searchParams.get('phone') || ''
 
   const [buttonType, setButtonType] = useState<'sms' | 'whatsapp'>('sms')
 
   const initialValues: SignupFormValues = {
     firstName: '',
     lastName: '',
-    phone: phone,
+    phone: globalValue?.phoneNumber || '',
     email: '',
     otp: ['', '', '', '', '', ''],
   }
@@ -58,7 +52,7 @@ export default function SignupPage() {
     console.log('Formik Submitted:', { ...values, otpValue, buttonType })
 
     const payload = {
-      phoneNumber: phone,
+      phoneNumber: globalValue?.phoneNumber,
       otp: otpValue,
       user: {
         firstName: values.firstName,
@@ -82,6 +76,7 @@ export default function SignupPage() {
         if (token) {
           setUser(userData)
           setToken(token)
+          reset()
           const successMessage = response.data?.message || response.message || 'OTP verified successfully'
           toast.success(successMessage)
           router.push('/')
@@ -131,13 +126,13 @@ export default function SignupPage() {
       >
         <motion.div className="w-full max-w-md" initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.5 }}>
           <motion.h2
-            className="text-2xl font-bold text-gray-800"
+            className="text-2xl font-bold text-[#2a1407]"
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.4 }}
           >
             {t('Auth.signup')} <br />
-            <span className="text-green-900">{t('Auth.to_get_started')}</span>
+            <span className="text-yellow-700">{t('Auth.to_get_started')}</span>
           </motion.h2>
 
           <motion.p
@@ -176,7 +171,7 @@ export default function SignupPage() {
                     type="text"
                     name="firstName"
                     placeholder={t('form.first_name.placeholder')}
-                    className="w-full border border-gray-300 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-900"
+                    className="w-full border border-yellow-200 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400"
                   />
 
                   <FormikTextField
@@ -184,14 +179,14 @@ export default function SignupPage() {
                     type="text"
                     name="lastName"
                     placeholder={t('form.last_name.placeholder')}
-                    className="w-full border border-gray-300 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-900"
+                    className="w-full border border-yellow-200 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400"
                   />
                   <FormikTextField
                     label={t('form.email.label')}
                     type="email"
                     name="email"
                     placeholder={t('form.email.placeholder')}
-                    className="w-full border border-gray-300 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-900"
+                    className="w-full border border-yellow-200 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400"
                   />
                 </motion.div>
 
@@ -202,7 +197,7 @@ export default function SignupPage() {
                     value={values.otp}
                     onChange={next => setFieldValue('otp', next)}
                     initialTime={120}
-                    onResend={handleResend}
+                    reSendData={globalValue}
                     error={touched.otp && errors.otp ? errors.otp : undefined}
                   />
                 </motion.div>
@@ -212,7 +207,7 @@ export default function SignupPage() {
                   <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full bg-[#2B1B12] text-white text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-[#3d2616] disabled:opacity-60 cursor-pointer"
+                    className="w-full bg-[#2a1407] text-white text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:from-[#3b1804] hover:to-[#2a1407] disabled:opacity-60 cursor-pointer"
                   >
                     <span>{isSubmitting ? 'Submitting...' : t('Auth.whatapp_button')}</span>
                   </Button>
@@ -221,7 +216,7 @@ export default function SignupPage() {
                 {/* Login Link */}
                 <motion.p className="text-center text-gray-600 text-xs" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
                   {t('Auth.signup_message')}{' '}
-                  <a href="/login" className="font-semibold text-green-900">
+                  <a href="/login" className="font-semibold text-yellow-700 hover:text-yellow-800">
                     {t('Auth.login')}
                   </a>
                 </motion.p>
@@ -242,7 +237,7 @@ export default function SignupPage() {
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Button
                     type="button"
-                    className="w-full border border-gray-400 text-sm rounded-md py-2 flex items-center justify-center space-x-2 hover:bg-gray-50 cursor-pointer"
+                    className="w-full border border-yellow-300 text-sm rounded-md py-2 flex items-center justify-center space-x-2 hover:bg-yellow-50 bg-gradient-to-r from-yellow-50 to-yellow-100/50 text-[#2a1407] cursor-pointer"
                   >
                     <MessageCircle size={20} />
                     <span>{t('Auth.continue_with_sms')}</span>

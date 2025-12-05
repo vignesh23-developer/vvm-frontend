@@ -43,7 +43,7 @@ export default function Step1BasicDetails({ formik }: Step1BasicDetailsProps) {
             rows={4}
             maxLength={500}
             aria-invalid={!!(errors.description && touched.description)}
-            className={`mt-2 w-full px-4 py-3 border rounded-lg shadow-sm resize-none focus:ring-2 focus:ring-[#7B1E1E] focus:outline-none
+            className={`mt-2 w-full px-4 py-3 border rounded-lg shadow-sm resize-none focus:ring-2 focus:ring-[#2a1407] focus:outline-none
               ${errors.description && touched.description ? 'border-red-300 bg-red-50' : 'border-gray-300'}`}
           />
           {touched.description && errors.description && <p className="text-red-600 text-xs mt-1">{errors.description}</p>}
@@ -57,7 +57,7 @@ export default function Step1BasicDetails({ formik }: Step1BasicDetailsProps) {
           </label>
           {categoriesLoading ? (
             <div className="mt-3 flex items-center justify-center p-8">
-              <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-[#7B1E1E]" />
+              <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-[#2a1407]" />
               <span className="ml-2 text-sm text-gray-500">Loading categories...</span>
             </div>
           ) : (
@@ -65,7 +65,7 @@ export default function Step1BasicDetails({ formik }: Step1BasicDetailsProps) {
               name="category_id"
               value={values.category_id || ''}
               onChange={handleChange}
-              className="mt-2 w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-[#7B1E1E] focus:outline-none"
+              className="mt-2 w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-[#2a1407] focus:outline-none"
             >
               <option value="">Select a category</option>
               {(categories ?? [])
@@ -94,7 +94,7 @@ export default function Step1BasicDetails({ formik }: Step1BasicDetailsProps) {
                   name="price"
                   type="number"
                   placeholder="Enter price"
-                  className="w-full h-[42px] px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-[#7B1E1E] focus:outline-none"
+                  className="w-full h-[42px] px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-[#2a1407] focus:outline-none"
                 />
                 <ErrorMessage name="price" component="p" className="text-red-500 text-sm mt-1" />
               </div>
@@ -123,7 +123,7 @@ export default function Step1BasicDetails({ formik }: Step1BasicDetailsProps) {
             name="status"
             value={values.status}
             onChange={handleChange}
-            className="mt-2 w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-[#7B1E1E] focus:outline-none"
+            className="mt-2 w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-[#2a1407] focus:outline-none"
           >
             {statusOptions.map(status => (
               <option key={status} value={status}>
@@ -142,8 +142,8 @@ export default function Step1BasicDetails({ formik }: Step1BasicDetailsProps) {
             <button
               type="button"
               onClick={() => setFieldValue('is_negotiable', !values.is_negotiable)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#7B1E1E] focus:ring-offset-2 ${
-                values.is_negotiable ? 'bg-[#7B1E1E]' : 'bg-gray-200'
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#2a1407] focus:ring-offset-2 ${
+                values.is_negotiable ? 'bg-[#2a1407]' : 'bg-gray-200'
               }`}
               aria-pressed={values.is_negotiable}
             >
@@ -162,8 +162,8 @@ export default function Step1BasicDetails({ formik }: Step1BasicDetailsProps) {
             <button
               type="button"
               onClick={() => setFieldValue('is_published', !values.is_published)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#7B1E1E] focus:ring-offset-2 ${
-                values.is_published ? 'bg-[#7B1E1E]' : 'bg-gray-200'
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#2a1407] focus:ring-offset-2 ${
+                values.is_published ? 'bg-[#2a1407]' : 'bg-gray-200'
               }`}
               aria-pressed={values.is_published}
             >
@@ -182,8 +182,8 @@ export default function Step1BasicDetails({ formik }: Step1BasicDetailsProps) {
             <button
               type="button"
               onClick={() => setFieldValue('is_boosted', !values.is_boosted)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#7B1E1E] focus:ring-offset-2 ${
-                values.is_boosted ? 'bg-[#7B1E1E]' : 'bg-gray-200'
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#2a1407] focus:ring-offset-2 ${
+                values.is_boosted ? 'bg-[#2a1407]' : 'bg-gray-200'
               }`}
               aria-pressed={values.is_boosted}
             >

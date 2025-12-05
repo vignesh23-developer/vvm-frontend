@@ -40,7 +40,7 @@ export default function FeatureCategoryPage() {
         onClick: (row: FeatureCategoryTableRow) => {
           void handleEdit(row.id)
         },
-        color: '#1e6897',
+        color: '#2a1407',
       },
       {
         label: 'Delete',
@@ -71,20 +71,20 @@ export default function FeatureCategoryPage() {
   if (isLoading) return <CustomLoader text="Loading feature categories..." />
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6 bg-gradient-to-br from-yellow-50 via-white to-yellow-50 min-h-screen">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between mb-6">
-        <h1 className="text-xl font-semibold text-gray-800">Feature Categories</h1>
+        <h1 className="text-xl font-semibold text-[#2a1407]">Feature Categories</h1>
         <button
           onClick={handleAdd}
-          className="flex items-center gap-2 bg-[#7B1E1E] hover:bg-[#641717] cursor-pointer text-white px-4 py-2 rounded-md text-sm font-medium shadow-md transition"
+          className="flex items-center gap-2 bg-[#2a1407] hover:from-[#3b1804] hover:to-[#2a1407] cursor-pointer text-white px-4 py-2 rounded-md text-sm font-medium shadow-md transition"
         >
           <Plus size={16} /> Add Feature Category
         </button>
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+      <div className="bg-gradient-to-br from-white to-yellow-50/20 rounded-xl shadow-sm border border-yellow-200 p-4">
         <DataTable<FeatureCategoryTableRow>
           columns={columns}
           actions={actions}

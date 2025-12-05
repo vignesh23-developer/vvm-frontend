@@ -266,7 +266,7 @@ export default function AdsListPage() {
             <Button
               type="button"
               onClick={() => router.push('/admin/dashboard/ads-pending-approval')}
-              className="flex items-center gap-2 border border-[#7B1E1E] px-4 py-2 text-sm font-medium text-[#7B1E1E] rounded-md hover:bg-[#f5e6e6] transition"
+              className="flex items-center gap-2 border border-[#2a1407] px-4 py-2 text-sm font-medium text-[#2a1407] rounded-md hover:bg-[#f5e6e6] transition"
             >
               View Pending Ads
             </Button>
@@ -274,7 +274,7 @@ export default function AdsListPage() {
           <Button
             type="button"
             onClick={() => router.push('/ads')}
-            className="flex items-center gap-2 bg-[#7B1E1E] px-4 py-2 text-sm font-medium text-white rounded-md shadow-md hover:bg-[#641717] transition"
+            className="flex items-center gap-2 bg-[#2a1407] px-4 py-2 text-sm font-medium text-white rounded-md shadow-md hover:bg-[#641717] transition"
           >
             Add Ads
           </Button>

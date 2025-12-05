@@ -249,7 +249,7 @@ export default function AdsForm({ mode, initialData, adId }: AdsFormProps) {
                     <button
                       type="submit"
                       disabled={formik.isSubmitting || adIsPending}
-                      className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#7B1E1E] text-white hover:bg-[#641717] cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ${
+                      className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#2a1407] text-white hover:bg-[#641717] cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ${
                         formik.isSubmitting || adIsPending ? 'opacity-50 cursor-not-allowed' : ''
                       }`}
                     >

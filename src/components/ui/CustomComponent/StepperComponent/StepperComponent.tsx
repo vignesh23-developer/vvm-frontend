@@ -42,7 +42,7 @@ const StepperComponent: React.FC<StepperProps> = ({
                 className={`w-12 h-12 flex items-center justify-center rounded-full border-2 z-10 transition-all duration-300
                   ${
                     isCompleted || isActive
-                      ? 'bg-[#7B1E1E] border-[#7B1E1E] text-white'
+                      ? 'bg-[#2a1407] border-[#2a1407] text-white'
                       : 'bg-gray-100 border-gray-300 text-gray-400'
                   }`}
               >
@@ -71,7 +71,7 @@ const StepperComponent: React.FC<StepperProps> = ({
               {!isLast && (
                 <div
                   className={`absolute top-6 left-1/2 w-full h-0.5 -translate-y-1/2 ${
-                    isCompleted ? 'bg-[#7B1E1E]' : 'bg-gray-300'
+                    isCompleted ? 'bg-[#2a1407]' : 'bg-gray-300'
                   }`}
                   style={{ zIndex: 1 }}
                 />

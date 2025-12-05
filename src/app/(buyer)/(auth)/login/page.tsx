@@ -17,12 +17,14 @@ import toast from 'react-hot-toast'
 import { usePathname, useRouter } from 'next/navigation'
 import { ResponseDTO } from '@/components/dto/response_dto'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { useGlobalContext } from '@/hooks/GlobalContext/GlobalContext'
 interface AuthFormValues {
   phone: string
 }
 
 const Login = () => {
   const t = useTranslations()
+  const { setGlobalValue } = useGlobalContext()
   const submitChannelRef = useRef<'sms' | 'whatsapp'>('sms')
   const [isLoading, setIsLoading] = useState(false)
   const [activeChannel, setActiveChannel] = useState<'sms' | 'whatsapp' | null>(null)
@@ -69,9 +71,13 @@ const Login = () => {
           isExistingUser?: boolean
         }
         if (responseData.isExistingUser) {
-          router.push(`/otp-verification?phone=${encodeURIComponent(values.phone)}`)
+          // router.push(`/otp-verification?phone=${encodeURIComponent(values.phone)}`)
+          setGlobalValue(payload)
+          router.push(`/otp-verification`)
         } else {
-          router.push(`/signup?phone=${encodeURIComponent(values.phone)}`)
+          // router.push(`/signup?phone=${encodeURIComponent(values.phone)}`)
+          setGlobalValue(payload)
+          router.push(`/signup`)
         }
         const successMessage = responseData?.message || responseData?.data?.message || 'OTP sent successfully'
         toast.success(successMessage)
@@ -134,14 +140,14 @@ const Login = () => {
           }}
         >
           <motion.h2
-            className="text-2xl font-bold text-gray-800"
+            className="text-2xl font-bold text-[#2a1407]"
             variants={{
               hidden: { y: 20, opacity: 0 },
               visible: { y: 0, opacity: 1 },
             }}
           >
             {t('Auth.hello')} <br />
-            <span className="text-green-900">{t('Auth.welcome_back')}</span>
+            <span className="text-yellow-700">{t('Auth.welcome_back')}</span>
           </motion.h2>
 
           <motion.p className="text-gray-500 mt-2 text-xs" variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}>
@@ -168,7 +174,7 @@ const Login = () => {
                     type="tel"
                     name="phone"
                     placeholder={t('form.phone_number.placeholder')}
-                    className="w-full border border-gray-300 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-900"
+                    className="w-full border border-yellow-200 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400"
                   />
                 </motion.div>
 
@@ -188,7 +194,7 @@ const Login = () => {
                         setActiveChannel('whatsapp')
                         void submitForm()
                       }}
-                      className="w-full bg-[#2B1B12] text-white text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-[#3d2616] disabled:opacity-60"
+                      className="w-full bg-[#2a1407] text-white text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:from-[#3b1804] hover:to-[#2a1407] disabled:opacity-60"
                     >
                       <span>{(isSubmitting || isLoading) && activeChannel === 'whatsapp' ? 'Verifying...' : t('Auth.whatapp_button')}</span>
                     </Button>
@@ -196,12 +202,12 @@ const Login = () => {
                 </motion.div>
 
                 {/* Login Link */}
-                <motion.p className="text-center text-gray-600 text-xs" variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}>
+                {/* <motion.p className="text-center text-gray-600 text-xs" variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}>
                   {t('Auth.login_message')}{' '}
                   <a href="/signup" className="font-semibold text-green-900 hover:underline">
                     {t('Auth.signup')}
                   </a>
-                </motion.p>
+                </motion.p> */}
 
                 {/* Divider */}
                 <motion.div className="flex items-center justify-center space-x-2" variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}>
@@ -226,7 +232,7 @@ const Login = () => {
                         setActiveChannel('sms')
                         void submitForm()
                       }}
-                      className="w-full border border-gray-400 text-sm rounded-md py-2 flex items-center justify-center space-x-2 hover:bg-gray-50"
+                      className="w-full border border-yellow-300 text-sm rounded-md py-2 flex items-center justify-center space-x-2 hover:bg-yellow-50 bg-gradient-to-r from-yellow-50 to-yellow-100/50 text-[#2a1407]"
                     >
                       <MessageCircle size={20} />
                       <span>{(isSubmitting || isLoading) && activeChannel === 'sms' ? 'Verifying...' : t('Auth.continue_with_sms')}</span>

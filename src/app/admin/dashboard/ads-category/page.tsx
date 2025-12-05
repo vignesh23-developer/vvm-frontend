@@ -50,7 +50,7 @@ export default function AdsCategoryPage() {
         onClick: (row: AdsCategoryTableRow) => {
           void handleEdit(row.id)
         },
-        color: '#1e6897',
+        color: '#2a1407',
       },
       {
         label: 'Delete',
@@ -78,14 +78,14 @@ export default function AdsCategoryPage() {
 
   if (isLoading) return <CustomLoader text="Loading ads categories..." />
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6 bg-gradient-to-br from-yellow-50 via-white to-yellow-50 min-h-screen">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between mb-6">
-        <h1 className="text-xl font-semibold text-gray-800">Ads Categories</h1>
+        <h1 className="text-xl font-semibold text-[#2a1407]">Ads Categories</h1>
         <Button
           type="button"
           onClick={handleAdd}
-          className="flex items-center gap-2 bg-[#7B1E1E] px-4 py-2 text-sm font-medium text-white rounded-md shadow-md hover:bg-[#641717] transition"
+          className="flex items-center gap-2 bg-[#2a1407] hover:from-[#3b1804] hover:to-[#2a1407] px-4 py-2 text-sm font-medium text-white rounded-md shadow-md transition"
         >
           <Plus size={16} /> Add Ads Category
         </Button>

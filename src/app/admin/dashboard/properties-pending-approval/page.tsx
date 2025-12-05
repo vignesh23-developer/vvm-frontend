@@ -120,7 +120,7 @@ const PropertiesPage = () => {
                 setCurrentPage(1)
               }}
               className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition focus:ring-2 focus:ring-offset-2 ${
-                isActive ? 'border-[#7B1E1E] bg-[#7B1E1E] text-white' : 'border-gray-200 text-gray-700 hover:text-[#7B1E1E]'
+                isActive ? 'border-[#2a1407] bg-[#2a1407] text-white' : 'border-gray-200 text-gray-700 hover:text-[#2a1407]'
               }`}
             >
               {tab.label === 'Pending' ? `Pending (${pendingCount ?? '...'})` : `Rejected (${rejectedCount ?? '...'})`}

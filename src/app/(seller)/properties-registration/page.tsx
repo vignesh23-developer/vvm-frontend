@@ -170,7 +170,8 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
     onGetPropertyCategoryFeatureMapping,
   } = useLandRegistration()
 
-  const { value, setValue } = useGlobalContext()
+  const { globalValue, setGlobalValue } = useGlobalContext()
+  console.log(globalValue, 'value in property reg page')
   const { user } = useAuth()
   const [valueData, setValueData] = useState<any>(null)
   const fectchPropertiesById = async (id: string | undefined) => {
@@ -356,7 +357,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
     if (ULRActionState?.success) {
       toast.success('Property Updated Successfully')
       console.log('property id:', ULRActionState?.data?.id)
-      setValue(ULRActionState?.data?.id)
+      setGlobalValue(ULRActionState?.data?.id)
       // setLocalStorageItem(LOCAL_STORAGE_NAME.propertyId, ULRActionState?.data?.id)
       setCurrentStep(step => step + 1)
       setIsEdit(true)
@@ -371,7 +372,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
     if (LRActionState?.success) {
       toast.success('Property Created Successfully')
       console.log('property id:', LRActionState?.data?.id)
-      setValue(LRActionState?.data?.id)
+      setGlobalValue(LRActionState?.data?.id)
       // setLocalStorageItem(LOCAL_STORAGE_NAME.propertyId, LRActionState?.data?.id)
       setCurrentStep(step => step + 1)
       setIsEdit(true)
@@ -476,7 +477,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
 
           var payload = LandRegistrationData?.toObject()
 
-          const contextPropertyId = value
+          const contextPropertyId = globalValue
 
           console.log('log on data sss properties:', contextPropertyId, propertiesId)
 
@@ -493,7 +494,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
         }
 
         if (currentStep === 5) {
-          const contextPropertyId = value
+          const contextPropertyId = globalValue
           console.log(contextPropertyId, 'local')
           const propertyId = propertiesId ? propertiesId : contextPropertyId
           console.log('Step 5 submit - propertyId:', propertyId, propertiesId, contextPropertyId, 'uploadType:', values?.uploadType)
@@ -607,7 +608,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
                 {!isLast && (
                   <div
                     className={`absolute top-5 left-1/2 right-[-50%] h-0.5 transition-all duration-300
-              ${isCompleted ? 'bg-[#7B1E1E]' : 'bg-gray-300 group-hover:bg-gray-400'}`}
+              ${isCompleted ? 'bg-[#2a1407]' : 'bg-gray-300 group-hover:bg-gray-400'}`}
                   />
                 )}
 
@@ -617,9 +618,9 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
             transition-all duration-300 shadow-sm
             ${
               isCompleted
-                ? 'bg-[#7B1E1E] border-[#7B1E1E] text-white'
+                ? 'bg-[#2a1407] border-[#2a1407] text-white'
                 : isActive
-                ? 'bg-white border-[#7B1E1E] text-[#7B1E1E] shadow-md scale-110'
+                ? 'bg-white border-[#2a1407] text-[#2a1407] shadow-md scale-110'
                 : 'bg-white border-gray-300 text-gray-400 group-hover:border-gray-400'
             }`}
                 >
@@ -766,7 +767,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
                               type="submit"
                               onClick={() => {}}
                               disabled={isLoading}
-                              className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#7B1E1E] text-white hover:bg-[#641717] cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ${
+                              className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#2a1407] text-white hover:bg-[#641717] cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ${
                                 isLoading ? 'opacity-50 cursor-not-allowed' : ''
                               }`}
                             >
@@ -792,7 +793,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
                                 }
                               }}
                               disabled={!uploadCompleted || isLoading}
-                              className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#7B1E1E] text-white hover:bg-[#641717] transition disabled:opacity-50 disabled:cursor-not-allowed ${
+                              className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#2a1407] text-white hover:bg-[#641717] transition disabled:opacity-50 disabled:cursor-not-allowed ${
                                 uploadCompleted && !isLoading ? 'cursor-pointer' : ''
                               }`}
                             >

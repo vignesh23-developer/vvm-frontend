@@ -101,7 +101,7 @@ const PropertyCategoryMappingForm = ({ propertyCategory, featuresGrouped, onSucc
         type="button"
         onClick={toggle}
         className={`border rounded-lg p-4 text-left transition-all duration-150 hover:cursor-pointer ${
-          isSelected ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-200' : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
+          isSelected ? 'border-yellow-500 bg-blue-50 ring-2 ring-blue-200' : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
         }`}
       >
         <div className="flex items-center justify-between mb-1">
@@ -192,7 +192,7 @@ const PropertyCategoryMappingForm = ({ propertyCategory, featuresGrouped, onSucc
               disabled={isSubmitting}
               onClick={() => {}}
               className={`px-5 py-2 rounded-md text-white transition-colors ${
-                isSubmitting ? 'bg-[#a05c5c] cursor-not-allowed' : 'bg-[#7B1E1E] hover:bg-[#641717] cursor-pointer'
+                isSubmitting ? 'bg-[#a05c5c] cursor-not-allowed' : 'bg-[#2a1407] hover:bg-[#641717] cursor-pointer'
               }`}
             >
               {isSubmitting ? 'Saving...' : 'Save Configuration'}

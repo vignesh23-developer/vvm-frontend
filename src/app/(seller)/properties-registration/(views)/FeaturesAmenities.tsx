@@ -169,7 +169,7 @@ export default function Step4FeaturesAmenities({
               )
             }}
           />
-          <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+          <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r from-yellow-500 to-yellow-600 "></div>
           {feature_category_name} {is_mandatory && <span className="text-red-500">*</span>}
         </label>
       )
@@ -222,12 +222,12 @@ export default function Step4FeaturesAmenities({
                     }
                   }}
                   className={`flex items-center gap-2 rounded-lg border-2 px-3 py-2 transition ${
-                    selected ? 'border-[#7B1E1E] bg-red-50 shadow-sm' : 'border-gray-200 hover:border-gray-300'
+                    selected ? 'border-[#2a1407] bg-red-50 shadow-sm' : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
                   {opt.icon && (
                     <div className="">
-                      <LucideIconRenderer iconName={opt.icon} size={20} color={selected ? 'text-[#7B1E1E]' : 'text-gray-700'} />
+                      <LucideIconRenderer iconName={opt.icon} size={20} color={selected ? 'text-[#2a1407]' : 'text-gray-700'} />
                     </div>
                   )}
                   <span className="text-sm text-gray-700 font-medium">{opt.name}</span>
@@ -254,7 +254,7 @@ export default function Step4FeaturesAmenities({
         <div key={group.groupId} className="mb-8">
           <h3 className="text-lg font-semibold mb-4">{group.groupName}</h3>
           <div className="flex flex-col space-y-4.5">{group.categories.map(renderInputField)}</div>
-          {group !== groupedAmenities[groupedAmenities.length - 1] && <hr className="my-6 border-t-1 border-[#7B1E1E] rounded-full" />}
+          {group !== groupedAmenities[groupedAmenities.length - 1] && <hr className="my-6 border-t-1 border-[#2a1407] rounded-full" />}
         </div>
       ))}
     </div>

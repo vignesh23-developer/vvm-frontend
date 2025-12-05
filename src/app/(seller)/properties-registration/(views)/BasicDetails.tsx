@@ -63,14 +63,14 @@ export default function Step1BasicDetails({ formik, data, onGetPropertyCategoryF
                 aria-pressed={values.propertyType === val?.id}
                 onClick={async () => onSelectPropertyHandler(val?.id)}
                 className={`flex items-center gap-2 rounded-lg border-2 px-3 py-2 transition
-                  ${values.propertyType === val?.id ? 'border-[#7B1E1E] bg-red-50 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}
+                  ${values.propertyType === val?.id ? 'border-[#2a1407] bg-red-50 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}
               >
                 {val?.icon && (
                   <div className="">
                     <LucideIconRenderer
                       iconName={val?.icon as any}
                       size={20}
-                      color={values.propertyType === val?.id ? 'text-[#7B1E1E]' : 'text-gray-700'}
+                      color={values.propertyType === val?.id ? 'text-[#2a1407]' : 'text-gray-700'}
                     />
                   </div>
                 )}
@@ -94,7 +94,7 @@ export default function Step1BasicDetails({ formik, data, onGetPropertyCategoryF
                 aria-pressed={values.purpose === p}
                 onClick={() => setFieldValue('purpose', p)}
                 className={`flex items-center gap-2 rounded-lg border-2 px-3 py-2 transition
-                  ${values.purpose === p ? 'border-[#7B1E1E] bg-red-50 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}
+                  ${values.purpose === p ? 'border-[#2a1407] bg-red-50 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}
               >
                 <span className="">{p === 'SALE' ? '💰' : p === 'RENT' ? '🏠' : '📋'}</span>
                 <span className="text-sm text-gray-700 font-medium">{p}</span>
@@ -118,7 +118,7 @@ export default function Step1BasicDetails({ formik, data, onGetPropertyCategoryF
             rows={4}
             maxLength={500}
             aria-invalid={!!(errors.description && touched.description)}
-            className={`mt-2 w-full px-4 py-3 border rounded-lg shadow-sm resize-none focus:ring-2 focus:ring-[#7B1E1E] focus:outline-none
+            className={`mt-2 w-full px-4 py-3 border rounded-lg shadow-sm resize-none focus:ring-2 focus:ring-[#2a1407] focus:outline-none
               ${errors.description && touched.description ? 'border-red-300 bg-red-50' : 'border-gray-300'}`}
           />
           {touched.description && errors.description && <p className="text-red-600 text-xs mt-1">{errors.description}</p>}
