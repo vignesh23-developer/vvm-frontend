@@ -10,7 +10,7 @@ import { appEndpoints } from '@/services/endpoints'
 import { motion, AnimatePresence } from 'framer-motion'
 import PropertyCard from '@/components/buyer/PropertyCard/PropertyCard'
 import Pagination from '@/components/ui/CustomComponent/Paginations/Pagination'
-import AdvancedFilters from '@/components/buyer/PropertiesListing/AdvancedFilters'
+import AdvancedFilters from '@/components/ui/AdvancedFilter/AdvancedFilters'
 
 // Enhanced Property Card Skeleton
 const PropertyCardSkeleton = () => (

@@ -10,7 +10,7 @@ import { getMethod, postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import Pagination from '@/components/ui/CustomComponent/Paginations/Pagination'
 import useAgentCompanyProfile from '@/app/(buyer)/(site)/agents-list/(hooks)/useAgentCompanyProfile'
-import AdvancedFilters from '@/components/buyer/PropertiesListing/AdvancedFilters'
+import AdvancedFilters from '@/components/ui/AdvancedFilter/AdvancedFilters'
 
 // Enhanced Agent Card Skeleton
 const AgentCardSkeleton = () => (
@@ -459,7 +459,7 @@ const AgentListPage = () => {
                   </motion.div>
                 ))}
               </div>
-            ) : filteredAgencies.length === 0 ? (
+            ) : filteredAgencies?.length === 0 ? (
               <div className="text-center py-16 rounded-2xl bg-white/80 border border-dashed border-gray-200">
                 <p className="text-gray-700 text-lg font-semibold">No agencies match your filters</p>
                 <p className="mt-2 text-sm text-gray-500 max-w-md mx-auto">
@@ -474,7 +474,7 @@ const AgentListPage = () => {
               </div>
             ) : (
               <div className="space-y-5">
-                {filteredAgencies.map((agentProperty, index) => (
+                {filteredAgencies?.map((agentProperty, index) => (
                   <motion.div
                     key={agentProperty.id ?? index}
                     variants={cardVariants}

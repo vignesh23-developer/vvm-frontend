@@ -8,12 +8,12 @@ import { Facebook, Instagram, Twitter, Linkedin } from 'lucide-react'
 import FooterColumn from './FooterColumn'
 
 const aboutLinks = [
-  { label: 'agents', href: '/agents' },
   { label: 'our_story', href: '/our-story' },
-  { label: 'careers', href: '/careers' },
   { label: 'our_team', href: '/team' },
+  { label: 'careers', href: '/careers' },
   { label: 'resources', href: '/resources' },
-  { label: 'services_provider', href: '/services-provider' },
+  { label: 'agents', href: '/agents' },
+  { label: 'services_providers', href: '/services-providers' },
 ]
 
 const supportLinks = [
