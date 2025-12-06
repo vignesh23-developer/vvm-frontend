@@ -5,7 +5,7 @@ import { getMethod } from '@/services/service'
 import { data } from 'framer-motion/client'
 import useSWR, { KeyedMutator } from 'swr'
 import { appEndpoints } from '@/services/endpoints'
-import AgentCompanyProfile from '@/components/buyer/PropertiesListing/dto/agentCompanyProfile'
+import AgentCompanyProfile from '@/app/(buyer)/(site)/agents-list/(dto)/agentCompanyProfile'
 
 const fetcher = async (endpoints: string) => {
   const result = await getMethod(endpoints)
