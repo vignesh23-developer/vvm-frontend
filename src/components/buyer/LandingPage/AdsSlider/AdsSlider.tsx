@@ -1,9 +1,11 @@
 'use client'
 
+import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import SwiperWrapper from '../../../ui/CustomComponent/Slider/SwipperSlider'
+import { useAdsSlider } from './hooks/useAdsSlider'
 
 interface Slide {
   id: number
@@ -11,8 +13,8 @@ interface Slide {
   title: string
 }
 
-// Skeleton Loader for Property Slider (unchanged)
-const PropertySliderSkeleton = () => {
+// Skeleton Loader for ADs Slider (unchanged)
+const AdsSliderSkeleton = () => {
   return (
     <div className="py-10 bg-gradient-to-b from-yellow-50 via-white to-yellow-50">
       <div className="max-w-7xl mx-auto px-4">
@@ -35,20 +37,12 @@ const PropertySliderSkeleton = () => {
   )
 }
 
-export default function PropertySlider() {
+export default function AdsSlider() {
   const [isLoading, setIsLoading] = useState(true)
   const [imagesLoaded, setImagesLoaded] = useState(0)
+  const { items: Ads, isLoading: adsLoading } = useAdsSlider({ status: 'AVAILABLE' })
 
-  const Property: Slide[] = [
-    { id: 1, image: '/ads-1.jpg', title: 'Imagine. Inspire. Live.' },
-    { id: 2, image: '/ads-2.jpg', title: 'Search. Discover. Move In' },
-    { id: 3, image: '/ads-3.jpg', title: 'Find Your Dream Home' },
-    { id: 4, image: '/ads-4.jpg', title: 'Luxury Living Awaits' },
-    { id: 5, image: '/ads-5.jpg', title: 'Your Perfect Space' },
-    { id: 6, image: '/ads-6.jpg', title: 'Modern Living Redefined' },
-    { id: 7, image: '/ads-7.jpg', title: 'Invest in Your Future' },
-    { id: 8, image: '/ads-8.jpg', title: 'Where Comfort Meets Style' },
-  ]
+  console.log('Ads in AdsSlider:', Ads)
 
   useEffect(() => {
     // Simulate loading delay
@@ -60,9 +54,9 @@ export default function PropertySlider() {
   }, [])
 
   const handleImageLoad = () => {
-    setImagesLoaded((prev) => {
+    setImagesLoaded(prev => {
       const newCount = prev + 1
-      if (newCount >= Property.length) {
+      if (newCount >= Ads.length) {
         setIsLoading(false)
       }
       return newCount
@@ -76,7 +70,7 @@ export default function PropertySlider() {
       opacity: 1,
       scale: 1,
       y: 0,
-      transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as const }
+      transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as const },
     },
   }
 
@@ -92,7 +86,7 @@ export default function PropertySlider() {
   }
 
   if (isLoading) {
-    return <PropertySliderSkeleton />
+    return <AdsSliderSkeleton />
   }
 
   return (
@@ -104,7 +98,7 @@ export default function PropertySlider() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SwiperWrapper
-          data={Property}
+          data={Ads}
           showPagination
           autoplay
           breakpoints={{
@@ -112,32 +106,43 @@ export default function PropertySlider() {
             768: { slidesPerView: 2, spaceBetween: 20 },
             1024: { slidesPerView: 3, spaceBetween: 24 },
           }}
-          renderItem={item => (
+          renderItem={(item: any) => (
             <motion.div
               key={item.id}
               className="relative w-full overflow-hidden rounded-2xl shadow-lg group aspect-[4/3] md:aspect-[3/4] lg:aspect-[4/5]"
               variants={slideVariants}
             >
-              {/* Background Image */}
-              <Image
-                src={item.image}
-                alt={item.title}
-                fill
-                className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
-                priority
-                onLoadingComplete={handleImageLoad}
-              />
+              <Link href={`/adsDetails/${item.id}`}>
+                {/* Background Image */}
+                {item.images && item.images.length > 0 ? (
+                  <Image
+                    src={item.images[0].url}
+                    alt={item.title}
+                    fill
+                    className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
+                    priority
+                    onLoadingComplete={handleImageLoad}
+                  />
+                ) : (
+                  <Image
+                    src="/ads-1.jpg"
+                    alt="Imagine. Inspire. Live."
+                    fill
+                    className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
+                    priority
+                    onLoadingComplete={handleImageLoad}
+                  />
+                )}
 
-              {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300" />
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300" />
 
-              {/* Content */}
-              {/* <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                <h3 className="text-xl md:text-2xl font-bold text-white mb-2 drop-shadow-md leading-tight">
-                  {item.title}
-                </h3>
-                <div className="h-1 w-12 bg-yellow-500 rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
-              </div> */}
+                {/* Content */}
+                <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                  <h3 className="text-xl md:text-2xl font-bold text-white mb-2 drop-shadow-md leading-tight">{item.title}</h3>
+                  <div className="h-1 w-12 bg-yellow-500 rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+                </div>
+              </Link>
             </motion.div>
           )}
         />

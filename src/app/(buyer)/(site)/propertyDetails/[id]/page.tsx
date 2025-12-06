@@ -76,7 +76,7 @@ const staggerContainer: Variants = {
 const cardHover = {
   scale: 1.02,
   y: -4,
-  transition: { duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] as const }
+  transition: { duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] as const },
 }
 
 // Tab types
@@ -116,7 +116,7 @@ const PropertyDetailsSkeleton = () => {
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
             <div className="grid grid-cols-5 gap-4">
-              {[1, 2, 3, 4, 5].map((i) => (
+              {[1, 2, 3, 4, 5].map(i => (
                 <div key={i} className="h-24 bg-gray-200 rounded-xl" />
               ))}
             </div>
@@ -164,10 +164,7 @@ const page = () => {
   const [isQuizLoading, setIsQuizLoading] = useState(false)
 
   // Quick Match filter metadata from backend search filters
-  const { data: quickMatchFilters } = useSWR(
-    appEndpoints.publicSearchPropertyFilters,
-    (url: string) => getMethod<any>(url),
-  )
+  const { data: quickMatchFilters } = useSWR(appEndpoints.publicSearchPropertyFilters, (url: string) => getMethod<any>(url))
 
   // Fun facts about properties (static, no price impact)
   const propertyFunFacts = [
@@ -178,10 +175,9 @@ const page = () => {
     '🛍️ Shopping malls and entertainment centers close by',
     '🔒 24/7 security with CCTV surveillance',
     '⚡ Power backup and modern amenities included',
-    '💧 24/7 water supply with modern infrastructure'
+    '💧 24/7 water supply with modern infrastructure',
   ]
-  const { propertyDetailsData, propertyDetailsFetchLoader, propertyDetailsFetchErr, propertyDetailsRefresh } =
-    usePropertiesDetail({ id: propertyId })
+  const { propertyDetailsData, propertyDetailsFetchLoader, propertyDetailsFetchErr, propertyDetailsRefresh } = usePropertiesDetail({ id: propertyId })
 
   // Fetch similar properties based on city + category via search service
   const { similarProperties, isLoadingSimilar } = useSimilarProperties({
@@ -237,9 +233,7 @@ const page = () => {
   }, [quickMatchFilters])
 
   const quickLocationOptions = useMemo(() => {
-    const backendCities =
-      (quickMatchFilters?.data?.filters?.cities as { value: string; label: string; count: number }[] | undefined) ??
-      []
+    const backendCities = (quickMatchFilters?.data?.filters?.cities as { value: string; label: string; count: number }[] | undefined) ?? []
 
     if (backendCities.length > 0) return backendCities
 
@@ -269,18 +263,21 @@ const page = () => {
   const ownerNameDisplay = user ? propertyDetailsData?.contact_name ?? 'Unknown' : 'xxxxx'
   const ownerPhoneDisplay = user ? propertyDetailsData?.contact_phone ?? 'Unknown' : 'xxxxx'
 
-  const handleFavorite = useCallback(async (propertyId: string) => {
-    try {
-      const response = await postMethod(appEndpoints.toggleFavorite, { entity_type: 'property', entity_id: propertyId })
-      if (!response.error) {
-        propertyDetailsRefresh()
-        toast.success(propertyDetailsData?.is_user_favorite ? 'Removed from favorites' : 'Added to favorites')
+  const handleFavorite = useCallback(
+    async (propertyId: string) => {
+      try {
+        const response = await postMethod(appEndpoints.toggleFavorite, { entity_type: 'property', entity_id: propertyId })
+        if (!response.error) {
+          propertyDetailsRefresh()
+          toast.success(propertyDetailsData?.is_user_favorite ? 'Removed from favorites' : 'Added to favorites')
+        }
+      } catch (err) {
+        console.error('Error updating favorite:', err)
+        toast.error('Failed to update favorite')
       }
-    } catch (err) {
-      console.error('Error updating favorite:', err)
-      toast.error('Failed to update favorite')
-    }
-  }, [propertyDetailsData?.is_user_favorite, propertyDetailsRefresh])
+    },
+    [propertyDetailsData?.is_user_favorite, propertyDetailsRefresh],
+  )
 
   const handleShare = useCallback(async () => {
     if (typeof window !== 'undefined' && propertyId) {
@@ -386,8 +383,7 @@ const page = () => {
       if (propertyDetailsData.property_size) {
         coreCandidates.push({
           label: 'Size',
-          value: `${propertyDetailsData.property_size} ${propertyDetailsData.property_size_unit || 'sqft'
-            }`,
+          value: `${propertyDetailsData.property_size} ${propertyDetailsData.property_size_unit || 'sqft'}`,
         })
       }
 
@@ -453,10 +449,12 @@ const page = () => {
       if (feature.feature_category_name && feature.values) {
         const categoryName = feature.feature_category_name.toLowerCase()
         // Include relevant features like amenities, highlights, etc.
-        if (categoryName.includes('amenity') ||
+        if (
+          categoryName.includes('amenity') ||
           categoryName.includes('feature') ||
           categoryName.includes('highlight') ||
-          categoryName.includes('facility')) {
+          categoryName.includes('facility')
+        ) {
           if (feature.feature_options && feature.feature_options.length > 0) {
             // If it has options, add option names
             feature.feature_options.forEach((option: any) => {
@@ -490,7 +488,7 @@ const page = () => {
       },
       {
         label: 'Total Enquiries',
-        value: propertyDetailsData?.enquiry_count || 0,
+        value: propertyDetailsData?.contact_count || 0,
         icon: MessageSquare,
       },
       {
@@ -508,8 +506,8 @@ const page = () => {
       Array.isArray(similarProperties) && similarProperties.length > 0
         ? similarProperties
         : Array.isArray(popularSimilarProperties)
-          ? popularSimilarProperties
-          : []
+        ? popularSimilarProperties
+        : []
 
     if (base.length === 0) return []
 
@@ -526,10 +524,7 @@ const page = () => {
   }, [similarProperties, popularSimilarProperties, propertyId])
 
   // Derive primary video URL from media (fallback to a generic YouTube embed)
-  const primaryVideoMedia = useMemo(
-    () => propertyDetailsData?.media?.find(media => media.media_type === 'VIDEO'),
-    [propertyDetailsData],
-  )
+  const primaryVideoMedia = useMemo(() => propertyDetailsData?.media?.find(media => media.media_type === 'VIDEO'), [propertyDetailsData])
 
   const videoEmbedUrl = useMemo(() => {
     const fallback = 'https://www.youtube.com/embed/dQw4w9WgXcQ'
@@ -571,9 +566,7 @@ const page = () => {
   if (propertyDetailsFetchErr) {
     return (
       <main className="flex min-h-[50vh] items-center justify-center bg-gray-50">
-        <p className="text-red-600 text-sm md:text-base">
-          Unable to load property details right now. Please try again later.
-        </p>
+        <p className="text-red-600 text-sm md:text-base">Unable to load property details right now. Please try again later.</p>
       </main>
     )
   }
@@ -583,12 +576,7 @@ const page = () => {
   }
 
   return (
-    <motion.main
-      initial="hidden"
-      animate="visible"
-      variants={staggerContainer}
-      className="w-full bg-gray-50 min-h-screen"
-    >
+    <motion.main initial="hidden" animate="visible" variants={staggerContainer} className="w-full bg-gray-50 min-h-screen">
       {/* Hero Section with Image Gallery */}
       <div className="relative bg-white">
         <div className="max-w-7xl mx-auto">
@@ -791,20 +779,13 @@ const page = () => {
               >
                 <Share2 size={18} />
               </motion.button>
-              <motion.div 
-                whileHover={{ scale: 1.1 }} 
-                whileTap={{ scale: 0.9 }}
-                className="relative"
-              >
+              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="relative">
                 <button
                   onClick={() => handleFavorite(propertyId || '')}
                   className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm text-gray-700 shadow-lg transition hover:bg-white hover:text-[#2a1407]"
                   aria-label="Favorite property"
                 >
-                  <Heart 
-                    size={18} 
-                    className={propertyDetailsData?.is_user_favorite ? 'fill-red-500 text-red-500' : ''}
-                  />
+                  <Heart size={18} className={propertyDetailsData?.is_user_favorite ? 'fill-red-500 text-red-500' : ''} />
                 </button>
                 {(propertyDetailsData?.favorite_count ?? 0) > 0 && (
                   <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#2a1407] text-[10px] font-semibold text-yellow-200 shadow-md">
@@ -816,10 +797,7 @@ const page = () => {
           </motion.div>
 
           {/* Property Header Card */}
-          <motion.div
-            variants={fadeInUp}
-            className="relative -mt-20 mx-4 md:mx-8 z-10"
-          >
+          <motion.div variants={fadeInUp} className="relative -mt-20 mx-4 md:mx-8 z-10">
             <div className="bg-gradient-to-br from-white to-yellow-50/20 rounded-2xl shadow-xl border border-yellow-200 p-6 md:p-8">
               <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
                 {/* Left Section */}
@@ -833,9 +811,7 @@ const page = () => {
 
                   {/* Title & Location */}
                   <div>
-                    <h1 className="text-3xl md:text-4xl font-bold text-[#2a1407] mb-2">
-                      {propertyDetailsData?.title || 'Property Title'}
-                    </h1>
+                    <h1 className="text-3xl md:text-4xl font-bold text-[#2a1407] mb-2">{propertyDetailsData?.title || 'Property Title'}</h1>
                     <p className="flex items-center gap-2 text-gray-600 text-sm md:text-base">
                       <MapPin size={18} className="text-yellow-600 flex-shrink-0" />
                       <span>{propertyDetailsData?.address_line || 'Location not provided'}</span>
@@ -893,9 +869,7 @@ const page = () => {
                     className="bg-gradient-to-br from-yellow-50 to-yellow-100/50 rounded-xl p-6 border border-yellow-200 shadow-sm"
                   >
                     <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">Price</p>
-                    <p className="text-3xl md:text-4xl font-bold text-[#2a1407] mb-2">
-                      ₹ {formatPrice(propertyDetailsData?.price)}
-                    </p>
+                    <p className="text-3xl md:text-4xl font-bold text-[#2a1407] mb-2">₹ {formatPrice(propertyDetailsData?.price)}</p>
                     <p className="text-sm text-gray-600">
                       {propertyDetailsData?.property_size
                         ? `${propertyDetailsData.property_size} ${propertyDetailsData.property_size_unit || 'sqft'}`
@@ -950,7 +924,10 @@ const page = () => {
             </motion.div>
 
             {/* Details Sections - rendered as stacked cards */}
-            <motion.div variants={fadeInUp} className="bg-gradient-to-br from-white to-yellow-50/20 rounded-xl border border-yellow-200 overflow-hidden shadow-sm min-h-[900px]">
+            <motion.div
+              variants={fadeInUp}
+              className="bg-gradient-to-br from-white to-yellow-50/20 rounded-xl border border-yellow-200 overflow-hidden shadow-sm min-h-[900px]"
+            >
               <div className="p-6 space-y-10">
                 {/* Overview */}
                 <motion.div
@@ -981,8 +958,6 @@ const page = () => {
                           ))}
                         </div>
                       </div>
-
-
                     </div>
                   )}
 
@@ -997,16 +972,8 @@ const page = () => {
                 </motion.div>
 
                 {/* Amenities */}
-                <motion.div
-                  key="amenities"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <Amenities
-                    title="Amenities"
-                    PropertyAmenities={propertyDetailsData?.feature_values}
-                  />
+                <motion.div key="amenities" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+                  <Amenities title="Amenities" PropertyAmenities={propertyDetailsData?.feature_values} />
                 </motion.div>
 
                 {/* Conditional Ad Carousel - fills empty space when content is short */}
@@ -1093,17 +1060,12 @@ const page = () => {
                 )} */}
 
                 {/* (Floor Plans and About Project mock sections removed) */}
-
               </div>
             </motion.div>
-
           </div>
 
           {/* Right Sidebar */}
-          <motion.aside
-            variants={fadeInUp}
-            className="space-y-6"
-          >
+          <motion.aside variants={fadeInUp} className="space-y-6">
             {/* Approve / Reject Section - Moved Above Property Insights */}
             {propertyDetailsData?.approval_status === 'UNDER_REVIEW' && (
               <motion.div
@@ -1139,10 +1101,7 @@ const page = () => {
             )}
 
             {/* Property Insights - compact summary cards */}
-            <motion.div
-              variants={fadeInUp}
-              className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm"
-            >
+            <motion.div variants={fadeInUp} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h3 className="text-xl font-bold text-gray-900">Property Insights</h3>
@@ -1167,9 +1126,7 @@ const page = () => {
                           <div className="h-11 w-11 rounded-2xl bg-white shadow-sm border border-yellow-100 flex items-center justify-center">
                             <Icon size={22} className="text-yellow-600" />
                           </div>
-                          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                            {insight.label}
-                          </p>
+                          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{insight.label}</p>
                         </div>
                         <p className="text-2xl md:text-3xl font-extrabold text-[#2a1407]">{insight.value}</p>
                       </div>
@@ -1177,7 +1134,7 @@ const page = () => {
                       <div className="mt-2 h-1.5 rounded-full bg-gray-200 overflow-hidden">
                         <motion.div
                           initial={{ width: 0 }}
-                          animate={{ width: `${Math.min((Number(insight.value) || 0) / 100 * 100, 100)}%` }}
+                          animate={{ width: `${Math.min(((Number(insight.value) || 0) / 100) * 100, 100)}%` }}
                           transition={{ duration: 0.8, delay: idx * 0.15 }}
                           className="h-full rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600"
                         />
@@ -1245,12 +1202,12 @@ const page = () => {
                   placeholder="Your Phone"
                   className="w-full px-4 py-3 rounded-lg border border-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400 transition-all bg-white"
                 />
-                  <Button
-                    type="button"
-                    className="w-full bg-[#2a1407] text-white hover:from-[#3b1804] hover:to-[#2a1407] py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all"
-                  >
-                    Connect →
-                  </Button>
+                <Button
+                  type="button"
+                  className="w-full bg-[#2a1407] text-white hover:from-[#3b1804] hover:to-[#2a1407] py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+                >
+                  Connect →
+                </Button>
               </div>
             </motion.div>
 
@@ -1406,16 +1363,14 @@ const page = () => {
                   <p className="text-xs font-semibold text-yellow-700 uppercase tracking-wide">✨ Discover</p>
                   <h3 className="text-lg font-bold text-[#2a1407] mt-1">Scratch to Reveal Fun Facts</h3>
                 </div>
-                <span className="px-2 py-1 rounded-full bg-yellow-500 text-[10px] font-semibold text-white uppercase tracking-wide">
-                  Interactive
-                </span>
+                <span className="px-2 py-1 rounded-full bg-yellow-500 text-[10px] font-semibold text-white uppercase tracking-wide">Interactive</span>
               </div>
 
               {!funFactRevealed ? (
                 <div className="relative">
                   <div
                     className="relative h-32 bg-gradient-to-r from-gray-300 to-gray-400 rounded-lg cursor-grab active:cursor-grabbing overflow-hidden"
-                    onMouseDown={(e) => {
+                    onMouseDown={e => {
                       const rect = e.currentTarget.getBoundingClientRect()
                       const x = e.clientX - rect.left
                       const y = e.clientY - rect.top
@@ -1424,7 +1379,7 @@ const page = () => {
                         overlay.style.clipPath = `circle(35px at ${x}px ${y}px)`
                       }
                     }}
-                    onMouseMove={(e) => {
+                    onMouseMove={e => {
                       if (e.buttons === 1) {
                         const rect = e.currentTarget.getBoundingClientRect()
                         const x = e.clientX - rect.left
@@ -1448,7 +1403,7 @@ const page = () => {
                         }
                       }
                     }}
-                    onTouchMove={(e) => {
+                    onTouchMove={e => {
                       const touch = e.touches[0]
                       const rect = e.currentTarget.getBoundingClientRect()
                       const x = touch.clientX - rect.left
@@ -1468,18 +1423,15 @@ const page = () => {
                       <p className="text-xl font-bold text-yellow-600 mb-2">🎯 Property Highlights</p>
                       <p className="text-sm text-gray-700 text-center">Scratch to discover interesting facts about this property!</p>
                     </div>
-                    <div className="scratch-overlay absolute inset-0 bg-gradient-to-br from-gray-600 to-gray-800"
+                    <div
+                      className="scratch-overlay absolute inset-0 bg-gradient-to-br from-gray-600 to-gray-800"
                       style={{ clipPath: 'circle(100% at 50% 50%)' }}
                     />
                   </div>
                   <p className="text-xs text-gray-600 mt-2 text-center">👆 Drag your mouse or finger to scratch!</p>
                 </div>
               ) : (
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  className="space-y-3"
-                >
+                <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="space-y-3">
                   {revealedFacts.map((fact, idx) => (
                     <motion.div
                       key={idx}
@@ -1592,8 +1544,8 @@ const page = () => {
                           typeof totalFromApi === 'number'
                             ? totalFromApi
                             : Array.isArray((res?.data as any)?.data)
-                              ? (res.data as any).data.length
-                              : 0
+                            ? (res.data as any).data.length
+                            : 0
 
                         setQuizResultCount(count)
                         setShowQuizResult(true)
@@ -1611,17 +1563,11 @@ const page = () => {
                   </Button>
                 </div>
               ) : (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="text-center space-y-3"
-                >
+                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center space-y-3">
                   <div className="p-4 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg border border-yellow-200">
                     <p className="text-lg font-bold text-[#2a1407] mb-2">✨ Perfect Matches Found!</p>
                     <p className="text-sm text-gray-700 mb-3">
-                      {quizResultCount === null && isQuizLoading && (
-                        <>Calculating the best matches for you…</>
-                      )}
+                      {quizResultCount === null && isQuizLoading && <>Calculating the best matches for you…</>}
                       {quizResultCount !== null && !isQuizLoading && (
                         <>
                           We found{' '}
@@ -1631,16 +1577,11 @@ const page = () => {
                           matching your preferences
                         </>
                       )}
-                      {quizResultCount === null && !isQuizLoading && (
-                        <>We found some properties matching your preferences.</>
-                      )}
+                      {quizResultCount === null && !isQuizLoading && <>We found some properties matching your preferences.</>}
                     </p>
                     <div className="flex gap-2 justify-center">
                       <span className="px-2 py-1 bg-yellow-200 text-yellow-800 text-xs rounded-full font-semibold">
-                        {quizAnswers.budget
-                          .replace('-', ' - ')
-                          .replace('under-', 'Under ')
-                          .replace('above-', 'Above ')}
+                        {quizAnswers.budget.replace('-', ' - ').replace('under-', 'Under ').replace('above-', 'Above ')}
                       </span>
                       <span className="px-2 py-1 bg-yellow-200 text-yellow-800 text-xs rounded-full font-semibold capitalize">
                         {quizAnswers.location}
@@ -1706,10 +1647,10 @@ const page = () => {
                   }}
                   disabled={carouselScrollPosition === 0}
                   className={cn(
-                    "flex h-10 w-10 items-center justify-center rounded-full border transition-all",
+                    'flex h-10 w-10 items-center justify-center rounded-full border transition-all',
                     carouselScrollPosition === 0
-                      ? "border-gray-200 text-gray-300 cursor-not-allowed"
-                      : "border-yellow-200 bg-yellow-50 text-yellow-600 hover:bg-yellow-100"
+                      ? 'border-gray-200 text-gray-300 cursor-not-allowed'
+                      : 'border-yellow-200 bg-yellow-50 text-yellow-600 hover:bg-yellow-100',
                   )}
                   aria-label="Previous properties"
                 >
@@ -1735,7 +1676,7 @@ const page = () => {
 
           {isLoadingSimilar ? (
             <div className="flex gap-6 overflow-hidden">
-              {[1, 2, 3, 4].map((i) => (
+              {[1, 2, 3, 4].map(i => (
                 <div key={i} className="flex-shrink-0 w-80 bg-white rounded-xl border border-gray-200 p-4 animate-pulse">
                   <div className="h-48 bg-gray-200 rounded-lg mb-4" />
                   <div className="h-4 w-3/4 bg-gray-200 rounded mb-2" />
@@ -1757,7 +1698,7 @@ const page = () => {
               `}</style>
               <div
                 ref={carouselRef}
-                onScroll={(e) => {
+                onScroll={e => {
                   const target = e.target as HTMLDivElement
                   setCarouselScrollPosition(target.scrollLeft)
                 }}
@@ -1803,9 +1744,7 @@ const page = () => {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-xs text-gray-500 mb-1">Price</p>
-                          <p className="text-lg font-bold text-[#2a1407]">
-                            ₹{formatPrice(Number(property.price)) || 'Price on request'}
-                          </p>
+                          <p className="text-lg font-bold text-[#2a1407]">₹{formatPrice(Number(property.price)) || 'Price on request'}</p>
                         </div>
                         <div className="text-right">
                           <p className="text-xs text-gray-500 mb-1">Size</p>
@@ -1826,10 +1765,8 @@ const page = () => {
                     <div
                       key={idx}
                       className={cn(
-                        "h-2 rounded-full transition-all",
-                        Math.floor(carouselScrollPosition / 1280) === idx
-                          ? "w-8 bg-yellow-600"
-                          : "w-2 bg-gray-300"
+                        'h-2 rounded-full transition-all',
+                        Math.floor(carouselScrollPosition / 1280) === idx ? 'w-8 bg-yellow-600' : 'w-2 bg-gray-300',
                       )}
                     />
                   ))}
@@ -1888,7 +1825,7 @@ const page = () => {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 className="absolute top-6 right-6 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all"
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation()
                   setSelectedImageIndex(null)
                 }}
@@ -1906,7 +1843,7 @@ const page = () => {
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     className="absolute left-6 top-1/2 -translate-y-1/2 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all"
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation()
                       if (selectedImageIndex !== null) {
                         // Find previous actual image
@@ -1934,7 +1871,7 @@ const page = () => {
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     className="absolute right-6 top-1/2 -translate-y-1/2 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all"
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation()
                       if (selectedImageIndex !== null) {
                         // Find next actual image
@@ -1967,7 +1904,7 @@ const page = () => {
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.3 }}
                 className="relative flex w-full max-w-6xl justify-center"
-                onClick={(e) => e.stopPropagation()}
+                onClick={e => e.stopPropagation()}
               >
                 {galleryImages[selectedImageIndex] ? (
                   <Image
@@ -2004,7 +1941,7 @@ const page = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
                   className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 flex gap-2 max-w-4xl overflow-x-auto px-4"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={e => e.stopPropagation()}
                 >
                   {galleryImages.map((img, idx) => (
                     <motion.button
@@ -2014,20 +1951,13 @@ const page = () => {
                       onClick={() => img && setSelectedImageIndex(idx)}
                       disabled={!img}
                       className={cn(
-                        "relative h-16 w-16 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all",
-                        selectedImageIndex === idx
-                          ? "border-yellow-500 scale-110"
-                          : "border-white/30 opacity-60 hover:opacity-100",
-                        !img && "bg-gray-800 border-gray-600"
+                        'relative h-16 w-16 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all',
+                        selectedImageIndex === idx ? 'border-yellow-500 scale-110' : 'border-white/30 opacity-60 hover:opacity-100',
+                        !img && 'bg-gray-800 border-gray-600',
                       )}
                     >
                       {img ? (
-                        <Image
-                          src={img}
-                          alt={`Thumbnail ${idx + 1}`}
-                          fill
-                          className="object-cover"
-                        />
+                        <Image src={img} alt={`Thumbnail ${idx + 1}`} fill className="object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gray-800">
                           <Camera size={20} className="text-gray-500" />
@@ -2044,7 +1974,7 @@ const page = () => {
               <ImageCarouselKeyboardHandler
                 currentIndex={selectedImageIndex}
                 totalImages={apiImages.length}
-                onNavigate={(dir) => {
+                onNavigate={dir => {
                   if (dir === 'next') {
                     // Find next actual image
                     let newIndex = selectedImageIndex + 1

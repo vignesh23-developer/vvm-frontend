@@ -28,6 +28,7 @@ interface FilterState {
   state: string[]
   postalCode: string[]
   propertyCategoryId: string[]
+  category_id: string[]
   sortBy?: string
   isPremium?: boolean
   ownerId?: string
@@ -43,7 +44,7 @@ interface AdvancedFiltersProps {
   onClear: () => void
   isOpen: boolean
   onToggle: () => void
-  pageType?: 'property' | 'agency' // To distinguish between property and agency pages
+  pageType?: 'property' | 'agency' | 'ads-list' // To distinguish between property, agency, and ads pages
 }
 
 type PriceRange = { label: string; min: number; max: number | null }
@@ -108,57 +109,51 @@ export default function AdvancedFilters({
   })
 
   // Load filter metadata (price ranges, listing types, statuses) from backend
-  const { data: filtersMeta, error: filtersError } = useSWR(
-    appEndpoints.publicSearchPropertyFilters,
-    async (url: string) => {
-      console.log('🔍 Filter Options API Call:', url)
-      try {
-        const response = await getMethod<any>(url)
+  const { data: filtersMeta, error: filtersError } = useSWR(appEndpoints.publicSearchPropertyFilters, async (url: string) => {
+    console.log('🔍 Filter Options API Call:', url)
+    try {
+      const response = await getMethod<any>(url)
 
-        // The backend now provides a consistent filters payload, but this parser
-        // still supports older nested formats.
-        // Supported shapes (inside ResponseDTO.data):
-        // 1) { filters: {...} }
-        // 2) { data: { filters: {...} } }
-        // 3) { data: { data: { filters: {...} } } }  (legacy)
-        const dtoPayload = response.data
+      // The backend now provides a consistent filters payload, but this parser
+      // still supports older nested formats.
+      // Supported shapes (inside ResponseDTO.data):
+      // 1) { filters: {...} }
+      // 2) { data: { filters: {...} } }
+      // 3) { data: { data: { filters: {...} } } }  (legacy)
+      const dtoPayload = response.data
 
-        let container = dtoPayload as any
-        if (container && typeof container === 'object' && 'data' in container && !Array.isArray(container.data)) {
-          container = container.data
-        }
-        if (container && typeof container === 'object' && 'data' in container && !Array.isArray(container.data)) {
-          container = container.data
-        }
-
-        const filters = (container && container.filters) || {}
-        const message =
-          (container && (container as any).message) ||
-          (dtoPayload && (dtoPayload as any).message) ||
-          undefined
-
-        console.log('✅ Filter Options API Response (normalized):', {
-          raw: dtoPayload,
-          container,
-          filterKeys: Object.keys(filters),
-          message,
-        })
-
-        return { data: { filters, message } }
-      } catch (error) {
-        console.error('❌ Filter Options API Error:', error)
-        return { data: { filters: {} } }
+      let container = dtoPayload as any
+      if (container && typeof container === 'object' && 'data' in container && !Array.isArray(container.data)) {
+        container = container.data
       }
-    },
-  )
-  
+      if (container && typeof container === 'object' && 'data' in container && !Array.isArray(container.data)) {
+        container = container.data
+      }
+
+      const filters = (container && container.filters) || {}
+      const message = (container && (container as any).message) || (dtoPayload && (dtoPayload as any).message) || undefined
+
+      console.log('✅ Filter Options API Response (normalized):', {
+        raw: dtoPayload,
+        container,
+        filterKeys: Object.keys(filters),
+        message,
+      })
+
+      return { data: { filters, message } }
+    } catch (error) {
+      console.error('❌ Filter Options API Error:', error)
+      return { data: { filters: {} } }
+    }
+  })
+
   // Extract filter options from backend response
   // After normalization above we always expect: { data: { filters: {...}, message?: string } }
   // but we keep a small fallback for any older shapes.
   const filtersMetaData = filtersMeta as any
   const backendFilters = filtersMetaData?.data?.filters || filtersMetaData?.data?.data?.filters || {}
   const backendMessage = filtersMetaData?.data?.message as string | undefined
-  
+
   // Log filter availability for debugging (more neutral messaging)
   if (Object.keys(backendFilters).length === 0) {
     console.info('ℹ️ No filter buckets received from backend – falling back to default filter options.', {
@@ -170,26 +165,31 @@ export default function AdvancedFilters({
       hasFilters: !!filtersMetaData?.data?.filters || !!filtersMetaData?.data?.data?.filters,
       dataKeys: filtersMetaData?.data ? Object.keys(filtersMetaData.data) : [],
       nestedDataKeys: filtersMetaData?.data?.data ? Object.keys(filtersMetaData.data.data) : [],
-      filtersKeys: filtersMetaData?.data?.filters ? Object.keys(filtersMetaData.data.filters) : 
-                   (filtersMetaData?.data?.data?.filters ? Object.keys(filtersMetaData.data.data.filters) : []),
+      filtersKeys: filtersMetaData?.data?.filters
+        ? Object.keys(filtersMetaData.data.filters)
+        : filtersMetaData?.data?.data?.filters
+        ? Object.keys(filtersMetaData.data.data.filters)
+        : [],
     })
   } else {
     console.log('✅ Backend filters loaded:', {
       filterKeys: Object.keys(backendFilters),
       totalFilters: Object.keys(backendFilters).length,
-      sampleFilter: Object.keys(backendFilters)[0] ? {
-        key: Object.keys(backendFilters)[0],
-        value: backendFilters[Object.keys(backendFilters)[0]],
-      } : null,
+      sampleFilter: Object.keys(backendFilters)[0]
+        ? {
+            key: Object.keys(backendFilters)[0],
+            value: backendFilters[Object.keys(backendFilters)[0]],
+          }
+        : null,
     })
   }
-  
+
   // Transform backend filter buckets (which have {value, label, count}) to simple string arrays
   const transformFilterBuckets = (buckets: Array<{ value: string; label: string; count: number }> | undefined): string[] => {
     if (!Array.isArray(buckets)) return []
     return buckets.map(b => b.value || b.label).filter(Boolean)
   }
-  
+
   // Values driven purely by backend – no local fallbacks.
   const listingTypes = transformFilterBuckets(backendFilters.listing_types)
 
@@ -198,18 +198,22 @@ export default function AdvancedFilters({
   // Price ranges - backend provides min/max, we create ranges from that.
   // If backend doesn't send stats, the list stays empty.
   const backendPriceStats = backendFilters.price
-  const priceRanges: PriceRange[] = backendPriceStats?.min !== undefined && backendPriceStats?.max !== undefined
-    ? [
-        { label: `Under ${(backendPriceStats.min / 1000).toFixed(0)}k`, min: 0, max: backendPriceStats.min },
-        { label: `${(backendPriceStats.min / 1000).toFixed(0)}k - ${(backendPriceStats.max / 1000).toFixed(0)}k`, min: backendPriceStats.min, max: backendPriceStats.max },
-        { label: `${(backendPriceStats.max / 1000).toFixed(0)}k+`, min: backendPriceStats.max, max: null },
-      ]
-    : []
+  const priceRanges: PriceRange[] =
+    backendPriceStats?.min !== undefined && backendPriceStats?.max !== undefined
+      ? [
+          { label: `Under ${(backendPriceStats.min / 1000).toFixed(0)}k`, min: 0, max: backendPriceStats.min },
+          {
+            label: `${(backendPriceStats.min / 1000).toFixed(0)}k - ${(backendPriceStats.max / 1000).toFixed(0)}k`,
+            min: backendPriceStats.min,
+            max: backendPriceStats.max,
+          },
+          { label: `${(backendPriceStats.max / 1000).toFixed(0)}k+`, min: backendPriceStats.max, max: null },
+        ]
+      : []
 
   // These sections now use backend data only. If backend doesn't send buckets,
   // the corresponding filter list will be empty.
-  const propertyTypes =
-    transformFilterBuckets((backendFilters as any).property_types || (backendFilters as any).property_categories)
+  const propertyTypes = transformFilterBuckets((backendFilters as any).property_types || (backendFilters as any).property_categories)
 
   const bedrooms = transformFilterBuckets(backendFilters.bhk)
   const bathrooms = transformFilterBuckets(backendFilters.bathrooms)
@@ -238,13 +242,11 @@ export default function AdvancedFilters({
 
   const toggleArrayFilter = (key: keyof FilterState, value: string) => {
     const current = filters[key] as string[]
-    const updated = current.includes(value)
-      ? current.filter(item => item !== value)
-      : [...current, value]
+    const updated = current.includes(value) ? current.filter(item => item !== value) : [...current, value]
     updateFilter(key, updated)
   }
 
-  const activeFilterCount = 
+  const activeFilterCount =
     (filters.propertyType.length > 0 ? 1 : 0) +
     (filters.bedrooms.length > 0 ? 1 : 0) +
     (filters.bathrooms.length > 0 ? 1 : 0) +
@@ -297,16 +299,10 @@ export default function AdvancedFilters({
                 <SlidersHorizontal className="text-yellow-600" size={22} />
                 <h3 className="text-xl font-bold text-[#2a1407]">Refine Results</h3>
                 {activeFilterCount > 0 && (
-                  <span className="bg-yellow-500 text-[#2a1407] rounded-full px-2.5 py-1 text-xs font-bold">
-                    {activeFilterCount}
-                  </span>
+                  <span className="bg-yellow-500 text-[#2a1407] rounded-full px-2.5 py-1 text-xs font-bold">{activeFilterCount}</span>
                 )}
               </div>
-              <button
-                onClick={onToggle}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                aria-label="Close filters"
-              >
+              <button onClick={onToggle} className="p-2 hover:bg-gray-100 rounded-full transition-colors" aria-label="Close filters">
                 <X size={20} className="text-gray-600" />
               </button>
             </div>
@@ -339,7 +335,7 @@ export default function AdvancedFilters({
           </motion.div>
         )}
       </AnimatePresence>
-      
+
       {/* Desktop Filter Toggle Button - When Closed */}
       {!isOpen && (
         <button
@@ -382,15 +378,10 @@ export default function AdvancedFilters({
                   <SlidersHorizontal className="text-yellow-600" size={22} />
                   <h3 className="text-xl font-bold text-[#2a1407]">Refine Results</h3>
                   {activeFilterCount > 0 && (
-                    <span className="bg-yellow-500 text-[#2a1407] rounded-full px-2.5 py-1 text-xs font-bold">
-                      {activeFilterCount}
-                    </span>
+                    <span className="bg-yellow-500 text-[#2a1407] rounded-full px-2.5 py-1 text-xs font-bold">{activeFilterCount}</span>
                   )}
                 </div>
-                <button
-                  onClick={onToggle}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                >
+                <button onClick={onToggle} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                   <X size={20} className="text-gray-600" />
                 </button>
               </div>
@@ -477,12 +468,10 @@ function FilterContent({
   facingOptions: string[]
   parkingOptions: string[]
   sortOptions: { value: string; label: string }[]
-  pageType?: 'property' | 'agency'
+  pageType?: 'property' | 'agency' | 'ads-list'
 }) {
   return (
     <>
-    
-
       {/* Clear All Button */}
       {activeFilterCount > 0 && (
         <button
@@ -504,11 +493,7 @@ function FilterContent({
       <div className="space-y-4">
         {/* Price Range Presets - Only show on property page if more than 1 range */}
         {pageType === 'property' && priceRanges.length > 1 && (
-          <FilterSection
-            title="Price Range"
-            isExpanded={expandedSections.price}
-            onToggle={() => toggleSection('price')}
-          >
+          <FilterSection title="Price Range" isExpanded={expandedSections.price} onToggle={() => toggleSection('price')}>
             <div className="space-y-3">
               {priceRanges.map((range, idx) => (
                 <label key={idx} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
@@ -536,7 +521,7 @@ function FilterContent({
                     <input
                       type="number"
                       value={filters.priceRange[0] || ''}
-                      onChange={(e) => updateFilter('priceRange', [Number(e.target.value) || 0, filters.priceRange[1]])}
+                      onChange={e => updateFilter('priceRange', [Number(e.target.value) || 0, filters.priceRange[1]])}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
                       placeholder="0"
                     />
@@ -546,7 +531,7 @@ function FilterContent({
                     <input
                       type="number"
                       value={filters.priceRange[1] === 100000000 ? '' : filters.priceRange[1]}
-                      onChange={(e) => updateFilter('priceRange', [filters.priceRange[0], Number(e.target.value) || 100000000])}
+                      onChange={e => updateFilter('priceRange', [filters.priceRange[0], Number(e.target.value) || 100000000])}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
                       placeholder="No limit"
                     />
@@ -559,11 +544,7 @@ function FilterContent({
 
         {/* Property Category - Only show on property page if more than 1 type */}
         {pageType === 'property' && propertyTypes.length > 1 && (
-          <FilterSection
-            title="Property Category"
-            isExpanded={expandedSections.propertyType}
-            onToggle={() => toggleSection('propertyType')}
-          >
+          <FilterSection title="Property Category" isExpanded={expandedSections.propertyType} onToggle={() => toggleSection('propertyType')}>
             <div className="space-y-2">
               {propertyTypes.map((type: string) => (
                 <label key={type} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
@@ -582,11 +563,7 @@ function FilterContent({
 
         {/* Bedrooms - Only show on property page if more than 1 option */}
         {pageType === 'property' && bedrooms.length > 1 && (
-          <FilterSection
-            title="Bedrooms"
-            isExpanded={expandedSections.bedrooms}
-            onToggle={() => toggleSection('bedrooms')}
-          >
+          <FilterSection title="Bedrooms" isExpanded={expandedSections.bedrooms} onToggle={() => toggleSection('bedrooms')}>
             <div className="flex flex-wrap gap-2">
               {bedrooms.map((bed: string) => (
                 <button
@@ -594,10 +571,10 @@ function FilterContent({
                   type="button"
                   onClick={() => toggleArrayFilter('bedrooms', bed)}
                   className={cn(
-                    "px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                    'px-4 py-2 rounded-lg text-sm font-medium transition-all',
                     filters.bedrooms.includes(bed)
-                      ? "bg-yellow-500 text-[#2a1407] border-2 border-yellow-600"
-                      : "bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200"
+                      ? 'bg-yellow-500 text-[#2a1407] border-2 border-yellow-600'
+                      : 'bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200',
                   )}
                 >
                   {bed} BHK
@@ -609,11 +586,7 @@ function FilterContent({
 
         {/* Bathrooms - Only show on property page if more than 1 option */}
         {pageType === 'property' && bathrooms.length > 1 && (
-          <FilterSection
-            title="Bathrooms"
-            isExpanded={expandedSections.bathrooms}
-            onToggle={() => toggleSection('bathrooms')}
-          >
+          <FilterSection title="Bathrooms" isExpanded={expandedSections.bathrooms} onToggle={() => toggleSection('bathrooms')}>
             <div className="flex flex-wrap gap-2">
               {bathrooms.map((bath: string) => (
                 <button
@@ -621,10 +594,10 @@ function FilterContent({
                   type="button"
                   onClick={() => toggleArrayFilter('bathrooms', bath)}
                   className={cn(
-                    "px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                    'px-4 py-2 rounded-lg text-sm font-medium transition-all',
                     filters.bathrooms.includes(bath)
-                      ? "bg-yellow-500 text-[#2a1407] border-2 border-yellow-600"
-                      : "bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200"
+                      ? 'bg-yellow-500 text-[#2a1407] border-2 border-yellow-600'
+                      : 'bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200',
                   )}
                 >
                   {bath}
@@ -636,11 +609,7 @@ function FilterContent({
 
         {/* Location (Cities) - Show on both pages if more than 1 location */}
         {locations.length > 1 && (
-          <FilterSection
-            title="Location"
-            isExpanded={expandedSections.location}
-            onToggle={() => toggleSection('location')}
-          >
+          <FilterSection title="Location" isExpanded={expandedSections.location} onToggle={() => toggleSection('location')}>
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {locations.map((location: string) => (
                 <label key={location} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
@@ -659,11 +628,7 @@ function FilterContent({
 
         {/* Listing Type - Only show on property page if more than 1 type */}
         {pageType === 'property' && listingTypes.length > 1 && (
-          <FilterSection
-            title="Listing Type"
-            isExpanded={expandedSections.listingType}
-            onToggle={() => toggleSection('listingType')}
-          >
+          <FilterSection title="Listing Type" isExpanded={expandedSections.listingType} onToggle={() => toggleSection('listingType')}>
             <div className="space-y-2">
               {listingTypes.map((type: string) => (
                 <label key={type} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
@@ -682,11 +647,7 @@ function FilterContent({
 
         {/* Status - Only show on property page if more than 1 status */}
         {pageType === 'property' && statuses.length > 1 && (
-          <FilterSection
-            title="Status"
-            isExpanded={expandedSections.status}
-            onToggle={() => toggleSection('status')}
-          >
+          <FilterSection title="Status" isExpanded={expandedSections.status} onToggle={() => toggleSection('status')}>
             <div className="space-y-2">
               {statuses.map((status: string) => (
                 <label key={status} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
@@ -705,11 +666,7 @@ function FilterContent({
 
         {/* Amenities - Only show on property page if more than 1 amenity */}
         {pageType === 'property' && amenities.length > 1 && (
-          <FilterSection
-            title="Amenities"
-            isExpanded={expandedSections.amenities}
-            onToggle={() => toggleSection('amenities')}
-          >
+          <FilterSection title="Amenities" isExpanded={expandedSections.amenities} onToggle={() => toggleSection('amenities')}>
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {amenities.map((amenity: string) => (
                 <label key={amenity} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
@@ -728,11 +685,7 @@ function FilterContent({
 
         {/* Districts - Show on agency page if more than 1 district */}
         {pageType === 'agency' && districts.length > 1 && (
-          <FilterSection
-            title="Districts"
-            isExpanded={expandedSections.district || false}
-            onToggle={() => toggleSection('district')}
-          >
+          <FilterSection title="Districts" isExpanded={expandedSections.district || false} onToggle={() => toggleSection('district')}>
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {districts.map((district: string) => (
                 <label key={district} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
@@ -751,11 +704,7 @@ function FilterContent({
 
         {/* States - Show on agency page if more than 1 state */}
         {pageType === 'agency' && states.length > 1 && (
-          <FilterSection
-            title="States"
-            isExpanded={expandedSections.state || false}
-            onToggle={() => toggleSection('state')}
-          >
+          <FilterSection title="States" isExpanded={expandedSections.state || false} onToggle={() => toggleSection('state')}>
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {states.map((state: string) => (
                 <label key={state} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
@@ -774,11 +723,7 @@ function FilterContent({
 
         {/* Size Range - Only show on property page (manual input) */}
         {pageType === 'property' && (
-          <FilterSection
-            title="Size Range (sqft)"
-            isExpanded={expandedSections.sizeRange || false}
-            onToggle={() => toggleSection('sizeRange')}
-          >
+          <FilterSection title="Size Range (sqft)" isExpanded={expandedSections.sizeRange || false} onToggle={() => toggleSection('sizeRange')}>
             <div className="pt-2">
               <div className="flex items-center gap-3">
                 <div className="flex-1">
@@ -786,7 +731,7 @@ function FilterContent({
                   <input
                     type="number"
                     value={filters.sizeRange[0] || ''}
-                    onChange={(e) => updateFilter('sizeRange', [Number(e.target.value) || 0, filters.sizeRange[1]])}
+                    onChange={e => updateFilter('sizeRange', [Number(e.target.value) || 0, filters.sizeRange[1]])}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
                     placeholder="0"
                   />
@@ -796,7 +741,7 @@ function FilterContent({
                   <input
                     type="number"
                     value={filters.sizeRange[1] || ''}
-                    onChange={(e) => updateFilter('sizeRange', [filters.sizeRange[0], Number(e.target.value) || 0])}
+                    onChange={e => updateFilter('sizeRange', [filters.sizeRange[0], Number(e.target.value) || 0])}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
                     placeholder="No limit"
                   />
@@ -808,11 +753,7 @@ function FilterContent({
 
         {/* Furnishing - Only show on property page if more than 1 option */}
         {pageType === 'property' && furnishingOptions.length > 1 && (
-          <FilterSection
-            title="Furnishing"
-            isExpanded={expandedSections.furnishing || false}
-            onToggle={() => toggleSection('furnishing')}
-          >
+          <FilterSection title="Furnishing" isExpanded={expandedSections.furnishing || false} onToggle={() => toggleSection('furnishing')}>
             <div className="flex flex-wrap gap-2">
               {furnishingOptions.map((option: string) => (
                 <button
@@ -820,10 +761,10 @@ function FilterContent({
                   type="button"
                   onClick={() => toggleArrayFilter('furnishing', option)}
                   className={cn(
-                    "px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                    'px-4 py-2 rounded-lg text-sm font-medium transition-all',
                     filters.furnishing.includes(option)
-                      ? "bg-yellow-500 text-[#2a1407] border-2 border-yellow-600"
-                      : "bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200"
+                      ? 'bg-yellow-500 text-[#2a1407] border-2 border-yellow-600'
+                      : 'bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200',
                   )}
                 >
                   {option}
@@ -835,11 +776,7 @@ function FilterContent({
 
         {/* Parking - Only show on property page if more than 1 option */}
         {pageType === 'property' && parkingOptions.length > 1 && (
-          <FilterSection
-            title="Parking"
-            isExpanded={expandedSections.parking || false}
-            onToggle={() => toggleSection('parking')}
-          >
+          <FilterSection title="Parking" isExpanded={expandedSections.parking || false} onToggle={() => toggleSection('parking')}>
             <div className="space-y-2">
               {parkingOptions.map((option: string) => (
                 <label key={option} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
@@ -857,13 +794,9 @@ function FilterContent({
         )}
 
         {/* Sort By - Always show (UI helper) */}
-        <FilterSection
-          title="Sort By"
-          isExpanded={expandedSections.sortBy || false}
-          onToggle={() => toggleSection('sortBy')}
-        >
+        <FilterSection title="Sort By" isExpanded={expandedSections.sortBy || false} onToggle={() => toggleSection('sortBy')}>
           <div className="space-y-2">
-            {sortOptions.map((option) => (
+            {sortOptions.map(option => (
               <label key={option.value} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
                 <input
                   type="radio"
@@ -901,11 +834,7 @@ function FilterSection({
         className="w-full flex items-center justify-between text-left mb-3 py-1 hover:bg-gray-50 rounded px-2 -mx-2 transition-colors"
       >
         <h4 className="font-bold text-[#2a1407] text-sm uppercase tracking-wide">{title}</h4>
-        {isExpanded ? (
-          <ChevronUp size={16} className="text-yellow-600" />
-        ) : (
-          <ChevronDown size={16} className="text-yellow-600" />
-        )}
+        {isExpanded ? <ChevronUp size={16} className="text-yellow-600" /> : <ChevronDown size={16} className="text-yellow-600" />}
       </button>
       <AnimatePresence>
         {isExpanded && (

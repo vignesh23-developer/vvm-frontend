@@ -22,6 +22,7 @@ interface UsePropertiesOptions {
   page?: number
   limit?: number
   location?: string
+  listingType?: string
   type?: string
   budget?: string
 }
@@ -34,11 +35,17 @@ interface PropertiesFetcherResult {
 // Custom hook for managing properties
 export function useSearchProperties(options: UsePropertiesOptions = {}) {
   const router = useRouter()
-  const { page = 1, limit = 10, location, type, budget } = options
+  const { page = 1, limit = 10, location, listingType, type, budget } = options
 
   const queryParams = new URLSearchParams()
   if (location) {
     queryParams.set('q', location)
+  }
+  if (listingType) {
+    queryParams.set('listing_type', listingType)
+  }
+  if (type) {
+    queryParams.set('property_category_id', type)
   }
   if (limit != null) {
     queryParams.set('limit', String(limit))
@@ -47,12 +54,25 @@ export function useSearchProperties(options: UsePropertiesOptions = {}) {
     queryParams.set('page', String(page))
   }
 
-  // if (type) {
-  //   queryParams.set('type', type)
-  // }
-  // if (budget) {
-  //   queryParams.set('budget', budget)
-  // }
+  if (budget?.trim()) {
+    const [minBudgetRaw, maxBudgetRaw] = budget.trim().split('-')
+    const parseBudgetValue = (value?: string) => {
+      if (value === undefined) return undefined
+      const numeric = Number(value.trim())
+      return Number.isNaN(numeric) ? undefined : numeric
+    }
+
+    const minBudget = parseBudgetValue(minBudgetRaw)
+    const maxBudget = parseBudgetValue(maxBudgetRaw)
+
+    if (minBudget !== undefined) {
+      queryParams.set('price_min', String(minBudget))
+    }
+
+    if (maxBudget !== undefined) {
+      queryParams.set('price_max', String(maxBudget))
+    }
+  }
 
   const swrKey = queryParams.toString() ? `${appEndpoints.getSearchByProperties}?${queryParams.toString()}` : appEndpoints.getSearchByProperties
 
@@ -124,8 +144,6 @@ export function useSearchProperties(options: UsePropertiesOptions = {}) {
       toast.error('Failed to update status')
     }
   }
-
-  console.log('SWR Properties data:', data?.data?.data?.data, 'Error:', error)
 
   return {
     properties: data?.data?.data?.data ?? [],

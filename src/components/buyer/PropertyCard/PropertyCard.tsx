@@ -214,13 +214,7 @@ const ImageSection = ({
     initial="rest"
     whileHover="hover"
   >
-    <Image
-      src={imageUrl}
-      alt={title}
-      width={260}
-      height={180}
-      className="h-40 w-full object-cover sm:w-[260px]"
-    />
+    <Image src={imageUrl} alt={title} width={260} height={180} className="h-40 w-full object-cover sm:w-[260px]" />
     <div className="w-full px-3 py-2">
       <p className="text-sm font-semibold text-gray-900">
         {labels.agent}: {agent}
@@ -254,7 +248,9 @@ const InfoSection = ({
     <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-start">
       <div className="space-y-1">
         <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-        {(property_category_name || subtitle) && <p className="text-xs sm:text-sm font-medium text-yellow-700">{property_category_name || subtitle}</p>}
+        {(property_category_name || subtitle) && (
+          <p className="text-xs sm:text-sm font-medium text-yellow-700">{property_category_name || subtitle}</p>
+        )}
       </div>
 
       <div className="flex items-center gap-2 text-gray-600">

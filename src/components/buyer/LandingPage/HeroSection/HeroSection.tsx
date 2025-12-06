@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Formik } from 'formik'
+import * as Yup from 'yup'
 import { MapPin, Home, ChevronDown, IndianRupee, Search } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { motion, Variants } from 'framer-motion'
@@ -14,7 +15,7 @@ export default function HeroSection() {
   const t = useTranslations()
   const router = useRouter()
   const [isHeroLoading, setIsHeroLoading] = useState(true)
-  const [currentTab, setCurrentTab] = useState('buy')
+  const [currentTab, setCurrentTab] = useState('sale')
   const [showBudget, setShowBudget] = useState(false)
   const [showType, setShowType] = useState(false)
   // Lightweight category shape used in this component
@@ -25,13 +26,14 @@ export default function HeroSection() {
   }
   interface SearchParams {
     location?: string
+    listingType?: string
     type?: string | number
     budget?: string
   }
 
   const [selectedType, setSelectedType] = useState<Category | null>(null)
   const { categories, error, isLoading, mutateCategories } = usePropertyCategories()
-  const tabKeys: string[] = ['buy', 'rent', 'lease']
+  const tabKeys: string[] = ['sale', 'rent', 'lease']
 
   // Background carousel images (external URLs)
   const heroImages = [
@@ -79,10 +81,11 @@ export default function HeroSection() {
   }
 
   const handleSearch = (values: SearchParams) => {
-    const typeName = categories?.find(c => String(c.id) === String(values.type))?.name ?? ''
+    // const typeName = categories?.find(c => String(c.id) === String(values.type))?.name ?? ''
     const queryParams = new URLSearchParams({
       location: encodeURIComponent(values.location || ''),
-      type: encodeURIComponent(typeName),
+      listingType: encodeURIComponent(currentTab.toUpperCase() || ''),
+      type: encodeURIComponent(values.type ? String(values.type) : ''),
       budget: encodeURIComponent(values.budget || ''),
     })
     router.push(`/properties-list?${queryParams.toString()}`)
@@ -151,8 +154,9 @@ export default function HeroSection() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setCurrentTab(tab)}
-                  className={`py-2 px-3 rounded-lg text-sm font-medium transition ${currentTab === tab ? 'bg-yellow-400 text-[#2a1407]' : 'bg-white/10 hover:bg-white/20'
-                    }`}
+                  className={`py-2 px-3 rounded-lg text-sm font-medium transition ${
+                    currentTab === tab ? 'bg-yellow-400 text-[#2a1407]' : 'bg-white/10 hover:bg-white/20'
+                  }`}
                 >
                   {t(`Hero.HeroMenu.${tab}`)}
                 </motion.button>
@@ -167,10 +171,9 @@ export default function HeroSection() {
                     type="button"
                     variant="tertiary"
                     size="small"
-                    className={`pb-1 transition ${currentTab === tab
-                      ? 'text-yellow-300 border-b-2 border-yellow-300'
-                      : 'text-white/80 hover:text-yellow-200'
-                      }`}
+                    className={`pb-1 transition ${
+                      currentTab === tab ? 'text-yellow-300 border-b-2 border-yellow-300' : 'text-white/80 hover:text-yellow-200'
+                    }`}
                     onClick={() => setCurrentTab(tab)}
                   >
                     {t(`Hero.HeroMenu.${tab}`)}
@@ -181,26 +184,52 @@ export default function HeroSection() {
           </motion.div>
 
           {/* Search Bar (Formik) */}
-          <Formik initialValues={{ location: '', type: '', budget: '' }} onSubmit={values => handleSearch(values)}>
-            {({ values, setFieldValue, handleSubmit }) => (
+          <Formik
+            initialValues={{ location: '', type: '', budget: '' }}
+            validationSchema={Yup.object({
+              location: Yup.string().trim().min(3, 'Please enter at least 3 characters').required('Please enter a location'),
+            })}
+            onSubmit={values => handleSearch(values)}
+          >
+            {({ values, setFieldValue, handleSubmit, handleBlur, errors, touched, isSubmitting }) => (
               <motion.div variants={itemVariants} className="bg-white text-black rounded-2xl px-3 py-4 sm:px-2 sm:py-2 shadow-lg relative">
                 {/* -------------- Mobile UI -------------- */}
                 <div className="flex flex-col gap-3 sm:hidden">
                   {/* Location */}
-                  <motion.div whileHover={{ scale: 1.02 }} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center gap-2 flex-1">
-                      <MapPin className="w-5 h-5 text-gray-600" />
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    className={`p-3 rounded-lg transition 
+    ${touched.location && errors.location && 'border-red-500 bg-red-50'}
+  `}
+                  >
+                    <div className="flex items-center gap-2 w-full">
+                      <MapPin
+                        className={`w-5 h-5 
+        ${touched.location && errors.location ? 'text-red-600' : 'text-gray-600'}
+      `}
+                      />
 
                       <input
+                        name="location"
                         type="text"
                         value={values.location}
                         onChange={e => setFieldValue('location', e.target.value)}
+                        onBlur={handleBlur}
                         placeholder="Enter location"
-                        className="bg-transparent outline-none font-medium text-black placeholder-gray-400 w-full"
+                        aria-invalid={Boolean(touched.location && errors.location)}
+                        aria-describedby={touched.location && errors.location ? 'location-error-mobile' : undefined}
+                        className={`w-full bg-transparent outline-none font-medium placeholder-gray-400
+        ${touched.location && errors.location ? 'text-red-700' : 'text-black'}
+      `}
                       />
                     </div>
 
-                    <span className="text-gray-500 text-sm whitespace-nowrap">{t('Hero.HeroMenu.add_more')}</span>
+                    {/* Error Message */}
+                    {touched.location && errors.location && (
+                      <p id="location-error-mobile" className="text-red-600 text-xs mt-2 ml-7 leading-tight">
+                        {errors.location}
+                      </p>
+                    )}
                   </motion.div>
 
                   {/* Property Type Select */}
@@ -252,7 +281,7 @@ export default function HeroSection() {
                   <motion.div
                     whileHover={{ scale: 1.02 }}
                     className="relative flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation()
                       setShowBudget(!showBudget)
                       setShowType(false)
@@ -266,10 +295,7 @@ export default function HeroSection() {
 
                     {/* Range Input Dropdown */}
                     {showBudget && (
-                      <div 
-                        className="absolute top-full left-0 mt-2 w-full bg-white rounded-lg shadow-md z-20 p-4"
-                        onClick={(e) => e.stopPropagation()}
-                      >
+                      <div className="absolute top-full left-0 mt-2 w-full bg-white rounded-lg shadow-md z-20 p-4" onClick={e => e.stopPropagation()}>
                         <div className="space-y-4">
                           <div className="flex items-center justify-between text-xs text-gray-600 mb-2">
                             <span>₹{(budgetRange[0] / 100000).toFixed(0)} Lakhs</span>
@@ -281,7 +307,7 @@ export default function HeroSection() {
                               min={budgetMin}
                               max={budgetMax}
                               value={budgetRange[0]}
-                              onChange={(e) => {
+                              onChange={e => {
                                 const newMin = Number(e.target.value)
                                 if (newMin < budgetRange[1]) {
                                   setBudgetRange([newMin, budgetRange[1]])
@@ -290,7 +316,9 @@ export default function HeroSection() {
                               }}
                               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#2a1407]"
                               style={{
-                                background: `linear-gradient(to right, #2a1407 0%, #2a1407 ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100}%, #e5e7eb ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100}%, #e5e7eb 100%)`
+                                background: `linear-gradient(to right, #2a1407 0%, #2a1407 ${
+                                  ((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100
+                                }%, #e5e7eb ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100}%, #e5e7eb 100%)`,
                               }}
                             />
                             <input
@@ -298,7 +326,7 @@ export default function HeroSection() {
                               min={budgetMin}
                               max={budgetMax}
                               value={budgetRange[1]}
-                              onChange={(e) => {
+                              onChange={e => {
                                 const newMax = Number(e.target.value)
                                 if (newMax > budgetRange[0]) {
                                   setBudgetRange([budgetRange[0], newMax])
@@ -348,19 +376,41 @@ export default function HeroSection() {
                 {/* -------------- Desktop UI -------------- */}
                 <div className="hidden sm:flex items-center gap-4 relative">
                   {/* Location */}
-                  <div className="flex items-center gap-2 flex-1 min-w-[140px] rounded-lg px-3 py-2">
-                    <MapPin className="w-5 h-5 text-gray-600" />
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    className={`p-3 rounded-lg transition 
+    ${touched.location && errors.location && 'border-red-500 bg-red-50'}
+  `}
+                  >
+                    <div className="flex items-center gap-2 w-full">
+                      <MapPin
+                        className={`w-5 h-5 
+        ${touched.location && errors.location ? 'text-red-600' : 'text-gray-600'}
+      `}
+                      />
 
-                    <input
-                      type="text"
-                      placeholder="Enter location"
-                      value={values.location}
-                      onChange={e => setFieldValue('location', e.target.value)}
-                      className="bg-transparent outline-none font-medium w-full placeholder:text-gray-400"
-                    />
+                      <input
+                        name="location"
+                        type="text"
+                        value={values.location}
+                        onChange={e => setFieldValue('location', e.target.value)}
+                        onBlur={handleBlur}
+                        placeholder="Enter location"
+                        aria-invalid={Boolean(touched.location && errors.location)}
+                        aria-describedby={touched.location && errors.location ? 'location-error-mobile' : undefined}
+                        className={`w-full bg-transparent outline-none font-medium placeholder-gray-400
+        ${touched.location && errors.location ? 'text-red-700' : 'text-black'}
+      `}
+                      />
+                    </div>
 
-                    {/* <span className="text-gray-500 text-sm whitespace-nowrap">{t('Hero.HeroMenu.add_more')}</span> */}
-                  </div>
+                    {/* Error Message */}
+                    {touched.location && errors.location && (
+                      <p id="location-error-mobile" className="text-red-600 text-xs mt-2 leading-tight">
+                        {errors.location}
+                      </p>
+                    )}
+                  </motion.div>
 
                   {/* Property Type */}
                   <div
@@ -402,7 +452,7 @@ export default function HeroSection() {
                   {/* Budget Range Input */}
                   <div
                     className="flex items-center space-x-2 flex-1 min-w-[140px] relative cursor-pointer"
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation()
                       setShowBudget(!showBudget)
                       setShowType(false)
@@ -413,10 +463,7 @@ export default function HeroSection() {
                     <ChevronDown className="w-4 h-4 text-gray-500" />
 
                     {showBudget && (
-                      <div 
-                        className="absolute top-full left-0 mt-2 w-80 bg-white rounded-lg shadow-md z-20 p-4"
-                        onClick={(e) => e.stopPropagation()}
-                      >
+                      <div className="absolute top-full left-0 mt-2 w-80 bg-white rounded-lg shadow-md z-20 p-4" onClick={e => e.stopPropagation()}>
                         <div className="space-y-4">
                           <div className="flex items-center justify-between text-xs text-gray-600 mb-2">
                             <span>₹{(budgetRange[0] / 100000).toFixed(0)} Lakhs</span>
@@ -428,7 +475,7 @@ export default function HeroSection() {
                               min={budgetMin}
                               max={budgetMax}
                               value={budgetRange[0]}
-                              onChange={(e) => {
+                              onChange={e => {
                                 const newMin = Number(e.target.value)
                                 if (newMin < budgetRange[1]) {
                                   setBudgetRange([newMin, budgetRange[1]])
@@ -437,7 +484,9 @@ export default function HeroSection() {
                               }}
                               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#2a1407]"
                               style={{
-                                background: `linear-gradient(to right, #2a1407 0%, #2a1407 ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100}%, #e5e7eb ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100}%, #e5e7eb 100%)`
+                                background: `linear-gradient(to right, #2a1407 0%, #2a1407 ${
+                                  ((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100
+                                }%, #e5e7eb ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100}%, #e5e7eb 100%)`,
                               }}
                             />
                             <input
@@ -445,7 +494,7 @@ export default function HeroSection() {
                               min={budgetMin}
                               max={budgetMax}
                               value={budgetRange[1]}
-                              onChange={(e) => {
+                              onChange={e => {
                                 const newMax = Number(e.target.value)
                                 if (newMax > budgetRange[0]) {
                                   setBudgetRange([budgetRange[0], newMax])

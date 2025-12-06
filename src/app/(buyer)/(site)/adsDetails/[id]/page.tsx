@@ -193,7 +193,7 @@ const AdsDetailsPage = () => {
   // adImages and formattedAddress are now defined at the top with useMemo
 
   return (
-    <motion.main initial="hidden" animate="visible" variants={staggerContainer} className="w-full bg-gray-50 py-8 px-4 md:px-10">
+    <motion.main initial="hidden" animate="visible" variants={staggerContainer} className="w-full bg-gray-50 py-8 px-4 mt-10 md:px-10">
       <div className="max-w-7xl mx-auto grid lg:grid-cols-3 gap-8">
         <motion.section variants={fadeInUp} className="lg:col-span-2 space-y-8">
           <motion.div variants={fadeInUp} className="bg-white shadow-md rounded-xl overflow-hidden">

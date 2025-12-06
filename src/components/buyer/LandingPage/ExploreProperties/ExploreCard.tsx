@@ -17,18 +17,14 @@ export default function ExploreCard({ item, variants }: ExploreCardProps) {
   const agentsCount = (item as any).createdByCount ?? (item as any).noOfAgents
 
   return (
-    <Link href="/properties_list/agency" className="block">
+    <Link href="/agents-list" className="block">
       <motion.div variants={variants}>
         <CometCard className="h-full rounded-2xl bg-white/95 border border-yellow-200 shadow-md overflow-hidden cursor-pointer">
           <div className="flex flex-col h-full">
             {/* Top content */}
             <div className="p-6 pb-8 flex-1">
-              <h3 className="text-lg font-semibold text-[#2a1407] mb-1 text-left">
-                {item.district}
-              </h3>
-              <p className="text-xs font-medium uppercase tracking-wide text-yellow-700 mb-3 text-left">
-                Price range
-              </p>
+              <h3 className="text-lg font-semibold text-[#2a1407] mb-1 text-left">{item.district}</h3>
+              <p className="text-xs font-medium uppercase tracking-wide text-yellow-700 mb-3 text-left">Price range</p>
               <p className="text-sm text-gray-700 mb-4 text-left">
                 {formatPrice(item.minAmount)} - {formatPrice(item.maxAmount)}
               </p>
@@ -68,9 +64,7 @@ export default function ExploreCard({ item, variants }: ExploreCardProps) {
             {/* Bottom badge strip with initial circle */}
             <div className="relative h-24 bg-gradient-to-r from-yellow-50 via-yellow-100 to-yellow-50 border-t border-yellow-100 flex items-end justify-center pb-4">
               <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full bg-gradient-to-br from-[#3b1804] to-[#2a1407] shadow-lg flex items-center justify-center">
-                <span className="text-2xl font-bold text-yellow-200">
-                  {initialLetter}
-                </span>
+                <span className="text-2xl font-bold text-yellow-200">{initialLetter}</span>
               </div>
             </div>
           </div>
