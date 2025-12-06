@@ -44,8 +44,7 @@ export default function ExploreProperties() {
   const display_value = filteredItems.slice(0, limit)
 
   // Safely get description; fall back to default text if the key is missing
-  let exploreDescription =
-    'Discover hand-picked districts with the best mix of homes, plots and investments in our chocolate & gold experience.'
+  let exploreDescription = 'Discover hand-picked districts with the best mix of homes, plots and investments in our chocolate & gold experience.'
   try {
     const translated = t('ExploreProperties.description')
     if (translated && translated !== 'ExploreProperties.description') {
@@ -54,40 +53,6 @@ export default function ExploreProperties() {
   } catch {
     // ignore missing translation error and use default text
   }
-  // const properties = [
-  //   {
-  //     city: 'Coimbatore',
-  //     priceRange: '₹ 2.24 L – 4.65 Cr',
-  //     count: 288,
-  //     rating: 5,
-  //     tags: ['Land', 'Plots', 'House', 'Commercial', 'Projects'],
-  //     image: '/Ellipse.png',
-  //   },
-  //   {
-  //     city: 'Chennai',
-  //     priceRange: '₹ 4.1 L – 5.2 Cr',
-  //     count: 310,
-  //     rating: 4,
-  //     tags: ['Flats', 'Villa', 'Commercial'],
-  //     image: '/Ellipse.png',
-  //   },
-  //   {
-  //     city: 'Bangalore',
-  //     priceRange: '₹ 3.5 L – 6.8 Cr',
-  //     count: 410,
-  //     rating: 5,
-  //     tags: ['Plots', 'Villa', 'House'],
-  //     image: '/Ellipse.png',
-  //   },
-  //   {
-  //     city: 'Hyderabad',
-  //     priceRange: '₹ 2.8 L – 5.0 Cr',
-  //     count: 250,
-  //     rating: 5,
-  //     tags: ['Land', 'Projects', 'Commercial'],
-  //     image: '/Ellipse.png',
-  //   },
-  // ]
 
   return (
     <section className="relative py-12 sm:py-16 lg:py-20 overflow-hidden bg-gray-50">
@@ -109,8 +74,7 @@ export default function ExploreProperties() {
       <div
         className="absolute inset-0 opacity-[0.015] z-[1] pointer-events-none"
         style={{
-          backgroundImage:
-            'linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)',
+          backgroundImage: 'linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)',
           backgroundSize: '50px 50px',
         }}
       />
@@ -132,9 +96,7 @@ export default function ExploreProperties() {
             className="inline-flex items-center gap-2 px-4 py-1.5 mb-3 rounded-full bg-gradient-to-r from-yellow-50 to-yellow-100/50 border border-yellow-200/50 backdrop-blur-sm shadow-sm"
           >
             <Sparkles className="w-3.5 h-3.5 text-yellow-600" />
-            <span className="text-xs font-semibold text-yellow-700 tracking-wide uppercase">
-              Explore by District
-            </span>
+            <span className="text-xs font-semibold text-yellow-700 tracking-wide uppercase">Explore by District</span>
           </motion.div>
 
           <motion.h2

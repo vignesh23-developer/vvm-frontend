@@ -17,11 +17,10 @@ export const appEndpoints = {
   updateUserProfile: '/profile',
   getUserHistory: '/profile/login-history',
 
-
   // KYC enpoints
   getUserKycStatus: '/kyc/status',
-  createKycOrder:'/kyc/initiate-order',
-  verifyKycOrder:'/kyc/verify-order',
+  createKycOrder: '/kyc/initiate-order',
+  verifyKycOrder: '/kyc/verify-order',
   initiateKyc: '/kyc/initiate',
   completeKyc: '/kyc/complete',
 
@@ -42,6 +41,7 @@ export const appEndpoints = {
   publicSearchProperties: '/search/properties',
   publicSearchPropertyFilters: '/search/properties-filters',
   publicSearchAgents: '/search/agents',
+  publicSearchAds: '/search/ads',
   publicSearchAgentsAutocomplete: '/search/agents/autocomplete',
   publicSearchAgentsFilters: '/search/agents/filters',
   getPropertiesByID: (propertyId: string) => `/properties/${propertyId}`,
@@ -164,7 +164,7 @@ export const appEndpoints = {
   createUpgradeOrder: (userId: string, subscriptionId: number) => `/users/${userId}/subscription/${subscriptionId}/upgrade/order`,
   createDowngradeOrder: (userId: string, subscriptionId: number) => `/users/${userId}/subscription/${subscriptionId}/downgrade/order`,
   cancelSubscription: (userId: string, subscriptionId: number) => `/users/${userId}/subscription/${subscriptionId}/cancel`,
-  
+
   // Addons
   getUserAddons: (userId: string) => `/users/${userId}/add-ons`,
   createAddonOrder: (userId: string) => `/users/${userId}/addons/order`,

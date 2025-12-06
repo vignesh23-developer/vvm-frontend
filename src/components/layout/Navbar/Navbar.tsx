@@ -70,7 +70,9 @@ interface NavItem {
 
 const DEFAULT_LINKS = [
   { label: 'home', href: '/', icon: Home },
-  { label: 'services', href: '/services', icon: Wrench },
+  { label: 'ads', href: '/ads-list', icon: Megaphone },
+  { label: 'agents', href: '/agents-list', icon: CircleUserRound },
+  // { label: 'services', href: '/services', icon: Wrench },
   { label: 'about_us', href: '/about', icon: Info },
   { label: 'help_center', href: '/help-center', icon: HelpCircle },
   { label: 'pricing', href: '/pricing', icon: Tag },

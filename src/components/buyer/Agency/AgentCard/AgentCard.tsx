@@ -7,7 +7,7 @@ import { Heart, Share, MapPin } from 'lucide-react'
 import Stats from '../../Stats/Stats'
 import Image from 'next/image'
 import Button from '@/components/ui/CustomComponent/Button/Button'
-import AgentCompanyProfile from '@/components/buyer/PropertiesListing/dto/agentCompanyProfile'
+import AgentCompanyProfile from '@/app/(buyer)/(site)/agents-list/(dto)/agentCompanyProfile'
 
 interface AgentCardProps extends AgentCompanyProfile {
   isFiltersOpen?: boolean
@@ -71,20 +71,12 @@ export default function AgentCard(props: AgentCardProps) {
             <div className="relative mb-3">
               <div className="absolute inset-0 rounded-[32px] bg-yellow-500/10 blur-xl" />
               <div className="relative overflow-hidden rounded-[32px] border border-yellow-100 shadow-md">
-                <Image
-                  src={companyLogo || '/agent.png'}
-                  alt={companyName}
-                  width={260}
-                  height={180}
-                  className="h-40 w-56 sm:w-64 object-cover"
-                />
+                <Image src={companyLogo || '/agent.png'} alt={companyName} width={260} height={180} className="h-40 w-56 sm:w-64 object-cover" />
               </div>
             </div>
 
             <div className="w-full space-y-1 text-center sm:text-left">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-yellow-700">
-                {language('PropertiesListCard.agent_name')}
-              </p>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-yellow-700">{language('PropertiesListCard.agent_name')}</p>
               <p className="text-sm sm:text-base font-bold text-gray-900">{contact_name}</p>
 
               <div className="mt-1 flex flex-wrap items-center justify-center sm:justify-start gap-1.5">
@@ -116,12 +108,7 @@ export default function AgentCard(props: AgentCardProps) {
                 </p>
               </div>
 
-              <motion.div
-                className="flex gap-2 text-gray-500"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-              >
+              <motion.div className="flex gap-2 text-gray-500" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
                 <button
                   type="button"
                   onClick={() => {
@@ -129,9 +116,7 @@ export default function AgentCard(props: AgentCardProps) {
                     handleFavorite?.(id)
                   }}
                   className={`flex h-9 w-9 items-center justify-center rounded-full border bg-white shadow-sm transition-colors ${
-                    liked
-                      ? 'border-red-300 text-red-500'
-                      : 'border-gray-200 hover:border-red-300 hover:text-red-500'
+                    liked ? 'border-red-300 text-red-500' : 'border-gray-200 hover:border-red-300 hover:text-red-500'
                   }`}
                 >
                   <Heart size={18} fill={liked ? 'currentColor' : 'none'} />
@@ -157,12 +142,7 @@ export default function AgentCard(props: AgentCardProps) {
             </motion.div>
 
             {/* Address */}
-            <motion.div
-              className="mt-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.25 }}
-            >
+            <motion.div className="mt-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}>
               <p className="flex items-center text-xs sm:text-sm text-gray-700">
                 <MapPin size={22} color="#d41111" className="mr-1.5 flex-shrink-0" />
                 <span className="line-clamp-2">{address_line}</span>
@@ -170,12 +150,7 @@ export default function AgentCard(props: AgentCardProps) {
             </motion.div>
 
             {/* Description */}
-            <motion.div
-              className="mt-2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
+            <motion.div className="mt-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
               <p className="text-xs sm:text-sm text-gray-600 line-clamp-3">{description}</p>
             </motion.div>
           </div>
@@ -192,9 +167,7 @@ export default function AgentCard(props: AgentCardProps) {
         transition={{ delay: 0.15, duration: 0.35 }}
       >
         <div className="text-left lg:text-right text-gray-200 space-y-1">
-          <p className="text-xs uppercase tracking-[0.16em] text-yellow-400/90 font-semibold">
-            Verified Partner
-          </p>
+          <p className="text-xs uppercase tracking-[0.16em] text-yellow-400/90 font-semibold">Verified Partner</p>
           <p className="text-sm font-medium text-white/90">
             {city}, {state}
           </p>
