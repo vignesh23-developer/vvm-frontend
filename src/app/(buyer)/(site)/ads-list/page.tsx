@@ -10,7 +10,7 @@ import Pagination from '@/components/ui/CustomComponent/Paginations/Pagination'
 import useAdsListHook from '@/app/(buyer)/(site)/ads-list/(hooks)/useAdsListHook'
 import { usePublicAdsSearch } from './(hooks)/usePublicAdsSearch'
 import { AdsListDto } from '@/app/(buyer)/(site)/ads-list/(dto)/AdsListDto'
-import AdvancedFilters from '@/components/buyer/PropertiesListing/AdvancedFilters'
+import AdvancedFilters from '@/components/ui/AdvancedFilter/AdvancedFilters'
 import AdsCard from '@/components/buyer/Ads/AdsCard'
 import toast from 'react-hot-toast'
 
