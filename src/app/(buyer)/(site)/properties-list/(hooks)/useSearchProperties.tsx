@@ -23,7 +23,6 @@ interface UsePropertiesOptions {
   limit?: number
   location?: string
   listingType?: string
-  listingType?: string
   type?: string
   budget?: string
 }
@@ -37,7 +36,6 @@ interface PropertiesFetcherResult {
 export function useSearchProperties(options: UsePropertiesOptions = {}) {
   const router = useRouter()
   const { page = 1, limit = 10, location, listingType, type, budget } = options
-  const { page = 1, limit = 10, location, listingType, type, budget } = options
 
   const queryParams = new URLSearchParams()
   if (location) {
@@ -45,9 +43,6 @@ export function useSearchProperties(options: UsePropertiesOptions = {}) {
   }
   if (listingType) {
     queryParams.set('listing_type', listingType)
-  }
-  if (type) {
-    queryParams.set('property_category_id', type)
   }
   if (listingType) {
     queryParams.set('listing_type', listingType)
@@ -62,25 +57,12 @@ export function useSearchProperties(options: UsePropertiesOptions = {}) {
     queryParams.set('page', String(page))
   }
 
-  if (budget?.trim()) {
-    const [minBudgetRaw, maxBudgetRaw] = budget.trim().split('-')
-    const parseBudgetValue = (value?: string) => {
-      if (value === undefined) return undefined
-      const numeric = Number(value.trim())
-      return Number.isNaN(numeric) ? undefined : numeric
-    }
-
-    const minBudget = parseBudgetValue(minBudgetRaw)
-    const maxBudget = parseBudgetValue(maxBudgetRaw)
-
-    if (minBudget !== undefined) {
-      queryParams.set('price_min', String(minBudget))
-    }
-
-    if (maxBudget !== undefined) {
-      queryParams.set('price_max', String(maxBudget))
-    }
-  }
+  // if (type) {
+  //   queryParams.set('type', type)
+  // }
+  // if (budget) {
+  //   queryParams.set('budget', budget)
+  // }
 
   const swrKey = queryParams.toString() ? `${appEndpoints.getSearchByProperties}?${queryParams.toString()}` : appEndpoints.getSearchByProperties
 

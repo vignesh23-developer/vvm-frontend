@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
-import * as Yup from 'yup'
 import { MapPin, Home, ChevronDown, IndianRupee, Search } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { motion, Variants } from 'framer-motion'
@@ -27,7 +26,6 @@ export default function HeroSection() {
   }
   interface SearchParams {
     location?: string
-    listingType?: string
     listingType?: string
     type?: string | number
     budget?: string
@@ -214,11 +212,9 @@ export default function HeroSection() {
 
                       <input
                         name="location"
-                        name="location"
                         type="text"
                         value={values.location}
                         onChange={e => setFieldValue('location', e.target.value)}
-                        onBlur={handleBlur}
                         onBlur={handleBlur}
                         placeholder="Enter location"
                         aria-invalid={Boolean(touched.location && errors.location)}
