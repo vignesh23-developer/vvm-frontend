@@ -96,7 +96,7 @@ export default function KYCCallbackPage() {
     }
 
     completeKyc()
-  }, [router, searchParams])
+  }, [router, searchParams, userData])
 
   const handleRetry = () => {
     

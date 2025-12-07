@@ -2,10 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
-import { getLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
-import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
 import toast from 'react-hot-toast'
 
 interface RazorpayAddonButtonProps {
@@ -38,6 +37,7 @@ export default function RazorpayAddonButton({
   buttonText = 'Purchase'
 }: RazorpayAddonButtonProps) {
   const router = useRouter()
+  const { user: userData } = useAuth()
   const [loading, setLoading] = useState(false)
   const [razorpayLoaded, setRazorpayLoaded] = useState(false)
 
@@ -73,14 +73,7 @@ export default function RazorpayAddonButton({
       setLoading(true)
 
       // Verify user authentication
-      const userData = getLocalStorageItem(LOCAL_STORAGE_NAME.userData) as {
-        id: string
-        firstName?: string
-        lastName?: string
-        email?: string
-      } | null
-
-      if (!userData || !userData.id) {
+      if (!userData || !(userData as { id?: string }).id) {
         toast.error('Please login to continue')
         router.push('/login')
         return

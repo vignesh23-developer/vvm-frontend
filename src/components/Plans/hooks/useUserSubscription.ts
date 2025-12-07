@@ -47,7 +47,7 @@ export function useUserSubscription() {
     }
 
     fetchSubscriptions()
-  }, [router])
+  }, [router, userData])
 
   return { activeSubscription, loading, error }
 }

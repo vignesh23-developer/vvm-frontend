@@ -5,8 +5,6 @@ import { X, Package } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useSubscriptionData } from './hooks/useSubscriptionData'
 import { SubscriptionCard } from './SubscriptionCard'
-import { appEndpoints } from '@/services/endpoints'
-import { postMethod, getMethod } from '@/services/service'
 
 /**
  * Main view subscriptions client component
