@@ -44,9 +44,6 @@ export function useSearchProperties(options: UsePropertiesOptions = {}) {
   if (listingType) {
     queryParams.set('listing_type', listingType)
   }
-  if (listingType) {
-    queryParams.set('listing_type', listingType)
-  }
   if (type) {
     queryParams.set('property_category_id', type)
   }
