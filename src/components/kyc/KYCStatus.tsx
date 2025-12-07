@@ -45,7 +45,7 @@ export default function KYCStatus() {
     fetchKycStatus()
   }, [])
 
-  const canVerifyKyc =
+  const directCallToKyc =
   activeSubscription?.isActive == true ||
   (kycStatus?.latestAttempt?.status === 'PENDING');
 
@@ -58,7 +58,7 @@ export default function KYCStatus() {
         redirectUrl,
         verificationType: 'AADHAAR',
         entityType: 'USER',
-        directCall:  canVerifyKyc ? false : true
+        directCall:  directCallToKyc
       })
 
       if (response.error) {
@@ -168,7 +168,7 @@ export default function KYCStatus() {
       </div>
 
       <div className="mt-4">
-        {canVerifyKyc ? (
+        {directCallToKyc ? (
           <button
             onClick={handleInitiateKyc}
             disabled={initiating}
