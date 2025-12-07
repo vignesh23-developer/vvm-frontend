@@ -13,13 +13,18 @@ export default function KYCCallbackPage() {
   const searchParams = useSearchParams()
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
   const [message, setMessage] = useState('Processing your KYC verification...');
-  const { user:userData} = useAuth();
+  const { user: userData, loading: authLoading } = useAuth();
   
   useEffect(() => {
     const completeKyc = async () => {
       try {
+        // Wait for auth to finish loading
+        if (authLoading) {
+          setMessage('Verifying authentication...')
+          return
+        }
+
         // Check if user is logged in
-        
         if (!userData || !userData.id) {
           setStatus('error')
           setMessage('Please login to continue')
@@ -96,7 +101,7 @@ export default function KYCCallbackPage() {
     }
 
     completeKyc()
-  }, [router, searchParams, userData])
+  }, [router, searchParams, userData, authLoading])
 
   const handleRetry = () => {
     
