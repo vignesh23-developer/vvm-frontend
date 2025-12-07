@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
-import { getLocalStorageItem, setLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
-import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
+import { setLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
 import toast from 'react-hot-toast'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 
 interface KYCPaymentProps {
   onClose?: () => void
@@ -21,7 +21,9 @@ declare global {
 export default function KYCPayment({ onClose }: KYCPaymentProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [razorpayLoaded, setRazorpayLoaded] = useState(false)
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+
+  const { user:userData} = useAuth();
 
   // Load Razorpay script
   useEffect(() => {
@@ -55,15 +57,6 @@ export default function KYCPayment({ onClose }: KYCPaymentProps) {
   const handlePayment = async () => {
     try {
       setLoading(true)
-
-      // Get user ID from localStorage
-      const userData = getLocalStorageItem(LOCAL_STORAGE_NAME.userData) as {
-        id: string
-        firstName?: string
-        lastName?: string
-        email?: string
-      } | null
-      
       if (!userData || !userData.id) {
         toast.error('Please login to continue')
         router.push('/login')
