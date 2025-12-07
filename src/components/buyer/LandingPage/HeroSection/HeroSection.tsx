@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
+import * as Yup from 'yup'
 import { MapPin, Home, ChevronDown, IndianRupee, Search } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { motion, Variants } from 'framer-motion'
@@ -26,6 +27,7 @@ export default function HeroSection() {
   }
   interface SearchParams {
     location?: string
+    listingType?: string
     listingType?: string
     type?: string | number
     budget?: string
@@ -81,6 +83,7 @@ export default function HeroSection() {
   }
 
   const handleSearch = (values: SearchParams) => {
+    // const typeName = categories?.find(c => String(c.id) === String(values.type))?.name ?? ''
     // const typeName = categories?.find(c => String(c.id) === String(values.type))?.name ?? ''
     const queryParams = new URLSearchParams({
       location: encodeURIComponent(values.location || ''),
@@ -211,9 +214,11 @@ export default function HeroSection() {
 
                       <input
                         name="location"
+                        name="location"
                         type="text"
                         value={values.location}
                         onChange={e => setFieldValue('location', e.target.value)}
+                        onBlur={handleBlur}
                         onBlur={handleBlur}
                         placeholder="Enter location"
                         aria-invalid={Boolean(touched.location && errors.location)}
@@ -366,6 +371,7 @@ export default function HeroSection() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     className="flex items-center justify-center gap-2 bg-black text-white py-3 rounded-xl hover:bg-gray-800 transition font-medium"
+                    disabled={!values.location || (!!touched.location && !!errors.location)}
                     onClick={() => handleSubmit()}
                   >
                     <Search className="w-5 h-5" />
@@ -538,6 +544,7 @@ export default function HeroSection() {
                       onClick={() => handleSubmit()}
                       icon={<Search className="w-5 h-5" />}
                       className="flex items-center gap-2 bg-black text-white px-7 py-3 rounded-xl hover:bg-gray-800 transition"
+                      disabled={!values.location || (!!touched.location && !!errors.location)}
                     >
                       {t('Hero.HeroMenu.search')}
                     </Button>

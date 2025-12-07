@@ -23,6 +23,7 @@ interface UsePropertiesOptions {
   limit?: number
   location?: string
   listingType?: string
+  listingType?: string
   type?: string
   budget?: string
 }
@@ -36,10 +37,17 @@ interface PropertiesFetcherResult {
 export function useSearchProperties(options: UsePropertiesOptions = {}) {
   const router = useRouter()
   const { page = 1, limit = 10, location, listingType, type, budget } = options
+  const { page = 1, limit = 10, location, listingType, type, budget } = options
 
   const queryParams = new URLSearchParams()
   if (location) {
     queryParams.set('q', location)
+  }
+  if (listingType) {
+    queryParams.set('listing_type', listingType)
+  }
+  if (type) {
+    queryParams.set('property_category_id', type)
   }
   if (listingType) {
     queryParams.set('listing_type', listingType)

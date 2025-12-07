@@ -11,7 +11,7 @@ import { DesktopPlanTable } from './DesktopPlanTable'
  * Handles subscription state and renders mobile/desktop views
  */
 export default function PricingPlansClient({ plans, featuresList, apiPlans }: PricingPlansClientProps) {
-  const { activeSubscription, loading, error } = useUserSubscription()
+  const { activeSubscription, error } = useUserSubscription()
 
   // Enrich plans with planAction field based on active subscription
   const enrichedPlans = plans.map(plan => {
