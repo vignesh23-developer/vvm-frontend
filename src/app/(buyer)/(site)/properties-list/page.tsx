@@ -103,7 +103,6 @@ const PropertiesListPage = () => {
     location: decodeURIComponent(searchParams.get('location') || ''),
     listingType: decodeURIComponent(searchParams.get('listingType') || ''),
     type: decodeURIComponent(searchParams.get('type') || ''),
-    listingType: decodeURIComponent(searchParams.get('listingType') || ''),
     budget: decodeURIComponent(searchParams.get('budget') || ''),
   }
 
