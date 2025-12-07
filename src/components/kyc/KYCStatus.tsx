@@ -45,6 +45,10 @@ export default function KYCStatus() {
     fetchKycStatus()
   }, [])
 
+  const canVerifyKyc =
+  activeSubscription?.isActive == true ||
+  (kycStatus?.latestAttempt?.status === 'PENDING');
+
   const handleInitiateKyc = async () => {
     try {
       setInitiating(true)
@@ -53,7 +57,8 @@ export default function KYCStatus() {
       const response = await postMethod(appEndpoints.initiateKyc, {
         redirectUrl,
         verificationType: 'AADHAAR',
-        entityType: 'USER'
+        entityType: 'USER',
+        directCall:  canVerifyKyc ? false : true
       })
 
       if (response.error) {
@@ -103,9 +108,7 @@ export default function KYCStatus() {
     )
   }
 
-  const canVerifyKyc =
-  !!activeSubscription ||
-  (kycStatus?.latestAttempt?.status === 'PENDING');
+
 
 
   // If KYC is verified, show completion message
