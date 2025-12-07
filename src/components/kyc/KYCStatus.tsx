@@ -103,6 +103,11 @@ export default function KYCStatus() {
     )
   }
 
+  const canVerifyKyc =
+  !!activeSubscription ||
+  (kycStatus?.latestAttempt?.status === 'PENDING');
+
+
   // If KYC is verified, show completion message
   if (kycStatus?.isVerified) {
     return (
@@ -160,7 +165,7 @@ export default function KYCStatus() {
       </div>
 
       <div className="mt-4">
-        {activeSubscription ? (
+        {canVerifyKyc ? (
           <button
             onClick={handleInitiateKyc}
             disabled={initiating}
