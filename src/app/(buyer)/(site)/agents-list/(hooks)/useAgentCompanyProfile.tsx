@@ -27,7 +27,7 @@ export default function useAgentCompanyProfile(options: AgentSearchOptions = {})
   const query = new URLSearchParams({
     page: String(page),
     limit: String(limit),
-    activeOnly: 'true',
+    // activeOnly: 'true',
   })
 
   const trimmedSearch = search?.trim()
@@ -38,13 +38,13 @@ export default function useAgentCompanyProfile(options: AgentSearchOptions = {})
   const swrKey = `${appEndpoints.publicSearchAgents}?${query.toString()}`
 
   const {
-    data: agentCompanyProfileFetchVal,
+    data: agentCompanyProfileFetchValdata,
     error: agentCompanyProfileFetchErr,
     isLoading: agentCompanyProfileFetchLoader,
     mutate: agentCompanyProfileRefresh,
   } = useSWR<ResponseDTO>(swrKey, fetcher)
 
-  const payload = agentCompanyProfileFetchVal?.data as AgentSearchPayload | AgentCompanyProfile[] | undefined
+  const payload = agentCompanyProfileFetchValdata?.data?.data as AgentSearchPayload | AgentCompanyProfile[] | undefined
 
   let agentCompanyProfileResult: AgentCompanyProfile[] = []
   let totalAgents = 0
