@@ -13,11 +13,14 @@ export default function KYCCallbackPage() {
   const searchParams = useSearchParams()
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
   const [message, setMessage] = useState('Processing your KYC verification...');
-  const { user: userData, loading: authLoading } = useAuth();
+  const { user: userData, loading: authLoading, refreshAuth } = useAuth();
   
   useEffect(() => {
     const completeKyc = async () => {
       try {
+        // Refresh auth to ensure cookies are loaded after external redirect
+        await refreshAuth();
+        
         // Wait for auth to finish loading
         if (authLoading) {
           setMessage('Verifying authentication...')
@@ -100,8 +103,8 @@ export default function KYCCallbackPage() {
       }
     }
 
-    completeKyc()
-  }, [router, searchParams, userData, authLoading])
+      completeKyc()
+  }, [router, searchParams, userData, authLoading, refreshAuth])
 
   const handleRetry = () => {
     
