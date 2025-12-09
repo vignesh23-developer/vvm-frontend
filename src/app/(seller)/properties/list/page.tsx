@@ -154,24 +154,22 @@ export default function PropertiesPage() {
 
     if (onlyAdmin) {
       // place change-status action at the front
-      base.unshift(
-        {
-          icon: RefreshCcw,
-          onClick: (row: PropertiesTableRow) => {
-            void handleStatusChange(row.id)
-          },
-          color: '#2a1407',
-          title: 'Change Status',
+      base.unshift({
+        icon: RefreshCcw,
+        onClick: (row: PropertiesTableRow) => {
+          void handleStatusChange(row.id)
         },
-        {
-          icon: Trash2, // correct for delete
-          onClick: (row: PropertiesTableRow) => {
-            void handleDelete(row.id, !row.isActive)
-          },
-          color: '#e02424',
-          title: 'Delete',
+        color: '#2a1407',
+        title: 'Change Status',
+      })
+      base.push({
+        icon: Trash2, // correct for delete
+        onClick: (row: PropertiesTableRow) => {
+          void handleDelete(row.id, !row.isActive)
         },
-      )
+        color: '#e02424',
+        title: 'Delete',
+      })
     }
 
     return base
