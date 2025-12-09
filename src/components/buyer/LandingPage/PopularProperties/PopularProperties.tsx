@@ -253,17 +253,31 @@ export default function PopularProperties({ district, packageType }: PopularProp
                     transition={{ duration: 0.5, ease: 'easeOut' }}
                     className="w-full h-full"
                   >
-                    {item?.media && item.media.length > 0 ? (
-                      <Image
-                        src={item.media[0].url || '/villa.png'}
-                        alt={item.title || 'Property'}
-                        fill
-                        className="object-cover"
-                        priority={index < 3}
-                      />
-                    ) : (
-                      <Image src="/villa.png" alt="Property" fill className="object-cover" />
-                    )}
+                    {(() => {
+                      const primaryMedia = item?.media?.find(m => m.is_primary === true) || null
+
+                      if (!primaryMedia) {
+                        return <Image src="/villa.png" alt="Property" fill className="object-cover" />
+                      }
+
+                      // If primary is an image
+                      if (primaryMedia.media_type === 'IMAGE') {
+                        return (
+                          <Image
+                            src={primaryMedia.url || '/villa.png'}
+                            alt={item.title || 'Property'}
+                            fill
+                            className="object-cover"
+                            priority={index < 3}
+                          />
+                        )
+                      }
+
+                      // If primary is a video
+                      if (primaryMedia.media_type === 'VIDEO') {
+                        return <video src={primaryMedia.url} className="object-cover w-full h-full" autoPlay muted loop />
+                      }
+                    })()}
                   </motion.div>
 
                   {/* Shimmer Effect */}

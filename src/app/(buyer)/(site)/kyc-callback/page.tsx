@@ -5,20 +5,29 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import { getLocalStorageItem, removeLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
-import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
 import toast from 'react-hot-toast'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 
 export default function KYCCallbackPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
-  const [message, setMessage] = useState('Processing your KYC verification...')
-
+  const [message, setMessage] = useState('Processing your KYC verification...');
+  const { user: userData, loading: authLoading, refreshAuth } = useAuth();
+  
   useEffect(() => {
     const completeKyc = async () => {
       try {
+        // Refresh auth to ensure cookies are loaded after external redirect
+        await refreshAuth();
+        
+        // Wait for auth to finish loading
+        if (authLoading) {
+          setMessage('Verifying authentication...')
+          return
+        }
+
         // Check if user is logged in
-        const userData = getLocalStorageItem(LOCAL_STORAGE_NAME.userData) as { id: string } | null
         if (!userData || !userData.id) {
           setStatus('error')
           setMessage('Please login to continue')
@@ -94,11 +103,11 @@ export default function KYCCallbackPage() {
       }
     }
 
-    completeKyc()
-  }, [router, searchParams])
+      completeKyc()
+  }, [router, searchParams, userData, authLoading, refreshAuth])
 
   const handleRetry = () => {
-    const userData = getLocalStorageItem(LOCAL_STORAGE_NAME.userData) as { id: string } | null
+    
     if (userData && userData.id) {
       router.push(`/profile/${userData.id}`)
     } else {

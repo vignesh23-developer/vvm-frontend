@@ -12,7 +12,7 @@ export const onSetCookies = async (cookiesName: string, data: any) => {
       httpOnly: true,
       secure: true,
       path: '/',
-      sameSite: 'strict',
+      sameSite: 'lax',
     })
     return { isError: false, message: 'cookies set successfully' }
   } catch (e: any) {

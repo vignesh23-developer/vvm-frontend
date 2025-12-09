@@ -14,7 +14,7 @@ const aboutLinks = [
   { label: 'careers', href: '/careers' },
   { label: 'resources', href: '/resources' },
   { label: 'agents', href: '/agents' },
-  { label: 'services_providers', href: '/services-providers' },
+  { label: 'services_providers', href: '/services-provider' },
 ]
 
 const supportLinks = [

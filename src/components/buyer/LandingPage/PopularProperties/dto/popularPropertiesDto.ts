@@ -9,5 +9,5 @@ export interface PopularPropertyDto {
   property_size_unit: string | null
   price: string
   image: string
-  media: { url: string; alt?: string; is_primary: boolean }[]
+  media: { url: string; alt?: string; is_primary: boolean; media_type: 'IMAGE' | 'VIDEO' }[]
 }

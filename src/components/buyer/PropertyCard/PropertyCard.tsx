@@ -128,19 +128,54 @@ export default function PropertyCard(props: PropertiesCardProps) {
   }
 
   // Find primary image or fall back to first image
-  const getImageUrl = () => {
-    // Use images prop if available, otherwise fall back to media prop
-    const imageArray = (props as any).images || media || []
-    if (imageArray.length === 0) return '/villa.png'
+  // const getImageUrl = () => {
+  //   // Use images prop if available, otherwise fall back to media prop
+  //   const imageArray = (props as any).images || media || []
+  //   if (imageArray.length === 0) return '/villa.png'
 
-    // Find primary image or fall back to first image
-    const primary = imageArray.find((img: any) => img.is_primary)
-    if (primary?.url) return primary.url
-    if (imageArray[0]?.url) return imageArray[0].url
-    return '/villa.png'
+  //   // Find primary image or fall back to first image
+  //   const primary = imageArray.find((img: any) => img.is_primary)
+  //   if (primary?.url) return primary.url
+  //   if (imageArray[0]?.url) return imageArray[0].url
+  //   return '/villa.png'
+  // }
+
+  const getMediaUrls = () => {
+    // Use images/videos from props or fallback to media array
+    const imageArray = (props as any).images || media || []
+    const videoArray = (props as any).videos || media || []
+
+    // ---------- IMAGE ----------
+    let imageUrl = '/villa.png' // default
+
+    if (imageArray.length > 0) {
+      const primaryImage = imageArray.find((img: any) => img.is_primary)
+      if (primaryImage?.url) {
+        imageUrl = primaryImage.url
+      } else if (imageArray[0]?.url) {
+        imageUrl = imageArray[0].url
+      }
+    }
+
+    // ---------- VIDEO ----------
+    let videoUrl: string | null = null
+
+    if (videoArray.length > 0) {
+      const primaryVideo = videoArray.find((vid: any) => vid.is_primary)
+      if (primaryVideo?.url) {
+        videoUrl = primaryVideo.url
+      } else if (videoArray[0]?.url) {
+        videoUrl = videoArray[0].url
+      }
+    }
+
+    return {
+      image: imageUrl,
+      video: videoUrl,
+    }
   }
 
-  const imageUrl = getImageUrl()
+  const imageUrl = getMediaUrls()
 
   return (
     <motion.div
@@ -202,7 +237,7 @@ const ImageSection = ({
   operatingSince,
   labels,
 }: {
-  imageUrl: string
+  imageUrl: string | { image: string; video: string | null }
   title: string
   agent: string
   operatingSince: string
@@ -214,7 +249,17 @@ const ImageSection = ({
     initial="rest"
     whileHover="hover"
   >
-    <Image src={imageUrl} alt={title} width={260} height={180} className="h-40 w-full object-cover sm:w-[260px]" />
+    {typeof imageUrl === 'string' || !imageUrl.video ? (
+      <Image
+        src={typeof imageUrl === 'string' ? imageUrl : imageUrl.image}
+        alt={title}
+        width={260}
+        height={180}
+        className="h-40 w-full object-cover sm:w-[260px]"
+      />
+    ) : (
+      <video src={imageUrl.video} autoPlay muted loop className="h-40 w-full object-cover sm:w-[260px]" />
+    )}
     <div className="w-full px-3 py-2">
       <p className="text-sm font-semibold text-gray-900">
         {labels.agent}: {agent}

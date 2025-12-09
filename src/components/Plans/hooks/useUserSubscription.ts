@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { getLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
-import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
 import { UserSubscription } from '@/types/subscription'
 import { getMethod } from '@/services/service'
 import { ResponseDTO } from '@/components/dto/response_dto'
@@ -49,7 +47,7 @@ export function useUserSubscription() {
     }
 
     fetchSubscriptions()
-  }, [router])
+  }, [router, userData])
 
   return { activeSubscription, loading, error }
 }

@@ -15,12 +15,7 @@ export default function Step2Location({ formik }: Step2LocationProps) {
   const { values, errors, touched, handleChange, setFieldValue } = formik
   const [isMapView, setIsMapView] = useState<boolean>(false)
 
-  const handleLocationSelect = (
-    lat: number,
-    lng: number,
-    address: AddressParts,
-    fullAddress: string,
-  ) => {
+  const handleLocationSelect = (lat: number, lng: number, address: AddressParts, fullAddress: string) => {
     setFieldValue('latitude', lat)
     setFieldValue('longitude', lng)
     setFieldValue('district', address?.district ?? '')
@@ -92,7 +87,6 @@ export default function Step2Location({ formik }: Step2LocationProps) {
             <FormikTextField
               label="Postal Code"
               name="postal_code"
-              readOnly
               placeholder="Enter postal code"
               className="w-full p-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed text-gray-700 focus:outline-none focus:ring-0 focus:border-gray-300"
             />
@@ -144,7 +138,8 @@ export default function Step2Location({ formik }: Step2LocationProps) {
 
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-sm text-blue-700">
-            <strong>Tip:</strong> Providing accurate location details helps potential buyers find your ad more easily. Use the search box or map picker to fill the form automatically.
+            <strong>Tip:</strong> Providing accurate location details helps potential buyers find your ad more easily. Use the search box or map
+            picker to fill the form automatically.
           </p>
         </div>
       </div>

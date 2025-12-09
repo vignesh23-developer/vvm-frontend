@@ -173,4 +173,10 @@ export const appEndpoints = {
   getFeatureAccess: (userId: string, featureName: string) => `/users/${userId}/features/${featureName}/access`,
   getFeatureUsage: (userId: string) => `/users/${userId}/features/usage`,
   recordFeatureUsage: (userId: string, featureName: string) => `/users/${userId}/features/${featureName}/usage`,
+
+  // Payment Transactions
+  getUserTransactions: '/payment-transactions/users/transactions',
+  getAllTransactions: '/payment-transactions/transactions',
+  // User Wallets
+  getUserWalletBalance: (userId: string) => `/user-wallets/users/${userId}/balance`,
 }

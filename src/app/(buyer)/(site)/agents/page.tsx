@@ -3,6 +3,7 @@
 import React, { useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import MarkdownRenderer from '@/components/ui/MarkdownTextFormat/MarkdownRenderer'
+import OnThisStaticPages from '@/components/common/OnThisStaticPages'
 
 function slugify(text: string) {
   return text
@@ -56,35 +57,7 @@ const Agents = () => {
           <main className="md:col-span-3 prose max-w-none">
             <MarkdownRenderer content={content} />
           </main>
-
-          <aside className="md:col-span-1 hidden md:block">
-            <div className="sticky top-24 border border-yellow-200 rounded-md p-4 bg-gradient-to-br from-yellow-50 to-yellow-100/30">
-              <h3 className="text-sm font-semibold mb-3 text-[#2a1407]">{tocLabel}</h3>
-              <nav>
-                <ul className="space-y-2 text-sm">
-                  {toc.map(item => (
-                    <li key={item.id} style={{ paddingLeft: `${(item.level - 1) * 12}px` }}>
-                      <a
-                        href={`#${item.id}`}
-                        className="text-gray-700 hover:text-yellow-700"
-                        onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
-                          e.preventDefault()
-                          const el = document.getElementById(item.id)
-                          if (!el) return
-                          el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                          el.setAttribute('tabindex', '-1')
-                          ;(el as HTMLElement).focus()
-                          if (history && history.replaceState) history.replaceState(null, '', `#${item.id}`)
-                        }}
-                      >
-                        {item.text}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-            </div>
-          </aside>
+          <OnThisStaticPages tocLabel={tocLabel} toc={toc} />
         </div>
       </div>
     </div>
