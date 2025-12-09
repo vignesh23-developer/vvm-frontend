@@ -56,47 +56,55 @@ export default function Testimonials() {
     return () => clearTimeout(timer)
   }, [])
 
-  // Transform feedback data to match AnimatedTestimonials format
+  // Transform feedback data to match AnimatedTestimonials format - Tamil Nadu references
   const feedback = [
     {
       id: 1,
-      name: 'Sarah Johnson',
-      designation: 'Property Buyer',
-      quote: 'One of the standout qualities of this platform is their commitment to understanding client needs. This dedication to service and attention to detail sets them apart in the real estate industry.',
+      name: 'Priya S.',
+      designation: 'First-time Home Buyer',
+      quote: 'One of the standout qualities of this platform is their commitment to understanding client needs. This dedication to service and attention to detail sets them apart in the real estate industry. Found my dream home in Coimbatore!',
       rating: 5,
-      src: '',
+      src: '/testimonials/priya.jpg',
     },
     {
       id: 2,
-      name: 'Michael Chen',
-      designation: 'Real Estate Investor',
-      quote: 'This dedication to research and knowledge-building sets them apart from the competition. I found exactly what I was looking for with their help.',
+      name: 'Senthil Kumar',
+      designation: 'Land Investor',
+      quote: 'This dedication to research and knowledge-building sets them apart from the competition. I found exactly what I was looking for with their help. Great investment opportunities in Tamil Nadu!',
       rating: 5,
-      src: '',
+      src: '/testimonials/senthil.jpg',
     },
     {
       id: 3,
-      name: 'Emily Rodriguez',
-      designation: 'First-time Home Buyer',
-      quote: 'Their professionalism and eye for detail impressed us throughout the entire process. The team made buying our first home a breeze!',
+      name: 'Divya R.',
+      designation: 'Rental Customer',
+      quote: 'Their professionalism and eye for detail impressed us throughout the entire process. The team made finding a rental property in Chennai a breeze! Verified listings gave us peace of mind.',
       rating: 5,
-      src: '',
+      src: '/testimonials/divya.jpg',
     },
     {
       id: 4,
-      name: 'David Thompson',
+      name: 'Rajesh M.',
       designation: 'Property Developer',
-      quote: 'Exceptional service and deep market knowledge. They helped us find the perfect investment properties with great returns.',
+      quote: 'Exceptional service and deep market knowledge. They helped us find the perfect investment properties with great returns. The platform connects us with genuine buyers.',
       rating: 5,
-      src: '',
+      src: '/testimonials/rajesh.jpg',
     },
     {
       id: 5,
-      name: 'Lisa Anderson',
+      name: 'Lakshmi K.',
       designation: 'Home Seller',
-      quote: 'The platform made selling my property so easy. Professional, efficient, and always available to answer questions. Highly recommended!',
+      quote: 'The platform made selling my property in Madurai so easy. Professional, efficient, and always available to answer questions. Highly recommended for all property transactions!',
       rating: 5,
-      src: '',
+      src: '/testimonials/lakshmi.jpg',
+    },
+    {
+      id: 6,
+      name: 'Arun V.',
+      designation: 'Commercial Space Buyer',
+      quote: 'Found the perfect commercial space in Trichy through this platform. The verification process and agent support made the entire transaction smooth and transparent.',
+      rating: 5,
+      src: '/testimonials/arun.jpg',
     },
   ]
 

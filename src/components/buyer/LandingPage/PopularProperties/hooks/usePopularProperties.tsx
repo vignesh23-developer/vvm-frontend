@@ -20,6 +20,8 @@ interface ApiResponse<T> {
 interface UsePopularPropertiesOptions {
   page?: number
   limit?: number
+  district?: string
+  packageType?: string
 }
 
 interface PopularPropertiesFetcherResult {
@@ -62,7 +64,7 @@ const fetchPopularProperties = async (url: string): Promise<PopularPropertiesFet
 
 export function usePopularProperties(options: UsePopularPropertiesOptions = {}) {
   const router = useRouter()
-  const { page = 1, limit = 6 } = options
+  const { page = 1, limit = 6, district, packageType } = options
 
   const queryParams = new URLSearchParams()
 
@@ -72,6 +74,14 @@ export function usePopularProperties(options: UsePopularPropertiesOptions = {}) 
 
   if (page != null) {
     queryParams.set('page', String(page))
+  }
+
+  // If district is provided, filter by district and package type (Platinum)
+  if (district) {
+    queryParams.set('district', district)
+    if (packageType) {
+      queryParams.set('package_type', packageType)
+    }
   }
 
   const swrKey = queryParams.toString() ? `${appEndpoints.getAllPropertiesList}?${queryParams.toString()}` : appEndpoints.getAllPropertiesList

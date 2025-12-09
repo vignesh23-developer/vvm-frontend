@@ -28,6 +28,7 @@ import {
   Crown,
   BadgeIndianRupee,
   ChevronRight,
+  MoreHorizontal,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTranslationContext } from '@/hooks/Translation/TranslationProvider'
@@ -181,10 +182,17 @@ export default function Navbar({
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false)
+  const [visibleNavItems, setVisibleNavItems] = useState<typeof navLinks>(navLinks)
+  const [overflowNavItems, setOverflowNavItems] = useState<typeof navLinks>([])
   const [companyProfileId, setCompanyProfileId] = useState<any | null>(null)
   const [openSections, setOpenSections] = useState<Set<string>>(new Set())
   const gripRef = useRef<HTMLDivElement | null>(null)
   const profileRef = useRef<HTMLDivElement | null>(null)
+  const moreMenuRef = useRef<HTMLDivElement | null>(null)
+  const navContainerRef = useRef<HTMLDivElement | null>(null)
+  const navItemsRefs = useRef<(HTMLDivElement | null)[]>([])
+  const rightSectionRef = useRef<HTMLDivElement | null>(null)
   const toggleSection = (key: string) =>
     setOpenSections(prev => {
       const next = new Set(prev)
@@ -227,7 +235,98 @@ export default function Navbar({
 
   console.log('userValue in Navbar useEffect:', user, companyProfileId)
 
-  // Close grip and profile dropdowns when clicking outside or pressing Escape
+  // Calculate visible nav items based on available space
+  useEffect(() => {
+    const calculateVisibleItems = () => {
+      if (!navContainerRef.current || !navLinks || navLinks.length === 0) {
+        // Initialize with all items visible, will recalculate after render
+        setVisibleNavItems(navLinks)
+        setOverflowNavItems([])
+        return
+      }
+
+      // Wait for next frame to ensure DOM is updated
+      requestAnimationFrame(() => {
+        if (!navContainerRef.current) return
+
+        const container = navContainerRef.current
+        const containerRect = container.getBoundingClientRect()
+        const containerWidth = containerRect.width
+
+        // Get logo width
+        const logoElement = container.querySelector('a[href="/"]')
+        const logoWidth = logoElement ? logoElement.getBoundingClientRect().width + 32 : 200
+
+        // Get right section width (language, grip, profile)
+        const rightSectionWidth = rightSectionRef.current ? rightSectionRef.current.getBoundingClientRect().width + 32 : 200
+
+        const availableWidth = containerWidth - logoWidth - rightSectionWidth - 64 // padding
+        const moreButtonWidth = 90 // Width for "More" button with icon and text
+        const gapWidth = 16 // Gap between items
+
+        let totalWidth = 0
+        const visible: typeof navLinks = []
+        const overflow: typeof navLinks = []
+
+        // Measure all items
+        navItemsRefs.current.forEach((itemRef, index) => {
+          if (!itemRef || index >= navLinks.length) return
+
+          const itemRect = itemRef.getBoundingClientRect()
+          const itemWidth = itemRect.width + gapWidth
+
+          // Check if item fits (account for "More" button if we already have overflow)
+          const needsMoreButton = overflow.length > 0 || (totalWidth + itemWidth + moreButtonWidth > availableWidth && index < navLinks.length - 1)
+          const wouldFit = totalWidth + itemWidth + (needsMoreButton ? moreButtonWidth : 0) <= availableWidth
+
+          if (wouldFit) {
+            visible.push(navLinks[index])
+            totalWidth += itemWidth
+          } else {
+            overflow.push(navLinks[index])
+          }
+        })
+
+        // If we have overflow but no visible items, show at least one
+        if (visible.length === 0 && navLinks.length > 0) {
+          visible.push(navLinks[0])
+          overflow.shift()
+        }
+
+        // For Tamil language, force only 3 items visible, rest in "More"
+        if (locale === 'ta' && navLinks.length > 3) {
+          const tamilVisible = navLinks.slice(0, 3)
+          const tamilOverflow = navLinks.slice(3)
+          setVisibleNavItems(tamilVisible)
+          setOverflowNavItems(tamilOverflow)
+        } else {
+          setVisibleNavItems(visible)
+          setOverflowNavItems(overflow)
+        }
+      })
+    }
+
+    // Initial calculation
+    const timeoutId = setTimeout(calculateVisibleItems, 100)
+
+    // Calculate on resize
+    window.addEventListener('resize', calculateVisibleItems)
+    const resizeObserver = new ResizeObserver(() => {
+      calculateVisibleItems()
+    })
+
+    if (navContainerRef.current) {
+      resizeObserver.observe(navContainerRef.current)
+    }
+
+    return () => {
+      clearTimeout(timeoutId)
+      window.removeEventListener('resize', calculateVisibleItems)
+      resizeObserver.disconnect()
+    }
+  }, [navLinks, locale]) // Recalculate when language changes
+
+  // Close grip, profile, and more menu dropdowns when clicking outside or pressing Escape
   useEffect(() => {
     function onDocumentClick(e: MouseEvent | TouchEvent) {
       const target = e.target as Node
@@ -236,6 +335,9 @@ export default function Navbar({
       }
       if (profileRef.current && !profileRef.current.contains(target)) {
         setIsProfileOpen(false)
+      }
+      if (moreMenuRef.current && !moreMenuRef.current.contains(target)) {
+        setIsMoreMenuOpen(false)
       }
     }
 
@@ -248,12 +350,16 @@ export default function Navbar({
       if (profileRef.current && !profileRef.current.contains(target)) {
         setIsProfileOpen(false)
       }
+      if (moreMenuRef.current && !moreMenuRef.current.contains(target)) {
+        setIsMoreMenuOpen(false)
+      }
     }
 
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') {
         setIsOpen(false)
         setIsProfileOpen(false)
+        setIsMoreMenuOpen(false)
       }
     }
 
@@ -268,7 +374,7 @@ export default function Navbar({
       document.removeEventListener('focusin', onFocusIn)
       document.removeEventListener('keydown', onKey)
     }
-  }, [gripRef, profileRef])
+  }, [gripRef, profileRef, moreMenuRef])
 
   const handleLanguageChange = (lang: 'ta' | 'en') => {
     setLocale(lang)
@@ -284,9 +390,9 @@ export default function Navbar({
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 shadow-md text-white transition-colors duration-300" style={{ backgroundColor: bgColor }}>
-      <div className="flex items-center justify-between px-4 sm:px-6 md:px-8 lg:px-12 py-3 md:py-4">
+      <div ref={navContainerRef} className="flex items-center justify-between px-4 sm:px-6 md:px-8 lg:px-12 py-3 md:py-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center">
+        <Link href="/" className="flex items-center flex-shrink-0">
           <Image
             src={logoSrc}
             alt="Logo"
@@ -299,19 +405,69 @@ export default function Navbar({
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-6 lg:gap-8 xl:gap-10">
-          {navLinks?.map((links: any) => (
-            <div key={links.href} className="relative group">
-              <Link href={links.href} className="relative text-sm md:text-base font-medium hover:text-gray-300 transition">
+        <div className="hidden md:flex items-center gap-4 lg:gap-6 xl:gap-8 flex-1 min-w-0 justify-center">
+          {/* Render visible items */}
+          {visibleNavItems?.map((links: any) => (
+            <div key={links.href} className="relative group flex-shrink-0">
+              <Link href={links.href} className="relative text-sm md:text-base font-medium hover:text-gray-300 transition whitespace-nowrap px-1">
                 {t(`Navbar.${links.label}`)}
                 <span className="absolute left-0 -bottom-1 h-[2px] w-0 bg-white group-hover:w-full transition-all duration-300"></span>
               </Link>
             </div>
           ))}
+
+          {/* Hidden container for measuring all items */}
+          <div className="absolute opacity-0 pointer-events-none -z-10 flex items-center gap-4">
+            {navLinks?.map((links: any, index: number) => (
+              <div
+                key={`measure-${links.href}`}
+                ref={el => {
+                  navItemsRefs.current[index] = el
+                }}
+                className="relative group flex-shrink-0"
+              >
+                <div className="relative text-sm md:text-base font-medium whitespace-nowrap px-1">
+                  {t(`Navbar.${links.label}`)}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* More Menu Button */}
+          {overflowNavItems && overflowNavItems.length > 0 && (
+            <div className="relative flex-shrink-0" ref={moreMenuRef}>
+              <button
+                onClick={() => setIsMoreMenuOpen(prev => !prev)}
+                className="relative flex items-center gap-1 text-sm md:text-base font-medium hover:text-gray-300 transition whitespace-nowrap px-2 py-1 rounded-md hover:bg-white/10"
+                aria-label="More menu"
+              >
+                <MoreHorizontal size={18} />
+                <span>{t('Navbar.more') || 'More'}</span>
+                {isMoreMenuOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+              </button>
+
+              {/* More Menu Dropdown */}
+              {isMoreMenuOpen && (
+                <div className="absolute right-0 mt-2 bg-gradient-to-br from-white to-yellow-50 text-[#2a1407] rounded-lg shadow-lg border border-yellow-200 py-2 z-50 min-w-[180px]">
+                  {overflowNavItems.map((links: any) => (
+                    <Link
+                      key={links.href}
+                      href={links.href}
+                      onClick={() => setIsMoreMenuOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition whitespace-nowrap"
+                    >
+                      {links.icon && <links.icon size={16} className="text-yellow-600" />}
+                      {t(`Navbar.${links.label}`)}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Desktop Right Section */}
-        <div className="hidden md:flex items-center gap-4 relative">
+        <div ref={rightSectionRef} className="hidden md:flex items-center gap-4 relative">
           {showLanguageSelector && <LanguageSwitch />}
 
           {user ? (
@@ -423,12 +579,20 @@ export default function Navbar({
             </>
           ) : (
             showLoginButton && (
-              <Link
-                href="/login"
-                className="flex items-center gap-2 bg-gradient-to-r from-yellow-50 to-yellow-100/50 text-[#2a1407] border border-yellow-200 px-4 py-2 rounded-lg font-medium hover:from-yellow-100 hover:to-yellow-200/50 transition text-sm md:text-base"
-              >
-                {t('Auth.login')} <ArrowRight size={18} />
-              </Link>
+              <div className="flex items-center gap-3">
+                <Link
+                  href="/login"
+                  className="flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#2a1407] border border-yellow-300 px-5 py-2.5 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-600 transition shadow-md hover:shadow-lg text-sm md:text-base"
+                >
+                  {t('Auth.login')}
+                </Link>
+                <Link
+                  href="/signup"
+                  className="flex items-center gap-2 bg-white/90 backdrop-blur-sm text-[#2a1407] border border-white/50 px-5 py-2.5 rounded-lg font-semibold hover:bg-white transition shadow-md hover:shadow-lg text-sm md:text-base"
+                >
+                  {t('Auth.signup') || 'Register'}
+                </Link>
+              </div>
             )
           )}
         </div>
@@ -562,13 +726,20 @@ export default function Navbar({
                 </div>
               ))
             : showLoginButton && (
-                <Link
-                  href="/login"
-                  className="flex items-center gap-2 bg-white text-[#3b1804] px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition text-sm md:text-base mt-4"
-                >
-                  {t('Auth.login')}
-                  <ArrowRight size={18} />{' '}
-                </Link>
+                <div className="flex flex-col gap-2 mt-4">
+                  <Link
+                    href="/login"
+                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#2a1407] px-5 py-2.5 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-600 transition shadow-md text-sm"
+                  >
+                    {t('Auth.login')}
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="flex items-center justify-center gap-2 bg-white text-[#2a1407] border border-gray-200 px-5 py-2.5 rounded-lg font-semibold hover:bg-gray-50 transition shadow-md text-sm"
+                  >
+                    {t('Auth.signup') || 'Register'}
+                  </Link>
+                </div>
               )}
 
           {/* Keep your language selector & profile/login below unchanged */}

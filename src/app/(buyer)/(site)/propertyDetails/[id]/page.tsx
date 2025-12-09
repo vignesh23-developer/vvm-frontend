@@ -318,13 +318,14 @@ const page = () => {
   const apiImages = useMemo(() => {
     if (!propertyDetailsData?.media) return []
     return propertyDetailsData.media
-      .filter((item: any) => item.media_type === 'IMAGE' && item.url)
+      .filter((item: any) => item.media_type === 'IMAGE' && item.url && item.url.trim() !== '')
       .sort((a: any, b: any) => {
         if (a.is_primary && !b.is_primary) return -1
         if (!a.is_primary && b.is_primary) return 1
         return (a.sort_order || 0) - (b.sort_order || 0)
       })
       .map((item: any) => item.url)
+      .filter((url: string) => url && url.trim() !== '') // Filter out empty strings
   }, [propertyDetailsData?.media])
 
   // Images used in the hero gallery (max 4 tiles; rest via "View All")
@@ -340,7 +341,7 @@ const page = () => {
   const propertyOverviewCards = useMemo(() => {
     const featureValues = propertyDetailsData?.feature_values || []
 
-    type OverviewItem = { label: string; value: string }
+    type OverviewItem = { label: string; value: string; values?: string[] }
 
     const items: OverviewItem[] = []
     const seenLabels = new Set<string>()
@@ -353,18 +354,25 @@ const page = () => {
       if (!label || seenLabels.has(label.toLowerCase())) continue
 
       let value = ''
+      let values: string[] = []
+      
       if (Array.isArray(fv.feature_options) && fv.feature_options.length > 0) {
-        value = fv.feature_options
+        values = fv.feature_options
           .map((opt: any) => opt?.name)
           .filter((n: any) => typeof n === 'string' && n.trim().length > 0)
-          .join(', ')
+        
+        // If multiple values, join with comma for display
+        if (values.length > 0) {
+          value = values.length > 3 ? `${values.slice(0, 3).join(', ')} +${values.length - 3} more` : values.join(', ')
+        }
       } else if (typeof fv.values === 'string' && fv.values.trim().length > 0) {
         value = fv.values
+        values = [fv.values]
       }
 
       if (!value) continue
 
-      items.push({ label, value })
+      items.push({ label, value, values })
       seenLabels.add(label.toLowerCase())
       if (items.length >= 5) break
     }
@@ -436,6 +444,7 @@ const page = () => {
       icon: pickIcon(item.label, idx),
       label: item.label,
       value: item.value,
+      values: item.values,
     }))
   }, [propertyDetailsData])
 
@@ -617,9 +626,10 @@ const page = () => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.2 }}
                   className="col-span-2 relative group overflow-hidden rounded-l-2xl"
-                  onClick={() => setSelectedImageIndex(0)}
-                  style={{ cursor: 'pointer' }}
+                  onClick={() => galleryImages[0] && setSelectedImageIndex(0)}
+                  style={{ cursor: galleryImages[0] ? 'pointer' : 'default' }}
                 >
+                  {galleryImages[0] && galleryImages[0].trim() !== '' ? (
                   <Image
                     src={galleryImages[0]}
                     alt="Property main image"
@@ -627,6 +637,11 @@ const page = () => {
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
                     priority
                   />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                      <Camera size={48} className="text-gray-400" />
+                    </div>
+                  )}
                 </motion.div>
 
                 {/* Small Right Image taking full height */}
@@ -635,15 +650,21 @@ const page = () => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 }}
                   className="relative h-full group overflow-hidden rounded-r-2xl"
-                  onClick={() => setSelectedImageIndex(1)}
-                  style={{ cursor: 'pointer' }}
+                  onClick={() => galleryImages[1] && setSelectedImageIndex(1)}
+                  style={{ cursor: galleryImages[1] ? 'pointer' : 'default' }}
                 >
+                  {galleryImages[1] && galleryImages[1].trim() !== '' ? (
                   <Image
                     src={galleryImages[1]}
                     alt="Property image 2"
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
                   />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                      <Camera size={48} className="text-gray-400" />
+                    </div>
+                  )}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
                 </motion.div>
               </div>
@@ -658,6 +679,7 @@ const page = () => {
                   onClick={() => galleryImages[0] && setSelectedImageIndex(0)}
                   style={{ cursor: galleryImages[0] ? 'pointer' : 'default' }}
                 >
+                  {galleryImages[0] && galleryImages[0].trim() !== '' ? (
                   <Image
                     src={galleryImages[0]}
                     alt="Property main image"
@@ -665,6 +687,11 @@ const page = () => {
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
                     priority
                   />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                      <Camera size={48} className="text-gray-400" />
+                    </div>
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 </motion.div>
 
@@ -677,15 +704,21 @@ const page = () => {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.3 }}
                       className="relative group overflow-hidden rounded-tr-2xl"
-                      onClick={() => setSelectedImageIndex(1)}
-                      style={{ cursor: 'pointer' }}
+                      onClick={() => galleryImages[1] && setSelectedImageIndex(1)}
+                      style={{ cursor: galleryImages[1] ? 'pointer' : 'default' }}
                     >
+                      {galleryImages[1] ? (
                       <Image
                         src={galleryImages[1]}
                         alt="Property image 2"
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-110"
                       />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                          <Camera size={24} className="text-gray-400" />
+                        </div>
+                      )}
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
                     </motion.div>
                   )}
@@ -699,15 +732,21 @@ const page = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
                         className="relative group overflow-hidden"
-                        onClick={() => setSelectedImageIndex(2)}
-                        style={{ cursor: 'pointer' }}
+                        onClick={() => galleryImages[2] && setSelectedImageIndex(2)}
+                        style={{ cursor: galleryImages[2] ? 'pointer' : 'default' }}
                       >
+                        {galleryImages[2] && galleryImages[2].trim() !== '' ? (
                         <Image
                           src={galleryImages[2]}
                           alt="Property image 3"
                           fill
                           className="object-cover transition-transform duration-500 group-hover:scale-110"
                         />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                            <Camera size={24} className="text-gray-400" />
+                          </div>
+                        )}
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
                       </motion.div>
                     )}
@@ -738,12 +777,18 @@ const page = () => {
                           </div>
                         ) : galleryImages[3] ? (
                           <>
+                            {galleryImages[3] && galleryImages[3].trim() !== '' ? (
                             <Image
                               src={galleryImages[3]}
                               alt="Property image 4"
                               fill
                               className="object-cover transition-transform duration-500 group-hover:scale-110"
                             />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                                <Camera size={24} className="text-gray-400" />
+                              </div>
+                            )}
                             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
                             {totalImageCount > galleryImages.length && (
                               <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-white cursor-pointer group-hover:bg-black/70 transition-colors">
@@ -768,7 +813,7 @@ const page = () => {
             )}
 
             {/* Floating Action Buttons */}
-            <div className="absolute top-6 right-6 flex gap-3 z-10">
+            <div className="absolute top-32 right-10 flex gap-3 z-40">
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
@@ -832,14 +877,6 @@ const page = () => {
 
                     {/* Actions stacked below owner info */}
                     <div className="mt-4 space-y-3 max-w-md">
-                      <Button
-                        type="button"
-                        onClick={() => setEnquiryModalOpen(true)}
-                        className="w-full bg-[#2a1407] text-white py-2.5 rounded-full font-semibold flex items-center justify-center gap-2 shadow-sm hover:from-[#3b1804] hover:to-[#2a1407] transition-all"
-                      >
-                        <MessageSquare size={18} />
-                        Enquire Now
-                      </Button>
                       <div className="flex gap-3 w-full">
                         <Button
                           type="button"
@@ -883,13 +920,6 @@ const page = () => {
                     <span className="text-gray-700 font-medium">Under Construction</span>
                   </div>
                   <p className="text-sm text-gray-600">Possession in October 2026</p>
-
-                  <Button
-                    type="button"
-                    className="w-full lg:w-auto bg-[#2a1407] text-white hover:from-[#3b1804] hover:to-[#2a1407] px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all"
-                  >
-                    Show Interest
-                  </Button>
                 </div>
               </div>
             </div>
@@ -906,6 +936,7 @@ const page = () => {
             <motion.div variants={fadeInUp} className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {propertyOverviewCards.map((card, idx) => {
                 const Icon = card.icon
+                const hasMultipleValues = card.values && card.values.length > 1
                 return (
                   <motion.div
                     key={idx}
@@ -917,7 +948,25 @@ const page = () => {
                       <Icon size={20} className="text-yellow-600" />
                     </div>
                     <p className="text-xs font-semibold text-gray-600 mb-1">{card.label}</p>
+                    {hasMultipleValues ? (
+                      <div className="space-y-1">
+                        <div className="flex flex-wrap gap-1 justify-center">
+                          {card.values!.slice(0, 3).map((val, i) => (
+                            <span
+                              key={i}
+                              className="inline-block px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full border border-yellow-200"
+                            >
+                              {val}
+                            </span>
+                          ))}
+                        </div>
+                        {card.values!.length > 3 && (
+                          <p className="text-xs text-gray-500 mt-1">+{card.values!.length - 3} more</p>
+                        )}
+                      </div>
+                    ) : (
                     <p className="text-sm font-bold text-gray-900">{card.value || 'N/A'}</p>
+                    )}
                   </motion.div>
                 )
               })}
@@ -1803,7 +1852,10 @@ const page = () => {
 
       {/* Image Gallery Modal Carousel - Only show if there's an actual image */}
       <AnimatePresence>
-        {selectedImageIndex !== null && galleryImages[selectedImageIndex] && (
+        {selectedImageIndex !== null && 
+         galleryImages[selectedImageIndex] && 
+         typeof galleryImages[selectedImageIndex] === 'string' && 
+         galleryImages[selectedImageIndex].trim() !== '' && (
           <>
             <motion.div
               initial={{ opacity: 0 }}
@@ -1906,7 +1958,9 @@ const page = () => {
                 className="relative flex w-full max-w-6xl justify-center"
                 onClick={e => e.stopPropagation()}
               >
-                {galleryImages[selectedImageIndex] ? (
+                {galleryImages[selectedImageIndex] && 
+                 typeof galleryImages[selectedImageIndex] === 'string' && 
+                 galleryImages[selectedImageIndex].trim() !== '' ? (
                   <Image
                     src={galleryImages[selectedImageIndex]}
                     alt={`Property image ${selectedImageIndex + 1}`}
@@ -1943,20 +1997,22 @@ const page = () => {
                   className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 flex gap-2 max-w-4xl overflow-x-auto px-4"
                   onClick={e => e.stopPropagation()}
                 >
-                  {galleryImages.map((img, idx) => (
+                  {galleryImages.map((img, idx) => {
+                    const hasValidImage = img && img.trim() !== ''
+                    return (
                     <motion.button
                       key={idx}
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
-                      onClick={() => img && setSelectedImageIndex(idx)}
-                      disabled={!img}
+                        onClick={() => hasValidImage && setSelectedImageIndex(idx)}
+                        disabled={!hasValidImage}
                       className={cn(
                         'relative h-16 w-16 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all',
                         selectedImageIndex === idx ? 'border-yellow-500 scale-110' : 'border-white/30 opacity-60 hover:opacity-100',
-                        !img && 'bg-gray-800 border-gray-600',
+                          !hasValidImage && 'bg-gray-800 border-gray-600',
                       )}
                     >
-                      {img ? (
+                        {hasValidImage ? (
                         <Image src={img} alt={`Thumbnail ${idx + 1}`} fill className="object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gray-800">
@@ -1964,7 +2020,8 @@ const page = () => {
                         </div>
                       )}
                     </motion.button>
-                  ))}
+                    )
+                  })}
                 </motion.div>
               )}
             </motion.div>

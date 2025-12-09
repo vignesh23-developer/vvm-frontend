@@ -112,7 +112,7 @@ export default function ExploreProperties() {
           </motion.h2>
 
           <motion.p
-            className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed font-light"
+            className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed font-light mb-4"
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -120,6 +120,23 @@ export default function ExploreProperties() {
           >
             {exploreDescription}
           </motion.p>
+          
+          {/* View Properties Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="flex justify-center"
+          >
+            <Button
+              type="button"
+              onClick={() => router.push('/properties-list')}
+              className="bg-[#2a1407] text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-[#3b1804] transition shadow-lg"
+            >
+              View All Properties →
+            </Button>
+          </motion.div>
         </motion.div>
 
         {/* Grid */}
