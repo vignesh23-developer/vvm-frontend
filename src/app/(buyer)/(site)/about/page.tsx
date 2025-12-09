@@ -158,7 +158,7 @@ const About = () => {
             ))}
           </motion.div> */}
 
-          <motion.div variants={itemVariants} className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <motion.div variants={itemVariants} className="flex flex-col justify-center gap-3 sm:flex-row sm:items-center">
             <motion.div variants={itemVariants} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
               <Button
                 type="button"

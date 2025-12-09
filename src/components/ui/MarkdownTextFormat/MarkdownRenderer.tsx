@@ -9,12 +9,55 @@ interface MarkdownRendererProps {
 }
 
 const MarkdownRenderer = ({ content, className = '' }: MarkdownRendererProps) => {
+  // create a slug/id from heading text to match page TOC links
+  const slugify = (text = '') =>
+    text
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9\-]/g, '')
+
+  // flatten children to plain text for id generation
+  const toPlainText = (children: any): string => {
+    if (children == null) return ''
+    if (typeof children === 'string') return children
+    if (typeof children === 'number') return String(children)
+    if (Array.isArray(children)) return children.map(c => toPlainText(c)).join('')
+    if (typeof children === 'object' && (children as any).props) return toPlainText((children as any).props.children)
+    return ''
+  }
+
   // Custom components for styling markdown elements
   const components: Components = {
-    // Headings
-    h1: ({ children }) => <h1 className="text-3xl font-bold text-gray-900 mb-4">{children}</h1>,
-    h2: ({ children }) => <h2 className="text-2xl font-bold text-gray-800 mb-3 mt-6">{children}</h2>,
-    h3: ({ children }) => <h3 className="text-xl font-semibold text-gray-700 mb-2 mt-4">{children}</h3>,
+    // Headings - attach id so in-page TOC can link to them
+    h1: ({ children }) => {
+      const text = toPlainText(children)
+      const id = slugify(text) || undefined
+      return (
+        <h1 id={id} className="text-3xl font-bold text-gray-900 mb-4">
+          {children}
+        </h1>
+      )
+    },
+    h2: ({ children }) => {
+      const text = toPlainText(children)
+      const id = slugify(text) || undefined
+      return (
+        <h2 id={id} className="text-2xl font-bold text-gray-800 mb-3 mt-6">
+          {children}
+        </h2>
+      )
+    },
+    h3: ({ children }) => {
+      const text = toPlainText(children)
+      const id = slugify(text) || undefined
+      return (
+        <h3 id={id} className="text-xl font-semibold text-gray-700 mb-2 mt-4">
+          {children}
+        </h3>
+      )
+    },
 
     // Paragraphs
     p: ({ children }) => <p className="text-gray-600 leading-relaxed mb-4">{children}</p>,
