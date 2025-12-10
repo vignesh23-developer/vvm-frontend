@@ -8,6 +8,7 @@ import AppPromo from '@/components/buyer/LandingPage/AppPromo/AppPromo'
 import PropertyVideos from '@/components/buyer/LandingPage/PropertyVideos/PropertyVideos'
 import ExploreProperties from '@/components/buyer/LandingPage/ExploreProperties/ExploreProperties'
 import AdsSlider from '@/components/buyer/LandingPage/AdsSlider/AdsSlider'
+import { WebsiteReview } from '@/components/Reviews'
 
 const sectionVariants: Variants = {
   hidden: { opacity: 0, y: 40 },
@@ -36,6 +37,13 @@ export default function SitePage() {
       <motion.div variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
         <ExploreProperties />
       </motion.div>
+
+      
+      <motion.div variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
+        <WebsiteReview />
+      </motion.div>
+
+
 
       <motion.div variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
         <Testimonials />
