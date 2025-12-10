@@ -47,10 +47,15 @@ const PopularPropertiesSkeleton = () => {
   )
 }
 
-export default function PopularProperties() {
+interface PopularPropertiesProps {
+  district?: string
+  packageType?: string
+}
+
+export default function PopularProperties({ district, packageType }: PopularPropertiesProps = {}) {
   const t = useTranslations()
   const router = useRouter()
-  const { items, handleSeeMore, isLoading } = usePopularProperties({ limit: 9 })
+  const { items, handleSeeMore, isLoading } = usePopularProperties({ limit: 9, district, packageType })
   const [hovered, setHovered] = useState<number | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 6 // 3 cards per row × 2 rows = 6 cards per page

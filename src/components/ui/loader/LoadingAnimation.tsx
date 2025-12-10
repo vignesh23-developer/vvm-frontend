@@ -6,10 +6,13 @@ import { ScrollTrigger, ScrollToPlugin } from 'gsap/all'
 import './style.css' // Import the regular CSS file
 import Image from 'next/image'
 import { BackgroundRippleEffect } from '../background-ripple-effect' // <-- added
+import { useGlobalContext } from '@/hooks/GlobalContext/GlobalContext'
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin)
 
 const LoadingAnimation: React.FC = () => {
+  const { setIsPageLoading } = useGlobalContext()
+
   useEffect(() => {
     const timeline = gsap.timeline()
 
@@ -116,6 +119,7 @@ const LoadingAnimation: React.FC = () => {
         onComplete: function () {
           const preloaderElement = document.querySelector('.milPreloader') as HTMLElement
           if (preloaderElement) preloaderElement.classList.add('milHidden')
+          setIsPageLoading(false)
         },
       },
       '-=1'

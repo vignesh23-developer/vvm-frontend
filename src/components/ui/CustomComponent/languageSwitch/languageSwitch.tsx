@@ -12,24 +12,24 @@ const LanguageSwitch = () => {
     router.refresh()
   }
 
-  console.log(locale, 'locale')
+  const languageLabels = {
+    en: 'English',
+    ta: 'தமிழ்',
+  }
+
   return (
     <div className="relative">
-      <button className="flex items-center gap-2 bg-transparent hover:bg-gray-500 px-3 py-2 rounded-lg text-sm font-medium transition">
+      <button className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm px-3 py-2 rounded-lg text-sm font-medium transition border border-white/20">
         <Globe size={18} />
-        <span className="uppercase">{locale}</span>
+        <span>{languageLabels[locale]}</span>
       </button>
       <select
         value={locale}
         onChange={e => handleLanguageChange(e.target.value as 'ta' | 'en')}
         className="absolute inset-0 opacity-0 cursor-pointer"
       >
-        <option value="en" className="text-black">
-          EN
-        </option>
-        <option value="ta" className="text-black">
-          TA
-        </option>
+        <option value="en">English</option>
+        <option value="ta">தமிழ்</option>
       </select>
     </div>
   )

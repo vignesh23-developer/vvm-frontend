@@ -87,15 +87,41 @@ export default function AppPromo() {
               </h2>
 
               <p
-                className="max-w-xl"
+                className="max-w-xl mb-6"
                 style={{
                   color: 'var(--body-color, #4b5563)',
                   transition: 'color 350ms cubic-bezier(.2,.9,.2,1)',
                 }}
               >
                 {t('AppPromo.description') ||
-                  'High-quality video tours, 3D staged placeholders and curated property highlights — discover homes with confidence.'}
+                  'Find your dream home on the go with our mobile app'}
               </p>
+
+              {/* Benefits List */}
+              <ul className="space-y-3 mb-6">
+                {[
+                  'Get real-time property alerts',
+                  'Save your favorite listings',
+                  'Chat with verified agents',
+                  'Faster browsing & videos',
+                ].map((benefit, idx) => (
+                  <motion.li
+                    key={idx}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: idx * 0.1 }}
+                    className="flex items-center gap-2 text-sm"
+                    style={{
+                      color: 'var(--body-color, #4b5563)',
+                      transition: 'color 350ms cubic-bezier(.2,.9,.2,1)',
+                    }}
+                  >
+                    <span className="text-yellow-600 font-bold">✔</span>
+                    <span>{benefit}</span>
+                  </motion.li>
+                ))}
+              </ul>
 
               <div className="flex flex-wrap gap-4">
                 <Image
@@ -114,23 +140,28 @@ export default function AppPromo() {
                 />
               </div>
 
-              <form className="flex max-w-md rounded-md overflow-hidden border border-yellow-200 focus-within:ring-2 focus-within:ring-yellow-300">
-                <input
-                  type="email"
-                  placeholder={t('AppPromo.placeholder') || 'Your email'}
-                  className="w-full px-4 py-3 text-gray-700 focus:outline-none bg-transparent"
-                />
-                <div>
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    size="medium"
-                    className="px-6 py-3 bg-[#3b1804] text-white"
-                  >
-                    {t('AppPromo.subscribe') || 'Notify me'}
-                  </Button>
-                </div>
-              </form>
+              <div className="space-y-2">
+                <p className="text-xs text-gray-500">
+                  Get property alerts, offers & market insights. No spam.
+                </p>
+                <form className="flex max-w-md rounded-lg overflow-hidden border-2 border-yellow-200 focus-within:ring-2 focus-within:ring-yellow-500 focus-within:border-yellow-400 shadow-md">
+                  <input
+                    type="email"
+                    placeholder={t('AppPromo.placeholder') || 'Your email'}
+                    className="w-full px-4 py-3 text-gray-700 focus:outline-none bg-white"
+                  />
+                  <div>
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      size="medium"
+                      className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
+                    >
+                      {t('AppPromo.subscribe') || 'Subscribe'}
+                    </Button>
+                  </div>
+                </form>
+              </div>
             </motion.div>
           </MaskContainer>
         </div>

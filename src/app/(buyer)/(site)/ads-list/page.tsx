@@ -14,53 +14,32 @@ import AdvancedFilters from '@/components/ui/AdvancedFilter/AdvancedFilters'
 import AdsCard from '@/components/buyer/Ads/AdsCard'
 import toast from 'react-hot-toast'
 
-// Enhanced Agent Card Skeleton
+// Enhanced Agent Card Skeleton - Vertical for Grid
 const AdsCardSkeleton = () => (
-  <div className="flex w-full flex-col overflow-hidden rounded-2xl bg-white shadow-md border border-gray-100 lg:flex-row animate-pulse">
+  <div className="flex w-full flex-col overflow-hidden rounded-xl bg-white shadow-sm border border-gray-100 animate-pulse h-full">
     {/* Image Skeleton */}
-    <div className="relative h-48 w-full sm:w-[280px] bg-gradient-to-br from-gray-200 to-gray-300" />
+    <div className="relative h-56 w-full bg-gray-200" />
 
     {/* Content Skeleton */}
-    <div className="flex-1 p-4 sm:p-6 space-y-4">
-      <div className="flex justify-between items-start">
-        <div className="flex-1 space-y-2">
-          <div className="h-6 w-3/4 bg-gray-200 rounded" />
-          <div className="h-4 w-1/2 bg-gray-200 rounded" />
-        </div>
-        <div className="flex gap-2">
-          <div className="h-10 w-10 bg-gray-200 rounded-full" />
-          <div className="h-10 w-10 bg-gray-200 rounded-full" />
-        </div>
-      </div>
-
-      <div className="flex gap-2 rounded-xl bg-gray-100 p-3">
-        <div className="flex-1 space-y-2">
-          <div className="h-3 w-16 bg-gray-200 rounded" />
-          <div className="h-4 w-20 bg-gray-200 rounded" />
-        </div>
-        <div className="flex-1 space-y-2">
-          <div className="h-3 w-16 bg-gray-200 rounded" />
-          <div className="h-4 w-20 bg-gray-200 rounded" />
-        </div>
-        <div className="flex-1 space-y-2">
-          <div className="h-3 w-16 bg-gray-200 rounded" />
-          <div className="h-4 w-20 bg-gray-200 rounded" />
-        </div>
-      </div>
-
+    <div className="flex flex-col flex-1 p-4 space-y-4">
       <div className="space-y-2">
-        <div className="h-4 w-full bg-gray-200 rounded" />
-        <div className="h-4 w-5/6 bg-gray-200 rounded" />
+        <div className="h-5 w-3/4 bg-gray-200 rounded" />
+        <div className="flex gap-2 items-center">
+          <div className="h-3 w-3 rounded-full bg-gray-200" />
+          <div className="h-3 w-1/2 bg-gray-200 rounded" />
+        </div>
       </div>
-    </div>
 
-    {/* Price Section Skeleton */}
-    <div className="w-full lg:w-[260px] bg-gradient-to-br from-gray-800 to-gray-900 p-5">
-      <div className="space-y-2 text-right">
-        <div className="h-8 w-32 bg-gray-700 rounded ml-auto" />
-        <div className="h-4 w-24 bg-gray-700 rounded ml-auto" />
+      <div className="mt-auto pt-3 border-t border-gray-100 flex justify-between items-end">
+        <div className="space-y-1">
+          <div className="h-3 w-10 bg-gray-200 rounded" />
+          <div className="h-6 w-24 bg-gray-200 rounded" />
+        </div>
+        <div className="flex flex-col items-end space-y-1">
+          <div className="h-3 w-12 bg-gray-200 rounded" />
+          <div className="h-4 w-8 bg-gray-200 rounded" />
+        </div>
       </div>
-      <div className="mt-6 h-12 w-full bg-gray-700 rounded-xl" />
     </div>
   </div>
 )
@@ -481,7 +460,7 @@ const AdsListPage = () => {
             </div>
 
             {isLoadingList ? (
-              <div className="space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {Array.from({ length: limit }).map((_, index) => (
                   <motion.div
                     key={`agency-skeleton-${index}`}
@@ -492,6 +471,7 @@ const AdsListPage = () => {
                       duration: 0.5,
                       ease: [0.25, 0.46, 0.45, 0.94] as const,
                     }}
+                    className="h-full"
                   >
                     <AdsCardSkeleton />
                   </motion.div>
@@ -511,7 +491,7 @@ const AdsListPage = () => {
                 </button>
               </div>
             ) : (
-              <div className="space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {displayedAds.map((ad: AdsListDto, index: number) => (
                   <motion.div
                     key={ad.id ?? index}
@@ -524,7 +504,7 @@ const AdsListPage = () => {
                       duration: 0.5,
                       ease: [0.25, 0.46, 0.45, 0.94] as const,
                     }}
-                    className="w-full"
+                    className="w-full h-full"
                   >
                     <AdsCard
                       ad={ad}

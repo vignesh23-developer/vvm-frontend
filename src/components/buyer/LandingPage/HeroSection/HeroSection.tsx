@@ -134,7 +134,7 @@ export default function HeroSection() {
 
       <div className="relative z-10 flex items-center justify-center px-4 py-8 min-h-[80vh] sm:min-h-screen">
         <motion.div
-          className="w-full max-w-4xl mx-auto rounded-3xl bg-gradient-to-br from-[#2a1407]/95 via-[#2a1407]/90 to-[#3b1804]/95 text-white px-4 py-6 sm:px-8 sm:py-10 text-center border border-yellow-300/40 shadow-[0_24px_80px_rgba(0,0,0,0.6)]"
+          className="w-full max-w-4xl mx-auto rounded-3xl bg-[#2a1407]/80 text-white px-4 py-6 sm:px-8 sm:py-10 text-center border border-yellow-300/40 shadow-[0_24px_80px_rgba(0,0,0,0.6)]"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -155,9 +155,8 @@ export default function HeroSection() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setCurrentTab(tab)}
-                  className={`py-2 px-3 rounded-lg text-sm font-medium transition ${
-                    currentTab === tab ? 'bg-yellow-400 text-[#2a1407]' : 'bg-white/10 hover:bg-white/20'
-                  }`}
+                  className={`py-2 px-3 rounded-lg text-sm font-medium transition ${currentTab === tab ? 'bg-yellow-400 text-[#2a1407]' : 'bg-white/10 hover:bg-white/20'
+                    }`}
                 >
                   {t(`Hero.HeroMenu.${tab}`)}
                 </motion.button>
@@ -172,9 +171,8 @@ export default function HeroSection() {
                     type="button"
                     variant="tertiary"
                     size="small"
-                    className={`pb-1 transition ${
-                      currentTab === tab ? 'text-yellow-300 border-b-2 border-yellow-300' : 'text-white/80 hover:text-yellow-200'
-                    }`}
+                    className={`pb-1 transition ${currentTab === tab ? 'text-yellow-300 border-b-2 border-yellow-300' : 'text-white/80 hover:text-yellow-200'
+                      }`}
                     onClick={() => setCurrentTab(tab)}
                   >
                     {t(`Hero.HeroMenu.${tab}`)}
@@ -317,9 +315,8 @@ export default function HeroSection() {
                               }}
                               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#2a1407]"
                               style={{
-                                background: `linear-gradient(to right, #2a1407 0%, #2a1407 ${
-                                  ((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100
-                                }%, #e5e7eb ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100}%, #e5e7eb 100%)`,
+                                background: `linear-gradient(to right, #2a1407 0%, #2a1407 ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100
+                                  }%, #e5e7eb ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100}%, #e5e7eb 100%)`,
                               }}
                             />
                             <input
@@ -486,9 +483,8 @@ export default function HeroSection() {
                               }}
                               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#2a1407]"
                               style={{
-                                background: `linear-gradient(to right, #2a1407 0%, #2a1407 ${
-                                  ((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100
-                                }%, #e5e7eb ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100}%, #e5e7eb 100%)`,
+                                background: `linear-gradient(to right, #2a1407 0%, #2a1407 ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100
+                                  }%, #e5e7eb ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100}%, #e5e7eb 100%)`,
                               }}
                             />
                             <input
