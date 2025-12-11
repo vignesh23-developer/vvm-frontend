@@ -25,7 +25,7 @@ const sectionVariants: Variants = {
 export default function SitePage() {
   const searchParams = useSearchParams()
   const district = searchParams?.get('district')
-  
+
   return (
     <main className="flex flex-col gap-0">
       <motion.div variants={sectionVariants} initial="hidden" animate="visible">
@@ -43,13 +43,6 @@ export default function SitePage() {
       <motion.div variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
         <ExploreProperties />
       </motion.div>
-
-      
-      <motion.div variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
-        <WebsiteReview />
-      </motion.div>
-
-
 
       <motion.div variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
         <Testimonials />
@@ -103,7 +96,7 @@ export default function SitePage() {
           >
             <Button
               type="button"
-              onClick={() => window.location.href = '/properties-list'}
+              onClick={() => (window.location.href = '/properties-list')}
               className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#2a1407] px-8 py-4 rounded-lg font-bold text-lg hover:from-yellow-500 hover:to-yellow-600 transition shadow-xl hover:shadow-2xl"
             >
               Start Searching →

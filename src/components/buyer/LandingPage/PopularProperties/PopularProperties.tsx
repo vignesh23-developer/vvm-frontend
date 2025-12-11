@@ -260,13 +260,21 @@ export default function PopularProperties({ district, packageType }: PopularProp
                   <motion.div
                     animate={{ scale: hovered === index ? 1.1 : 1 }}
                     transition={{ duration: 0.5, ease: 'easeOut' }}
-                    className="w-full h-full"
+                    className="relative w-full h-full"
                   >
                     {(() => {
                       const primaryMedia = item?.media?.find(m => m.is_primary === true) || null
 
                       if (!primaryMedia) {
-                        return <Image src="/villa.png" alt="Property" fill className="object-cover" />
+                        return (
+                          <Image
+                            src="/villa.png"
+                            alt="Property"
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          />
+                        )
                       }
 
                       // If primary is an image
@@ -278,6 +286,7 @@ export default function PopularProperties({ district, packageType }: PopularProp
                             fill
                             className="object-cover"
                             priority={index < 3}
+                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                           />
                         )
                       }
