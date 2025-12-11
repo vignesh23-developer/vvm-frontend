@@ -32,7 +32,7 @@ export function useExploreProperties(options: UseExplorePropertiesOptions = {}) 
 
   const swrKey = queryParams.toString()
     ? `${appEndpoints.getAllPropertyDistrictSummary}?${queryParams.toString()}`
-    : appEndpoints.getAllPropertiesList
+    : appEndpoints.getAllPropertyDistrictSummary
 
   const { data, error, isLoading } = useSWR<ResponseDTO>(swrKey, fetchExploreProperties)
 

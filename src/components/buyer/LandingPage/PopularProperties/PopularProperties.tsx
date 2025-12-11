@@ -1,5 +1,6 @@
 'use client'
 
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { MapPin, BedSingle, Ruler, IndianRupee, Sparkles, ChevronLeft, ChevronRight, ChartBarStacked, Captions } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { PopularPropertyDto } from './dto/popularPropertiesDto'
@@ -54,8 +55,9 @@ interface PopularPropertiesProps {
 
 export default function PopularProperties({ district, packageType }: PopularPropertiesProps = {}) {
   const t = useTranslations()
+  const { token } = useAuth()
   const router = useRouter()
-  const { items, handleSeeMore, isLoading } = usePopularProperties({ limit: 9, district, packageType })
+  const { items, isLoading } = usePopularProperties({ limit: 9, district, packageType })
   const [hovered, setHovered] = useState<number | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 6 // 3 cards per row × 2 rows = 6 cards per page
@@ -68,10 +70,17 @@ export default function PopularProperties({ district, packageType }: PopularProp
     return Boolean((i as any).is_published || (i as any).is_pulished)
   })
 
-  // Handle See More - Use API handler
+  // Handle See More - require auth, redirect to login with `next` param if unauthenticated
   const handleSeeMoreClick = (propertyId: number) => {
-    if (propertyId) {
-      handleSeeMore(propertyId)
+    if (!propertyId) return
+
+    const detailsPath = `/propertyDetails/${propertyId}`
+
+    if (!token) {
+      router.push(`/login?next=${encodeURIComponent(detailsPath)}`)
+      return
+    } else {
+      router.push(detailsPath)
     }
   }
 

@@ -28,8 +28,12 @@ const LanguageSwitch = () => {
         onChange={e => handleLanguageChange(e.target.value as 'ta' | 'en')}
         className="absolute inset-0 opacity-0 cursor-pointer"
       >
-        <option value="en">English</option>
-        <option value="ta">தமிழ்</option>
+        <option className="text-black" value="en">
+          English
+        </option>
+        <option className="text-black" value="ta">
+          தமிழ்
+        </option>
       </select>
     </div>
   )

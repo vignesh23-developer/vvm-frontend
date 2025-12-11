@@ -1,96 +1,156 @@
 import React from 'react'
-import { useTranslations } from 'next-intl'
-import { Instagram, Facebook, Twitter, Linkedin } from 'lucide-react'
 import Link from 'next/link'
 import MapView from '@/components/ui/map/MapView'
+import { Instagram, Facebook, Twitter, Linkedin, Mail, Phone, MapPin, Clock4, ArrowUpRight } from 'lucide-react'
 
 const socialLinks = [
-  { label: 'instagram', icon: Instagram, href: 'https://www.instagram.com/vaazhga._.valamudan?igsh=MXA1OGp5cnY5ZHR6YQ==' },
-  { label: 'facebook', icon: Facebook, href: 'https://www.facebook.com/share/1Cp5XJwHHC/' },
-  { label: 'twitter_(𝕏)', icon: Twitter, href: 'https://x.com/VaazhgaValam?t=Iu-WpKa3cvAT-h3BHUBdYg&s=09' },
-  { label: 'linked_in', icon: Linkedin, href: 'https://www.linkedin.com/in/vaazhga-valamudan-tn' },
+  { label: 'Instagram', icon: Instagram, href: 'https://www.instagram.com/vaazhga._.valamudan?igsh=MXA1OGp5cnY5ZHR6YQ==' },
+  { label: 'Facebook', icon: Facebook, href: 'https://www.facebook.com/share/1Cp5XJwHHC/' },
+  { label: 'Twitter (𝕏)', icon: Twitter, href: 'https://x.com/VaazhgaValam?t=Iu-WpKa3cvAT-h3BHUBdYg&s=09' },
+  { label: 'LinkedIn', icon: Linkedin, href: 'https://www.linkedin.com/in/vaazhga-valamudan-tn' },
+]
+
+const contactMethods = [
+  {
+    label: 'Email',
+    value: 'admin@vaazhgavalamudan.com',
+    href: 'mailto:admin@vaazhgavalamudan.com',
+    helper: 'Responses within 24 hours',
+    icon: Mail,
+  },
+  {
+    label: 'Phone',
+    value: '+91 86800 89800',
+    href: 'tel:+918680089800',
+    helper: 'Mon – Fri · 9am – 6pm IST',
+    icon: Phone,
+  },
+  {
+    label: 'Studio',
+    value: 'Thillai Nagar, Tiruchirappalli',
+    href: 'https://maps.app.goo.gl/1hF9Y8pCj7rQhF4d7',
+    helper: 'See directions on Google Maps',
+    icon: MapPin,
+  },
+]
+
+const highlightMetrics = [
+  { label: 'Cities Served', value: '30+', detail: 'Across Tamil Nadu' },
+  { label: 'Successful Closures', value: '1.2K+', detail: 'Residential & commercial' },
+  { label: 'Average Response', value: '< 12h', detail: 'Dedicated concierge team' },
+]
+
+const officeHours = [
+  { label: 'Weekdays', value: '09:00 – 18:00 IST' },
+  { label: 'Weekends', value: 'By appointment' },
 ]
 
 export default function ContactUs() {
-  const t = useTranslations()
   return (
-    <div className="bg-gray-100">
-      <div className="max-w-7xl mx-auto py-16 sm:py-24 lg:py-32">
-        <div className="lg:grid lg:grid-cols-2 lg:gap-8 shadow-2xl rounded-3xl overflow-hidden">
-          {/* --- Column 1: Contact Details (Dark Background) --- */}
-          <div className="px-6 py-12 bg-gray-900 sm:px-12 sm:py-16 lg:px-16 lg:py-20">
-            <header className="space-y-4">
-              <h2 className="text-sm font-bold uppercase tracking-widest text-indigo-400">Contact Us</h2>
-              <p className="text-4xl font-extrabold text-white">Ready to get started?</p>
-              <p className="text-lg text-gray-400">
-                We're available via phone, email, or a visit to our studio. We look forward to connecting with you.
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#0a0501] via-[#120a05] to-[#1d1007]">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,193,7,0.2),_transparent_55%)]" />
+      <div className="pointer-events-none absolute inset-y-0 left-1/2 w-[70vw] -translate-x-1/2 bg-[linear-gradient(120deg,rgba(255,255,255,0.08),transparent)] opacity-40 blur-3xl" />
+
+      <div className="relative mx-auto max-w-6xl px-4 py-16 text-stone-100 sm:px-6 lg:px-8">
+        <div className="text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.4em] text-amber-300">Let's talk</p>
+          <h1 className="mt-4 text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
+            Crafting bold real-estate journeys for modern Tamil Nadu
+          </h1>
+          <p className="mx-auto mt-4 max-w-2xl text-base text-stone-300 sm:text-lg">
+            Whether you are strategizing your next project or looking for a dedicated partner, our team is ready with data-backed insights, curated
+            listings, and on-ground expertise.
+          </p>
+        </div>
+
+        <div className="mt-12 grid gap-4 sm:grid-cols-3">
+          {highlightMetrics.map(metric => (
+            <div key={metric.label} className="rounded-2xl border border-white/10 bg-white/5 px-6 py-5 text-center backdrop-blur-lg">
+              <p className="text-3xl font-semibold text-white">{metric.value}</p>
+              <p className="text-sm font-semibold uppercase tracking-wide text-amber-300">{metric.label}</p>
+              <p className="mt-2 text-xs text-stone-200">{metric.detail}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-12 grid gap-8 lg:grid-cols-2">
+          <section className="rounded-[32px] border border-white/10 bg-stone-950/70 p-8 shadow-2xl ring-1 ring-white/5">
+            <header className="space-y-3">
+              <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs uppercase tracking-widest text-amber-200">
+                <Clock4 size={14} /> Always human
+              </p>
+              <h2 className="text-3xl font-semibold text-white">Talk to our concierge team</h2>
+              <p className="text-sm text-stone-300">
+                We go beyond call-center scripts. Reach us directly and expect thoughtful assistance from people who understand the landscape.
               </p>
             </header>
 
-            <dl className="mt-10 space-y-8">
-              {/* Email Detail */}
-              <div>
-                <dt className="text-base font-semibold text-gray-300">Email</dt>
-                <dd className="mt-1 text-2xl font-bold text-white">
-                  <a href="mailto:admin@vaazhgavalamudan.com" className="hover:text-indigo-400 transition">
-                    admin@vaazhgavalamudan.com
-                  </a>
-                </dd>
-              </div>
-
-              {/* Phone Detail */}
-              <div>
-                <dt className="text-base font-semibold text-gray-300">Phone</dt>
-                <dd className="mt-1 text-2xl font-bold text-white">
-                  <a href="tel:+918680089800" className="hover:text-indigo-400 transition">
-                    +91 86800 89800
-                  </a>
-                </dd>
-                <p className="text-sm text-gray-400 mt-1">Available Mon–Fri, 9am–6pm IST</p>
-              </div>
-
-              {/* Social Media Links (New Addition) */}
-              <div className="pt-6">
-                <dt className="text-base font-semibold text-gray-300">Follow Us</dt>
-                <dd className="mt-2 flex space-x-2">
-                  <div>
-                    <ul className="space-y-3 text-gray-300">
-                      {socialLinks.map(({ label, icon: Icon, href }) => (
-                        <li key={label} className="flex items-center gap-2">
-                          <Icon size={18} />
-                          <Link href={href} target="_blank" rel="noopener noreferrer" className="hover:text-white">
-                            {label}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
+            <div className="mt-8 space-y-5">
+              {contactMethods.map(({ label, value, helper, icon: Icon, href }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target={href?.startsWith('http') ? '_blank' : undefined}
+                  rel={href?.startsWith('http') ? 'noreferrer' : undefined}
+                  className="flex items-center justify-between rounded-2xl border border-white/5 bg-white/5 px-4 py-4 transition hover:border-amber-300/60 hover:bg-white/10"
+                >
+                  <div className="flex items-center gap-4">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-400/10 text-amber-200">
+                      <Icon size={22} />
+                    </span>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-stone-300">{label}</p>
+                      <p className="text-lg font-semibold text-white">{value}</p>
+                      <p className="text-xs text-stone-400">{helper}</p>
+                    </div>
                   </div>
-                </dd>
-              </div>
-            </dl>
-          </div>
-
-          {/* --- Column 2: Location/Map (Light Background) --- */}
-          <div className="px-6 py-12 sm:px-12 sm:py-16 lg:px-16 lg:py-20 bg-white">
-            <h2 className="text-2xl font-bold text-gray-900">Visit Our Studio</h2>
-            <div className="mt-6 space-y-4">
-              <p className="text-sm font-semibold text-gray-700">Address Details</p>
-              <address className="text-base text-gray-600 not-italic">
-                Vaazhga Valamudan Digital Realty Solutions, <br />
-                No D-54/1, TS No. 106, SP ARCADE, 9A Cross West Extension, <br />
-                Thillai Nagar, Tiruchirappalli - 620018.
-              </address>
+                  <ArrowUpRight className="hidden text-stone-400 sm:block" size={20} />
+                </a>
+              ))}
             </div>
 
-            {/* Map Placeholder */}
-            <div className="mt-8">
-              <div className="h-96 w-full rounded-xl bg-gray-100 flex items-center justify-center text-base text-gray-400 border border-gray-200 shadow-inner">
-                <div className="h-100 w-full overflow-hidden rounded-2xl">
-                  <MapView center={{ lat: 10.8239, lng: 78.6912 }} zoom={12} markers={[{ lat: 10.8239, lng: 78.6912 }]} />
-                </div>
+            <div className="mt-10 border-t border-white/10 pt-6">
+              <p className="text-sm font-semibold uppercase tracking-wide text-stone-300">Follow our journey</p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                {socialLinks.map(({ label, icon: Icon, href }) => (
+                  <Link
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-stone-100 transition hover:border-amber-400/70 hover:bg-white/10"
+                  >
+                    <Icon size={16} /> {label}
+                  </Link>
+                ))}
               </div>
             </div>
-          </div>
+          </section>
+
+          <section className="rounded-[32px] border border-white/10 bg-white p-2 text-stone-900 shadow-2xl">
+            <div className="h-full rounded-[28px] bg-gradient-to-b from-white via-white to-stone-50 p-8">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-500">Visit us</p>
+              <h2 className="mt-3 text-3xl font-semibold text-stone-900">Vaazhga Valamudan Studio</h2>
+              <p className="mt-2 text-sm text-stone-600">
+                Vaazhga Valamudan Digital Realty Solutions,
+                <br /> No D-54/1, TS No. 106, SP Arcade, 9A Cross West Extension,
+                <br /> Thillai Nagar, Tiruchirappalli – 620018.
+              </p>
+
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                {officeHours.map(item => (
+                  <div key={item.label} className="rounded-2xl border border-stone-200 bg-white px-4 py-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-stone-500">{item.label}</p>
+                    <p className="text-base font-semibold text-stone-900">{item.value}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-8 h-80 w-full rounded-[26px] border border-stone-200 bg-stone-100 shadow-inner">
+                <MapView center={{ lat: 10.8239, lng: 78.6912 }} zoom={12} markers={[{ lat: 10.8239, lng: 78.6912 }]} />
+              </div>
+            </div>
+          </section>
         </div>
       </div>
     </div>

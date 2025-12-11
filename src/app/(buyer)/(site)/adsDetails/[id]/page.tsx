@@ -4,7 +4,29 @@ import { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { motion, Variants, AnimatePresence } from 'framer-motion'
-import { Share2, Flag, MessageSquare, MapPin, Phone, Mail, Eye, BarChart3, MessageSquareMore, Camera, Heart, Building2, Users, Home, TrendingUp, Shield, Sparkles, ChevronLeft, ChevronRight, Play, X } from 'lucide-react'
+import {
+  Share2,
+  Flag,
+  MessageSquare,
+  MapPin,
+  Phone,
+  Mail,
+  Eye,
+  BarChart3,
+  MessageSquareMore,
+  Camera,
+  Heart,
+  Building2,
+  Users,
+  Home,
+  TrendingUp,
+  Shield,
+  Sparkles,
+  ChevronLeft,
+  ChevronRight,
+  Play,
+  X,
+} from 'lucide-react'
 import Image from 'next/image'
 import toast from 'react-hot-toast'
 
@@ -81,14 +103,12 @@ const AdsDetailsPage = () => {
     })
 
     // Separate Images and Video
-    // Assuming media_type is present, or infer from extension/structure if needed. 
+    // Assuming media_type is present, or infer from extension/structure if needed.
     // If media_type is missing, treat as image unless we have a specific way to identify video.
     // For now, consistent with propertyDetails, we look for media_type === 'VIDEO'.
     const videoResult = sortedMedia.find((m: any) => m.media_type === 'VIDEO')
 
-    const imageResult = sortedMedia
-      .filter((m: any) => m.media_type !== 'VIDEO' && m.url && m.url.trim() !== '')
-      .map((m: any) => m.url)
+    const imageResult = sortedMedia.filter((m: any) => m.media_type !== 'VIDEO' && m.url && m.url.trim() !== '').map((m: any) => m.url)
 
     // Gallery grid logic (max 4 items)
     const gallerySlice = imageResult.slice(0, 4)
@@ -97,7 +117,7 @@ const AdsDetailsPage = () => {
       apiImages: imageResult,
       primaryVideoMedia: videoResult,
       galleryImages: gallerySlice,
-      totalImageCount: imageResult.length
+      totalImageCount: imageResult.length,
     }
   }, [adDetails])
 
@@ -541,7 +561,7 @@ const AdsDetailsPage = () => {
                   {/* Badge - Category */}
                   <div className="flex flex-wrap items-center gap-3">
                     <span className="px-3 py-1.5 rounded-full bg-yellow-50 border border-yellow-200 text-[#2a1407] text-xs font-semibold uppercase">
-                      {adDetails.category_id || 'AD'}
+                      {adDetails?.category?.name || 'AD'}
                     </span>
                   </div>
 
@@ -650,12 +670,7 @@ const AdsDetailsPage = () => {
                 className="rounded-3xl border border-gray-200 bg-white shadow-md overflow-hidden"
               >
                 <div className="h-[400px] w-full">
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="space-y-2 p-8"
-                  >
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="space-y-2 p-8">
                     <h3 className="text-xl font-bold text-[#2a1407]">Location</h3>
                     <p className="text-sm text-gray-600">{formattedAddress || 'Location not provided'}</p>
                   </motion.div>
@@ -675,7 +690,6 @@ const AdsDetailsPage = () => {
                 </div>
               </motion.div>
             )}
-
           </motion.section>
 
           <motion.aside
@@ -954,9 +968,7 @@ const AdsDetailsPage = () => {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-xs text-gray-500 mb-1">Price</p>
-                          <p className="text-lg font-bold text-[#2a1407]">
-                            {ad.price ? `₹${formatPrice(Number(ad.price))}` : 'Price on request'}
-                          </p>
+                          <p className="text-lg font-bold text-[#2a1407]">{ad.price ? `₹${formatPrice(Number(ad.price))}` : 'Price on request'}</p>
                         </div>
                         {ad.is_negotiable && (
                           <div className="text-right">
@@ -1085,7 +1097,7 @@ const AdsDetailsPage = () => {
                 </motion.button>
 
                 <div className="relative h-full w-full max-w-5xl" onClick={e => e.stopPropagation()}>
-                  <AnimatePresence mode="wait">
+                  <AnimatePresence>
                     <motion.div
                       key={selectedImageIndex}
                       initial={{ opacity: 0, x: 20 }}
@@ -1167,9 +1179,9 @@ const AdsDetailsPage = () => {
                 onNavigate={dir => {
                   if (dir === 'next') {
                     // Simple loop
-                    setSelectedImageIndex((prev) => (prev !== null ? (prev + 1) % totalImageCount : 0))
+                    setSelectedImageIndex(prev => (prev !== null ? (prev + 1) % totalImageCount : 0))
                   } else {
-                    setSelectedImageIndex((prev) => (prev !== null ? (prev - 1 + totalImageCount) % totalImageCount : totalImageCount - 1))
+                    setSelectedImageIndex(prev => (prev !== null ? (prev - 1 + totalImageCount) % totalImageCount : totalImageCount - 1))
                   }
                 }}
                 onClose={() => setSelectedImageIndex(null)}
@@ -1181,11 +1193,7 @@ const AdsDetailsPage = () => {
 
       {/* Video Modal */}
       {isVideoModalOpen && (
-        <ModalComponent
-          open={isVideoModalOpen}
-          onClose={() => setIsVideoModalOpen(false)}
-          title="Virtual Property Tour"
-        >
+        <ModalComponent open={isVideoModalOpen} onClose={() => setIsVideoModalOpen(false)} title="Virtual Property Tour">
           <div className="relative w-full pb-[56.25%] bg-black rounded-lg overflow-hidden">
             <iframe
               src={videoEmbedUrl}
@@ -1197,7 +1205,6 @@ const AdsDetailsPage = () => {
           </div>
         </ModalComponent>
       )}
-
     </motion.main>
   )
 }

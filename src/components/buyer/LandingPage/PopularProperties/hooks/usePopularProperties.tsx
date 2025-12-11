@@ -88,15 +88,10 @@ export function usePopularProperties(options: UsePopularPropertiesOptions = {}) 
 
   const { data, error, isLoading } = useSWR<PopularPropertiesFetcherResult>(swrKey, fetchPopularProperties)
 
-  const handleSeeMore = (id: number) => {
-    router.push(`/propertyDetails/${id}`)
-  }
-
   return {
     items: data?.items ?? [],
     total: data?.total ?? 0,
     isLoading,
     error,
-    handleSeeMore,
   }
 }

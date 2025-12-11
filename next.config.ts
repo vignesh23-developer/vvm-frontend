@@ -2,6 +2,19 @@ import type { NextConfig } from 'next'
 import createNextIntlPlugin from 'next-intl/plugin'
 
 const nextConfig: NextConfig = {
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Permissions-Policy',
+            value: 'compute-pressure=()',
+          },
+        ],
+      },
+    ]
+  },
   images: {
     remotePatterns: [
       {

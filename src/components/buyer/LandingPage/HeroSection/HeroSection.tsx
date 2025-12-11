@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
@@ -10,6 +10,7 @@ import { motion, Variants } from 'framer-motion'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { usePropertyCategories } from '@/app/admin/dashboard/(master)/property-category/(hooks)/usePropertyCategories'
 import LucideIconRenderer from '@/components/ui/CustomComponent/LucideIconRenderer/LucideIconRenderer'
+import { useExploreProperties } from '../ExploreProperties/hooks/useExploreProperties'
 
 export default function HeroSection() {
   const t = useTranslations()
@@ -18,6 +19,9 @@ export default function HeroSection() {
   const [currentTab, setCurrentTab] = useState('sale')
   const [showBudget, setShowBudget] = useState(false)
   const [showType, setShowType] = useState(false)
+  const [locationQuery, setLocationQuery] = useState('')
+  const [debouncedLocationQuery, setDebouncedLocationQuery] = useState('')
+  const [showSuggestions, setShowSuggestions] = useState(false)
   // Lightweight category shape used in this component
   interface Category {
     id: string | number
@@ -33,7 +37,45 @@ export default function HeroSection() {
 
   const [selectedType, setSelectedType] = useState<Category | null>(null)
   const { categories, error, isLoading, mutateCategories } = usePropertyCategories()
+  const { items } = useExploreProperties({ limit: 1, page: 60 })
   const tabKeys: string[] = ['sale', 'rent', 'lease']
+
+  interface PropertyItem {
+    district: string
+    [key: string]: unknown
+  }
+
+  interface UniqueDistrict extends String {
+    [Symbol.toStringTag]: 'String'
+  }
+
+  const availableDistricts: string[] = useMemo(() => {
+    if (!Array.isArray(items)) return []
+    const names = items.map((item: PropertyItem) => (item?.district || '').toString().trim()).filter(Boolean)
+
+    return Array.from(new Set(names))
+  }, [items])
+
+  const locationSuggestions = useMemo(() => {
+    if (!availableDistricts.length) return []
+    if (!debouncedLocationQuery) return availableDistricts.slice(0, 8)
+    const lowered = debouncedLocationQuery.toLowerCase()
+    return availableDistricts.filter(name => name.toLowerCase().includes(lowered)).slice(0, 8)
+  }, [availableDistricts, debouncedLocationQuery])
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedLocationQuery(locationQuery.trim())
+    }, 250)
+
+    return () => clearTimeout(handler)
+  }, [locationQuery])
+
+  const handleSuggestionSelect = (name: string, setFieldValue: (field: string, value: unknown) => void) => {
+    setLocationQuery(name)
+    setFieldValue('location', name)
+    setShowSuggestions(false)
+  }
 
   // Background carousel images (external URLs)
   const heroImages = [
@@ -155,8 +197,9 @@ export default function HeroSection() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setCurrentTab(tab)}
-                  className={`py-2 px-3 rounded-lg text-sm font-medium transition ${currentTab === tab ? 'bg-yellow-400 text-[#2a1407]' : 'bg-white/10 hover:bg-white/20'
-                    }`}
+                  className={`py-2 px-3 rounded-lg text-sm font-medium transition ${
+                    currentTab === tab ? 'bg-yellow-400 text-[#2a1407]' : 'bg-white/10 hover:bg-white/20'
+                  }`}
                 >
                   {t(`Hero.HeroMenu.${tab}`)}
                 </motion.button>
@@ -171,8 +214,9 @@ export default function HeroSection() {
                     type="button"
                     variant="tertiary"
                     size="small"
-                    className={`pb-1 transition ${currentTab === tab ? 'text-yellow-300 border-b-2 border-yellow-300' : 'text-white/80 hover:text-yellow-200'
-                      }`}
+                    className={`pb-1 transition ${
+                      currentTab === tab ? 'text-yellow-300 border-b-2 border-yellow-300' : 'text-white/80 hover:text-yellow-200'
+                    }`}
                     onClick={() => setCurrentTab(tab)}
                   >
                     {t(`Hero.HeroMenu.${tab}`)}
@@ -197,9 +241,9 @@ export default function HeroSection() {
                   {/* Location */}
                   <motion.div
                     whileHover={{ scale: 1.02 }}
-                    className={`p-3 rounded-lg transition 
-    ${touched.location && errors.location && 'border-red-500 bg-red-50'}
-  `}
+                    className={`relative p-3 rounded-lg transition ${
+                      touched.location && errors.location ? 'border border-red-500 bg-red-50' : 'bg-white'
+                    }`}
                   >
                     <div className="flex items-center gap-2 w-full">
                       <MapPin
@@ -211,9 +255,23 @@ export default function HeroSection() {
                       <input
                         name="location"
                         type="text"
-                        value={values.location}
-                        onChange={e => setFieldValue('location', e.target.value)}
-                        onBlur={handleBlur}
+                        value={locationQuery}
+                        onChange={e => {
+                          setLocationQuery(e.target.value)
+                          setFieldValue('location', e.target.value)
+                          setShowSuggestions(true)
+                          setShowBudget(false)
+                          setShowType(false)
+                        }}
+                        onBlur={event => {
+                          handleBlur(event)
+                          setTimeout(() => setShowSuggestions(false), 150)
+                        }}
+                        onFocus={() => {
+                          setShowSuggestions(true)
+                          setShowBudget(false)
+                          setShowType(false)
+                        }}
                         placeholder="Enter location"
                         aria-invalid={Boolean(touched.location && errors.location)}
                         aria-describedby={touched.location && errors.location ? 'location-error-mobile' : undefined}
@@ -229,6 +287,24 @@ export default function HeroSection() {
                         {errors.location}
                       </p>
                     )}
+
+                    {showSuggestions && locationSuggestions.length > 0 && (
+                      <div className="absolute left-0 right-0 top-full z-30 mt-2 max-h-60 overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-xl">
+                        {locationSuggestions.map(name => (
+                          <button
+                            type="button"
+                            key={name}
+                            onMouseDown={event => {
+                              event.preventDefault()
+                              handleSuggestionSelect(name, setFieldValue)
+                            }}
+                            className="w-full px-4 py-2 text-left text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+                          >
+                            {name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </motion.div>
 
                   {/* Property Type Select */}
@@ -238,6 +314,7 @@ export default function HeroSection() {
                     onClick={() => {
                       setShowType(!showType)
                       setShowBudget(false)
+                      setShowSuggestions(false)
                     }}
                   >
                     <div className="flex items-center gap-2">
@@ -284,6 +361,7 @@ export default function HeroSection() {
                       e.stopPropagation()
                       setShowBudget(!showBudget)
                       setShowType(false)
+                      setShowSuggestions(false)
                     }}
                   >
                     <div className="flex items-center space-x-2 flex-1">
@@ -315,8 +393,9 @@ export default function HeroSection() {
                               }}
                               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#2a1407]"
                               style={{
-                                background: `linear-gradient(to right, #2a1407 0%, #2a1407 ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100
-                                  }%, #e5e7eb ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100}%, #e5e7eb 100%)`,
+                                background: `linear-gradient(to right, #2a1407 0%, #2a1407 ${
+                                  ((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100
+                                }%, #e5e7eb ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100}%, #e5e7eb 100%)`,
                               }}
                             />
                             <input
@@ -377,9 +456,9 @@ export default function HeroSection() {
                   {/* Location */}
                   <motion.div
                     whileHover={{ scale: 1.02 }}
-                    className={`p-3 rounded-lg transition 
-    ${touched.location && errors.location && 'border-red-500 bg-red-50'}
-  `}
+                    className={`relative p-3 rounded-lg transition ${
+                      touched.location && errors.location ? 'border border-red-500 bg-red-50' : 'bg-white'
+                    }`}
                   >
                     <div className="flex items-center gap-2 w-full">
                       <MapPin
@@ -391,9 +470,23 @@ export default function HeroSection() {
                       <input
                         name="location"
                         type="text"
-                        value={values.location}
-                        onChange={e => setFieldValue('location', e.target.value)}
-                        onBlur={handleBlur}
+                        value={locationQuery}
+                        onChange={e => {
+                          setLocationQuery(e.target.value)
+                          setFieldValue('location', e.target.value)
+                          setShowSuggestions(true)
+                          setShowBudget(false)
+                          setShowType(false)
+                        }}
+                        onBlur={event => {
+                          handleBlur(event)
+                          setTimeout(() => setShowSuggestions(false), 150)
+                        }}
+                        onFocus={() => {
+                          setShowSuggestions(true)
+                          setShowBudget(false)
+                          setShowType(false)
+                        }}
                         placeholder="Enter location"
                         aria-invalid={Boolean(touched.location && errors.location)}
                         aria-describedby={touched.location && errors.location ? 'location-error-mobile' : undefined}
@@ -409,6 +502,24 @@ export default function HeroSection() {
                         {errors.location}
                       </p>
                     )}
+
+                    {showSuggestions && locationSuggestions.length > 0 && (
+                      <div className="absolute left-0 right-0 top-full z-30 mt-2 max-h-60 overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-xl">
+                        {locationSuggestions.map(name => (
+                          <button
+                            type="button"
+                            key={name}
+                            onMouseDown={event => {
+                              event.preventDefault()
+                              handleSuggestionSelect(name, setFieldValue)
+                            }}
+                            className="w-full px-4 py-2 text-left text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+                          >
+                            {name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </motion.div>
 
                   {/* Property Type */}
@@ -417,6 +528,7 @@ export default function HeroSection() {
                     onClick={() => {
                       setShowType(!showType)
                       setShowBudget(false)
+                      setShowSuggestions(false)
                     }}
                   >
                     <span className="font-medium flex items-center gap-2">
@@ -455,6 +567,7 @@ export default function HeroSection() {
                       e.stopPropagation()
                       setShowBudget(!showBudget)
                       setShowType(false)
+                      setShowSuggestions(false)
                     }}
                   >
                     <IndianRupee className="w-5 h-5" />
@@ -483,8 +596,9 @@ export default function HeroSection() {
                               }}
                               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#2a1407]"
                               style={{
-                                background: `linear-gradient(to right, #2a1407 0%, #2a1407 ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100
-                                  }%, #e5e7eb ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100}%, #e5e7eb 100%)`,
+                                background: `linear-gradient(to right, #2a1407 0%, #2a1407 ${
+                                  ((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100
+                                }%, #e5e7eb ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100}%, #e5e7eb 100%)`,
                               }}
                             />
                             <input

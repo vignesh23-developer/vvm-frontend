@@ -127,7 +127,7 @@
     "title": "Explore Your Dream Property in Tamil Nadu",
     "description": "Discover hand-picked districts with the best mix of homes, plots and investments in our chocolate & gold experience.",
     "viewDetails": "View Details",
-    "more": "More"
+    "more": "See More"
   },
   "Testimonials": {
     "title": "Our Testimonials",
@@ -172,7 +172,8 @@
     "Headers": {
       "about": "About",
       "support": "Support",
-      "our_services": "Our Services"
+      "our_services": "Our Services",
+      "explore": "Explore"
     }
   },
 
@@ -193,6 +194,7 @@
     "per_sqft": "per sqft",
     "builder_name": "Bulider Name",
     "agent_name": "Agent Name",
+    "total_properties": "Total Properties",
     "properties_for_sale": "Properties\nFor Sale",
     "properties_for_rent": "Properties\nFor Rent",
     "deals_closed": "Deals\nClosed",

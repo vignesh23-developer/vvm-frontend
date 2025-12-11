@@ -73,9 +73,28 @@ function InfoItem({ label, value, icon, href }: InfoItemProps) {
   return content
 }
 
-
-const DEFAULT_TABS = ['SALE', 'RENT', 'LEASE'] as const
 const PROPERTIES_PER_PAGE = 6
+const DEFAULT_TABS = ['All']
+
+const getPropertyCategoryName = (property: any): string => {
+  const rawName = property?.property_category?.name ?? ''
+
+  return typeof rawName === 'string' ? rawName.trim() : ''
+}
+
+const getEmptyStateCopy = (tab?: string) => {
+  if (!tab || tab === DEFAULT_TABS[0]) {
+    return {
+      title: 'No properties available yet',
+      subtitle: "This agency hasn't published any properties just yet. Please check back soon.",
+    }
+  }
+
+  return {
+    title: `No ${tab} properties available`,
+    subtitle: `This agency doesn't have any properties listed under ${tab.toLowerCase()} right now.`,
+  }
+}
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -98,7 +117,7 @@ const cardVariants: Variants = {
 export default function AgencyDetails({ name }: { name: string }) {
   const t = useTranslations()
   const router = useRouter()
-  const [selectedTab, setSelectedTab] = useState<string>(DEFAULT_TABS[0])
+  const [selectedTab, setSelectedTab] = useState<string>()
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [agentIdProperties, setAgentIdProperties] = useState<any>(null)
   const [agencyData, setAgencyData] = useState<AgentCompanyProfile | null>(null)
@@ -111,31 +130,29 @@ export default function AgencyDetails({ name }: { name: string }) {
 
   const normalizedProperties = useMemo(() => (Array.isArray(agentIdProperties) ? agentIdProperties : []), [agentIdProperties])
 
-  // Always show all three tabs (SALE, RENT, LEASE) regardless of available properties
+  // Derive tabs from property category names (property_category_name) instead of listing_type
   const availableTabs = useMemo(() => {
-    return [...DEFAULT_TABS]
-  }, [])
+    if (!normalizedProperties.length) return [...DEFAULT_TABS]
+
+    const categoryNames = normalizedProperties.map(getPropertyCategoryName).filter(Boolean)
+    const uniqueCategories = Array.from(new Set(categoryNames))
+
+    return [DEFAULT_TABS[0], ...uniqueCategories]
+  }, [normalizedProperties])
 
   useEffect(() => {
     if (!availableTabs.length) return
-    if (!availableTabs.includes(selectedTab as typeof DEFAULT_TABS[number])) {
+    if (!availableTabs.includes(selectedTab as string)) {
       setSelectedTab(availableTabs[0])
     }
   }, [availableTabs, selectedTab])
 
   const filteredProperties = useMemo(() => {
-    if (!normalizedProperties.length) {
-      return []
-    }
+    if (!normalizedProperties.length) return []
+    if (!selectedTab || selectedTab === DEFAULT_TABS[0]) return normalizedProperties
 
-    return normalizedProperties.filter((property: any) => {
-      const normalizedType = property?.listing_type?.toString().trim().toUpperCase()
-      if (!normalizedType) {
-        return selectedTab === availableTabs[0]
-      }
-      return normalizedType === selectedTab
-    })
-  }, [normalizedProperties, selectedTab, availableTabs])
+    return normalizedProperties.filter((property: any) => getPropertyCategoryName(property) === selectedTab)
+  }, [normalizedProperties, selectedTab])
 
   const totalPages = useMemo(() => {
     if (!filteredProperties.length) {
@@ -264,8 +281,8 @@ export default function AgencyDetails({ name }: { name: string }) {
   const highlightStats = useMemo(
     () => [
       { labelKey: 'PropertiesListCard.operating_since', value: establishedYear, Icon: CalendarDays },
-      { labelKey: 'PropertiesListCard.properties_for_sale', value: '—', Icon: Building2 },
-      { labelKey: 'PropertiesListCard.deals_closed', value: '—', Icon: Handshake },
+      { labelKey: 'PropertiesListCard.total_properties', value: agencyData?.agentStats?.totalPropertiesPosted ?? '—', Icon: Building2 },
+      { labelKey: 'PropertiesListCard.deals_closed', value: agencyData?.agentStats?.totalPropertiesSold ?? '—', Icon: Handshake },
     ],
     [establishedYear],
   )
@@ -356,14 +373,14 @@ export default function AgencyDetails({ name }: { name: string }) {
 
       {/* Property Cards Skeleton */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
-          {[1, 2, 3, 4, 5, 6].map(i => (
-            <motion.div
-              key={i}
+        {[1, 2, 3, 4, 5, 6].map(i => (
+          <motion.div
+            key={i}
             className="relative bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-lg animate-pulse"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: i * 0.1 }}
-            >
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: i * 0.1 }}
+          >
             <div className="w-full h-64 sm:h-72 lg:h-80 bg-gradient-to-br from-stone-200 via-stone-100 to-stone-200" />
             <div className="p-4 space-y-3">
               <div className="h-4 w-3/4 bg-stone-200 rounded" />
@@ -374,8 +391,8 @@ export default function AgencyDetails({ name }: { name: string }) {
               </div>
               <div className="h-8 w-full bg-stone-200 rounded-lg" />
             </div>
-            </motion.div>
-          ))}
+          </motion.div>
+        ))}
       </div>
     </div>
   )
@@ -415,7 +432,7 @@ export default function AgencyDetails({ name }: { name: string }) {
                       {!isVerified && <span className="rounded-full bg-stone-200 px-3 py-1 text-stone-600">{t('AgencyDetails.not_verified')}</span>}
                     </div>
 
-                    <h1 className="text-3xl font-bold text-stone-900 sm:text-4xl">{profileTitle}</h1>
+                    <h1 className="text-3xl font-bold text-stone-900 sm:text-4xl">{agencyData?.companyName}</h1>
                     {agencyData?.shortTitle && <p className="text-base text-stone-600">{agencyData.shortTitle}</p>}
                     {agencyData?.description && <p className="text-sm leading-relaxed text-stone-600">{agencyData.description}</p>}
                   </div>
@@ -481,15 +498,15 @@ export default function AgencyDetails({ name }: { name: string }) {
             <section className="w-full flex flex-col items-center py-8">
               <div className="w-full max-w-7xl mx-auto px-4 md:px-8">
                 <h2 className="mb-6 text-center text-2xl font-bold tracking-wide text-stone-900">Properties by this Agency</h2>
-                
-                {/* Tabs - Always show all three (SALE, RENT, LEASE) */}
+
+                {/* Tabs - Always show All plus category names derived from properties */}
                 {isLoading ? (
                   <div className="flex justify-center py-10">
                     <Loader2 className="h-8 w-8 animate-spin text-amber-600" />
                   </div>
                 ) : (
                   <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-                    {DEFAULT_TABS.map((tab, idx) => {
+                    {availableTabs.map((tab, idx) => {
                       const isActive = selectedTab === tab
                       return (
                         <motion.div
@@ -660,10 +677,15 @@ export default function AgencyDetails({ name }: { name: string }) {
                   </motion.div>
                 ) : (
                   <div className="text-center py-12 mt-8 w-full">
-                    <div className="bg-gradient-to-br from-yellow-50 to-yellow-100/30 rounded-xl border border-yellow-200 p-8 shadow-sm">
-                      <p className="text-gray-600 text-lg font-medium mb-2">No {selectedTab} properties available</p>
-                      <p className="text-gray-500 text-sm">This agency doesn't have any properties for {selectedTab.toLowerCase()} at the moment.</p>
-                    </div>
+                    {(() => {
+                      const copy = getEmptyStateCopy(selectedTab)
+                      return (
+                        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100/30 rounded-xl border border-yellow-200 p-8 shadow-sm">
+                          <p className="text-gray-600 text-lg font-medium mb-2">{copy.title}</p>
+                          <p className="text-gray-500 text-sm">{copy.subtitle}</p>
+                        </div>
+                      )
+                    })()}
                   </div>
                 )}
 
@@ -731,8 +753,7 @@ export default function AgencyDetails({ name }: { name: string }) {
             <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
               <div className="grid lg:grid-cols-3 gap-8">
                 {/* Left Content - 2 columns */}
-                <div className="lg:col-span-2 space-y-8">
-                </div>
+                <div className="lg:col-span-2 space-y-8"></div>
 
                 {/* Right Sidebar - 1 column */}
                 <motion.aside
@@ -740,12 +761,9 @@ export default function AgencyDetails({ name }: { name: string }) {
                   initial={{ opacity: 0, x: 50 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.6, delay: 0.3 }}
-                >
-                </motion.aside>
+                ></motion.aside>
               </div>
             </div>
-
-           
           </div>
         )}
       </div>

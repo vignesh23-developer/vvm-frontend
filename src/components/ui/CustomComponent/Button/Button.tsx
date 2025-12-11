@@ -5,6 +5,7 @@ interface ButtonProps {
   onClick?: (e: any) => void
   disabled?: boolean
   className?: string
+  title?: string
   hover?: string
   style?: React.CSSProperties
   type?: 'button' | 'submit' | 'reset'
@@ -18,6 +19,7 @@ function Button({
   onClick,
   disabled = false,
   className = '',
+  title = '',
   hover = '',
   style = {},
   type = 'button',
@@ -33,7 +35,14 @@ function Button({
 
   return (
     <div>
-      <button type={type} onClick={handleClick} disabled={disabled} className={`${className} hover:cursor-pointer ${hover}`} style={style}>
+      <button
+        type={type}
+        onClick={handleClick}
+        disabled={disabled}
+        title={title}
+        className={`${className} hover:cursor-pointer ${hover}`}
+        style={style}
+      >
         {icon && <span className="btn-icon">{icon}</span>}
         {children}
       </button>

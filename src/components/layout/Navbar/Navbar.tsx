@@ -426,9 +426,7 @@ export default function Navbar({
                 }}
                 className="relative group flex-shrink-0"
               >
-                <div className="relative text-sm md:text-base font-medium whitespace-nowrap px-1">
-                  {t(`Navbar.${links.label}`)}
-                </div>
+                <div className="relative text-sm md:text-base font-medium whitespace-nowrap px-1">{t(`Navbar.${links.label}`)}</div>
               </div>
             ))}
           </div>
@@ -586,12 +584,6 @@ export default function Navbar({
                 >
                   {t('Auth.login')}
                 </Link>
-                <Link
-                  href="/signup"
-                  className="flex items-center gap-2 bg-white/90 backdrop-blur-sm text-[#2a1407] border border-white/50 px-5 py-2.5 rounded-lg font-semibold hover:bg-white transition shadow-md hover:shadow-lg text-sm md:text-base"
-                >
-                  {t('Auth.signup') || 'Register'}
-                </Link>
               </div>
             )
           )}
@@ -733,33 +725,11 @@ export default function Navbar({
                   >
                     {t('Auth.login')}
                   </Link>
-                  <Link
-                    href="/signup"
-                    className="flex items-center justify-center gap-2 bg-white text-[#2a1407] border border-gray-200 px-5 py-2.5 rounded-lg font-semibold hover:bg-gray-50 transition shadow-md text-sm"
-                  >
-                    {t('Auth.signup') || 'Register'}
-                  </Link>
                 </div>
               )}
 
           {/* Keep your language selector & profile/login below unchanged */}
-          {showLanguageSelector && (
-            <div className="flex items-center gap-2 mt-4 text-white">
-              <Globe size={18} />
-              <select
-                value={locale}
-                onChange={e => handleLanguageChange(e.target.value as 'en' | 'ta')}
-                className="bg-transparent border border-white/40 text-white rounded-md px-2 py-1 text-sm focus:outline-none focus:border-white"
-              >
-                <option className="text-black" value="en">
-                  EN
-                </option>
-                <option className="text-black" value="ta">
-                  TA
-                </option>
-              </select>
-            </div>
-          )}
+          {showLanguageSelector && <LanguageSwitch />}
         </div>
       </div>
     </nav>

@@ -76,10 +76,14 @@ export default function SignupPage() {
         if (token) {
           setUser(userData)
           setToken(token)
-          reset()
           const successMessage = response.data?.message || response.message || 'OTP verified successfully'
           toast.success(successMessage)
-          router.push('/')
+          if (globalValue?.isRedirect) {
+            router.push(globalValue.isRedirect)
+          } else {
+            router.push('/')
+          }
+          reset()
         } else {
           toast.error(response.message || 'Missing access token in response')
         }

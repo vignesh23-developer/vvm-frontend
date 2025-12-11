@@ -1,56 +1,50 @@
-"use client";
+'use client'
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
-import { Star } from "lucide-react";
-import Image from "next/image";
-import { useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { motion, AnimatePresence } from 'motion/react'
+import { Star } from 'lucide-react'
+import Image from 'next/image'
+import { useEffect, useState } from 'react'
 
 type Testimonial = {
-  quote: string;
-  name: string;
-  designation: string;
-  src?: string;
-  rating?: number;
-  id?: number | string;
-};
-export const AnimatedTestimonials = ({
-  testimonials,
-  autoplay = false,
-}: {
-  testimonials: Testimonial[];
-  autoplay?: boolean;
-}) => {
-  const [active, setActive] = useState(0);
+  quote: string
+  name: string
+  designation: string
+  src?: string
+  rating?: number
+  id?: number | string
+}
+export const AnimatedTestimonials = ({ testimonials, autoplay = false }: { testimonials: Testimonial[]; autoplay?: boolean }) => {
+  const [active, setActive] = useState(0)
 
   const handleNext = () => {
-    setActive((prev) => (prev + 1) % testimonials.length);
-  };
+    setActive(prev => (prev + 1) % testimonials.length)
+  }
 
   const handlePrev = () => {
-    setActive((prev) => (prev - 1 + testimonials.length) % testimonials.length);
-  };
+    setActive(prev => (prev - 1 + testimonials.length) % testimonials.length)
+  }
 
   const isActive = (index: number) => {
-    return index === active;
-  };
+    return index === active
+  }
 
   useEffect(() => {
     if (autoplay) {
       const interval = setInterval(() => {
-        setActive((prev) => (prev + 1) % testimonials.length);
-      }, 5000);
-      return () => clearInterval(interval);
+        setActive(prev => (prev + 1) % testimonials.length)
+      }, 5000)
+      return () => clearInterval(interval)
     }
-  }, [autoplay, testimonials.length]);
+  }, [autoplay, testimonials.length])
 
   const randomRotateY = () => {
-    return Math.floor(Math.random() * 21) - 10;
-  };
+    return Math.floor(Math.random() * 21) - 10
+  }
   // Generate avatar from name if no image provided
   const getAvatarContent = (name: string) => {
-    return name.charAt(0).toUpperCase();
-  };
+    return name.charAt(0).toUpperCase()
+  }
 
   return (
     <div className="mx-auto max-w-sm px-4 py-10 font-sans antialiased md:max-w-5xl md:px-8 lg:px-12">
@@ -58,7 +52,7 @@ export const AnimatedTestimonials = ({
         {/* Image Stack Section */}
         <div className="order-2 md:order-1">
           <div className="relative h-96 w-full md:h-[500px]">
-            <AnimatePresence mode="wait">
+            <AnimatePresence>
               {testimonials.map((testimonial, index) => (
                 <motion.div
                   key={testimonial.id || testimonial.name || index}
@@ -73,9 +67,7 @@ export const AnimatedTestimonials = ({
                     scale: isActive(index) ? 1 : 0.92,
                     z: isActive(index) ? 0 : -100,
                     rotate: isActive(index) ? 0 : randomRotateY(),
-                    zIndex: isActive(index)
-                      ? 40
-                      : testimonials.length + 2 - index,
+                    zIndex: isActive(index) ? 40 : testimonials.length + 2 - index,
                     y: isActive(index) ? [0, -20, 0] : 0,
                   }}
                   exit={{
@@ -86,7 +78,7 @@ export const AnimatedTestimonials = ({
                   }}
                   transition={{
                     duration: 0.5,
-                    ease: "easeInOut",
+                    ease: 'easeInOut',
                   }}
                   className="absolute inset-0 origin-bottom"
                 >
@@ -100,9 +92,7 @@ export const AnimatedTestimonials = ({
                     />
                   ) : (
                     <div className="h-full w-full rounded-3xl bg-gradient-to-br from-yellow-100 via-yellow-50 to-white flex items-center justify-center shadow-2xl border-4 border-white">
-                      <span className="text-8xl font-black text-[#3b1804]">
-                        {getAvatarContent(testimonial.name)}
-                      </span>
+                      <span className="text-8xl font-black text-[#3b1804]">{getAvatarContent(testimonial.name)}</span>
                     </div>
                   )}
                 </motion.div>
@@ -129,7 +119,7 @@ export const AnimatedTestimonials = ({
             }}
             transition={{
               duration: 0.3,
-              ease: "easeInOut",
+              ease: 'easeInOut',
             }}
             className="flex-1"
           >
@@ -142,12 +132,8 @@ export const AnimatedTestimonials = ({
 
             {/* Name and Designation */}
             <div className="mb-6">
-              <h3 className="text-3xl md:text-4xl font-black text-[#3b1804] mb-2 ">
-                {testimonials[active].name}
-              </h3>
-              <p className="text-base md:text-lg font-semibold text-yellow-600">
-                {testimonials[active].designation}
-              </p>
+              <h3 className="text-3xl md:text-4xl font-black text-[#3b1804] mb-2 ">{testimonials[active].name}</h3>
+              <p className="text-base md:text-lg font-semibold text-yellow-600">{testimonials[active].designation}</p>
             </div>
 
             {/* Rating Stars */}
@@ -157,9 +143,7 @@ export const AnimatedTestimonials = ({
                   <Star
                     key={i}
                     className={`w-5 h-5 transition-all duration-300 ${
-                      i < (testimonials[active].rating || 0)
-                        ? 'fill-yellow-500 text-yellow-500 scale-110'
-                        : 'text-gray-300'
+                      i < (testimonials[active].rating || 0) ? 'fill-yellow-500 text-yellow-500 scale-110' : 'text-gray-300'
                     }`}
                   />
                 ))}
@@ -168,22 +152,22 @@ export const AnimatedTestimonials = ({
 
             {/* Quote Text with Word Animation */}
             <motion.p className="text-lg md:text-xl text-gray-700 leading-relaxed font-medium">
-              {testimonials[active].quote.split(" ").map((word, index) => (
+              {testimonials[active].quote.split(' ').map((word, index) => (
                 <motion.span
                   key={index}
                   initial={{
-                    filter: "blur(10px)",
+                    filter: 'blur(10px)',
                     opacity: 0,
                     y: 5,
                   }}
                   animate={{
-                    filter: "blur(0px)",
+                    filter: 'blur(0px)',
                     opacity: 1,
                     y: 0,
                   }}
                   transition={{
                     duration: 0.15,
-                    ease: "easeOut",
+                    ease: 'easeOut',
                     delay: 0.015 * index,
                   }}
                   className="inline-block"
@@ -203,9 +187,7 @@ export const AnimatedTestimonials = ({
                   key={index}
                   onClick={() => setActive(index)}
                   className={`h-2 rounded-full transition-all duration-300 ${
-                    isActive(index)
-                      ? 'w-8 bg-gradient-to-r from-yellow-500 to-yellow-600'
-                      : 'w-2 bg-gray-300 hover:bg-yellow-400'
+                    isActive(index) ? 'w-8 bg-gradient-to-r from-yellow-500 to-yellow-600' : 'w-2 bg-gray-300 hover:bg-yellow-400'
                   }`}
                   aria-label={`Go to testimonial ${index + 1}`}
                 />
@@ -233,5 +215,5 @@ export const AnimatedTestimonials = ({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

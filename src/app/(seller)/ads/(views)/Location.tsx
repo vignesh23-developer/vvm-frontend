@@ -84,12 +84,7 @@ export default function Step2Location({ formik }: Step2LocationProps) {
               placeholder="Enter city"
               className="w-full p-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed text-gray-700 focus:outline-none focus:ring-0 focus:border-gray-300"
             />
-            <FormikTextField
-              label="Postal Code"
-              name="postal_code"
-              placeholder="Enter postal code"
-              className="w-full p-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed text-gray-700 focus:outline-none focus:ring-0 focus:border-gray-300"
-            />
+            <FormikTextField label="Postal Code" name="postal_code" placeholder="Enter postal code" />
           </div>
         </div>
 

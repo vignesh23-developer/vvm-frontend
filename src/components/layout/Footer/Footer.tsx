@@ -29,8 +29,8 @@ const supportLinks = [
 const exploreLinks = [
   { label: 'properties', href: '/properties-list' },
   { label: 'pricing', href: '/pricing' },
-  { label: 'post_property', href: '/post-property' },
-  { label: 'property_videos', href: '/property-videos' },
+  { label: 'post_property', href: '/properties-registration' },
+  // { label: 'property_videos', href: '/property-videos' },
   { label: 'blog', href: '/blog' },
 ]
 
@@ -60,7 +60,7 @@ export default function Footer() {
           <div className="lg:col-span-2">
             <Link href={'/'} className="inline-block mb-4">
               <Image
-                src="/footer_logo.png"
+                src="/footer_logo_new.PNG"
                 alt="Vaazhga Valamudan Logo"
                 width={200}
                 height={100}
@@ -68,9 +68,10 @@ export default function Footer() {
               />
             </Link>
             <p className="text-sm text-gray-300 leading-relaxed mb-6 max-w-md">
-              Vaazhga Valamudan is Tamil Nadu's trusted platform for buying, selling, and renting properties with verified listings and professional support.
+              Vaazhga Valamudan is Tamil Nadu's trusted platform for buying, selling, and renting properties with verified listings and professional
+              support.
             </p>
-            
+
             {/* Contact Details */}
             <div className="space-y-3 mb-6">
               <div className="flex items-start gap-3 text-sm text-gray-300">
@@ -107,7 +108,7 @@ export default function Footer() {
 
           {/* Explore Column */}
           <div>
-            <FooterColumn title="Explore" links={exploreLinks} />
+            <FooterColumn title={t('Footer.Headers.explore') || 'Explore'} links={exploreLinks} />
           </div>
         </div>
 
@@ -116,14 +117,12 @@ export default function Footer() {
           {/* Newsletter Signup */}
           <div>
             <h3 className="font-semibold text-lg mb-3">Subscribe for Updates</h3>
-            <p className="text-sm text-gray-300 mb-4">
-              Get property alerts, offers & market insights. No spam.
-            </p>
+            <p className="text-sm text-gray-300 mb-4">Get property alerts, offers & market insights. No spam.</p>
             <form onSubmit={handleNewsletterSubmit} className="flex gap-2">
               <input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 placeholder="Your email address"
                 className="flex-1 px-4 py-2.5 rounded-lg bg-white/10 border border-yellow-900/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                 required
@@ -140,27 +139,13 @@ export default function Footer() {
           {/* App Download */}
           <div>
             <h3 className="font-semibold text-lg mb-3">Download Our App</h3>
-            <p className="text-sm text-gray-300 mb-4">
-              Get property alerts, save favorites, and chat with agents on the go.
-            </p>
+            <p className="text-sm text-gray-300 mb-4">Get property alerts, save favorites, and chat with agents on the go.</p>
             <div className="flex flex-wrap gap-3">
               <Link href="#" className="hover:scale-105 transition">
-                <Image
-                  src="/googleplay.png"
-                  alt="Get it on Google Play"
-                  width={140}
-                  height={42}
-                  className="cursor-pointer"
-                />
+                <Image src="/googleplay.png" alt="Get it on Google Play" width={140} height={42} className="cursor-pointer" />
               </Link>
               <Link href="#" className="hover:scale-105 transition">
-                <Image
-                  src="/appstore.png"
-                  alt="Download on the App Store"
-                  width={140}
-                  height={42}
-                  className="cursor-pointer"
-                />
+                <Image src="/appstore.png" alt="Download on the App Store" width={140} height={42} className="cursor-pointer" />
               </Link>
             </div>
           </div>
@@ -190,17 +175,10 @@ export default function Footer() {
 
             {/* Copyright */}
             <div className="text-center md:text-right">
-              <p className="text-sm text-gray-300">
-                © {new Date().getFullYear()} Vaazhga Valamudan. All Rights Reserved.
-              </p>
+              <p className="text-sm text-gray-300">© {new Date().getFullYear()} Vaazhga Valamudan. All Rights Reserved.</p>
               <p className="text-xs text-gray-400 mt-1">
                 Designed by{' '}
-                <Link
-                  href="https://www.bizdevinfotech.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-yellow-400 hover:underline"
-                >
+                <Link href="https://www.bizdevinfotech.com/" target="_blank" rel="noopener noreferrer" className="text-yellow-400 hover:underline">
                   Bizdev Information Technology
                 </Link>
               </p>

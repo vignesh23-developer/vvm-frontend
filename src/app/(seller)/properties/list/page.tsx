@@ -58,6 +58,12 @@ export default function PropertiesPage() {
   }
 
   const columns = [
+    // {
+    //   field: 'sno',
+    //   title: 'S.No',
+    //   sortable: true,
+    //   filterable: true,
+    // },
     {
       field: 'title',
       title: 'Title',

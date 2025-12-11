@@ -355,12 +355,10 @@ const page = () => {
 
       let value = ''
       let values: string[] = []
-      
+
       if (Array.isArray(fv.feature_options) && fv.feature_options.length > 0) {
-        values = fv.feature_options
-          .map((opt: any) => opt?.name)
-          .filter((n: any) => typeof n === 'string' && n.trim().length > 0)
-        
+        values = fv.feature_options.map((opt: any) => opt?.name).filter((n: any) => typeof n === 'string' && n.trim().length > 0)
+
         // If multiple values, join with comma for display
         if (values.length > 0) {
           value = values.length > 3 ? `${values.slice(0, 3).join(', ')} +${values.length - 3} more` : values.join(', ')
@@ -630,13 +628,13 @@ const page = () => {
                   style={{ cursor: galleryImages[0] ? 'pointer' : 'default' }}
                 >
                   {galleryImages[0] && galleryImages[0].trim() !== '' ? (
-                  <Image
-                    src={galleryImages[0]}
-                    alt="Property main image"
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    priority
-                  />
+                    <Image
+                      src={galleryImages[0]}
+                      alt="Property main image"
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      priority
+                    />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                       <Camera size={48} className="text-gray-400" />
@@ -654,12 +652,12 @@ const page = () => {
                   style={{ cursor: galleryImages[1] ? 'pointer' : 'default' }}
                 >
                   {galleryImages[1] && galleryImages[1].trim() !== '' ? (
-                  <Image
-                    src={galleryImages[1]}
-                    alt="Property image 2"
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
+                    <Image
+                      src={galleryImages[1]}
+                      alt="Property image 2"
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                       <Camera size={48} className="text-gray-400" />
@@ -680,13 +678,13 @@ const page = () => {
                   style={{ cursor: galleryImages[0] ? 'pointer' : 'default' }}
                 >
                   {galleryImages[0] && galleryImages[0].trim() !== '' ? (
-                  <Image
-                    src={galleryImages[0]}
-                    alt="Property main image"
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    priority
-                  />
+                    <Image
+                      src={galleryImages[0]}
+                      alt="Property main image"
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      priority
+                    />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                       <Camera size={48} className="text-gray-400" />
@@ -708,12 +706,12 @@ const page = () => {
                       style={{ cursor: galleryImages[1] ? 'pointer' : 'default' }}
                     >
                       {galleryImages[1] ? (
-                      <Image
-                        src={galleryImages[1]}
-                        alt="Property image 2"
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
+                        <Image
+                          src={galleryImages[1]}
+                          alt="Property image 2"
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                           <Camera size={24} className="text-gray-400" />
@@ -736,12 +734,12 @@ const page = () => {
                         style={{ cursor: galleryImages[2] ? 'pointer' : 'default' }}
                       >
                         {galleryImages[2] && galleryImages[2].trim() !== '' ? (
-                        <Image
-                          src={galleryImages[2]}
-                          alt="Property image 3"
-                          fill
-                          className="object-cover transition-transform duration-500 group-hover:scale-110"
-                        />
+                          <Image
+                            src={galleryImages[2]}
+                            alt="Property image 3"
+                            fill
+                            className="object-cover transition-transform duration-500 group-hover:scale-110"
+                          />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                             <Camera size={24} className="text-gray-400" />
@@ -778,12 +776,12 @@ const page = () => {
                         ) : galleryImages[3] ? (
                           <>
                             {galleryImages[3] && galleryImages[3].trim() !== '' ? (
-                            <Image
-                              src={galleryImages[3]}
-                              alt="Property image 4"
-                              fill
-                              className="object-cover transition-transform duration-500 group-hover:scale-110"
-                            />
+                              <Image
+                                src={galleryImages[3]}
+                                alt="Property image 4"
+                                fill
+                                className="object-cover transition-transform duration-500 group-hover:scale-110"
+                              />
                             ) : (
                               <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                                 <Camera size={24} className="text-gray-400" />
@@ -888,6 +886,14 @@ const page = () => {
                         </Button>
                         <Button
                           type="button"
+                          onClick={() => setEnquiryModalOpen(true)}
+                          className="flex-1 bg-white border border-yellow-200 rounded-full py-2.5 px-4 text-sm text-gray-700 hover:bg-yellow-50 flex items-center justify-center gap-1 transition-all"
+                        >
+                          <Flag size={16} />
+                          <span>Enquiry Now</span>
+                        </Button>
+                        <Button
+                          type="button"
                           onClick={handleDownloadBrochure}
                           className="flex-1 bg-white border border-yellow-200 rounded-full py-2.5 px-4 text-sm text-gray-700 hover:bg-yellow-50 flex items-center justify-center gap-1 transition-all"
                         >
@@ -960,12 +966,10 @@ const page = () => {
                             </span>
                           ))}
                         </div>
-                        {card.values!.length > 3 && (
-                          <p className="text-xs text-gray-500 mt-1">+{card.values!.length - 3} more</p>
-                        )}
+                        {card.values!.length > 3 && <p className="text-xs text-gray-500 mt-1">+{card.values!.length - 3} more</p>}
                       </div>
                     ) : (
-                    <p className="text-sm font-bold text-gray-900">{card.value || 'N/A'}</p>
+                      <p className="text-sm font-bold text-gray-900">{card.value || 'N/A'}</p>
                     )}
                   </motion.div>
                 )
@@ -1852,219 +1856,219 @@ const page = () => {
 
       {/* Image Gallery Modal Carousel - Only show if there's an actual image */}
       <AnimatePresence>
-        {selectedImageIndex !== null && 
-         galleryImages[selectedImageIndex] && 
-         typeof galleryImages[selectedImageIndex] === 'string' && 
-         galleryImages[selectedImageIndex].trim() !== '' && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center p-4"
-              onClick={() => setSelectedImageIndex(null)}
-            >
-              <style jsx global>{`
-                body {
-                  overflow: hidden;
-                }
-              `}</style>
-
-              {/* Close Button */}
-              <motion.button
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                className="absolute top-6 right-6 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all"
-                onClick={e => {
-                  e.stopPropagation()
-                  setSelectedImageIndex(null)
-                }}
-                aria-label="Close gallery"
+        {selectedImageIndex !== null &&
+          galleryImages[selectedImageIndex] &&
+          typeof galleryImages[selectedImageIndex] === 'string' &&
+          galleryImages[selectedImageIndex].trim() !== '' && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center p-4"
+                onClick={() => setSelectedImageIndex(null)}
               >
-                <X size={24} />
-              </motion.button>
+                <style jsx global>{`
+                  body {
+                    overflow: hidden;
+                  }
+                `}</style>
 
-              {/* Navigation Buttons - Only show if there are actual images */}
-              {apiImages.length > 1 && (
-                <>
-                  <motion.button
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="absolute left-6 top-1/2 -translate-y-1/2 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all"
-                    onClick={e => {
-                      e.stopPropagation()
-                      if (selectedImageIndex !== null) {
-                        // Find previous actual image
-                        let newIndex = selectedImageIndex - 1
-                        while (newIndex >= 0 && !galleryImages[newIndex]) {
-                          newIndex--
-                        }
-                        if (newIndex < 0) {
-                          // Wrap to last actual image
-                          newIndex = galleryImages.length - 1
+                {/* Close Button */}
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="absolute top-6 right-6 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all"
+                  onClick={e => {
+                    e.stopPropagation()
+                    setSelectedImageIndex(null)
+                  }}
+                  aria-label="Close gallery"
+                >
+                  <X size={24} />
+                </motion.button>
+
+                {/* Navigation Buttons - Only show if there are actual images */}
+                {apiImages.length > 1 && (
+                  <>
+                    <motion.button
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      className="absolute left-6 top-1/2 -translate-y-1/2 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all"
+                      onClick={e => {
+                        e.stopPropagation()
+                        if (selectedImageIndex !== null) {
+                          // Find previous actual image
+                          let newIndex = selectedImageIndex - 1
                           while (newIndex >= 0 && !galleryImages[newIndex]) {
                             newIndex--
                           }
+                          if (newIndex < 0) {
+                            // Wrap to last actual image
+                            newIndex = galleryImages.length - 1
+                            while (newIndex >= 0 && !galleryImages[newIndex]) {
+                              newIndex--
+                            }
+                          }
+                          if (newIndex >= 0) setSelectedImageIndex(newIndex)
                         }
-                        if (newIndex >= 0) setSelectedImageIndex(newIndex)
-                      }
-                    }}
-                    aria-label="Previous image"
-                  >
-                    <ChevronLeft size={24} />
-                  </motion.button>
-                  <motion.button
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="absolute right-6 top-1/2 -translate-y-1/2 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all"
-                    onClick={e => {
-                      e.stopPropagation()
-                      if (selectedImageIndex !== null) {
-                        // Find next actual image
-                        let newIndex = selectedImageIndex + 1
-                        while (newIndex < galleryImages.length && !galleryImages[newIndex]) {
-                          newIndex++
-                        }
-                        if (newIndex >= galleryImages.length) {
-                          // Wrap to first actual image
-                          newIndex = 0
+                      }}
+                      aria-label="Previous image"
+                    >
+                      <ChevronLeft size={24} />
+                    </motion.button>
+                    <motion.button
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      className="absolute right-6 top-1/2 -translate-y-1/2 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all"
+                      onClick={e => {
+                        e.stopPropagation()
+                        if (selectedImageIndex !== null) {
+                          // Find next actual image
+                          let newIndex = selectedImageIndex + 1
                           while (newIndex < galleryImages.length && !galleryImages[newIndex]) {
                             newIndex++
                           }
+                          if (newIndex >= galleryImages.length) {
+                            // Wrap to first actual image
+                            newIndex = 0
+                            while (newIndex < galleryImages.length && !galleryImages[newIndex]) {
+                              newIndex++
+                            }
+                          }
+                          if (newIndex < galleryImages.length) setSelectedImageIndex(newIndex)
                         }
-                        if (newIndex < galleryImages.length) setSelectedImageIndex(newIndex)
-                      }
-                    }}
-                    aria-label="Next image"
-                  >
-                    <ChevronRight size={24} />
-                  </motion.button>
-                </>
-              )}
-
-              {/* Main Image */}
-              <motion.div
-                key={selectedImageIndex}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.3 }}
-                className="relative flex w-full max-w-6xl justify-center"
-                onClick={e => e.stopPropagation()}
-              >
-                {galleryImages[selectedImageIndex] && 
-                 typeof galleryImages[selectedImageIndex] === 'string' && 
-                 galleryImages[selectedImageIndex].trim() !== '' ? (
-                  <Image
-                    src={galleryImages[selectedImageIndex]}
-                    alt={`Property image ${selectedImageIndex + 1}`}
-                    width={1600}
-                    height={900}
-                    className="max-h-[90vh] w-auto object-contain rounded-lg select-none"
-                    priority
-                  />
-                ) : (
-                  <div className="max-h-[90vh] w-full max-w-6xl flex items-center justify-center bg-gray-800 rounded-lg">
-                    <div className="text-center text-white">
-                      <Camera size={64} className="mx-auto mb-4 opacity-50" />
-                      <p className="text-lg opacity-75">Image not available</p>
-                    </div>
-                  </div>
+                      }}
+                      aria-label="Next image"
+                    >
+                      <ChevronRight size={24} />
+                    </motion.button>
+                  </>
                 )}
-              </motion.div>
 
-              {/* Image Counter */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-white text-sm font-medium"
-              >
-                {selectedImageIndex + 1} / {apiImages.length || galleryImages.length}
-              </motion.div>
+                {/* Main Image */}
+                <motion.div
+                  key={selectedImageIndex}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.3 }}
+                  className="relative flex w-full max-w-6xl justify-center"
+                  onClick={e => e.stopPropagation()}
+                >
+                  {galleryImages[selectedImageIndex] &&
+                  typeof galleryImages[selectedImageIndex] === 'string' &&
+                  galleryImages[selectedImageIndex].trim() !== '' ? (
+                    <Image
+                      src={galleryImages[selectedImageIndex]}
+                      alt={`Property image ${selectedImageIndex + 1}`}
+                      width={1600}
+                      height={900}
+                      className="max-h-[90vh] w-auto object-contain rounded-lg select-none"
+                      priority
+                    />
+                  ) : (
+                    <div className="max-h-[90vh] w-full max-w-6xl flex items-center justify-center bg-gray-800 rounded-lg">
+                      <div className="text-center text-white">
+                        <Camera size={64} className="mx-auto mb-4 opacity-50" />
+                        <p className="text-lg opacity-75">Image not available</p>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
 
-              {/* Thumbnail Strip */}
-              {galleryImages.length > 1 && (
+                {/* Image Counter */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 flex gap-2 max-w-4xl overflow-x-auto px-4"
-                  onClick={e => e.stopPropagation()}
+                  className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-white text-sm font-medium"
                 >
-                  {galleryImages.map((img, idx) => {
-                    const hasValidImage = img && img.trim() !== ''
-                    return (
-                    <motion.button
-                      key={idx}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                        onClick={() => hasValidImage && setSelectedImageIndex(idx)}
-                        disabled={!hasValidImage}
-                      className={cn(
-                        'relative h-16 w-16 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all',
-                        selectedImageIndex === idx ? 'border-yellow-500 scale-110' : 'border-white/30 opacity-60 hover:opacity-100',
-                          !hasValidImage && 'bg-gray-800 border-gray-600',
-                      )}
-                    >
-                        {hasValidImage ? (
-                        <Image src={img} alt={`Thumbnail ${idx + 1}`} fill className="object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gray-800">
-                          <Camera size={20} className="text-gray-500" />
-                        </div>
-                      )}
-                    </motion.button>
-                    )
-                  })}
+                  {selectedImageIndex + 1} / {apiImages.length || galleryImages.length}
                 </motion.div>
-              )}
-            </motion.div>
 
-            {/* Keyboard Navigation */}
-            {selectedImageIndex !== null && (
-              <ImageCarouselKeyboardHandler
-                currentIndex={selectedImageIndex}
-                totalImages={apiImages.length}
-                onNavigate={dir => {
-                  if (dir === 'next') {
-                    // Find next actual image
-                    let newIndex = selectedImageIndex + 1
-                    while (newIndex < galleryImages.length && !galleryImages[newIndex]) {
-                      newIndex++
-                    }
-                    if (newIndex >= galleryImages.length) {
-                      newIndex = 0
+                {/* Thumbnail Strip */}
+                {galleryImages.length > 1 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 flex gap-2 max-w-4xl overflow-x-auto px-4"
+                    onClick={e => e.stopPropagation()}
+                  >
+                    {galleryImages.map((img, idx) => {
+                      const hasValidImage = img && img.trim() !== ''
+                      return (
+                        <motion.button
+                          key={idx}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => hasValidImage && setSelectedImageIndex(idx)}
+                          disabled={!hasValidImage}
+                          className={cn(
+                            'relative h-16 w-16 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all',
+                            selectedImageIndex === idx ? 'border-yellow-500 scale-110' : 'border-white/30 opacity-60 hover:opacity-100',
+                            !hasValidImage && 'bg-gray-800 border-gray-600',
+                          )}
+                        >
+                          {hasValidImage ? (
+                            <Image src={img} alt={`Thumbnail ${idx + 1}`} fill className="object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-800">
+                              <Camera size={20} className="text-gray-500" />
+                            </div>
+                          )}
+                        </motion.button>
+                      )
+                    })}
+                  </motion.div>
+                )}
+              </motion.div>
+
+              {/* Keyboard Navigation */}
+              {selectedImageIndex !== null && (
+                <ImageCarouselKeyboardHandler
+                  currentIndex={selectedImageIndex}
+                  totalImages={apiImages.length}
+                  onNavigate={dir => {
+                    if (dir === 'next') {
+                      // Find next actual image
+                      let newIndex = selectedImageIndex + 1
                       while (newIndex < galleryImages.length && !galleryImages[newIndex]) {
                         newIndex++
                       }
-                    }
-                    if (newIndex < galleryImages.length) setSelectedImageIndex(newIndex)
-                  } else {
-                    // Find previous actual image
-                    let newIndex = selectedImageIndex - 1
-                    while (newIndex >= 0 && !galleryImages[newIndex]) {
-                      newIndex--
-                    }
-                    if (newIndex < 0) {
-                      newIndex = galleryImages.length - 1
+                      if (newIndex >= galleryImages.length) {
+                        newIndex = 0
+                        while (newIndex < galleryImages.length && !galleryImages[newIndex]) {
+                          newIndex++
+                        }
+                      }
+                      if (newIndex < galleryImages.length) setSelectedImageIndex(newIndex)
+                    } else {
+                      // Find previous actual image
+                      let newIndex = selectedImageIndex - 1
                       while (newIndex >= 0 && !galleryImages[newIndex]) {
                         newIndex--
                       }
+                      if (newIndex < 0) {
+                        newIndex = galleryImages.length - 1
+                        while (newIndex >= 0 && !galleryImages[newIndex]) {
+                          newIndex--
+                        }
+                      }
+                      if (newIndex >= 0) setSelectedImageIndex(newIndex)
                     }
-                    if (newIndex >= 0) setSelectedImageIndex(newIndex)
-                  }
-                }}
-                onClose={() => setSelectedImageIndex(null)}
-              />
-            )}
-          </>
-        )}
+                  }}
+                  onClose={() => setSelectedImageIndex(null)}
+                />
+              )}
+            </>
+          )}
       </AnimatePresence>
     </motion.main>
   )

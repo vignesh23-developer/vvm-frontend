@@ -14,7 +14,7 @@ import { useTranslations } from 'next-intl'
 import LanguageSwitch from '@/components/ui/CustomComponent/languageSwitch/languageSwitch'
 import { postMethod } from '@/services/service'
 import toast from 'react-hot-toast'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { ResponseDTO } from '@/components/dto/response_dto'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { useGlobalContext } from '@/hooks/GlobalContext/GlobalContext'
@@ -25,12 +25,16 @@ interface AuthFormValues {
 const Login = () => {
   const t = useTranslations()
   const { setGlobalValue } = useGlobalContext()
+  const searchParams = useSearchParams()
+  const isRedirect = searchParams.get('next')
   const submitChannelRef = useRef<'sms' | 'whatsapp'>('sms')
   const [isLoading, setIsLoading] = useState(false)
   const [activeChannel, setActiveChannel] = useState<'sms' | 'whatsapp' | null>(null)
   const router = useRouter()
   const pathname = usePathname()
   const { token } = useAuth()
+
+  console.log('Current pathname:', pathname, isRedirect)
 
   // useEffect(() => {
   //   const publicRoutes = ['/', '/about', '/services', '/pricing', '/help-center', '/login', '/register']
@@ -52,7 +56,11 @@ const Login = () => {
     setIsLoading(true)
     setSubmitting(true)
     try {
-      const payload = {
+      const payload: {
+        phoneNumber: string
+        otpTypes: string[]
+        isRedirect?: string
+      } = {
         phoneNumber: values.phone,
         otpTypes: [channel === 'whatsapp' ? 'whatsapp_otp' : 'sms_otp'],
       }
@@ -72,10 +80,12 @@ const Login = () => {
         }
         if (responseData.isExistingUser) {
           // router.push(`/otp-verification?phone=${encodeURIComponent(values.phone)}`)
+          payload['isRedirect'] = isRedirect ? isRedirect : ''
           setGlobalValue(payload)
           router.push(`/otp-verification`)
         } else {
           // router.push(`/signup?phone=${encodeURIComponent(values.phone)}`)
+          payload['isRedirect'] = isRedirect ? isRedirect : ''
           setGlobalValue(payload)
           router.push(`/signup`)
         }

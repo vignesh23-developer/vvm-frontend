@@ -70,7 +70,7 @@ export default function AddPropertyCategoryMapping() {
             isActive: f.isActive ?? true,
             sortOrder: f.sortOrder ?? 0,
             featureGroupId: f.featureGroupId,
-            featureGroupName: f.featureGroupName,
+            featureGroupName: f.featureGroupName.trim() !== '' ? f.featureGroupName : 'Uncategorized',
             // Mark as mapped when there's an existing mapping for this feature id
             isMapped: Boolean(
               Array.isArray(propertyCategoryData?.mappings) &&
