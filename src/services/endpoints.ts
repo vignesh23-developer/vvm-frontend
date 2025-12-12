@@ -180,6 +180,7 @@ export const appEndpoints = {
   getUserTransactions: '/payment-transactions/users/transactions',
   getAllTransactions: '/payment-transactions/transactions',
   getTransactionAnalytics: '/payment-transactions/analytics',
+  getTransactionInvoice: (transactionId: string) => `/payment-transactions/transactions/${transactionId}/invoice`,
   // User Wallets
   getUserWalletBalance: (userId: string) => `/user-wallets/users/${userId}/balance`,
 
