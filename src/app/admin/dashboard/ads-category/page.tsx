@@ -14,7 +14,7 @@ export default function AdsCategoryPage() {
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
 
-  const { categories, total, error, isLoading, handleAdd, handleEdit, handleDelete } = useAdsCategories({ page, limit })
+  const { categories, total, error, isLoading, handleAdd, handleEdit, handleDelete, mutateCategories } = useAdsCategories({ page, limit })
 
   // Columns definition
 
@@ -73,6 +73,10 @@ export default function AdsCategoryPage() {
     }
   }, [categories])
 
+  const handleRefresh = async () => {
+    await mutateCategories()
+  }
+
   // Handle loading and error states
   if (error) return <div className="p-6 text-red-600">Failed to load ads categories.</div>
 
@@ -106,6 +110,7 @@ export default function AdsCategoryPage() {
         pageSizeOptions={[5, 10, 25, 50, 100]}
         setPage={setPage}
         setCurrentPageSize={setLimit}
+        onRefresh={handleRefresh}
       />
     </div>
   )

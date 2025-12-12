@@ -14,8 +14,8 @@ import { appEndpoints } from '@/services/endpoints'
 import { postMethod, patchMethod } from '@/services/service'
 import { ResponseDTO } from '@/components/dto/response_dto'
 import { toast } from 'react-hot-toast'
-import UploadCompanyProfileImageModal from '../modal/UploadCompanyProfileImage'
-import { Camera } from 'lucide-react'
+import UploadProfileImageModal from '@/components/ui/LogoOrProfileImageUpload/modal/UploadProfileImage'
+import LogoOrProfileImageUpload from '@/components/ui/LogoOrProfileImageUpload/LogoOrProfileImageUpload'
 
 export interface CompanyFormValues {
   companyName: string
@@ -202,36 +202,18 @@ const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({
       <h2 className="text-2xl font-semibold text-gray-800 mb-5">{isEdit ? 'Edit Company Profile' : 'Create Company Profile'}</h2>
 
       {isEdit && companyProfileId && (
-        <div className="flex w-full flex-col items-center justify-center gap-3 p-6">
-          <button
-            type="button"
-            onClick={() => setIsModalOpen(true)}
-            className="relative flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border border-dashed border-rose-200 bg-white shadow-inner transition duration-200 hover:border-rose-400 hover:shadow-lg"
-          >
-            {normalizedInitialValues.companyLogo ? (
-              <Image
-                src={
-                  (normalizedInitialValues.companyLogo as string) +
-                  (imageVersion ? (normalizedInitialValues.companyLogo?.includes('?') ? '&' : '?') + `v=${imageVersion}` : '')
-                }
-                alt="Company Logo"
-                width={110}
-                height={110}
-                className="h-full w-full rounded-full object-cover"
-              />
-            ) : (
-              <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-[#3e2a1c]">
-                <Camera className="h-6 w-6" />
-                <span className="text-xs font-semibold">Add Logo</span>
-              </div>
-            )}
-            <span className="absolute bottom-2 rounded-full bg-red-400 px-3 py-1 text-xs font-medium text-white shadow-md">Change</span>
-          </button>
-
-          <div className="text-center text-sm text-[#3e2a1c]">
-            <p className="font-medium text-[#3e2a1c]">Company Logo</p>
-          </div>
-        </div>
+        <LogoOrProfileImageUpload
+          logoUrl={
+            normalizedInitialValues.companyLogo
+              ? normalizedInitialValues.companyLogo +
+                (imageVersion ? (normalizedInitialValues.companyLogo.includes('?') ? '&' : '?') + `v=${imageVersion}` : '')
+              : undefined
+          }
+          onClick={() => setIsModalOpen(true)}
+          label="Company Logo"
+          title="Add Logo"
+          changeText="Change"
+        />
       )}
 
       <Formik initialValues={normalizedInitialValues} validationSchema={companyProfileSchema} enableReinitialize onSubmit={handleSubmit}>
@@ -386,7 +368,12 @@ const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({
           )
         }}
       </Formik>
-      <UploadCompanyProfileImageModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} onImageUploadSubmit={handleCompanyLogoSubmit} />
+      <UploadProfileImageModal
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        buttonText="Upload Logo"
+        onImageUploadSubmit={handleCompanyLogoSubmit}
+      />
     </div>
   )
 }

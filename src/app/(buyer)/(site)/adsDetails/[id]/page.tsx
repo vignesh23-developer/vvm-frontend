@@ -45,6 +45,7 @@ import { cn } from '@/lib/utils'
 import ReportAdModal from './modal/ReportAdModal'
 import EnquiryAdModal from './modal/EnquiryAdModal'
 import { getUserRoles, hasRole, Roles } from '@/utils/roles/roles'
+import EnquiryFormCard from '@/components/enquiry/forms/EnquiryFormCard'
 
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 40 },
@@ -66,7 +67,8 @@ const AdsDetailsPage = () => {
   const router = useRouter()
   const { user } = useAuth()
   const userRoles = getUserRoles(user)
-  const onlyAdmin = hasRole(userRoles, [Roles.ADMIN])
+  const isAdmin = hasRole(userRoles, [Roles.ADMIN])
+  const isAgent = hasRole(userRoles, [Roles.AGENT])
 
   const adIdParam = params?.id
   const adId = Array.isArray(adIdParam) ? adIdParam[0] : adIdParam
@@ -290,6 +292,40 @@ const AdsDetailsPage = () => {
       closeApproveModal()
     }
   }, [adDetails, approveAction, reviewerId, handleAdApprovalAction, approvalComment, rejectReason, closeApproveModal])
+
+  const handleEnquiryAds = async (values: any, { resetForm }: any) => {
+    try {
+      const payload = {
+        entity_type: values.entity_type,
+        entity_id: values.entity_id,
+        name: values.name,
+        email: values.email,
+        phone: values.phone,
+        message: values.message,
+      }
+
+      const response = await postMethod(appEndpoints.createEnquiry, payload)
+
+      if (Number(response.status) === 201) {
+        toast.success('Enquiry sent successfully')
+        adDetailsRefresh()
+      } else {
+        toast.error(response.message || 'Failed to submit enquiry')
+      }
+    } catch (err) {
+      console.error('Failed to send enquiry', err)
+      toast.error('Unable to send enquiry right now')
+    }
+  }
+
+  const enquiryPrefillValues = useMemo(
+    () => ({
+      name: (user?.firstName || '') + ' ' + (user?.lastName || ''),
+      email: user?.email || '',
+      phone: user?.phoneNumber || '',
+    }),
+    [user],
+  )
 
   if (adDetailsLoading) {
     return <CustomLoader text="Loading ad details..." />
@@ -597,14 +633,14 @@ const AdsDetailsPage = () => {
                           <Flag size={16} />
                           <span>Report</span>
                         </Button>
-                        <Button
+                        {/* <Button
                           type="button"
                           onClick={() => setEnquiryModalOpen(true)}
                           className="flex-1 bg-[#2a1407] text-white rounded-full py-2.5 px-4 text-sm hover:bg-[#3b1804] flex items-center justify-center gap-1 transition-all"
                         >
                           <MessageSquare size={16} />
                           <span>Enquire</span>
-                        </Button>
+                        </Button> */}
                       </div>
                     </div>
                   </div>
@@ -699,7 +735,7 @@ const AdsDetailsPage = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            {adDetails.approval_status === 'UNDER_REVIEW' && onlyAdmin && (
+            {adDetails.approval_status === 'UNDER_REVIEW' && isAdmin && (
               <motion.div
                 variants={fadeInUp}
                 whileHover={{ scale: 1.01 }}
@@ -745,6 +781,7 @@ const AdsDetailsPage = () => {
               <div className="grid md:grid-cols-3 lg:grid-cols-1 gap-4">
                 {adInsights.map((insight, idx) => {
                   const Icon = insight.icon
+                  const isPrivileged = (insight.label === 'Number of Reports' || insight.label === 'Total Enquiries') && (isAdmin || isAgent)
                   return (
                     <motion.div
                       key={idx}
@@ -752,7 +789,16 @@ const AdsDetailsPage = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.08 }}
                       whileHover={{ y: -3, boxShadow: '0 18px 40px rgba(0,0,0,0.07)' }}
-                      className="relative flex flex-col justify-between rounded-2xl bg-gradient-to-br from-yellow-50/50 to-white px-5 py-4 border border-yellow-100"
+                      className={`relative flex flex-col justify-between rounded-2xl bg-gradient-to-br from-yellow-50/50 to-white px-5 py-4 border border-yellow-100 ${
+                        isPrivileged ? 'cursor-pointer hover:shadow-md' : ''
+                      }`}
+                      role={isPrivileged ? 'button' : undefined}
+                      tabIndex={isPrivileged ? 0 : undefined}
+                      onClick={() => {
+                        if (!isPrivileged) return
+                        if (insight.label === 'Number of Reports') router.push(`/admin/dashboard/ads-reports`)
+                        if (insight.label === 'Total Enquiries') router.push(`/admin/dashboard/ads-enquiry`)
+                      }}
                     >
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
@@ -779,70 +825,7 @@ const AdsDetailsPage = () => {
             </motion.div>
 
             {/* Why Search Alone */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              whileHover={{ scale: 1.01 }}
-              className="bg-gradient-to-br from-yellow-50 to-yellow-100/30 rounded-xl border border-yellow-200 p-6 shadow-sm"
-            >
-              <div className="text-center mb-6">
-                <motion.div
-                  whileHover={{ rotate: 360 }}
-                  transition={{ duration: 0.6 }}
-                  className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#2a1407] mb-4"
-                >
-                  <Users size={24} className="text-white" />
-                </motion.div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Why Search Alone?</h3>
-                <p className="text-sm text-gray-600">Looking for your dream home?</p>
-              </div>
-
-              <ul className="space-y-3 mb-6">
-                {[
-                  { icon: Home, text: 'Free site visits to explore your options' },
-                  { icon: TrendingUp, text: 'Expert insights on locations & neighborhoods' },
-                  { icon: Shield, text: 'Pros & cons reviewed by experts' },
-                ].map((item, idx) => {
-                  const Icon = item.icon
-                  return (
-                    <motion.li
-                      key={idx}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.1 }}
-                      className="flex items-start gap-3 text-sm text-gray-700"
-                    >
-                      <Icon size={18} className="text-yellow-600 mt-0.5 flex-shrink-0" />
-                      <span>{item.text}</span>
-                    </motion.li>
-                  )
-                })}
-              </ul>
-
-              <div className="space-y-3">
-                <input
-                  type="text"
-                  placeholder="Your Name"
-                  className="w-full px-4 py-3 rounded-lg border border-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400 transition-all bg-white"
-                />
-                <input
-                  type="email"
-                  placeholder="Your Email"
-                  className="w-full px-4 py-3 rounded-lg border border-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400 transition-all bg-white"
-                />
-                <input
-                  type="tel"
-                  placeholder="Your Phone"
-                  className="w-full px-4 py-3 rounded-lg border border-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400 transition-all bg-white"
-                />
-                <Button
-                  type="button"
-                  className="w-full bg-[#2a1407] text-white hover:from-[#3b1804] hover:to-[#2a1407] py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all"
-                >
-                  Connect →
-                </Button>
-              </div>
-            </motion.div>
+            <EnquiryFormCard Id={adDetails.id} entityType="ad" handleSubmit={handleEnquiryAds} defaultValues={enquiryPrefillValues} />
           </motion.aside>
         </div>
       </div>

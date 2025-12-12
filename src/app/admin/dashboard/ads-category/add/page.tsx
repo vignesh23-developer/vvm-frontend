@@ -18,7 +18,7 @@ export default function AddAdsCategory() {
     isActive: true,
   }
 
-  // ✅ Handle form submission
+  //  Handle form submission
   const handleSubmit = async (values: FormValues) => {
     try {
       const payload: Record<string, any> = {

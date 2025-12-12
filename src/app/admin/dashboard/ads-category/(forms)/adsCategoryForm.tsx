@@ -70,11 +70,11 @@ export default function AdsCategoryForm({ initialValues, onSubmit, submitLabel, 
             />
           </div>
           {/* Is Active */}
-          {!isEdit && (
+          {/* {!isEdit && (
             <div>
               <FormikCheckboxField label="Is Active" name="isActive" />
             </div>
-          )}
+          )} */}
 
           {/* Buttons */}
           <div className="flex justify-end items-center gap-4 pt-4">

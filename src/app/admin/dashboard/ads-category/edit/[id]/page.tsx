@@ -16,7 +16,7 @@ export default function EditAdsCategory() {
   const [initialValues, setInitialValues] = useState<FormValues | null>(null)
   const [loading, setLoading] = useState(true)
 
-  /** 🔹 Fetch existing category data */
+  /**  Fetch existing category data */
   useEffect(() => {
     const fetchCategory = async () => {
       try {
@@ -42,7 +42,7 @@ export default function EditAdsCategory() {
     if (id) fetchCategory()
   }, [id])
 
-  /** 🔹 Handle submit */
+  /**  Handle submit */
   const handleSubmit = async (values: FormValues) => {
     try {
       const payload = {
@@ -60,12 +60,12 @@ export default function EditAdsCategory() {
     }
   }
 
-  /** 🔹 Loading / error states */
+  /**  Loading / error states */
   if (loading) return <CustomLoader text="Loading ads category..." />
 
   if (!initialValues) return <div className="min-h-screen flex items-center justify-center text-gray-500">Ads category not found.</div>
 
-  /** ✅ Render Form */
+  /**  Render Form */
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-8 max-w-3xl mx-auto">

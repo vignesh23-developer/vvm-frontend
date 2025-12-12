@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import useSWR from 'swr'
 import { useParams, useRouter } from 'next/navigation'
+import { Roles, getUserRoles, hasRole, type UserRole } from '@/utils/roles/roles'
 import Link from 'next/link'
 import {
   Heart,
@@ -54,8 +55,11 @@ import EnquiryPropertyModal from './modal/EnquiryPropertyModal'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 import { formatPrice } from '@/utils/converter/formatPrice'
 import ApproveOrRejectPropertyModal from '@/components/ui/CustomComponent/Modal/ApproveOrReject/ApproveOrRejectModal'
+import { ResponseDTO } from '@/components/dto/response_dto'
+import EnquiryForm from '@/components/enquiry/forms/EnquiryFormCard'
 import { cn } from '@/lib/utils'
 import toast from 'react-hot-toast'
+import EnquiryFormCard from '@/components/enquiry/forms/EnquiryFormCard'
 
 // Animation variants
 const fadeInUp: Variants = {
@@ -143,6 +147,12 @@ const page = () => {
   const t = useTranslations()
   const router = useRouter()
   const { user } = useAuth()
+  console.log('User in Property Details page:', user)
+  const userRoles = getUserRoles(user)
+  // Simplified flag: true if user is ADMIN or AGENT
+  const isAdmin = hasRole(userRoles, [Roles.ADMIN])
+  const isAgent = hasRole(userRoles, [Roles.AGENT])
+  console.log('User Roles:', userRoles, 'isAdmin:', isAdmin, 'isAgent:', isAgent)
   const params = useParams<{ id: string | string[] }>()
   const propertyIdParam = params?.id
   const propertyId = Array.isArray(propertyIdParam) ? propertyIdParam[0] : propertyIdParam
@@ -547,19 +557,6 @@ const page = () => {
     return raw
   }, [primaryVideoMedia])
 
-  // FAQ Data (removed from UI as per latest design, kept here for future use if needed)
-
-  const handleDownloadBrochure = useCallback(() => {
-    const brochureUrl = (propertyDetailsData as any)?.brochure_url as string | undefined
-    if (!brochureUrl) {
-      toast.error('Brochure is not available for this property yet.')
-      return
-    }
-    if (typeof window !== 'undefined') {
-      window.open(brochureUrl, '_blank', 'noopener,noreferrer')
-    }
-  }, [propertyDetailsData])
-
   // Tabs configuration
   const tabs: { id: TabType; label: string; icon?: LucideIcon }[] = [
     { id: 'overview', label: 'Overview' },
@@ -569,6 +566,41 @@ const page = () => {
     { id: 'location', label: 'Location' },
     { id: 'reviews', label: 'Reviews' },
   ]
+
+  const handleEnquirySubmit = async (values: any) => {
+    const payload = {
+      entity_type: values.entity_type,
+      entity_id: values.entity_id,
+      name: values.name,
+      email: values.email,
+      phone: values.phone,
+      message: values.message,
+    }
+
+    console.log('Report Payload:', payload)
+
+    try {
+      let response = (await postMethod(appEndpoints.createPropertyEnquiry, payload)) as ResponseDTO
+
+      if (Number(response.status) === 201) {
+        toast.success('Enquiry submitted successfully!')
+        propertyDetailsRefresh()
+      } else {
+        toast.error(response.message || 'Failed to submit enquiry')
+      }
+    } catch (error) {
+      toast.error('Failed to submit enquiry')
+    }
+  }
+
+  const enquiryPrefillValues = useMemo(
+    () => ({
+      name: (user?.firstName || '') + ' ' + (user?.lastName || ''),
+      email: user?.email || '',
+      phone: user?.phoneNumber || '',
+    }),
+    [user],
+  )
 
   if (propertyDetailsFetchErr) {
     return (
@@ -848,7 +880,7 @@ const page = () => {
                   {/* Badge - Listing type only */}
                   <div className="flex flex-wrap items-center gap-3">
                     <span className="px-3 py-1.5 rounded-full bg-yellow-50 border border-yellow-200 text-[#2a1407] text-xs font-semibold uppercase">
-                      {propertyDetailsData?.listing_type || 'SALE'}
+                      {propertyDetailsData?.property_category_name || 'Category'}
                     </span>
                   </div>
 
@@ -884,22 +916,6 @@ const page = () => {
                           <Flag size={16} />
                           <span>Report</span>
                         </Button>
-                        <Button
-                          type="button"
-                          onClick={() => setEnquiryModalOpen(true)}
-                          className="flex-1 bg-white border border-yellow-200 rounded-full py-2.5 px-4 text-sm text-gray-700 hover:bg-yellow-50 flex items-center justify-center gap-1 transition-all"
-                        >
-                          <Flag size={16} />
-                          <span>Enquiry Now</span>
-                        </Button>
-                        <Button
-                          type="button"
-                          onClick={handleDownloadBrochure}
-                          className="flex-1 bg-white border border-yellow-200 rounded-full py-2.5 px-4 text-sm text-gray-700 hover:bg-yellow-50 flex items-center justify-center gap-1 transition-all"
-                        >
-                          <Download size={16} />
-                          <span>Brochure</span>
-                        </Button>
                       </div>
                     </div>
                   </div>
@@ -923,9 +939,9 @@ const page = () => {
                   {/* Construction Status */}
                   <div className="flex items-center gap-2 text-sm justify-end">
                     <div className="h-2 w-2 rounded-full bg-yellow-600"></div>
-                    <span className="text-gray-700 font-medium">Under Construction</span>
+                    <span className="text-gray-700 font-medium">{propertyDetailsData?.approval_status}</span>
                   </div>
-                  <p className="text-sm text-gray-600">Possession in October 2026</p>
+                  {/* <p className="text-sm text-gray-600">Possession in October 2026</p> */}
                 </div>
               </div>
             </div>
@@ -1119,8 +1135,8 @@ const page = () => {
 
           {/* Right Sidebar */}
           <motion.aside variants={fadeInUp} className="space-y-6">
-            {/* Approve / Reject Section - Moved Above Property Insights */}
-            {propertyDetailsData?.approval_status === 'UNDER_REVIEW' && (
+            {/* Approve / Reject Section - visible to Admins only */}
+            {propertyDetailsData?.approval_status === 'UNDER_REVIEW' && isAdmin && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -1165,6 +1181,8 @@ const page = () => {
               <div className="grid md:grid-cols-3 lg:grid-cols-1 gap-4">
                 {propertyInsights.map((insight, idx) => {
                   const Icon = insight.icon
+                  const isPrivileged = (insight.label === 'Number of Reports' || insight.label === 'Total Enquiries') && (isAdmin || isAgent)
+
                   return (
                     <motion.div
                       key={idx}
@@ -1172,7 +1190,16 @@ const page = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.08 }}
                       whileHover={{ y: -3, boxShadow: '0 18px 40px rgba(0,0,0,0.07)' }}
-                      className="relative flex flex-col justify-between rounded-2xl bg-gradient-to-br from-yellow-50/50 to-white px-5 py-4 border border-yellow-100"
+                      className={`relative flex flex-col justify-between rounded-2xl bg-gradient-to-br from-yellow-50/50 to-white px-5 py-4 border border-yellow-100 ${
+                        isPrivileged ? 'cursor-pointer hover:shadow-md' : ''
+                      }`}
+                      role={isPrivileged ? 'button' : undefined}
+                      tabIndex={isPrivileged ? 0 : undefined}
+                      onClick={() => {
+                        if (!isPrivileged) return
+                        if (insight.label === 'Number of Reports') router.push(`/admin/dashboard/property-reports?propertyId=${propertyId}`)
+                        if (insight.label === 'Total Enquiries') router.push(`/admin/dashboard/property-enquiry?propertyId=${propertyId}`)
+                      }}
                     >
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
@@ -1198,71 +1225,8 @@ const page = () => {
               </div>
             </motion.div>
 
-            {/* Contact Form Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              whileHover={{ scale: 1.01 }}
-              className="bg-gradient-to-br from-yellow-50 to-yellow-100/30 rounded-xl border border-yellow-200 p-6 shadow-sm"
-            >
-              <div className="text-center mb-6">
-                <motion.div
-                  whileHover={{ rotate: 360 }}
-                  transition={{ duration: 0.6 }}
-                  className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#2a1407] mb-4"
-                >
-                  <Users size={24} className="text-white" />
-                </motion.div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Why Search Alone?</h3>
-                <p className="text-sm text-gray-600">Looking for your dream home?</p>
-              </div>
-
-              <ul className="space-y-3 mb-6">
-                {[
-                  { icon: Home, text: 'Free site visits to explore your options' },
-                  { icon: TrendingUp, text: 'Expert insights on locations & neighborhoods' },
-                  { icon: Shield, text: 'Pros & cons reviewed by experts' },
-                ].map((item, idx) => {
-                  const Icon = item.icon
-                  return (
-                    <motion.li
-                      key={idx}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.1 }}
-                      className="flex items-start gap-3 text-sm text-gray-700"
-                    >
-                      <Icon size={18} className="text-yellow-600 mt-0.5 flex-shrink-0" />
-                      <span>{item.text}</span>
-                    </motion.li>
-                  )
-                })}
-              </ul>
-
-              <div className="space-y-3">
-                <input
-                  type="text"
-                  placeholder="Your Name"
-                  className="w-full px-4 py-3 rounded-lg border border-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400 transition-all bg-white"
-                />
-                <input
-                  type="email"
-                  placeholder="Your Email"
-                  className="w-full px-4 py-3 rounded-lg border border-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400 transition-all bg-white"
-                />
-                <input
-                  type="tel"
-                  placeholder="Your Phone"
-                  className="w-full px-4 py-3 rounded-lg border border-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400 transition-all bg-white"
-                />
-                <Button
-                  type="button"
-                  className="w-full bg-[#2a1407] text-white hover:from-[#3b1804] hover:to-[#2a1407] py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all"
-                >
-                  Connect →
-                </Button>
-              </div>
-            </motion.div>
+            {/* Enquiry Form Card */}
+            <EnquiryFormCard Id={propertyId || ''} entityType="property" handleSubmit={handleEnquirySubmit} defaultValues={enquiryPrefillValues} />
 
             {/* Contact Owner */}
             {/* <motion.div

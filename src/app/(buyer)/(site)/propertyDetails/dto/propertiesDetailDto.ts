@@ -3,6 +3,14 @@ export interface PropertyDetailsResponseDto {
   title: string
   description: string
   property_category_id: string
+  property_category: {
+    id: string
+    name: string
+    description: string | null
+    created_at: string
+    updated_at: string
+  }
+  property_category_name: string
   price: string
   price_unit: string | null
   property_size: string | number

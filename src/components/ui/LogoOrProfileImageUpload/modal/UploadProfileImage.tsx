@@ -3,25 +3,22 @@
 import { useRouter } from 'next/navigation'
 import ModalComponent from '@/components/ui/CustomComponent/Modal/ModalComponent'
 import { Formik, Form } from 'formik'
-import { toast } from 'react-hot-toast'
 import Button from '@/components/ui/CustomComponent/Button/Button'
-import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
-import { postMethod } from '@/services/service'
-import { appEndpoints } from '@/services/endpoints'
 
-interface CompanyProfileImageModalProps {
+interface ProfileImageModalProps {
   isModalOpen: boolean
   setIsModalOpen: (open: boolean) => void
-  onImageUploadSubmit: (values: CompanyProfileFormValues, helpers: any) => void
+  buttonText?: string
+  onImageUploadSubmit: (values: ProfileFormValues, helpers: any) => void
 }
 
-interface CompanyProfileFormValues {
+interface ProfileFormValues {
   file: File | null
 }
 
-const UploadCompanyProfileImageModal = ({ isModalOpen, setIsModalOpen, onImageUploadSubmit }: CompanyProfileImageModalProps) => {
+const UploadProfileImageModal = ({ isModalOpen, setIsModalOpen, buttonText, onImageUploadSubmit }: ProfileImageModalProps) => {
   const router = useRouter()
-  const initialValues: CompanyProfileFormValues = {
+  const initialValues: ProfileFormValues = {
     file: null,
   }
 
@@ -64,7 +61,7 @@ const UploadCompanyProfileImageModal = ({ isModalOpen, setIsModalOpen, onImageUp
                 disabled={isSubmitting}
                 className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 disabled:opacity-50 transition"
               >
-                {isSubmitting ? 'Uploading...' : 'Upload Logo'}
+                {isSubmitting ? 'Uploading...' : buttonText || 'Upload Logo'}
               </Button>
             </div>
           </Form>
@@ -74,4 +71,4 @@ const UploadCompanyProfileImageModal = ({ isModalOpen, setIsModalOpen, onImageUp
   )
 }
 
-export default UploadCompanyProfileImageModal
+export default UploadProfileImageModal

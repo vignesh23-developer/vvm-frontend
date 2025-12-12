@@ -84,7 +84,7 @@ export default function PropertyCategoryPage() {
       data: latestCategories,
       totalItems: latestCategories?.length,
     }
-  }, [categories])
+  }, [categories, total])
 
   const handleRefresh = async () => {
     await mutateCategories()
@@ -116,7 +116,6 @@ export default function PropertyCategoryPage() {
         allowGrouping
         allowRefresh
         isPagination={true}
-        onRefresh={handleRefresh}
         initialPage={page}
         pageSize={limit}
         totalItemsData={total}
@@ -124,6 +123,7 @@ export default function PropertyCategoryPage() {
         pageSizeOptions={[5, 10, 25, 50, 100]}
         setPage={setPage}
         setCurrentPageSize={setLimit}
+        onRefresh={handleRefresh}
       />
     </div>
   )

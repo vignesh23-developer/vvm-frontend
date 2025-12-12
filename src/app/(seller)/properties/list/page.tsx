@@ -7,12 +7,13 @@ import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, Resp
 import { redirect, useRouter } from 'next/navigation'
 import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
 import Button from '@/components/ui/CustomComponent/Button/Button'
-import { ArrowRight, Edit3, Trash2, Eye, RefreshCcw } from 'lucide-react'
+import { ArrowRight, Edit3, Trash2, Eye, RefreshCcw, Heart, Phone } from 'lucide-react'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import PropertyStatusChangeModal from '../modal/propertiesStatusChangeModal'
 import { Roles, getUserRoles, hasRole, type UserRole } from '@/utils/roles/roles'
+import { formatPrice } from '@/utils/converter/formatPrice'
 
 // Chart data
 
@@ -93,6 +94,9 @@ export default function PropertiesPage() {
       title: 'Price',
       sortable: true,
       filterable: true,
+      render: (value: any) => {
+        return formatPrice(value)
+      },
     },
     {
       field: 'status',
@@ -135,6 +139,54 @@ export default function PropertiesPage() {
       title: 'Contact Number',
       sortable: true,
       filterable: true,
+    },
+    {
+      field: 'view_count',
+      title: 'Views',
+      sortable: true,
+      filterable: true,
+      render: (value: unknown) => {
+        const n = Number(value ?? 0)
+        const label = n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n)
+        return (
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 text-sm font-medium text-gray-900">
+            <Eye className="w-4 h-4 text-gray-600" />
+            <span>{label}</span>
+          </div>
+        )
+      },
+    },
+    {
+      field: 'favorite_count',
+      title: 'Favorites',
+      sortable: true,
+      filterable: true,
+      render: (value: unknown) => {
+        const n = Number(value ?? 0)
+        const label = n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n)
+        return (
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 text-sm font-medium text-gray-900">
+            <Heart className="w-4 h-4 text-red-500" />
+            <span>{label}</span>
+          </div>
+        )
+      },
+    },
+    {
+      field: 'contact_count',
+      title: 'Enquiries',
+      sortable: true,
+      filterable: true,
+      render: (value: unknown) => {
+        const n = Number(value ?? 0)
+        const label = n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n)
+        return (
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 text-sm font-medium text-gray-900">
+            <Phone className="w-4 h-4 text-green-600" />
+            <span>{label}</span>
+          </div>
+        )
+      },
     },
   ]
 

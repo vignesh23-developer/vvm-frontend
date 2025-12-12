@@ -132,7 +132,7 @@ const DASHBOARD_SECTIONS: NavItem[] = [
     icon: <CreditCard size={16} />,
     subMenu: [
       { label: 'subscription master', href: '/admin/dashboard/subscription-master' },
-      { label: 'my subscription', href: '/admin/dashboard/my-subscription' },
+      // { label: 'my subscription', href: '/admin/dashboard/my-subscription' },
       { label: 'user subscription', href: '/admin/dashboard/user-subscription' },
     ],
   },
@@ -144,8 +144,8 @@ const DASHBOARD_SECTIONS: NavItem[] = [
     subMenu: [
       { label: 'view transactions', href: '/admin/dashboard/view-transactions' },
       { label: 'payment reports / revenue summary', href: '/admin/dashboard/payment-reports' },
-      { label: 'refund management', href: '/admin/dashboard/refund-management' },
-      { label: 'promo usage reports', href: '/admin/dashboard/promo-usage-reports' },
+      // { label: 'refund management', href: '/admin/dashboard/refund-management' },
+      // { label: 'promo usage reports', href: '/admin/dashboard/promo-usage-reports' },
     ],
   },
 ]

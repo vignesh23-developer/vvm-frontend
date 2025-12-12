@@ -6,7 +6,6 @@ import toast from 'react-hot-toast'
 import { getMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import PropertyCategoryMappingForm, { FormValues } from '@/components/admin/forms/PropertyCategoryMappingForm'
-import { isMap } from 'util/types'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 
 export interface PropertyCategory {
@@ -35,6 +34,9 @@ export interface FeatureGroup {
   features: Feature[]
 }
 
+const limt = 0
+const page = 1
+
 export default function AddPropertyCategoryMapping() {
   const router = useRouter()
   const params = useParams()
@@ -56,7 +58,7 @@ export default function AddPropertyCategoryMapping() {
         if (propertyCategoryData) setPropertyCategory(propertyCategoryData)
 
         // Fetch all features
-        const featureRes = await getMethod(appEndpoints.getAllFeatureCategories)
+        const featureRes = await getMethod(appEndpoints.getAllFeatureCategories + `?activeOnly=true&limit=${limt}&page=${page}`)
         console.log('featureRes', featureRes)
         const featureData = Array.isArray((featureRes as any)?.data?.data) ? ((featureRes as any).data.data as any[]) : []
 

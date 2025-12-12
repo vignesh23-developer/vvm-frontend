@@ -46,7 +46,7 @@ export function useAds(options: UseAdsOptions = {}) {
   const fetcher = async (url: string): Promise<AdsFetcherResult> => {
     try {
       const response = await getMethod<ApiResponse<AdsDto[]>>(url)
-      
+
       if (response.error) {
         console.error('API error while fetching ads:', response.message)
         return { items: [], total: 0 }
