@@ -67,7 +67,7 @@ function getIconForPlan(planName: string): Plan['icon'] {
 // Transform API plan to component Plan
 function transformPlan(apiPlan: ApiPlan, allFeatureNames?: Set<string>): Plan {
   const icon = getIconForPlan(apiPlan.name)
-  
+
   // Determine styling based on plan
   let bgColor: string | undefined
   let textColor: string | undefined
@@ -139,7 +139,7 @@ function transformPlan(apiPlan: ApiPlan, allFeatureNames?: Set<string>): Plan {
 function getUniqueFeatures(apiPlans: ApiPlan[]): string[] {
   const featureSet = new Set<string>()
   const featureOrderMap = new Map<string, number>()
-  
+
   apiPlans.forEach(plan => {
     plan.planItems.forEach(item => {
       featureSet.add(item.item.name)
@@ -151,7 +151,7 @@ function getUniqueFeatures(apiPlans: ApiPlan[]): string[] {
       }
     })
   })
-  
+
   return Array.from(featureSet).sort((a, b) => {
     const orderA = featureOrderMap.get(a) ?? 999
     const orderB = featureOrderMap.get(b) ?? 999
@@ -164,7 +164,7 @@ async function fetchPricingPlans(): Promise<ApiPlan[]> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
     const url = `${apiUrl}${appEndpoints.getPublicPlans}`
-    
+
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -179,15 +179,15 @@ async function fetchPricingPlans(): Promise<ApiPlan[]> {
     }
 
     const data = await response.json()
-    
+
     // Handle the response structure: response.data.data (as shown in console.log)
     // The API returns: { data: { data: [...] } }
     const plans = data?.data?.data || data?.data || (Array.isArray(data) ? data : [])
-    
+
     if (Array.isArray(plans)) {
       return plans.filter((plan: ApiPlan) => plan.isActive)
     }
-    
+
     return []
   } catch (error) {
     console.error('Error fetching pricing plans:', error)

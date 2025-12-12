@@ -146,7 +146,7 @@ export default function PropertyVideos() {
             viewport={{ once: true }}
             className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 mb-6 tracking-tight"
           >
-            <span className="bg-[#3b1804] bg-clip-text text-transparent">
+            <span className="bg-[#2a1407] bg-clip-text text-transparent">
               {t('ExploreVideo.title') || 'Virtual Property Tours'}
             </span>
           </motion.h2>
@@ -237,7 +237,7 @@ export default function PropertyVideos() {
                       initial={{ opacity: 0 }}
                       whileInView={{ opacity: 1 }}
                       transition={{ delay: 0.4 }}
-                      className="text-xl font-bold text-[#3b1804] mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-yellow-600 group-hover:to-amber-600 transition-all duration-300"
+                      className="text-xl font-bold text-[#2a1407] mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-yellow-600 group-hover:to-amber-600 transition-all duration-300"
                     >
                       {item.title}
                     </motion.h3>
@@ -258,7 +258,7 @@ export default function PropertyVideos() {
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="w-full py-3 px-4 bg-[#3b1804] text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-300 group-hover:from-yellow-700 group-hover:to-amber-700 flex items-center justify-center gap-2"
+                      className="w-full py-3 px-4 bg-[#2a1407] text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-300 group-hover:from-yellow-700 group-hover:to-amber-700 flex items-center justify-center gap-2"
                       onClick={() => setSelectedVideo(item)}
                     >
                       <Play size={18} />
@@ -282,7 +282,7 @@ export default function PropertyVideos() {
           <Button
             type="button"
             onClick={() => router.push('/property-videos')}
-            className="bg-[#2a1407] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#3b1804] transition shadow-lg"
+            className="bg-[#2a1407] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#2a1407] transition shadow-lg"
           >
             View All Property Videos →
           </Button>

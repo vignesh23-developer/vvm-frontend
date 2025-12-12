@@ -34,9 +34,13 @@ const ProfilePage = () => {
   }, [id])
 
   return (
-    <div className="p-6">
-      <ProfileForm initialValues={initialValues} validationSchema={ProfileValidationSchema} isEdit={!!id} />
-      <KYCStatus />
+    <div className="p-6 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      <div className="space-y-6">
+        <ProfileForm initialValues={initialValues} validationSchema={ProfileValidationSchema} isEdit={!!id} />
+      </div>
+      <div className="space-y-6">
+        <KYCStatus />
+      </div>
     </div>
   )
 }

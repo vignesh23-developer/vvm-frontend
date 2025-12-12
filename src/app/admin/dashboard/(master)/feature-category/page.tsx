@@ -77,7 +77,7 @@ export default function FeatureCategoryPage() {
         <h1 className="text-xl font-semibold text-[#2a1407]">Feature Categories</h1>
         <button
           onClick={handleAdd}
-          className="flex items-center gap-2 bg-[#2a1407] hover:from-[#3b1804] hover:to-[#2a1407] cursor-pointer text-white px-4 py-2 rounded-md text-sm font-medium shadow-md transition"
+          className="flex items-center gap-2 bg-[#2a1407] hover:from-[#2a1407] hover:to-[#2a1407] cursor-pointer text-white px-4 py-2 rounded-md text-sm font-medium shadow-md transition"
         >
           <Plus size={16} /> Add Feature Category
         </button>

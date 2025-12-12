@@ -170,7 +170,7 @@ export default function Navbar({
   navLinks = DEFAULT_LINKS,
   showLoginButton = true,
   showLanguageSelector = true,
-  bgColor = '#3b1804',
+  bgColor = '#2a1407',
 }: NavbarProps) {
   const t = useTranslations()
   const { logout, user, token } = useAuth()
@@ -528,7 +528,7 @@ export default function Navbar({
               <div className="relative" ref={profileRef}>
                 <Button
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="flex items-center gap-2 text-[#3b1804] p-1 hover:transition focus:outline-none focus:ring-2 focus:ring-primary-300"
+                  className="flex items-center gap-2 text-[#2a1407] p-1 hover:transition focus:outline-none focus:ring-2 focus:ring-primary-300"
                   aria-label={t('Navbar.profile')}
                 >
                   {/* <Image
@@ -609,9 +609,8 @@ export default function Navbar({
 
       {/* Mobile / Tablet Menu */}
       <div
-        className={`md:hidden transition-all duration-300 ease-in-out ${
-          isMenuOpen ? 'max-h-[80vh] opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-3'
-        }`}
+        className={`md:hidden transition-all duration-300 ease-in-out ${isMenuOpen ? 'max-h-[80vh] opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-3'
+          }`}
         style={{ overflow: isMenuOpen ? 'auto' : 'hidden' }}
       >
         <div
@@ -673,74 +672,74 @@ export default function Navbar({
           {/* Profile / Login Section */}
           {user
             ? PROFILE_SECTIONS(user.id, companyProfileId).map(section => (
-                <div key={section.label} className="w-full mt-2 border-t border-white/20 pt-2">
-                  <Button
-                    onClick={() => toggleSection(section.label)}
-                    className="flex justify-between items-center w-full text-left text-white font-medium py-2 px-2 rounded-lg hover:bg-white/10"
-                  >
-                    <span className="flex items-center gap-2">
-                      {section.icon}
-                      {t(`Navbar.${section.label}`)}
-                    </span>
-                    {openSections.has(section.label) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                  </Button>
+              <div key={section.label} className="w-full mt-2 border-t border-white/20 pt-2">
+                <Button
+                  onClick={() => toggleSection(section.label)}
+                  className="flex justify-between items-center w-full text-left text-white font-medium py-2 px-2 rounded-lg hover:bg-white/10"
+                >
+                  <span className="flex items-center gap-2">
+                    {section.icon}
+                    {t(`Navbar.${section.label}`)}
+                  </span>
+                  {openSections.has(section.label) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </Button>
 
-                  {/* Header */}
-                  {openSections.has(section.label) && (
-                    <>
-                      <div className="px-4 py-3 border-b border-gray-200 text-center">
-                        <span className="font-semibold text-sm block truncate">
-                          {formatName(user?.firstName)} {formatName(user?.lastName)}
-                        </span>
-                      </div>
+                {/* Header */}
+                {openSections.has(section.label) && (
+                  <>
+                    <div className="px-4 py-3 border-b border-gray-200 text-center">
+                      <span className="font-semibold text-sm block truncate">
+                        {formatName(user?.firstName)} {formatName(user?.lastName)}
+                      </span>
+                    </div>
 
-                      <div className="flex flex-col pl-4 space-y-1">
-                        {section.subMenu?.map((sub: any) =>
-                          sub.label === 'logout' ? (
-                            <Button
-                              key="mobile-logout"
-                              onClick={() => {
-                                setIsMenuOpen(false)
-                                handleLogout()
-                              }}
-                              className="flex items-center gap-2 w-full px-4 py-1 text-sm text-gray-200 hover:text-white transition"
-                            >
-                              <span className="text-gray-400">{sub.icon ? sub.icon : <CircleSmall size={12} />}</span>
-                              {t(`Navbar.subMenus.${sub.label}`)}
-                            </Button>
-                          ) : (
-                            <Link
-                              key={sub.href}
-                              href={sub.href}
-                              onClick={() => setIsMenuOpen(false)}
-                              className="flex items-center gap-2 px-4 py-1 text-sm text-gray-200 hover:text-white transition no-underline"
-                            >
-                              <span className="text-gray-400">{sub.icon ? sub.icon : <CircleSmall size={12} />}</span>
-                              {t(`Navbar.subMenus.${sub.label}`)}
-                            </Link>
-                          ),
-                        )}
-                      </div>
-                    </>
-                  )}
-                </div>
-              ))
+                    <div className="flex flex-col pl-4 space-y-1">
+                      {section.subMenu?.map((sub: any) =>
+                        sub.label === 'logout' ? (
+                          <Button
+                            key="mobile-logout"
+                            onClick={() => {
+                              setIsMenuOpen(false)
+                              handleLogout()
+                            }}
+                            className="flex items-center gap-2 w-full px-4 py-1 text-sm text-gray-200 hover:text-white transition"
+                          >
+                            <span className="text-gray-400">{sub.icon ? sub.icon : <CircleSmall size={12} />}</span>
+                            {t(`Navbar.subMenus.${sub.label}`)}
+                          </Button>
+                        ) : (
+                          <Link
+                            key={sub.href}
+                            href={sub.href}
+                            onClick={() => setIsMenuOpen(false)}
+                            className="flex items-center gap-2 px-4 py-1 text-sm text-gray-200 hover:text-white transition no-underline"
+                          >
+                            <span className="text-gray-400">{sub.icon ? sub.icon : <CircleSmall size={12} />}</span>
+                            {t(`Navbar.subMenus.${sub.label}`)}
+                          </Link>
+                        ),
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            ))
             : showLoginButton && (
-                <div className="flex flex-col gap-2 mt-4">
-                  <Link
-                    href="/login"
-                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#2a1407] px-5 py-2.5 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-600 transition shadow-md text-sm"
-                  >
-                    {t('Auth.login')}
-                  </Link>
-                  <Link
-                    href="/signup"
-                    className="flex items-center justify-center gap-2 bg-white text-[#2a1407] border border-gray-200 px-5 py-2.5 rounded-lg font-semibold hover:bg-gray-50 transition shadow-md text-sm"
-                  >
-                    {t('Auth.signup') || 'Register'}
-                  </Link>
-                </div>
-              )}
+              <div className="flex flex-col gap-2 mt-4">
+                <Link
+                  href="/login"
+                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#2a1407] px-5 py-2.5 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-600 transition shadow-md text-sm"
+                >
+                  {t('Auth.login')}
+                </Link>
+                <Link
+                  href="/signup"
+                  className="flex items-center justify-center gap-2 bg-white text-[#2a1407] border border-gray-200 px-5 py-2.5 rounded-lg font-semibold hover:bg-gray-50 transition shadow-md text-sm"
+                >
+                  {t('Auth.signup') || 'Register'}
+                </Link>
+              </div>
+            )}
 
           {/* Keep your language selector & profile/login below unchanged */}
           {showLanguageSelector && (

@@ -19,7 +19,7 @@ export default function ViewSubscriptionsClient() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3b1804] mx-auto"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2a1407] mx-auto"></div>
               <p className="mt-4 text-gray-600">Loading subscriptions...</p>
             </div>
           </div>
@@ -71,7 +71,7 @@ export default function ViewSubscriptionsClient() {
             <p className="text-gray-600 mb-6">You don't have any active subscriptions yet.</p>
             <button
               onClick={() => router.push('/pricing')}
-              className="px-6 py-2 bg-[#3b1804] text-white rounded hover:bg-[#5a2a0a] transition-colors"
+              className="px-6 py-2 bg-[#2a1407] text-white rounded hover:bg-[#5a2a0a] transition-colors"
             >
               Browse Plans
             </button>

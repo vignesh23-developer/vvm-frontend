@@ -314,21 +314,27 @@ const page = () => {
     }
   }, [propertyId, propertyDetailsData?.title])
 
-  // Get only IMAGE type media from API, sorted by is_primary and sort_order
+  // Get media from API, sorted by is_primary and sort_order
   const apiImages = useMemo(() => {
     if (!propertyDetailsData?.media) return []
-    return propertyDetailsData.media
-      .filter((item: any) => item.media_type === 'IMAGE' && item.url && item.url.trim() !== '')
-      .sort((a: any, b: any) => {
-        if (a.is_primary && !b.is_primary) return -1
-        if (!a.is_primary && b.is_primary) return 1
-        return (a.sort_order || 0) - (b.sort_order || 0)
-      })
-      .map((item: any) => item.url)
-      .filter((url: string) => url && url.trim() !== '') // Filter out empty strings
+
+    // Sort media: Primary first, then by sort order
+    const sortedMedia = [...propertyDetailsData.media].sort((a: any, b: any) => {
+      if (a.is_primary && !b.is_primary) return -1
+      if (!a.is_primary && b.is_primary) return 1
+      return (a.sort_order || 0) - (b.sort_order || 0)
+    })
+
+    return sortedMedia
+      .filter((item: any) => item.url && item.url.trim() !== '')
+      .map((item: any) => ({
+        url: item.url,
+        type: item.media_type === 'VIDEO' ? 'video' : 'image',
+        is_primary: item.is_primary
+      }))
   }, [propertyDetailsData?.media])
 
-  // Images used in the hero gallery (max 4 tiles; rest via "View All")
+  // Images used in the hero gallery (max 4 image/video tiles; rest via "View All")
   const galleryImages = useMemo(() => {
     const maxGridSlots = 4
     const validImages = apiImages || []
@@ -336,6 +342,19 @@ const page = () => {
   }, [apiImages])
 
   const totalImageCount = apiImages?.length || 0
+
+  const getVideoEmbedUrl = useCallback((url: string) => {
+    const fallback = 'https://www.youtube.com/embed/dQw4w9WgXcQ'
+    if (!url) return fallback
+
+    if (url.includes('youtube.com/watch')) {
+      return url.replace('watch?v=', 'embed/')
+    }
+    if (url.includes('youtu.be/')) {
+      return url.replace('youtu.be/', 'www.youtube.com/embed/')
+    }
+    return url
+  }, [])
 
   // Property Overview Cards - always render up to 5 cards derived from backend data
   const propertyOverviewCards = useMemo(() => {
@@ -355,12 +374,12 @@ const page = () => {
 
       let value = ''
       let values: string[] = []
-      
+
       if (Array.isArray(fv.feature_options) && fv.feature_options.length > 0) {
         values = fv.feature_options
           .map((opt: any) => opt?.name)
           .filter((n: any) => typeof n === 'string' && n.trim().length > 0)
-        
+
         // If multiple values, join with comma for display
         if (values.length > 0) {
           value = values.length > 3 ? `${values.slice(0, 3).join(', ')} +${values.length - 3} more` : values.join(', ')
@@ -491,9 +510,9 @@ const page = () => {
   const propertyInsights = useMemo(
     () => [
       {
-        label: 'Number of Reports',
-        value: propertyDetailsData?.reports?.length || 0,
-        icon: BarChart3,
+        label: 'Number of Favourites',
+        value: propertyDetailsData?.favorite_count || 0,
+        icon: Heart,
       },
       {
         label: 'Total Enquiries',
@@ -515,8 +534,8 @@ const page = () => {
       Array.isArray(similarProperties) && similarProperties.length > 0
         ? similarProperties
         : Array.isArray(popularSimilarProperties)
-        ? popularSimilarProperties
-        : []
+          ? popularSimilarProperties
+          : []
 
     if (base.length === 0) return []
 
@@ -605,13 +624,22 @@ const page = () => {
                 onClick={() => galleryImages[0] && setSelectedImageIndex(0)}
               >
                 {galleryImages[0] ? (
-                  <Image
-                    src={galleryImages[0]}
-                    alt="Property main image"
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    priority
-                  />
+                  <>
+                    <Image
+                      src={galleryImages[0].url}
+                      alt="Property main media"
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      priority
+                    />
+                    {galleryImages[0].type === 'video' && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                        <div className="h-16 w-16 rounded-full bg-white/20 backdrop-blur-sm border border-white/50 flex items-center justify-center">
+                          <Play className="text-white fill-white ml-1" size={32} />
+                        </div>
+                      </div>
+                    )}
+                  </>
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                     <Camera size={48} className="text-gray-400" />
@@ -629,14 +657,23 @@ const page = () => {
                   onClick={() => galleryImages[0] && setSelectedImageIndex(0)}
                   style={{ cursor: galleryImages[0] ? 'pointer' : 'default' }}
                 >
-                  {galleryImages[0] && galleryImages[0].trim() !== '' ? (
-                  <Image
-                    src={galleryImages[0]}
-                    alt="Property main image"
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    priority
-                  />
+                  {galleryImages[0] ? (
+                    <>
+                      <Image
+                        src={galleryImages[0].url}
+                        alt="Property main media"
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        priority
+                      />
+                      {galleryImages[0].type === 'video' && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                          <div className="h-16 w-16 rounded-full bg-white/20 backdrop-blur-sm border border-white/50 flex items-center justify-center">
+                            <Play className="text-white fill-white ml-1" size={32} />
+                          </div>
+                        </div>
+                      )}
+                    </>
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                       <Camera size={48} className="text-gray-400" />
@@ -653,13 +690,22 @@ const page = () => {
                   onClick={() => galleryImages[1] && setSelectedImageIndex(1)}
                   style={{ cursor: galleryImages[1] ? 'pointer' : 'default' }}
                 >
-                  {galleryImages[1] && galleryImages[1].trim() !== '' ? (
-                  <Image
-                    src={galleryImages[1]}
-                    alt="Property image 2"
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
+                  {galleryImages[1] ? (
+                    <>
+                      <Image
+                        src={galleryImages[1].url}
+                        alt="Property media 2"
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                      {galleryImages[1].type === 'video' && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                          <div className="h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm border border-white/50 flex items-center justify-center">
+                            <Play className="text-white fill-white ml-1" size={24} />
+                          </div>
+                        </div>
+                      )}
+                    </>
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                       <Camera size={48} className="text-gray-400" />
@@ -679,14 +725,23 @@ const page = () => {
                   onClick={() => galleryImages[0] && setSelectedImageIndex(0)}
                   style={{ cursor: galleryImages[0] ? 'pointer' : 'default' }}
                 >
-                  {galleryImages[0] && galleryImages[0].trim() !== '' ? (
-                  <Image
-                    src={galleryImages[0]}
-                    alt="Property main image"
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    priority
-                  />
+                  {galleryImages[0] ? (
+                    <>
+                      <Image
+                        src={galleryImages[0].url}
+                        alt="Property main media"
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        priority
+                      />
+                      {galleryImages[0].type === 'video' && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                          <div className="h-16 w-16 rounded-full bg-white/20 backdrop-blur-sm border border-white/50 flex items-center justify-center">
+                            <Play className="text-white fill-white ml-1" size={32} />
+                          </div>
+                        </div>
+                      )}
+                    </>
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                       <Camera size={48} className="text-gray-400" />
@@ -708,12 +763,21 @@ const page = () => {
                       style={{ cursor: galleryImages[1] ? 'pointer' : 'default' }}
                     >
                       {galleryImages[1] ? (
-                      <Image
-                        src={galleryImages[1]}
-                        alt="Property image 2"
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
+                        <>
+                          <Image
+                            src={galleryImages[1].url}
+                            alt="Property media 2"
+                            fill
+                            className="object-cover transition-transform duration-500 group-hover:scale-110"
+                          />
+                          {galleryImages[1].type === 'video' && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                              <div className="h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm border border-white/50 flex items-center justify-center">
+                                <Play className="text-white fill-white ml-1" size={24} />
+                              </div>
+                            </div>
+                          )}
+                        </>
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                           <Camera size={24} className="text-gray-400" />
@@ -735,13 +799,22 @@ const page = () => {
                         onClick={() => galleryImages[2] && setSelectedImageIndex(2)}
                         style={{ cursor: galleryImages[2] ? 'pointer' : 'default' }}
                       >
-                        {galleryImages[2] && galleryImages[2].trim() !== '' ? (
-                        <Image
-                          src={galleryImages[2]}
-                          alt="Property image 3"
-                          fill
-                          className="object-cover transition-transform duration-500 group-hover:scale-110"
-                        />
+                        {galleryImages[2] ? (
+                          <>
+                            <Image
+                              src={galleryImages[2].url}
+                              alt="Property media 3"
+                              fill
+                              className="object-cover transition-transform duration-500 group-hover:scale-110"
+                            />
+                            {galleryImages[2].type === 'video' && (
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                                <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm border border-white/50 flex items-center justify-center">
+                                  <Play className="text-white fill-white ml-1" size={16} />
+                                </div>
+                              </div>
+                            )}
+                          </>
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                             <Camera size={24} className="text-gray-400" />
@@ -752,41 +825,31 @@ const page = () => {
                     )}
 
                     {/* Bottom Right: either video tile or 4th image / view-all */}
-                    {(primaryVideoMedia || galleryImages[3] || totalImageCount > galleryImages.length) && (
+                    {galleryImages[3] && (
                       <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5 }}
                         className="relative group overflow-hidden rounded-br-2xl cursor-pointer"
                         onClick={() => {
-                          if (primaryVideoMedia) {
-                            setIsVideoModalOpen(true)
-                          } else if (galleryImages[3]) {
+                          if (galleryImages[3]) {
                             setSelectedImageIndex(3)
                           }
                         }}
                       >
-                        {primaryVideoMedia ? (
-                          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-black/70 to-black/60 text-white">
-                            <div className="text-center">
-                              <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 border border-white/40">
-                                <Play size={20} />
-                              </div>
-                              <p className="text-sm font-semibold">Play Video Tour</p>
-                            </div>
-                          </div>
-                        ) : galleryImages[3] ? (
+                        {galleryImages[3] ? (
                           <>
-                            {galleryImages[3] && galleryImages[3].trim() !== '' ? (
                             <Image
-                              src={galleryImages[3]}
-                              alt="Property image 4"
+                              src={galleryImages[3].url}
+                              alt="Property media 4"
                               fill
                               className="object-cover transition-transform duration-500 group-hover:scale-110"
                             />
-                            ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                                <Camera size={24} className="text-gray-400" />
+                            {galleryImages[3].type === 'video' && (
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                                <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm border border-white/50 flex items-center justify-center">
+                                  <Play className="text-white fill-white ml-1" size={16} />
+                                </div>
                               </div>
                             )}
                             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
@@ -965,7 +1028,7 @@ const page = () => {
                         )}
                       </div>
                     ) : (
-                    <p className="text-sm font-bold text-gray-900">{card.value || 'N/A'}</p>
+                      <p className="text-sm font-bold text-gray-900">{card.value || 'N/A'}</p>
                     )}
                   </motion.div>
                 )
@@ -1010,10 +1073,13 @@ const page = () => {
                     </div>
                   )}
 
-                  {/* Description */}
+                  {/* Description & Highlights */}
                   <div className="pt-4 border-t border-yellow-200">
-                    <h3 className="text-xl font-bold text-[#2a1407] mb-4">About the Property</h3>
-                    <p className="text-gray-700 leading-relaxed">
+                    <h3 className="text-xl font-bold text-[#2a1407] mb-6">About the Property</h3>
+
+
+
+                    <p className="text-gray-700 leading-relaxed whitespace-pre-line bg-gray-50 p-4 rounded-xl border border-gray-100">
                       {propertyDetailsData?.description ||
                         'This is a charming residential project spread across prime location. It features modern architecture with spacious apartments designed to provide comfort and luxury. The project enjoys excellent connectivity and is surrounded by all essential amenities including schools, hospitals, shopping centers, and recreational facilities.'}
                     </p>
@@ -1253,7 +1319,7 @@ const page = () => {
                 />
                 <Button
                   type="button"
-                  className="w-full bg-[#2a1407] text-white hover:from-[#3b1804] hover:to-[#2a1407] py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+                  className="w-full bg-[#2a1407] text-white hover:from-[#2a1407] hover:to-[#2a1407] py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all"
                 >
                   Connect →
                 </Button>
@@ -1283,7 +1349,7 @@ const page = () => {
                 <Button
                   type="button"
                   onClick={() => setEnquiryModalOpen(true)}
-                  className="w-full bg-[#2a1407] text-white hover:bg-[#3b1804] py-3 rounded-lg font-semibold transition-all"
+                  className="w-full bg-[#2a1407] text-white hover:bg-[#2a1407] py-3 rounded-lg font-semibold transition-all"
                 >
                   <MessageSquare size={18} className="inline mr-2" />
                   Enquire Now
@@ -1593,8 +1659,8 @@ const page = () => {
                           typeof totalFromApi === 'number'
                             ? totalFromApi
                             : Array.isArray((res?.data as any)?.data)
-                            ? (res.data as any).data.length
-                            : 0
+                              ? (res.data as any).data.length
+                              : 0
 
                         setQuizResultCount(count)
                         setShowQuizResult(true)
@@ -1606,7 +1672,7 @@ const page = () => {
                         setIsQuizLoading(false)
                       }
                     }}
-                    className="w-full bg-[#2a1407] text-white hover:from-[#3b1804] hover:to-[#2a1407] disabled:opacity-60 py-2.5 rounded-lg text-xs font-semibold transition-all"
+                    className="w-full bg-[#2a1407] text-white hover:from-[#2a1407] hover:to-[#2a1407] disabled:opacity-60 py-2.5 rounded-lg text-xs font-semibold transition-all"
                   >
                     {isQuizLoading ? 'Searching…' : '🎯 Get My Matches'}
                   </Button>
@@ -1643,7 +1709,7 @@ const page = () => {
                       toast.success('Redirecting to property listings...')
                       router.push('/properties')
                     }}
-                    className="w-full bg-[#2a1407] text-white hover:from-[#3b1804] hover:to-[#2a1407] py-2.5 rounded-lg text-xs font-semibold transition-all"
+                    className="w-full bg-[#2a1407] text-white hover:from-[#2a1407] hover:to-[#2a1407] py-2.5 rounded-lg text-xs font-semibold transition-all"
                   >
                     View Matched Properties →
                   </Button>
@@ -1765,11 +1831,11 @@ const page = () => {
                     viewport={{ once: true }}
                     transition={{ delay: idx * 0.1 }}
                     whileHover={cardHover}
-                    className="flex-shrink-0 w-80 bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-all cursor-pointer"
+                    className="flex-shrink-0 w-80 flex flex-col bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-all cursor-pointer"
                     style={{ scrollSnapAlign: 'start' }}
                     onClick={() => router.push(`/propertyDetails/${property.id}`)}
                   >
-                    <div className="relative h-48 w-full overflow-hidden">
+                    <div className="relative h-48 w-full overflow-hidden flex-shrink-0">
                       <Image
                         src={property.media?.[0]?.url || property.image || '/villa.png'}
                         alt={property.title || 'Property'}
@@ -1784,19 +1850,24 @@ const page = () => {
                         )}
                       </div>
                     </div>
-                    <div className="p-4">
-                      <h3 className="font-bold text-[#2a1407] mb-1 line-clamp-1">{property.title || 'Property'}</h3>
-                      <p className="text-sm text-gray-600 mb-3 line-clamp-1 flex items-center gap-1">
-                        <MapPin size={14} className="text-yellow-600 flex-shrink-0" />
-                        {property.address_line || 'Location not available'}
-                      </p>
-                      <div className="flex items-center justify-between">
+                    <div className="p-4 flex flex-col flex-1">
+                      <div className="mb-3">
+                        <h3 className="font-bold text-[#2a1407] mb-1 line-clamp-1">{property.title || 'Property'}</h3>
+                        <p className="text-sm text-gray-600 line-clamp-1 flex items-center gap-1">
+                          <MapPin size={14} className="text-yellow-600 flex-shrink-0" />
+                          {property.address_line || 'Location not available'}
+                        </p>
+                      </div>
+
+                      <div className="mt-auto flex items-center justify-between pt-3 border-t border-gray-50 bg-gray-50/50 -mx-4 -mb-4 px-4 py-3">
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">Price</p>
-                          <p className="text-lg font-bold text-[#2a1407]">₹{formatPrice(Number(property.price)) || 'Price on request'}</p>
+                          <p className="text-[10px] uppercase text-gray-500 font-medium tracking-wide mb-0.5">Price</p>
+                          <p className="text-lg font-bold text-[#2a1407]">
+                            {property.price ? `₹${formatPrice(Number(property.price))}` : 'Price on request'}
+                          </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-xs text-gray-500 mb-1">Size</p>
+                          <p className="text-[10px] uppercase text-gray-500 font-medium tracking-wide mb-0.5">Size</p>
                           <p className="text-sm font-semibold text-gray-700">
                             {property.property_size ? `${property.property_size} ${property.property_size_unit || 'sqft'}` : 'N/A'}
                           </p>
@@ -1852,219 +1923,211 @@ const page = () => {
 
       {/* Image Gallery Modal Carousel - Only show if there's an actual image */}
       <AnimatePresence>
-        {selectedImageIndex !== null && 
-         galleryImages[selectedImageIndex] && 
-         typeof galleryImages[selectedImageIndex] === 'string' && 
-         galleryImages[selectedImageIndex].trim() !== '' && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center p-4"
-              onClick={() => setSelectedImageIndex(null)}
-            >
-              <style jsx global>{`
+        {selectedImageIndex !== null &&
+          apiImages[selectedImageIndex] && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center p-4"
+                onClick={() => setSelectedImageIndex(null)}
+              >
+                <style jsx global>{`
                 body {
                   overflow: hidden;
                 }
               `}</style>
 
-              {/* Close Button */}
-              <motion.button
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                className="absolute top-6 right-6 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all"
-                onClick={e => {
-                  e.stopPropagation()
-                  setSelectedImageIndex(null)
-                }}
-                aria-label="Close gallery"
-              >
-                <X size={24} />
-              </motion.button>
+                {/* Close Button */}
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="absolute top-6 right-6 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all"
+                  onClick={e => {
+                    e.stopPropagation()
+                    setSelectedImageIndex(null)
+                  }}
+                  aria-label="Close gallery"
+                >
+                  <X size={24} />
+                </motion.button>
 
-              {/* Navigation Buttons - Only show if there are actual images */}
-              {apiImages.length > 1 && (
-                <>
-                  <motion.button
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="absolute left-6 top-1/2 -translate-y-1/2 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all"
-                    onClick={e => {
-                      e.stopPropagation()
-                      if (selectedImageIndex !== null) {
-                        // Find previous actual image
-                        let newIndex = selectedImageIndex - 1
-                        while (newIndex >= 0 && !galleryImages[newIndex]) {
-                          newIndex--
-                        }
-                        if (newIndex < 0) {
-                          // Wrap to last actual image
-                          newIndex = galleryImages.length - 1
+                {/* Navigation Buttons - Only show if there are actual images */}
+                {apiImages.length > 1 && (
+                  <>
+                    <motion.button
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      className="absolute left-6 top-1/2 -translate-y-1/2 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all"
+                      onClick={e => {
+                        e.stopPropagation()
+                        if (selectedImageIndex !== null) {
+                          // Find previous actual image
+                          let newIndex = selectedImageIndex - 1
                           while (newIndex >= 0 && !galleryImages[newIndex]) {
                             newIndex--
                           }
+                          if (newIndex < 0) {
+                            // Wrap to last actual image
+                            newIndex = galleryImages.length - 1
+                            while (newIndex >= 0 && !galleryImages[newIndex]) {
+                              newIndex--
+                            }
+                          }
+                          if (newIndex >= 0) setSelectedImageIndex(newIndex)
                         }
-                        if (newIndex >= 0) setSelectedImageIndex(newIndex)
-                      }
-                    }}
-                    aria-label="Previous image"
-                  >
-                    <ChevronLeft size={24} />
-                  </motion.button>
-                  <motion.button
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="absolute right-6 top-1/2 -translate-y-1/2 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all"
-                    onClick={e => {
-                      e.stopPropagation()
-                      if (selectedImageIndex !== null) {
-                        // Find next actual image
-                        let newIndex = selectedImageIndex + 1
-                        while (newIndex < galleryImages.length && !galleryImages[newIndex]) {
-                          newIndex++
-                        }
-                        if (newIndex >= galleryImages.length) {
-                          // Wrap to first actual image
-                          newIndex = 0
+                      }}
+                      aria-label="Previous image"
+                    >
+                      <ChevronLeft size={24} />
+                    </motion.button>
+                    <motion.button
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      className="absolute right-6 top-1/2 -translate-y-1/2 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all"
+                      onClick={e => {
+                        e.stopPropagation()
+                        if (selectedImageIndex !== null) {
+                          // Find next actual image
+                          let newIndex = selectedImageIndex + 1
                           while (newIndex < galleryImages.length && !galleryImages[newIndex]) {
                             newIndex++
                           }
+                          if (newIndex >= galleryImages.length) {
+                            // Wrap to first actual image
+                            newIndex = 0
+                            while (newIndex < galleryImages.length && !galleryImages[newIndex]) {
+                              newIndex++
+                            }
+                          }
+                          if (newIndex < galleryImages.length) setSelectedImageIndex(newIndex)
                         }
-                        if (newIndex < galleryImages.length) setSelectedImageIndex(newIndex)
-                      }
-                    }}
-                    aria-label="Next image"
-                  >
-                    <ChevronRight size={24} />
-                  </motion.button>
-                </>
-              )}
-
-              {/* Main Image */}
-              <motion.div
-                key={selectedImageIndex}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.3 }}
-                className="relative flex w-full max-w-6xl justify-center"
-                onClick={e => e.stopPropagation()}
-              >
-                {galleryImages[selectedImageIndex] && 
-                 typeof galleryImages[selectedImageIndex] === 'string' && 
-                 galleryImages[selectedImageIndex].trim() !== '' ? (
-                  <Image
-                    src={galleryImages[selectedImageIndex]}
-                    alt={`Property image ${selectedImageIndex + 1}`}
-                    width={1600}
-                    height={900}
-                    className="max-h-[90vh] w-auto object-contain rounded-lg select-none"
-                    priority
-                  />
-                ) : (
-                  <div className="max-h-[90vh] w-full max-w-6xl flex items-center justify-center bg-gray-800 rounded-lg">
-                    <div className="text-center text-white">
-                      <Camera size={64} className="mx-auto mb-4 opacity-50" />
-                      <p className="text-lg opacity-75">Image not available</p>
-                    </div>
-                  </div>
+                      }}
+                      aria-label="Next image"
+                    >
+                      <ChevronRight size={24} />
+                    </motion.button>
+                  </>
                 )}
-              </motion.div>
 
-              {/* Image Counter */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-white text-sm font-medium"
-              >
-                {selectedImageIndex + 1} / {apiImages.length || galleryImages.length}
-              </motion.div>
+                {/* Main Image */}
+                <motion.div
+                  key={selectedImageIndex}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.3 }}
+                  className="relative flex w-full max-w-6xl justify-center h-full items-center"
+                  onClick={e => e.stopPropagation()}
+                >
+                  {apiImages[selectedImageIndex] ? (
+                    apiImages[selectedImageIndex].type === 'video' ? (
+                      <div className="w-full h-full md:h-[80%] aspect-video bg-black rounded-lg overflow-hidden">
+                        <iframe
+                          src={getVideoEmbedUrl(apiImages[selectedImageIndex].url)}
+                          title="Property Video"
+                          className="w-full h-full"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                    ) : (
+                      <Image
+                        src={apiImages[selectedImageIndex].url}
+                        alt={`Property image ${selectedImageIndex + 1}`}
+                        width={1600}
+                        height={900}
+                        className="max-h-[90vh] w-auto object-contain rounded-lg select-none"
+                        priority
+                      />
+                    )
+                  ) : (
+                    <div className="max-h-[90vh] w-full max-w-6xl flex items-center justify-center bg-gray-800 rounded-lg">
+                      <div className="text-center text-white">
+                        <Camera size={64} className="mx-auto mb-4 opacity-50" />
+                        <p className="text-lg opacity-75">Media not available</p>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
 
-              {/* Thumbnail Strip */}
-              {galleryImages.length > 1 && (
+                {/* Image Counter */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 flex gap-2 max-w-4xl overflow-x-auto px-4"
-                  onClick={e => e.stopPropagation()}
+                  className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-white text-sm font-medium"
                 >
-                  {galleryImages.map((img, idx) => {
-                    const hasValidImage = img && img.trim() !== ''
-                    return (
-                    <motion.button
-                      key={idx}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                        onClick={() => hasValidImage && setSelectedImageIndex(idx)}
-                        disabled={!hasValidImage}
-                      className={cn(
-                        'relative h-16 w-16 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all',
-                        selectedImageIndex === idx ? 'border-yellow-500 scale-110' : 'border-white/30 opacity-60 hover:opacity-100',
-                          !hasValidImage && 'bg-gray-800 border-gray-600',
-                      )}
-                    >
-                        {hasValidImage ? (
-                        <Image src={img} alt={`Thumbnail ${idx + 1}`} fill className="object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gray-800">
-                          <Camera size={20} className="text-gray-500" />
-                        </div>
-                      )}
-                    </motion.button>
-                    )
-                  })}
+                  {selectedImageIndex + 1} / {apiImages.length}
                 </motion.div>
-              )}
-            </motion.div>
 
-            {/* Keyboard Navigation */}
-            {selectedImageIndex !== null && (
-              <ImageCarouselKeyboardHandler
-                currentIndex={selectedImageIndex}
-                totalImages={apiImages.length}
-                onNavigate={dir => {
-                  if (dir === 'next') {
-                    // Find next actual image
-                    let newIndex = selectedImageIndex + 1
-                    while (newIndex < galleryImages.length && !galleryImages[newIndex]) {
-                      newIndex++
+                {/* Thumbnail Strip */}
+                {galleryImages.length > 1 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 flex gap-2 max-w-4xl overflow-x-auto px-4"
+                    onClick={e => e.stopPropagation()}
+                  >
+                    {apiImages.map((img: any, idx: number) => {
+                      const hasValidImage = img.url && img.url.trim() !== ''
+                      return (
+                        <motion.button
+                          key={idx}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => hasValidImage && setSelectedImageIndex(idx)}
+                          disabled={!hasValidImage}
+                          className={cn(
+                            'relative h-16 w-16 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all',
+                            selectedImageIndex === idx ? 'border-yellow-500 scale-110' : 'border-white/30 opacity-60 hover:opacity-100',
+                            !hasValidImage && 'bg-gray-800 border-gray-600',
+                          )}
+                        >
+                          {hasValidImage ? (
+                            img.type === 'video' ? (
+                              <div className="w-full h-full flex items-center justify-center bg-black">
+                                <Play size={20} className="text-white" />
+                              </div>
+                            ) : (
+                              <Image src={img.url} alt={`Thumbnail ${idx + 1}`} fill className="object-cover" />
+                            )
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-800">
+                              <Camera size={20} className="text-gray-500" />
+                            </div>
+                          )}
+                        </motion.button>
+                      )
+                    })}
+                  </motion.div>
+                )}
+              </motion.div>
+
+              {/* Keyboard Navigation */}
+              {selectedImageIndex !== null && (
+                <ImageCarouselKeyboardHandler
+                  currentIndex={selectedImageIndex}
+                  totalImages={apiImages.length}
+                  onNavigate={dir => {
+                    if (dir === 'next') {
+                      setSelectedImageIndex((prev) => (prev !== null ? (prev + 1) % apiImages.length : 0))
+                    } else {
+                      setSelectedImageIndex((prev) => (prev !== null ? (prev - 1 + apiImages.length) % apiImages.length : apiImages.length - 1))
                     }
-                    if (newIndex >= galleryImages.length) {
-                      newIndex = 0
-                      while (newIndex < galleryImages.length && !galleryImages[newIndex]) {
-                        newIndex++
-                      }
-                    }
-                    if (newIndex < galleryImages.length) setSelectedImageIndex(newIndex)
-                  } else {
-                    // Find previous actual image
-                    let newIndex = selectedImageIndex - 1
-                    while (newIndex >= 0 && !galleryImages[newIndex]) {
-                      newIndex--
-                    }
-                    if (newIndex < 0) {
-                      newIndex = galleryImages.length - 1
-                      while (newIndex >= 0 && !galleryImages[newIndex]) {
-                        newIndex--
-                      }
-                    }
-                    if (newIndex >= 0) setSelectedImageIndex(newIndex)
-                  }
-                }}
-                onClose={() => setSelectedImageIndex(null)}
-              />
-            )}
-          </>
-        )}
+                  }}
+                  onClose={() => setSelectedImageIndex(null)}
+                />
+              )}
+            </>
+          )}
       </AnimatePresence>
     </motion.main>
   )

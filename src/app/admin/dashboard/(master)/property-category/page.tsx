@@ -102,7 +102,7 @@ export default function PropertyCategoryPage() {
         <Button
           type="button"
           onClick={handleAdd}
-          className="flex items-center gap-2 bg-[#2a1407] hover:from-[#3b1804] hover:to-[#2a1407] px-4 py-2 text-sm font-medium text-white rounded-md shadow-md transition"
+          className="flex items-center gap-2 bg-[#2a1407] hover:from-[#2a1407] hover:to-[#2a1407] px-4 py-2 text-sm font-medium text-white rounded-md shadow-md transition"
         >
           <Plus size={16} /> Add Property Category
         </Button>

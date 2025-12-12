@@ -37,10 +37,20 @@ export default function HeroSection() {
 
   // Background carousel images (external URLs)
   const heroImages = [
+    // Your existing 3 working images
     'https://www.roofandfloor.com/project/7124/gallery/Coco_Enclave_1.jpg',
     'https://drahomes.in/images/dra-polaris.jpg',
     'https://images.homify.com/v1511876426/p/photo/image/2339212/vijay-_15-_mycut.jpg',
+
+    // 100% WORKING, HOTLINK-SAFE IMAGES
+    'https://images.unsplash.com/photo-1598928506311-ad9a6f66a6c1?q=80&w=1920&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=80&w=1920&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?q=80&w=1920&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1920&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1599423300746-b62533397364?q=80&w=1920&auto=format&fit=crop',
   ]
+
+
   const [activeBgIndex, setActiveBgIndex] = useState(0)
 
   // Auto-rotate hero background every 7 seconds
@@ -115,7 +125,7 @@ export default function HeroSection() {
   return (
     <main className="relative min-h-[80vh] sm:min-h-screen w-full overflow-hidden">
       {/* Background carousel layer */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 group">
         {heroImages.map((src, index) => (
           <motion.div
             key={src}
@@ -130,6 +140,34 @@ export default function HeroSection() {
         ))}
         {/* Chocolate & gold gradient overlay to keep text readable */}
         <div className="absolute inset-0 bg-gradient-to-br from-black/50 via-[#2a1407]/40 to-black/50" />
+
+        {/* Carousel Arrows */}
+        <button
+          onClick={() => setActiveBgIndex(prev => (prev - 1 + heroImages.length) % heroImages.length)}
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-black/40  hover:bg-white/90 text-white/90 hover:text-white hover:bg-black/60 hover:text-white transition-all backdrop-blur-sm shadow-lg border border-white/20"
+          aria-label="Previous Slide"
+        >
+          <ChevronDown className="w-6 h-6 sm:w-8 sm:h-8 rotate-90" />
+        </button>
+        <button
+          onClick={() => setActiveBgIndex(prev => (prev + 1) % heroImages.length)}
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-black/40 text-white/90 hover:bg-black/60 hover:text-white transition-all backdrop-blur-sm shadow-lg border border-white/20"
+          aria-label="Next Slide"
+        >
+          <ChevronDown className="w-6 h-6 sm:w-8 sm:h-8 -rotate-90" />
+        </button>
+
+        {/* Carousel Dots */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+          {heroImages.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setActiveBgIndex(idx)}
+              className={`h-2 rounded-full transition-all duration-300 ${activeBgIndex === idx ? 'w-8 bg-yellow-400' : 'w-2 bg-white/50 hover:bg-white/80'
+                }`}
+            />
+          ))}
+        </div>
       </div>
 
       <div className="relative z-10 flex items-center justify-center px-4 py-8 min-h-[80vh] sm:min-h-screen">
@@ -349,7 +387,7 @@ export default function HeroSection() {
                             <button
                               type="button"
                               onClick={() => setShowBudget(false)}
-                              className="flex-1 px-3 py-1.5 text-xs bg-[#2a1407] text-white rounded-md hover:bg-[#3b1804] transition"
+                              className="flex-1 px-3 py-1.5 text-xs bg-[#2a1407] text-white rounded-md hover:bg-[#2a1407] transition"
                             >
                               Apply
                             </button>
@@ -517,7 +555,7 @@ export default function HeroSection() {
                             <button
                               type="button"
                               onClick={() => setShowBudget(false)}
-                              className="flex-1 px-3 py-1.5 text-xs bg-[#2a1407] text-white rounded-md hover:bg-[#3b1804] transition"
+                              className="flex-1 px-3 py-1.5 text-xs bg-[#2a1407] text-white rounded-md hover:bg-[#2a1407] transition"
                             >
                               Apply
                             </button>

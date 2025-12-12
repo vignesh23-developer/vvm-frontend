@@ -47,7 +47,7 @@ export default function AddonList({ subscription, userId }: AddonListProps) {
       try {
         setLoading(true)
         const response = await getMethod(appEndpoints.getUserAddons(userId))
-        
+
         if (response.error) {
           console.error('Failed to fetch purchased addons:', response.message)
           setPurchasedAddons([])
@@ -81,7 +81,7 @@ export default function AddonList({ subscription, userId }: AddonListProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#3b1804]"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2a1407]"></div>
         <span className="ml-3 text-gray-600">Loading addons...</span>
       </div>
     )
@@ -108,7 +108,7 @@ export default function AddonList({ subscription, userId }: AddonListProps) {
 
       {availableAddons.map(planItem => {
         // Find if this addon has been purchased
-        const purchasedAddon = Array.isArray(purchasedAddons) 
+        const purchasedAddon = Array.isArray(purchasedAddons)
           ? purchasedAddons.find(purchased => purchased.item_id === planItem.item_id)
           : undefined
 

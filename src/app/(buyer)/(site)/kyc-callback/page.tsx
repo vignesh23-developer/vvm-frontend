@@ -14,13 +14,13 @@ export default function KYCCallbackPage() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
   const [message, setMessage] = useState('Processing your KYC verification...');
   const { user: userData, loading: authLoading, refreshAuth } = useAuth();
-  
+
   useEffect(() => {
     const completeKyc = async () => {
       try {
         // Refresh auth to ensure cookies are loaded after external redirect
         await refreshAuth();
-        
+
         // Wait for auth to finish loading
         if (authLoading) {
           setMessage('Verifying authentication...')
@@ -38,7 +38,7 @@ export default function KYCCallbackPage() {
 
         // Get client_id from URL query parameters
         const clientId = searchParams.get('client_id') || searchParams.get('clientId')
-        
+
         if (!clientId) {
           setStatus('error')
           setMessage('Missing verification parameters. Please try again.')
@@ -97,17 +97,17 @@ export default function KYCCallbackPage() {
         setStatus('error')
         setMessage('An error occurred during verification. Please contact support.')
         toast.error('Verification failed')
-        
+
         // Clear stored verification data
         removeLocalStorageItem('kyc_verification_pending')
       }
     }
 
-      completeKyc()
+    completeKyc()
   }, [router, searchParams, userData, authLoading, refreshAuth])
 
   const handleRetry = () => {
-    
+
     if (userData && userData.id) {
       router.push(`/profile/${userData.id}`)
     } else {
@@ -122,7 +122,7 @@ export default function KYCCallbackPage() {
           {status === 'loading' && (
             <div className="text-center">
               <div className="flex justify-center mb-4">
-                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#3b1804]"></div>
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#2a1407]"></div>
               </div>
               <h2 className="text-2xl font-semibold text-gray-900 mb-2">
                 Processing Verification
@@ -185,7 +185,7 @@ export default function KYCCallbackPage() {
               <p className="text-gray-600 mb-6">{message}</p>
               <button
                 onClick={handleRetry}
-                className="px-6 py-2 bg-[#3b1804] text-white rounded font-medium hover:bg-[#5a2a0a] transition-colors"
+                className="px-6 py-2 bg-[#2a1407] text-white rounded font-medium hover:bg-[#5a2a0a] transition-colors"
               >
                 Go to Profile
               </button>

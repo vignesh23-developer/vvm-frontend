@@ -1,8 +1,9 @@
 'use client'
 
-import { motion, Variants } from 'framer-motion'
+import { motion, AnimatePresence, Variants } from 'framer-motion'
 import { Shield, Users, CheckCircle2, Zap, Award, Sparkles } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { useState } from 'react'
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 30 },
@@ -15,6 +16,7 @@ const fadeUp: Variants = {
 
 export default function WhyChooseUs() {
   const t = useTranslations()
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
   const features = [
     {
@@ -54,9 +56,9 @@ export default function WhyChooseUs() {
     >
       {/* Premium Background Layers */}
       <div className="absolute inset-0 bg-gradient-to-br from-yellow-50/90 via-white/95 to-blue-50/90 z-0" />
-      
+
       {/* Animated Gold Opacity Background Overlay */}
-      <motion.div 
+      <motion.div
         className="absolute inset-0 bg-gradient-to-br from-yellow-100/25 via-yellow-50/12 to-transparent pointer-events-none z-[1]"
         animate={{
           background: [
@@ -67,7 +69,7 @@ export default function WhyChooseUs() {
         }}
         transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
       />
-      
+
       {/* Premium Decorative Curved Elements */}
       <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-br from-yellow-200/10 via-yellow-100/4 to-transparent rounded-b-[80px] sm:rounded-b-[120px] pointer-events-none z-[1]" />
       <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-tl from-yellow-200/8 via-transparent to-transparent rounded-tl-[150px] pointer-events-none z-[1]" />
@@ -101,7 +103,7 @@ export default function WhyChooseUs() {
             whileInView="visible"
             viewport={{ once: true }}
           >
-            <span className="bg-[#3b1804] bg-clip-text text-transparent">
+            <span className="bg-[#2a1407] bg-clip-text text-transparent">
               Why Choose Us?
             </span>
           </motion.h2>
@@ -123,23 +125,72 @@ export default function WhyChooseUs() {
           {features.map((feature, idx) => {
             const Icon = feature.icon
             return (
-              <motion.div
+              <div
                 key={idx}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.1, duration: 0.6 }}
-                whileHover={{ y: -8, transition: { duration: 0.3 } }}
-                className="bg-white rounded-2xl p-6 sm:p-8 border border-yellow-200/50 shadow-sm hover:shadow-lg transition-all group"
+                className="relative group block h-full w-full"
+                onMouseEnter={() => setHoveredIndex(idx)}
+                onMouseLeave={() => setHoveredIndex(null)}
               >
-                <div className="flex flex-col items-center text-center">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-50 to-yellow-100 border border-yellow-200 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <Icon size={28} className="text-yellow-600" />
+                <AnimatePresence>
+                  {hoveredIndex === idx && (
+                    <motion.span
+                      className="absolute inset-0 h-full w-full bg-yellow-200/40 block rounded-3xl -z-10"
+                      layoutId="hoverBackground"
+                      initial={{ opacity: 0 }}
+                      animate={{
+                        opacity: 1,
+                        transition: { duration: 0.15 },
+                      }}
+                      exit={{
+                        opacity: 0,
+                        transition: { duration: 0.15, delay: 0.2 },
+                      }}
+                    />
+                  )}
+                </AnimatePresence>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.1, duration: 0.6 }}
+                  className="relative h-full min-h-[250px] perspective-1000 p-2 z-20"
+                  style={{ perspective: '1000px' }}
+                >
+                  <div
+                    className="relative w-full h-full transition-all duration-700 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] transform-gpu"
+                    style={{ transformStyle: 'preserve-3d' }}
+                  >
+                    {/* Front Face */}
+                    <div
+                      className="absolute inset-0 w-full h-full bg-white rounded-2xl p-6 sm:p-8 border border-yellow-200/50 shadow-sm flex flex-col items-center justify-center text-center backface-hidden"
+                      style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
+                    >
+                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-50 to-yellow-100 border border-yellow-200 flex items-center justify-center mb-4">
+                        <Icon size={28} className="text-yellow-600" />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">{feature.title}</h3>
+                      <p className="text-sm text-gray-600 leading-relaxed">{feature.description}</p>
+                    </div>
+
+                    {/* Back Face */}
+                    <div
+                      className="absolute inset-0 w-full h-full bg-[#2a1407] rounded-2xl p-6 sm:p-8 border border-[#2a1407] shadow-xl flex flex-col items-center justify-center text-center backface-hidden rotate-y-180"
+                      style={{
+                        backfaceVisibility: 'hidden',
+                        WebkitBackfaceVisibility: 'hidden',
+                        transform: 'rotateY(180deg)'
+                      }}
+                    >
+                      <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center mb-4">
+                        <Icon size={28} className="text-yellow-400" />
+                      </div>
+                      <h3 className="text-xl font-bold text-white mb-2">{feature.title}</h3>
+                      <p className="text-sm text-gray-200 leading-relaxed">{feature.description}</p>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{feature.title}</h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">{feature.description}</p>
-                </div>
-              </motion.div>
+                </motion.div>
+              </div>
             )
           })}
         </div>

@@ -106,7 +106,7 @@ export default function ExploreProperties() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            <span className="bg-[#3b1804] bg-clip-text text-transparent">
+            <span className="bg-[#2a1407] bg-clip-text text-transparent">
               {t('ExploreProperties.title') || 'Explore properties by popular districts'}
             </span>
           </motion.h2>
@@ -120,7 +120,7 @@ export default function ExploreProperties() {
           >
             {exploreDescription}
           </motion.p>
-          
+
           {/* View Properties Button */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
@@ -132,7 +132,7 @@ export default function ExploreProperties() {
             <Button
               type="button"
               onClick={() => router.push('/properties-list')}
-              className="bg-[#2a1407] text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-[#3b1804] transition shadow-lg"
+              className="bg-[#2a1407] text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-[#2a1407] transition shadow-lg"
             >
               View All Properties →
             </Button>
@@ -171,7 +171,7 @@ export default function ExploreProperties() {
               <Button
                 type="button"
                 size="small"
-                className="px-6 py-2 rounded-full bg-[#2a1407] text-white hover:bg-[#3b1804] font-semibold shadow-md hover:shadow-lg transition-all"
+                className="px-6 py-2 rounded-full bg-[#2a1407] text-white hover:bg-[#2a1407] font-semibold shadow-md hover:shadow-lg transition-all"
                 onClick={() => {
                   router.push('/exploreByDistricts')
                 }}

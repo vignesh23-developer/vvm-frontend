@@ -557,7 +557,7 @@ export default function HeroSection() {
                                                             <button
                                                                 type="button"
                                                                 onClick={() => setShowBudget(false)}
-                                                                className="flex-1 px-3 py-1.5 text-xs bg-[#2a1407] text-white rounded-md hover:bg-[#3b1804] transition"
+                                                                className="flex-1 px-3 py-1.5 text-xs bg-[#2a1407] text-white rounded-md hover:bg-[#2a1407] transition"
                                                             >
                                                                 Apply
                                                             </button>
@@ -725,7 +725,7 @@ export default function HeroSection() {
                                                             <button
                                                                 type="button"
                                                                 onClick={() => setShowBudget(false)}
-                                                                className="flex-1 px-3 py-1.5 text-xs bg-[#2a1407] text-white rounded-md hover:bg-[#3b1804] transition"
+                                                                className="flex-1 px-3 py-1.5 text-xs bg-[#2a1407] text-white rounded-md hover:bg-[#2a1407] transition"
                                                             >
                                                                 Apply
                                                             </button>
@@ -766,7 +766,7 @@ export default function HeroSection() {
                             <Button
                                 type="button"
                                 onClick={() => router.push('/become-agent')}
-                                className="bg-[#2a1407] text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-[#3b1804] transition shadow-lg"
+                                className="bg-[#2a1407] text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-[#2a1407] transition shadow-lg"
                             >
                                 Become an Agent
                             </Button>

@@ -1,24 +1,32 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { Formik, Form } from 'formik'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { patchMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
+import Image from 'next/image'
+import { Camera } from 'lucide-react'
 
 interface ProfileFormProps {
   initialValues: {
     firstName: string
     lastName: string
     email: string
-    // phoneNumber: string
   }
   isEdit?: boolean
   validationSchema: any
 }
 
 const ProfileForm: React.FC<ProfileFormProps> = ({ initialValues, validationSchema, isEdit = false }) => {
+  const [profileImage, setProfileImage] = useState<string | null>(null)
+
+  const handleImageUpload = (e: any) => {
+    const file = e.target.files?.[0]
+    if (file) setProfileImage(URL.createObjectURL(file))
+  }
+
   const handleSubmit = async (values: any) => {
     console.log('Form submitted with values:', values)
     const payload = {
@@ -26,37 +34,68 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialValues, validationSche
       lastName: values.lastName,
       email: values.email,
     }
+
     try {
       if (isEdit) {
         const res = await patchMethod(appEndpoints.updateUserProfile, payload)
-        console.log(' Profile updated:', res)
+        console.log('Profile updated:', res)
       } else {
-        console.log(' Creating new profile...')
+        console.log('Creating new profile...')
       }
     } catch (error) {
-      console.error(' Error submitting form:', error)
+      console.error('Error submitting form:', error)
     }
   }
 
   return (
-    <div className="max-w-md mx-auto bg-white shadow-md rounded-2xl p-6">
-      <h2 className="text-xl font-semibold text-gray-800 text-center mb-6">{isEdit ? 'Edit Profile' : 'Create Profile'}</h2>
+    <div className="max-w-lg mx-auto p-8 rounded-3xl bg-white shadow-xl shadow-yellow-900/10 border border-yellow-100">
+      {/* Title */}
+      <div className="text-center mb-6">
+        <h2 className="text-3xl font-bold text-[#2a1407] mb-1">
+          {isEdit ? 'Edit Profile' : 'Create Profile'}
+        </h2>
+        <p className="text-gray-500 text-sm">
+          Your information helps us personalize your experience ✨
+        </p>
+      </div>
 
+      {/* Profile Upload Circle */}
+      <div className="flex justify-center mb-8">
+        <label className="relative cursor-pointer group">
+          <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+
+          <div className="w-28 h-28 rounded-full border-4 border-[#2a1407]/20 overflow-hidden shadow-md group-hover:shadow-lg transition">
+            {profileImage ? (
+              <Image src={profileImage} alt="Profile" width={112} height={112} className="object-cover w-full h-full" />
+            ) : (
+              <div className="flex items-center justify-center w-full h-full bg-gray-100">
+                <Camera className="w-8 h-8 text-gray-500" />
+              </div>
+            )}
+          </div>
+
+          {/* Hover Overlay */}
+          <span className="absolute bottom-2 right-2 bg-[#2a1407] text-white p-1 rounded-full shadow-md group-hover:scale-110 transition">
+            <Camera size={14} />
+          </span>
+        </label>
+      </div>
+
+      {/* Form */}
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit} enableReinitialize>
         {({ isSubmitting }) => (
-          <Form className="space-y-5">
+          <Form className="space-y-6">
             <FormikTextField label="First Name" name="firstName" placeholder="Enter your first name" />
             <FormikTextField label="Last Name" name="lastName" placeholder="Enter your last name" />
             <FormikTextField label="Email" name="email" placeholder="Enter your email" />
-            {/* <FormikTextField label="Phone Number" name="phoneNumber" placeholder="Enter your phone number" /> */}
 
             <Button
               type="submit"
               disabled={isSubmitting}
-              onClick={() => {}}
-              className={`w-full py-2 text-white rounded-lg transition duration-200 ${
-                isEdit ? 'bg-gray-600 hover:bg-gray-700' : 'bg-green-600 hover:bg-green-700'
-              }`}
+              className={`w-full py-3 text-white font-semibold rounded-xl shadow-lg transition-all duration-200 
+                ${isSubmitting
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-[#2a1407] hover:bg-[#4a230c] hover:shadow-xl'}`}
             >
               {isSubmitting ? 'Saving...' : isEdit ? 'Update Profile' : 'Create Profile'}
             </Button>

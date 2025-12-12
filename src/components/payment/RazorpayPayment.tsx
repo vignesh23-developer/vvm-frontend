@@ -22,11 +22,11 @@ declare global {
   }
 }
 
-export default function RazorpayPayment({ 
-  planId, 
-  planName, 
-  amount, 
-  onClose, 
+export default function RazorpayPayment({
+  planId,
+  planName,
+  amount,
+  onClose,
   planAction,
   activeSubscriptionId
 }: RazorpayPaymentProps) {
@@ -65,7 +65,7 @@ export default function RazorpayPayment({
   // Determine button appearance based on planAction
   const buttonType = planAction
   let buttonText = 'Subscribe'
-  let buttonClass = 'px-4 py-2 bg-[#2a1407] text-white rounded hover:from-[#3b1804] hover:to-[#2a1407] transition-colors'
+  let buttonClass = 'px-4 py-2 bg-[#2a1407] text-white rounded hover:from-[#2a1407] hover:to-[#2a1407] transition-colors'
 
   switch (buttonType) {
     case 'current':
@@ -83,7 +83,7 @@ export default function RazorpayPayment({
     case 'subscribe':
     default:
       buttonText = 'Subscribe'
-      buttonClass = 'px-4 py-2 bg-[#3b1804] text-white rounded hover:bg-[#5a2a0a] transition-colors'
+      buttonClass = 'px-4 py-2 bg-[#2a1407] text-white rounded hover:bg-[#5a2a0a] transition-colors'
   }
 
   // Early return after all hooks are called
@@ -114,12 +114,12 @@ export default function RazorpayPayment({
 
       // Determine which endpoint to call based on button type
       let orderResponse
-      
+
       if (buttonType === 'upgrade' && activeSubscriptionId) {
         // Create upgrade order
         orderResponse = await postMethod(
           appEndpoints.createUpgradeOrder(userId, activeSubscriptionId),
-          { 
+          {
             newPlanId: planId,
             amount: targetPrice
           }
@@ -128,7 +128,7 @@ export default function RazorpayPayment({
         // Create downgrade order
         orderResponse = await postMethod(
           appEndpoints.createDowngradeOrder(userId, activeSubscriptionId),
-          { 
+          {
             newPlanId: planId,
             amount: targetPrice
           }
@@ -137,7 +137,7 @@ export default function RazorpayPayment({
         // Create subscription order (initial subscribe)
         orderResponse = await postMethod(
           appEndpoints.createSubscriptionOrder(userId),
-          { 
+          {
             plan_id: planId
           }
         )
@@ -223,7 +223,7 @@ export default function RazorpayPayment({
           email: userData.email || '',
         },
         theme: {
-          color: '#3b1804',
+          color: '#2a1407',
         },
         modal: {
           ondismiss: function () {
@@ -263,7 +263,7 @@ export default function RazorpayPayment({
       disabled={loading}
       className={`px-6 py-2 rounded font-medium capitalize transition-colors ${loading
         ? 'bg-gray-400 text-white cursor-not-allowed'
-        : 'bg-[#3b1804] text-white hover:bg-[#5a2a0a]'
+        : 'bg-[#2a1407] text-white hover:bg-[#5a2a0a]'
         }`}
     >
       {loading ? 'Processing...' : planAction}

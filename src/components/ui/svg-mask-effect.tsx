@@ -74,7 +74,7 @@ export function MaskContainer({
   // expose css variables so children can animate colors smoothly
   const containerVars: React.CSSProperties = {
     // title becomes white on hover, dark-brown otherwise
-    ["--title-color" as any]: isHovering ? "#ffffff" : "#3b1804",
+    ["--title-color" as any]: isHovering ? "#ffffff" : "#2a1407",
     // body text becomes light yellow on hover, gray otherwise
     ["--body-color" as any]: isHovering ? "#ffefcf" : "#4b5563",
   };
@@ -84,7 +84,7 @@ export function MaskContainer({
       ref={containerRef}
       className={cn("relative overflow-hidden", className)}
       style={containerVars}
-      // keep container itself stable; overlay will be masked
+    // keep container itself stable; overlay will be masked
     >
       {/* Reveal overlay (under content) */}
       <div

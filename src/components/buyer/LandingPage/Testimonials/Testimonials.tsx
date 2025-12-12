@@ -64,7 +64,7 @@ export default function Testimonials() {
       designation: 'First-time Home Buyer',
       quote: 'One of the standout qualities of this platform is their commitment to understanding client needs. This dedication to service and attention to detail sets them apart in the real estate industry. Found my dream home in Coimbatore!',
       rating: 5,
-      src: '/testimonials/priya.jpg',
+      src: '/images/t1.png',
     },
     {
       id: 2,
@@ -72,7 +72,7 @@ export default function Testimonials() {
       designation: 'Land Investor',
       quote: 'This dedication to research and knowledge-building sets them apart from the competition. I found exactly what I was looking for with their help. Great investment opportunities in Tamil Nadu!',
       rating: 5,
-      src: '/testimonials/senthil.jpg',
+      src: '/images/t2.png',
     },
     {
       id: 3,
@@ -80,7 +80,7 @@ export default function Testimonials() {
       designation: 'Rental Customer',
       quote: 'Their professionalism and eye for detail impressed us throughout the entire process. The team made finding a rental property in Chennai a breeze! Verified listings gave us peace of mind.',
       rating: 5,
-      src: '/testimonials/divya.jpg',
+      src: '/images/t3.png',
     },
     {
       id: 4,
@@ -88,7 +88,7 @@ export default function Testimonials() {
       designation: 'Property Developer',
       quote: 'Exceptional service and deep market knowledge. They helped us find the perfect investment properties with great returns. The platform connects us with genuine buyers.',
       rating: 5,
-      src: '/testimonials/rajesh.jpg',
+      src: '/images/t4.png',
     },
     {
       id: 5,
@@ -96,7 +96,7 @@ export default function Testimonials() {
       designation: 'Home Seller',
       quote: 'The platform made selling my property in Madurai so easy. Professional, efficient, and always available to answer questions. Highly recommended for all property transactions!',
       rating: 5,
-      src: '/testimonials/lakshmi.jpg',
+      src: '/images/t5.png',
     },
     {
       id: 6,
@@ -104,7 +104,7 @@ export default function Testimonials() {
       designation: 'Commercial Space Buyer',
       quote: 'Found the perfect commercial space in Trichy through this platform. The verification process and agent support made the entire transaction smooth and transparent.',
       rating: 5,
-      src: '/testimonials/arun.jpg',
+      src: '/images/t6.png',
     },
   ]
 
@@ -131,9 +131,9 @@ export default function Testimonials() {
     >
       {/* Premium Background Layers */}
       <div className="absolute inset-0 bg-gradient-to-br from-yellow-50/90 via-white/95 to-blue-50/90 z-0" />
-      
+
       {/* Animated Gold Opacity Background Overlay */}
-      <motion.div 
+      <motion.div
         className="absolute inset-0 bg-gradient-to-br from-yellow-100/25 via-yellow-50/12 to-transparent pointer-events-none z-[1]"
         animate={{
           background: [
@@ -144,7 +144,7 @@ export default function Testimonials() {
         }}
         transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
       />
-      
+
       {/* Premium Decorative Curved Elements */}
       <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-br from-yellow-200/10 via-yellow-100/4 to-transparent rounded-b-[80px] sm:rounded-b-[120px] pointer-events-none z-[1]" />
       <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-tl from-yellow-200/8 via-transparent to-transparent rounded-tl-[150px] pointer-events-none z-[1]" />

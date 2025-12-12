@@ -195,7 +195,7 @@ export default function PopularProperties({ district, packageType }: PopularProp
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 mb-2 tracking-tight"
           >
-            <span className="text-[#3b1804]">{t('PopularProperties.title') || 'Popular properties curated for you'}</span>
+            <span className="text-[#2a1407]">{t('PopularProperties.title') || 'Popular properties curated for you'}</span>
           </motion.h2>
 
           <motion.p
@@ -336,7 +336,7 @@ export default function PopularProperties({ district, packageType }: PopularProp
                       type="button"
                       variant="primary"
                       size="small"
-                      className="px-3 py-1.5 bg-[#2a1407] text-white rounded-lg font-semibold text-xs shadow-md hover:shadow-lg hover:bg-[#3b1804] transition-all duration-300"
+                      className="px-3 py-1.5 bg-[#2a1407] text-white rounded-lg font-semibold text-xs shadow-md hover:shadow-lg hover:bg-[#2a1407] transition-all duration-300"
                       onClick={() => handleSeeMoreClick(item.id)}
                     >
                       {t('PopularProperties.see_more')}

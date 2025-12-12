@@ -336,8 +336,8 @@ export default function AgencyDetails({ name }: { name: string }) {
       Array.isArray(similarProperties) && similarProperties.length > 0
         ? similarProperties
         : Array.isArray(popularSimilarProperties)
-        ? popularSimilarProperties
-        : []
+          ? popularSimilarProperties
+          : []
 
     // Exclude properties from current agency
     const agencyPropertyIds = new Set(normalizedProperties.map((p: any) => p.id))
@@ -356,14 +356,14 @@ export default function AgencyDetails({ name }: { name: string }) {
 
       {/* Property Cards Skeleton */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
-          {[1, 2, 3, 4, 5, 6].map(i => (
-            <motion.div
-              key={i}
+        {[1, 2, 3, 4, 5, 6].map(i => (
+          <motion.div
+            key={i}
             className="relative bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-lg animate-pulse"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: i * 0.1 }}
-            >
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: i * 0.1 }}
+          >
             <div className="w-full h-64 sm:h-72 lg:h-80 bg-gradient-to-br from-stone-200 via-stone-100 to-stone-200" />
             <div className="p-4 space-y-3">
               <div className="h-4 w-3/4 bg-stone-200 rounded" />
@@ -374,8 +374,8 @@ export default function AgencyDetails({ name }: { name: string }) {
               </div>
               <div className="h-8 w-full bg-stone-200 rounded-lg" />
             </div>
-            </motion.div>
-          ))}
+          </motion.div>
+        ))}
       </div>
     </div>
   )
@@ -398,7 +398,7 @@ export default function AgencyDetails({ name }: { name: string }) {
               <div className="flex flex-col gap-8 px-6 py-8 sm:px-10 md:flex-row md:py-10">
                 <div className="mx-auto w-full max-w-xs md:mx-0 md:w-64">
                   <div className="relative aspect-square overflow-hidden rounded-2xl border border-stone-200 bg-stone-100">
-                    <Image src={companyLogo} alt={`${profileTitle} logo`} fill className="object-cover" sizes="256px" priority />
+                    <Image src={companyLogo} alt={`${profileTitle} logo`} fill className="object-contain" sizes="256px" priority />
                   </div>
 
                   {isVerified && (
@@ -481,7 +481,7 @@ export default function AgencyDetails({ name }: { name: string }) {
             <section className="w-full flex flex-col items-center py-8">
               <div className="w-full max-w-7xl mx-auto px-4 md:px-8">
                 <h2 className="mb-6 text-center text-2xl font-bold tracking-wide text-stone-900">Properties by this Agency</h2>
-                
+
                 {/* Tabs - Always show all three (SALE, RENT, LEASE) */}
                 {isLoading ? (
                   <div className="flex justify-center py-10">
@@ -503,11 +503,10 @@ export default function AgencyDetails({ name }: { name: string }) {
                           <Button
                             type="button"
                             onClick={() => setSelectedTab(tab)}
-                            className={`rounded-full border px-6 py-2.5 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-amber-300 ${
-                              isActive
-                                ? 'border-amber-400 bg-amber-50 text-amber-800 shadow-sm'
-                                : 'border-stone-200 bg-white text-stone-700 hover:border-amber-200 hover:text-amber-700'
-                            }`}
+                            className={`rounded-full border px-6 py-2.5 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-amber-300 ${isActive
+                              ? 'border-amber-400 bg-amber-50 text-amber-800 shadow-sm'
+                              : 'border-stone-200 bg-white text-stone-700 hover:border-amber-200 hover:text-amber-700'
+                              }`}
                           >
                             {tab}
                           </Button>
@@ -632,7 +631,7 @@ export default function AgencyDetails({ name }: { name: string }) {
                               type="button"
                               variant="primary"
                               size="small"
-                              className="px-3 py-1.5 bg-[#2a1407] text-white rounded-lg font-semibold text-xs shadow-md hover:shadow-lg hover:bg-[#3b1804] transition-all duration-300"
+                              className="px-3 py-1.5 bg-[#2a1407] text-white rounded-lg font-semibold text-xs shadow-md hover:shadow-lg hover:bg-[#2a1407] transition-all duration-300"
                               onClick={() => handleSeeMoreClick(item.id)}
                             >
                               {t('PopularProperties.see_more')}
@@ -745,7 +744,7 @@ export default function AgencyDetails({ name }: { name: string }) {
               </div>
             </div>
 
-           
+
           </div>
         )}
       </div>
@@ -1481,7 +1480,7 @@ export default function AgencyDetails({ name }: { name: string }) {
 //                             type="button"
 //                             variant="primary"
 //                             size="small"
-//                             className="px-3 py-1.5 bg-[#2a1407] text-white rounded-lg font-semibold text-xs shadow-md hover:shadow-lg hover:bg-[#3b1804] transition-all duration-300"
+//                             className="px-3 py-1.5 bg-[#2a1407] text-white rounded-lg font-semibold text-xs shadow-md hover:shadow-lg hover:bg-[#2a1407] transition-all duration-300"
 //                             onClick={() => handleSeeMoreClick(item.id)}
 //                           >
 //                             {t('PopularProperties.see_more')}

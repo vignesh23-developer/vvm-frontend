@@ -168,8 +168,8 @@ export default function AdvancedFilters({
       filtersKeys: filtersMetaData?.data?.filters
         ? Object.keys(filtersMetaData.data.filters)
         : filtersMetaData?.data?.data?.filters
-        ? Object.keys(filtersMetaData.data.data.filters)
-        : [],
+          ? Object.keys(filtersMetaData.data.data.filters)
+          : [],
     })
   } else {
     console.log('✅ Backend filters loaded:', {
@@ -177,9 +177,9 @@ export default function AdvancedFilters({
       totalFilters: Object.keys(backendFilters).length,
       sampleFilter: Object.keys(backendFilters)[0]
         ? {
-            key: Object.keys(backendFilters)[0],
-            value: backendFilters[Object.keys(backendFilters)[0]],
-          }
+          key: Object.keys(backendFilters)[0],
+          value: backendFilters[Object.keys(backendFilters)[0]],
+        }
         : null,
     })
   }
@@ -201,14 +201,14 @@ export default function AdvancedFilters({
   const priceRanges: PriceRange[] =
     backendPriceStats?.min !== undefined && backendPriceStats?.max !== undefined
       ? [
-          { label: `Under ${(backendPriceStats.min / 1000).toFixed(0)}k`, min: 0, max: backendPriceStats.min },
-          {
-            label: `${(backendPriceStats.min / 1000).toFixed(0)}k - ${(backendPriceStats.max / 1000).toFixed(0)}k`,
-            min: backendPriceStats.min,
-            max: backendPriceStats.max,
-          },
-          { label: `${(backendPriceStats.max / 1000).toFixed(0)}k+`, min: backendPriceStats.max, max: null },
-        ]
+        { label: `Under ${(backendPriceStats.min / 1000).toFixed(0)}k`, min: 0, max: backendPriceStats.min },
+        {
+          label: `${(backendPriceStats.min / 1000).toFixed(0)}k - ${(backendPriceStats.max / 1000).toFixed(0)}k`,
+          min: backendPriceStats.min,
+          max: backendPriceStats.max,
+        },
+        { label: `${(backendPriceStats.max / 1000).toFixed(0)}k+`, min: backendPriceStats.max, max: null },
+      ]
       : []
 
   // These sections now use backend data only. If backend doesn't send buckets,
@@ -273,7 +273,7 @@ export default function AdvancedFilters({
       {/* Mobile Filter Toggle Button */}
       <button
         onClick={onToggle}
-        className="lg:hidden fixed bottom-6 right-6 z-50 bg-[#2a1407] text-white px-6 py-3 rounded-full shadow-xl flex items-center gap-2 font-bold hover:bg-[#3b1804] transition-all transform hover:scale-105"
+        className="lg:hidden fixed bottom-6 right-6 z-50 bg-[#2a1407] text-white px-6 py-3 rounded-full shadow-xl flex items-center gap-2 font-bold hover:bg-[#2a1407] transition-all transform hover:scale-105"
       >
         <SlidersHorizontal size={20} />
         <span>Filters</span>
@@ -340,7 +340,7 @@ export default function AdvancedFilters({
       {!isOpen && (
         <button
           onClick={onToggle}
-          className="hidden lg:flex fixed right-6 top-24 z-40 bg-[#2a1407] text-white px-4 py-3 rounded-full shadow-xl items-center gap-2 font-bold hover:bg-[#3b1804] transition-all transform hover:scale-105"
+          className="hidden lg:flex fixed right-6 top-24 z-40 bg-[#2a1407] text-white px-4 py-3 rounded-full shadow-xl items-center gap-2 font-bold hover:bg-[#2a1407] transition-all transform hover:scale-105"
         >
           <SlidersHorizontal size={18} />
           <span>Filters</span>

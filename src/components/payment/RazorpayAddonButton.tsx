@@ -167,7 +167,7 @@ export default function RazorpayAddonButton({
           email: userData.email || '',
         },
         theme: {
-          color: '#3b1804',
+          color: '#2a1407',
         },
         modal: {
           ondismiss: function () {
@@ -201,11 +201,10 @@ export default function RazorpayAddonButton({
     <button
       onClick={handlePurchase}
       disabled={loading || disabled}
-      className={`px-4 py-2 rounded font-medium text-sm transition-colors ${
-        loading || disabled
+      className={`px-4 py-2 rounded font-medium text-sm transition-colors ${loading || disabled
           ? 'bg-gray-400 text-white cursor-not-allowed'
-          : 'bg-[#3b1804] text-white hover:bg-[#5a2a0a]'
-      }`}
+          : 'bg-[#2a1407] text-white hover:bg-[#5a2a0a]'
+        }`}
     >
       {loading ? 'Processing...' : buttonText}
     </button>

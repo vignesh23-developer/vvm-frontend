@@ -11,6 +11,7 @@ import { appEndpoints } from '@/services/endpoints'
 import Pagination from '@/components/ui/CustomComponent/Paginations/Pagination'
 import useAgentCompanyProfile from '@/app/(buyer)/(site)/agents-list/(hooks)/useAgentCompanyProfile'
 import AdvancedFilters from '@/components/ui/AdvancedFilter/AdvancedFilters'
+import NextImage from 'next/image'
 
 // Enhanced Agent Card Skeleton
 const AgentCardSkeleton = () => (
@@ -205,17 +206,17 @@ const AgentListPage = () => {
 
     const suggestionsSet = new Set<string>()
 
-    ;(agentCompanyProfileData || []).forEach((agency: any) => {
-      const candidates = [agency.companyName, agency.profileName, agency.contact_name, agency.city, agency.district, agency.state]
-      candidates.forEach(value => {
-        if (typeof value === 'string') {
-          const lower = value.toLowerCase()
-          if (lower.includes(query)) {
-            suggestionsSet.add(value)
+      ; (agentCompanyProfileData || []).forEach((agency: any) => {
+        const candidates = [agency.companyName, agency.profileName, agency.contact_name, agency.city, agency.district, agency.state]
+        candidates.forEach(value => {
+          if (typeof value === 'string') {
+            const lower = value.toLowerCase()
+            if (lower.includes(query)) {
+              suggestionsSet.add(value)
+            }
           }
-        }
+        })
       })
-    })
 
     return Array.from(suggestionsSet).slice(0, 8)
   }, [searchTerm, agentCompanyProfileData, backendSuggestions])
@@ -443,19 +444,23 @@ const AgentListPage = () => {
             </div>
 
             {agentCompanyProfileFetchLoader ? (
-              <div className="space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {Array.from({ length: limit }).map((_, index) => (
                   <motion.div
                     key={`agency-skeleton-${index}`}
-                    initial={{ opacity: 0, y: 30, scale: 0.96 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{
                       delay: index * 0.08,
                       duration: 0.5,
-                      ease: [0.25, 0.46, 0.45, 0.94] as const,
                     }}
+                    className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm h-[320px] animate-pulse"
                   >
-                    <AgentCardSkeleton />
+                    <div className="h-48 bg-gray-200" />
+                    <div className="p-4 space-y-3">
+                      <div className="h-5 w-3/4 bg-gray-200 rounded" />
+                      <div className="h-4 w-1/2 bg-gray-200 rounded" />
+                    </div>
                   </motion.div>
                 ))}
               </div>
@@ -473,42 +478,66 @@ const AgentListPage = () => {
                 </button>
               </div>
             ) : (
-              <div className="space-y-5">
-                {filteredAgencies?.map((agentProperty, index) => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredAgencies?.map((agentProperty: any, index: number) => (
                   <motion.div
                     key={agentProperty.id ?? index}
                     variants={cardVariants}
                     initial="hidden"
                     animate="visible"
                     exit="exit"
+                    whileHover={{ y: -5 }}
                     transition={{
                       delay: index * 0.06,
-                      duration: 0.5,
-                      ease: [0.25, 0.46, 0.45, 0.94] as const,
+                      duration: 0.4,
                     }}
-                    className="w-full"
+                    className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-all cursor-pointer group flex flex-col"
+                    onClick={() => router.push(`/agent-details/${agentProperty.id}`)} // Assuming connection to detail page
                   >
-                    <AgentCard
-                      {...agentProperty}
-                      language={t}
-                      isFiltersOpen={isFiltersOpen}
-                      handleFavorite={agentId => {
-                        // Implement favorite functionality if needed
-                        console.log('Favorite agent:', agentId)
-                      }}
-                      handleShare={agentId => {
-                        // Implement share functionality
-                        if (navigator.share) {
-                          navigator.share({
-                            title: agentProperty.companyName,
-                            text: agentProperty.description,
-                            url: window.location.href,
-                          })
-                        } else {
-                          navigator.clipboard.writeText(window.location.href)
-                        }
-                      }}
-                    />
+                    {/* Image Section */}
+                    <div className="relative h-48 w-full overflow-hidden bg-gray-100">
+                      {agentProperty.profile_image ? (
+                        <NextImage
+                          src={agentProperty.profile_image}
+                          alt={agentProperty.companyName || agentProperty.profileName || 'Agent'}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-yellow-50 text-yellow-700 font-bold text-4xl">
+                          {(agentProperty.companyName?.[0] || agentProperty.profileName?.[0] || 'A').toUpperCase()}
+                        </div>
+                      )}
+
+                      <div className="absolute top-3 right-3 flex gap-2">
+                        {agentProperty.isVerified && (
+                          <span className="px-2 py-1 rounded-full bg-yellow-50 border border-yellow-200 text-yellow-700 text-xs font-semibold backdrop-blur-sm shadow-sm">
+                            Verified
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Content Section */}
+                    <div className="p-4 flex flex-col flex-1">
+                      <h3 className="text-lg font-bold text-[#2a1407] mb-1 line-clamp-1">
+                        {agentProperty.companyName || agentProperty.profileName || 'Unknown Agent'}
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-4 line-clamp-1 flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-600 flex-shrink-0"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
+                        {[agentProperty.city, agentProperty.district, agentProperty.state].filter(Boolean).join(', ') || 'Location N/A'}
+                      </p>
+
+                      <div className="mt-auto pt-3 border-t border-gray-100 flex items-center justify-between">
+                        <div className="flex flex-col">
+                          <span className="text-xs text-gray-500 font-medium">Properties</span>
+                          <span className="text-sm font-bold text-[#2a1407]">{agentProperty.property_count || 0}</span>
+                        </div>
+                        <button className="text-sm font-semibold text-yellow-700 bg-yellow-50 hover:bg-yellow-100 px-3 py-1.5 rounded-lg transition-colors">
+                          View Profile
+                        </button>
+                      </div>
+                    </div>
                   </motion.div>
                 ))}
               </div>
@@ -516,7 +545,7 @@ const AgentListPage = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="mt-8 flex justify-center">
+              <div className="mt-10 flex justify-center">
                 <Pagination totalItems={totalNumber} itemsPerPage={limit} currentPage={page} onPageChange={changePage} />
               </div>
             )}

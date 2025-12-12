@@ -194,7 +194,7 @@ const Login = () => {
                         setActiveChannel('whatsapp')
                         void submitForm()
                       }}
-                      className="w-full bg-[#2a1407] text-white text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:from-[#3b1804] hover:to-[#2a1407] disabled:opacity-60"
+                      className="w-full bg-[#2a1407] text-white text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:from-[#2a1407] hover:to-[#2a1407] disabled:opacity-60"
                     >
                       <span>{(isSubmitting || isLoading) && activeChannel === 'whatsapp' ? 'Verifying...' : t('Auth.whatapp_button')}</span>
                     </Button>

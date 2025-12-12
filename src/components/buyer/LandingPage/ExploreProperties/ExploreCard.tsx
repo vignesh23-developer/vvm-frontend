@@ -37,14 +37,12 @@ export default function ExploreCard({ item, variants }: ExploreCardProps) {
                   <span>{item.count} properties</span>
                 </p>
 
-                {agentsCount > 0 && (
-                  <p className="flex items-center gap-2 text-sm font-semibold text-gray-900">
-                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-yellow-50 border border-yellow-200">
-                      <HatGlasses size={14} className="text-yellow-700" />
-                    </span>
-                    <span>{agentsCount} agents</span>
-                  </p>
-                )}
+                <p className={`flex items-center gap-2 text-sm font-semibold text-gray-900 ${agentsCount > 0 ? '' : 'invisible'}`}>
+                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-yellow-50 border border-yellow-200">
+                    <HatGlasses size={14} className="text-yellow-700" />
+                  </span>
+                  <span>{agentsCount > 0 ? `${agentsCount} agents` : '0 agents'}</span>
+                </p>
 
                 {Array.isArray(item.propertyCategories) && item.propertyCategories.length > 0 && (
                   <div className="pt-1 flex flex-wrap gap-2">

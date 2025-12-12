@@ -100,8 +100,8 @@ export default function PropertiesPage() {
           status === 'AVAILABLE'
             ? 'bg-green-100 text-green-700 border border-green-300'
             : status === 'SOLD'
-            ? 'bg-red-100 text-red-700 border border-red-300'
-            : 'bg-yellow-100 text-yellow-700 border border-yellow-300'
+              ? 'bg-red-100 text-red-700 border border-red-300'
+              : 'bg-yellow-100 text-yellow-700 border border-yellow-300'
 
         return <span className={`px-3 py-1 rounded-full text-xs font-semibold ${colorClass}`}>{status}</span>
       },
@@ -118,8 +118,8 @@ export default function PropertiesPage() {
           approvalStatus === 'UNDER_REVIEW'
             ? 'bg-yellow-100 text-yellow-700 border border-yellow-300'
             : approvalStatus === 'APPROVED'
-            ? 'bg-green-100 text-green-700 border border-green-300'
-            : 'bg-red-100 text-red-700 border border-red-300'
+              ? 'bg-green-100 text-green-700 border border-green-300'
+              : 'bg-red-100 text-red-700 border border-red-300'
 
         return <span className={`px-3 py-1 rounded-full text-xs font-semibold ${colorClass}`}>{approvalStatus}</span>
       },
@@ -217,7 +217,7 @@ export default function PropertiesPage() {
         <Button
           type="button"
           onClick={() => router.push('/properties-registration')}
-          className="flex items-center gap-2 bg-[#2a1407] hover:from-[#3b1804] hover:to-[#2a1407] px-4 py-2 text-sm font-medium text-white rounded-md shadow-md transition"
+          className="flex items-center gap-2 bg-[#2a1407] hover:from-[#2a1407] hover:to-[#2a1407] px-4 py-2 text-sm font-medium text-white rounded-md shadow-md transition"
         >
           Properties Registration
           <ArrowRight size={16} />
@@ -229,7 +229,7 @@ export default function PropertiesPage() {
           <Button
             type="button"
             onClick={() => router.push('/admin/dashboard/properties-pending-approval')}
-            className="flex items-center gap-2 bg-[#2a1407] hover:from-[#3b1804] hover:to-[#2a1407] text-white text-sm font-medium px-4 py-2 rounded-md shadow-md transition-colors"
+            className="flex items-center gap-2 bg-[#2a1407] hover:from-[#2a1407] hover:to-[#2a1407] text-white text-sm font-medium px-4 py-2 rounded-md shadow-md transition-colors"
           >
             View your pending properties
             <ArrowRight size={16} />

@@ -60,7 +60,7 @@ export default function AppPromo() {
         {/* Left: wrapped in MaskContainer to reveal primary color on hover */}
         <div className="lg:col-span-5">
           <MaskContainer
-            revealBg="#3b1804"
+            revealBg="#2a1407"
             revealSize={320}
             className="group rounded-2xl"
           >
@@ -79,7 +79,7 @@ export default function AppPromo() {
               <h2
                 className="text-3xl lg:text-5xl font-extrabold leading-tight"
                 style={{
-                  color: 'var(--title-color, #3b1804)',
+                  color: 'var(--title-color, #2a1407)',
                   transition: 'color 350ms cubic-bezier(.2,.9,.2,1)',
                 }}
               >
@@ -196,7 +196,7 @@ export default function AppPromo() {
                     {/* placeholder 3D staged room */}
                     <div className="w-5/6 h-4/5 rounded-lg bg-gradient-to-b from-amber-100 to-white shadow-inner flex items-end p-4">
                       <div className="w-full">
-                        <div className="h-3 bg-[#3b1804] rounded-md w-2/3 mb-2 opacity-90" />
+                        <div className="h-3 bg-[#2a1407] rounded-md w-2/3 mb-2 opacity-90" />
                         <div className="h-2 bg-amber-300 rounded-md w-1/3" />
                       </div>
                     </div>

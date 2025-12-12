@@ -58,7 +58,7 @@ export const AnimatedTestimonials = ({
         {/* Image Stack Section */}
         <div className="order-2 md:order-1">
           <div className="relative h-96 w-full md:h-[500px]">
-            <AnimatePresence mode="wait">
+            <div className="relative w-full h-full">
               {testimonials.map((testimonial, index) => (
                 <motion.div
                   key={testimonial.id || testimonial.name || index}
@@ -78,12 +78,6 @@ export const AnimatedTestimonials = ({
                       : testimonials.length + 2 - index,
                     y: isActive(index) ? [0, -20, 0] : 0,
                   }}
-                  exit={{
-                    opacity: 0,
-                    scale: 0.9,
-                    z: 100,
-                    rotate: randomRotateY(),
-                  }}
                   transition={{
                     duration: 0.5,
                     ease: "easeInOut",
@@ -99,15 +93,18 @@ export const AnimatedTestimonials = ({
                       className="h-full w-full rounded-3xl object-cover object-center shadow-2xl border-4 border-white"
                     />
                   ) : (
-                    <div className="h-full w-full rounded-3xl bg-gradient-to-br from-yellow-100 via-yellow-50 to-white flex items-center justify-center shadow-2xl border-4 border-white">
-                      <span className="text-8xl font-black text-[#3b1804]">
-                        {getAvatarContent(testimonial.name)}
-                      </span>
+                    <div className="h-full w-full rounded-3xl bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 flex items-center justify-center shadow-2xl border-4 border-white relative overflow-hidden">
+                      <div className="absolute inset-0 backdrop-blur-3xl bg-white/30" />
+                      <div className="relative z-10 flex flex-col items-center justify-center opacity-60">
+                        <div className="w-32 h-32 rounded-full bg-gray-300/50 mb-4 flex items-center justify-center backdrop-blur-md border border-white/50">
+                          <span className="text-5xl font-bold text-gray-500">{getAvatarContent(testimonial.name)}</span>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </motion.div>
               ))}
-            </AnimatePresence>
+            </div>
           </div>
         </div>
 
@@ -142,7 +139,7 @@ export const AnimatedTestimonials = ({
 
             {/* Name and Designation */}
             <div className="mb-6">
-              <h3 className="text-3xl md:text-4xl font-black text-[#3b1804] mb-2 ">
+              <h3 className="text-3xl md:text-4xl font-black text-[#2a1407] mb-2 ">
                 {testimonials[active].name}
               </h3>
               <p className="text-base md:text-lg font-semibold text-yellow-600">
@@ -156,11 +153,10 @@ export const AnimatedTestimonials = ({
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star
                     key={i}
-                    className={`w-5 h-5 transition-all duration-300 ${
-                      i < (testimonials[active].rating || 0)
-                        ? 'fill-yellow-500 text-yellow-500 scale-110'
-                        : 'text-gray-300'
-                    }`}
+                    className={`w-5 h-5 transition-all duration-300 ${i < (testimonials[active].rating || 0)
+                      ? 'fill-yellow-500 text-yellow-500 scale-110'
+                      : 'text-gray-300'
+                      }`}
                   />
                 ))}
               </div>
@@ -202,11 +198,10 @@ export const AnimatedTestimonials = ({
                 <button
                   key={index}
                   onClick={() => setActive(index)}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    isActive(index)
-                      ? 'w-8 bg-gradient-to-r from-yellow-500 to-yellow-600'
-                      : 'w-2 bg-gray-300 hover:bg-yellow-400'
-                  }`}
+                  className={`h-2 rounded-full transition-all duration-300 ${isActive(index)
+                    ? 'w-8 bg-gradient-to-r from-yellow-500 to-yellow-600'
+                    : 'w-2 bg-gray-300 hover:bg-yellow-400'
+                    }`}
                   aria-label={`Go to testimonial ${index + 1}`}
                 />
               ))}

@@ -149,7 +149,13 @@ const LoadingAnimation: React.FC = () => {
             <p className="milRevealBox"></p>
             <div className="milH3 milMaroon milThin minWebHeader">
               {/* use logo from public folder */}
-              <Image src="/logo.png" alt="logo" width={300} height={300} className="w-[300px] h-auto" />
+              <Image
+                src="/footer_logo.png"
+                alt="Vaazhga Valamudan Logo"
+                width={180}
+                height={90}
+                className="w-[160px] h-auto object-contain hover:brightness-110 transition duration-300"
+              />
             </div>
           </div>
         </div>

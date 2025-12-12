@@ -207,7 +207,7 @@ export default function SignupPage() {
                   <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full bg-[#2a1407] text-white text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:from-[#3b1804] hover:to-[#2a1407] disabled:opacity-60 cursor-pointer"
+                    className="w-full bg-[#2a1407] text-white text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:from-[#2a1407] hover:to-[#2a1407] disabled:opacity-60 cursor-pointer"
                   >
                     <span>{isSubmitting ? 'Submitting...' : t('Auth.whatapp_button')}</span>
                   </Button>

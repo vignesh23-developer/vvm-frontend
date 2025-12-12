@@ -68,52 +68,49 @@ const AdsDetailsPage = () => {
   const reviewerId = user ? user?.id : null
 
   // Process Media (Images & Video)
-  const { apiImages, primaryVideoMedia, galleryImages, totalImageCount } = useMemo(() => {
-    if (!adDetails) return { apiImages: [], primaryVideoMedia: null, galleryImages: [], totalImageCount: 0 }
+  const { apiImages, galleryImages, totalImageCount } = useMemo(() => {
+    if (!adDetails) return { apiImages: [], galleryImages: [], totalImageCount: 0 }
 
     const allMedia = adDetails.media || adDetails.images || []
 
-    // Sort media: Primary first, then by sort order (if available), then remaining
+    // Sort media: Primary first, then by sort order (if available)
     const sortedMedia = [...allMedia].sort((a: any, b: any) => {
       if (a.is_primary && !b.is_primary) return -1
       if (!a.is_primary && b.is_primary) return 1
       return (a.sort_order || 0) - (b.sort_order || 0)
     })
 
-    // Separate Images and Video
-    // Assuming media_type is present, or infer from extension/structure if needed. 
-    // If media_type is missing, treat as image unless we have a specific way to identify video.
-    // For now, consistent with propertyDetails, we look for media_type === 'VIDEO'.
-    const videoResult = sortedMedia.find((m: any) => m.media_type === 'VIDEO')
-
-    const imageResult = sortedMedia
-      .filter((m: any) => m.media_type !== 'VIDEO' && m.url && m.url.trim() !== '')
-      .map((m: any) => m.url)
+    // Map to unified structure
+    const processedMedia = sortedMedia
+      .filter((m: any) => m.url && m.url.trim() !== '')
+      .map((m: any) => ({
+        url: m.url,
+        type: m.media_type === 'VIDEO' ? 'video' : 'image',
+        is_primary: m.is_primary,
+      }))
 
     // Gallery grid logic (max 4 items)
-    const gallerySlice = imageResult.slice(0, 4)
+    const gallerySlice = processedMedia.slice(0, 4)
 
     return {
-      apiImages: imageResult,
-      primaryVideoMedia: videoResult,
+      apiImages: processedMedia,
       galleryImages: gallerySlice,
-      totalImageCount: imageResult.length
+      totalImageCount: processedMedia.length,
     }
   }, [adDetails])
 
-  const videoEmbedUrl = useMemo(() => {
+  const getVideoEmbedUrl = useCallback((url: string) => {
     const fallback = 'https://www.youtube.com/embed/dQw4w9WgXcQ'
-    const raw = primaryVideoMedia?.url
-    if (!raw) return fallback
+    if (!url) return fallback
 
-    if (raw.includes('youtube.com/watch')) {
-      return raw.replace('watch?v=', 'embed/')
+    if (url.includes('youtube.com/watch')) {
+      return url.replace('watch?v=', 'embed/')
     }
-    if (raw.includes('youtu.be/')) {
-      return raw.replace('youtu.be/', 'www.youtube.com/embed/')
+    if (url.includes('youtu.be/')) {
+      return url.replace('youtu.be/', 'www.youtube.com/embed/')
     }
-    return raw
-  }, [primaryVideoMedia])
+    return url
+  }, [])
 
   const formattedAddress = useMemo(
     () => [adDetails?.address_line, adDetails?.city, adDetails?.state].filter(Boolean).join(', '),
@@ -130,9 +127,9 @@ const AdsDetailsPage = () => {
   const adInsights = useMemo(
     () => [
       {
-        label: 'Number of Reports',
-        value: adDetails?.reports_count ?? 0,
-        icon: BarChart3,
+        label: 'Number of Favourites',
+        value: adDetails?.favorite_count ?? 0,
+        icon: Heart,
       },
       {
         label: 'Total Enquiries',
@@ -314,13 +311,22 @@ const AdsDetailsPage = () => {
                 onClick={() => galleryImages[0] && setSelectedImageIndex(0)}
               >
                 {galleryImages[0] ? (
-                  <Image
-                    src={galleryImages[0]}
-                    alt="Ad main image"
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    priority
-                  />
+                  <>
+                    <Image
+                      src={galleryImages[0].url}
+                      alt="Ad main media"
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      priority
+                    />
+                    {galleryImages[0].type === 'video' && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                        <div className="h-16 w-16 rounded-full bg-white/20 backdrop-blur-sm border border-white/50 flex items-center justify-center">
+                          <Play className="text-white fill-white ml-1" size={32} />
+                        </div>
+                      </div>
+                    )}
+                  </>
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                     <Camera size={48} className="text-gray-400" />
@@ -339,13 +345,22 @@ const AdsDetailsPage = () => {
                   style={{ cursor: galleryImages[0] ? 'pointer' : 'default' }}
                 >
                   {galleryImages[0] ? (
-                    <Image
-                      src={galleryImages[0]}
-                      alt="Ad main image"
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
-                      priority
-                    />
+                    <>
+                      <Image
+                        src={galleryImages[0].url}
+                        alt="Ad main media"
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        priority
+                      />
+                      {galleryImages[0].type === 'video' && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                          <div className="h-16 w-16 rounded-full bg-white/20 backdrop-blur-sm border border-white/50 flex items-center justify-center">
+                            <Play className="text-white fill-white ml-1" size={32} />
+                          </div>
+                        </div>
+                      )}
+                    </>
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                       <Camera size={48} className="text-gray-400" />
@@ -363,12 +378,21 @@ const AdsDetailsPage = () => {
                   style={{ cursor: galleryImages[1] ? 'pointer' : 'default' }}
                 >
                   {galleryImages[1] ? (
-                    <Image
-                      src={galleryImages[1]}
-                      alt="Ad image 2"
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
+                    <>
+                      <Image
+                        src={galleryImages[1].url}
+                        alt="Ad media 2"
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                      {galleryImages[1].type === 'video' && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                          <div className="h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm border border-white/50 flex items-center justify-center">
+                            <Play className="text-white fill-white ml-1" size={24} />
+                          </div>
+                        </div>
+                      )}
+                    </>
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                       <Camera size={48} className="text-gray-400" />
@@ -389,13 +413,22 @@ const AdsDetailsPage = () => {
                   style={{ cursor: galleryImages[0] ? 'pointer' : 'default' }}
                 >
                   {galleryImages[0] ? (
-                    <Image
-                      src={galleryImages[0]}
-                      alt="Ad main image"
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
-                      priority
-                    />
+                    <>
+                      <Image
+                        src={galleryImages[0].url}
+                        alt="Ad main media"
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        priority
+                      />
+                      {galleryImages[0].type === 'video' && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                          <div className="h-16 w-16 rounded-full bg-white/20 backdrop-blur-sm border border-white/50 flex items-center justify-center">
+                            <Play className="text-white fill-white ml-1" size={32} />
+                          </div>
+                        </div>
+                      )}
+                    </>
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                       <Camera size={48} className="text-gray-400" />
@@ -417,11 +450,19 @@ const AdsDetailsPage = () => {
                       style={{ cursor: galleryImages[1] ? 'pointer' : 'default' }}
                     >
                       <Image
-                        src={galleryImages[1]}
-                        alt="Ad image 2"
+                        src={galleryImages[1].url}
+                        alt="Ad media 2"
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-110"
                       />
+                      {galleryImages[1].type === 'video' && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                          <div className="h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm border border-white/50 flex items-center justify-center">
+                            <Play className="text-white fill-white ml-1" size={24} />
+                          </div>
+                        </div>
+                      )}
+
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
                     </motion.div>
                   )}
@@ -439,61 +480,56 @@ const AdsDetailsPage = () => {
                         style={{ cursor: galleryImages[2] ? 'pointer' : 'default' }}
                       >
                         <Image
-                          src={galleryImages[2]}
-                          alt="Ad image 3"
+                          src={galleryImages[2].url}
+                          alt="Ad media 3"
                           fill
                           className="object-cover transition-transform duration-500 group-hover:scale-110"
                         />
+                        {galleryImages[2].type === 'video' && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                            <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm border border-white/50 flex items-center justify-center">
+                              <Play className="text-white fill-white ml-1" size={16} />
+                            </div>
+                          </div>
+                        )}
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
                       </motion.div>
                     )}
 
                     {/* Bottom Right: either video tile or 4th image / view-all */}
-                    {(primaryVideoMedia || galleryImages[3] || totalImageCount > galleryImages.length) && (
+                    {galleryImages[3] && (
                       <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5 }}
                         className="relative group overflow-hidden rounded-br-2xl cursor-pointer"
                         onClick={() => {
-                          if (primaryVideoMedia) {
-                            setIsVideoModalOpen(true)
-                          } else if (galleryImages[3]) {
+                          if (galleryImages[3]) {
                             setSelectedImageIndex(3)
                           }
                         }}
                       >
-                        {primaryVideoMedia ? (
-                          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-black/70 to-black/60 text-white">
-                            <div className="text-center">
-                              <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 border border-white/40">
-                                <Play size={20} />
-                              </div>
-                              <p className="text-sm font-semibold">Play Video</p>
+                        <Image
+                          src={galleryImages[3].url}
+                          alt="Ad media 4"
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                        {galleryImages[3].type === 'video' && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                            <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm border border-white/50 flex items-center justify-center">
+                              <Play className="text-white fill-white ml-1" size={16} />
                             </div>
                           </div>
-                        ) : galleryImages[3] ? (
-                          <>
-                            <Image
-                              src={galleryImages[3]}
-                              alt="Ad image 4"
-                              fill
-                              className="object-cover transition-transform duration-500 group-hover:scale-110"
-                            />
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
-                            {totalImageCount > galleryImages.length && (
-                              <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-white cursor-pointer group-hover:bg-black/70 transition-colors">
-                                <div className="text-center">
-                                  <Camera size={24} className="mx-auto mb-1" />
-                                  <p className="text-sm font-semibold">View All</p>
-                                  <p className="text-xs">{totalImageCount} Photos</p>
-                                </div>
-                              </div>
-                            )}
-                          </>
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                            <Camera size={24} className="text-gray-400" />
+                        )}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+                        {totalImageCount > galleryImages.length && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-white cursor-pointer group-hover:bg-black/70 transition-colors">
+                            <div className="text-center">
+                              <Camera size={24} className="mx-auto mb-1" />
+                              <p className="text-sm font-semibold">View All</p>
+                              <p className="text-xs">{totalImageCount} Items</p>
+                            </div>
                           </div>
                         )}
                       </motion.div>
@@ -580,7 +616,7 @@ const AdsDetailsPage = () => {
                         <Button
                           type="button"
                           onClick={() => setEnquiryModalOpen(true)}
-                          className="flex-1 bg-[#2a1407] text-white rounded-full py-2.5 px-4 text-sm hover:bg-[#3b1804] flex items-center justify-center gap-1 transition-all"
+                          className="flex-1 bg-[#2a1407] text-white rounded-full py-2.5 px-4 text-sm hover:bg-[#2a1407] flex items-center justify-center gap-1 transition-all"
                         >
                           <MessageSquare size={16} />
                           <span>Enquire</span>
@@ -823,7 +859,7 @@ const AdsDetailsPage = () => {
                 />
                 <Button
                   type="button"
-                  className="w-full bg-[#2a1407] text-white hover:from-[#3b1804] hover:to-[#2a1407] py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+                  className="w-full bg-[#2a1407] text-white hover:from-[#2a1407] hover:to-[#2a1407] py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all"
                 >
                   Connect →
                 </Button>
@@ -1092,17 +1128,29 @@ const AdsDetailsPage = () => {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.2 }}
-                      className="relative h-full w-full"
+                      className="relative h-full w-full flex items-center justify-center"
                     >
                       {apiImages[selectedImageIndex] ? (
-                        <Image
-                          src={apiImages[selectedImageIndex]}
-                          alt={`Gallery image ${selectedImageIndex + 1}`}
-                          fill
-                          className="object-contain"
-                          quality={100}
-                          priority
-                        />
+                        apiImages[selectedImageIndex].type === 'video' ? (
+                          <div className="w-full h-full md:h-[80%] aspect-video bg-black rounded-lg overflow-hidden">
+                            <iframe
+                              src={getVideoEmbedUrl(apiImages[selectedImageIndex].url)}
+                              title="Property Video"
+                              className="w-full h-full"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
+                          </div>
+                        ) : (
+                          <Image
+                            src={apiImages[selectedImageIndex].url}
+                            alt={`Gallery media ${selectedImageIndex + 1}`}
+                            fill
+                            className="object-contain"
+                            quality={100}
+                            priority
+                          />
+                        )
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-white">
                           <Camera size={48} className="opacity-50" />
@@ -1130,8 +1178,8 @@ const AdsDetailsPage = () => {
                   animate={{ y: 0 }}
                   className="h-24 bg-black/40 backdrop-blur-md flex items-center gap-2 px-4 overflow-x-auto pointer-events-auto"
                 >
-                  {apiImages.map((img: string, idx: number) => {
-                    const hasValidImage = img && img.trim() !== ''
+                  {apiImages.map((img: any, idx: number) => {
+                    const hasValidImage = img.url && img.url.trim() !== ''
                     return (
                       <motion.button
                         key={idx}
@@ -1146,7 +1194,13 @@ const AdsDetailsPage = () => {
                         )}
                       >
                         {hasValidImage ? (
-                          <Image src={img} alt={`Thumbnail ${idx + 1}`} fill className="object-cover" />
+                          img.type === 'video' ? (
+                            <div className="w-full h-full flex items-center justify-center bg-black">
+                              <Play size={20} className="text-white" />
+                            </div>
+                          ) : (
+                            <Image src={img.url} alt={`Thumbnail ${idx + 1}`} fill className="object-cover" />
+                          )
                         ) : (
                           <div className="w-full h-full flex items-center justify-center bg-gray-800">
                             <Camera size={20} className="text-gray-500" />
@@ -1178,25 +1232,6 @@ const AdsDetailsPage = () => {
           </>
         )}
       </AnimatePresence>
-
-      {/* Video Modal */}
-      {isVideoModalOpen && (
-        <ModalComponent
-          open={isVideoModalOpen}
-          onClose={() => setIsVideoModalOpen(false)}
-          title="Virtual Property Tour"
-        >
-          <div className="relative w-full pb-[56.25%] bg-black rounded-lg overflow-hidden">
-            <iframe
-              src={videoEmbedUrl}
-              title="Virtual Tour"
-              className="absolute inset-0 h-full w-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </div>
-        </ModalComponent>
-      )}
 
     </motion.main>
   )

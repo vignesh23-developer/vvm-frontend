@@ -23,7 +23,7 @@ export default function KYCPayment({ onClose }: KYCPaymentProps) {
   const [loading, setLoading] = useState(false)
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
 
-  const { user:userData} = useAuth();
+  const { user: userData } = useAuth();
 
   // Load Razorpay script
   useEffect(() => {
@@ -165,7 +165,7 @@ export default function KYCPayment({ onClose }: KYCPaymentProps) {
           email: userData.email || '',
         },
         theme: {
-          color: '#3b1804',
+          color: '#2a1407',
         },
         modal: {
           ondismiss: function () {
@@ -202,11 +202,10 @@ export default function KYCPayment({ onClose }: KYCPaymentProps) {
     <button
       onClick={handlePayment}
       disabled={loading}
-      className={`px-6 py-2 rounded font-medium transition-colors ${
-        loading
+      className={`px-6 py-2 rounded font-medium transition-colors ${loading
           ? 'bg-gray-400 text-white cursor-not-allowed'
-          : 'bg-[#3b1804] text-white hover:bg-[#5a2a0a]'
-      }`}
+          : 'bg-[#2a1407] text-white hover:bg-[#5a2a0a]'
+        }`}
     >
       {loading ? 'Processing...' : 'Pay ₹100 for KYC Verification'}
     </button>

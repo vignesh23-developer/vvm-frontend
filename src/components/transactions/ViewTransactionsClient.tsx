@@ -54,7 +54,7 @@ export default function ViewTransactionsClient() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3b1804] mx-auto"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2a1407] mx-auto"></div>
               <p className="mt-4 text-gray-600">Loading transactions...</p>
             </div>
           </div>
@@ -94,7 +94,7 @@ export default function ViewTransactionsClient() {
             </div>
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="mt-4 sm:mt-0 px-4 py-2 bg-[#3b1804] text-white rounded-lg hover:bg-[#5a2a0a] transition-colors flex items-center gap-2"
+              className="mt-4 sm:mt-0 px-4 py-2 bg-[#2a1407] text-white rounded-lg hover:bg-[#5a2a0a] transition-colors flex items-center gap-2"
             >
               <Filter className="w-4 h-4" />
               {showFilters ? 'Hide Filters' : 'Show Filters'}
@@ -116,7 +116,7 @@ export default function ViewTransactionsClient() {
                   <select
                     value={filters.status || ''}
                     onChange={(e) => handleFilterChange('status', e.target.value || undefined)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3b1804] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2a1407] focus:border-transparent"
                   >
                     <option value="">All Statuses</option>
                     <option value="INITIATED">Initiated</option>
@@ -133,7 +133,7 @@ export default function ViewTransactionsClient() {
                   <select
                     value={filters.method || ''}
                     onChange={(e) => handleFilterChange('method', e.target.value || undefined)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3b1804] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2a1407] focus:border-transparent"
                   >
                     <option value="">All Methods</option>
                     <option value="UPI">UPI</option>
@@ -150,7 +150,7 @@ export default function ViewTransactionsClient() {
                   <select
                     value={filters.gateway || ''}
                     onChange={(e) => handleFilterChange('gateway', e.target.value || undefined)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3b1804] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2a1407] focus:border-transparent"
                   >
                     <option value="">All Gateways</option>
                     <option value="RAZORPAY">Razorpay</option>
@@ -165,7 +165,7 @@ export default function ViewTransactionsClient() {
                   <select
                     value={filters.order || 'DESC'}
                     onChange={(e) => handleFilterChange('order', e.target.value as 'ASC' | 'DESC')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3b1804] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2a1407] focus:border-transparent"
                   >
                     <option value="DESC">Newest First</option>
                     <option value="ASC">Oldest First</option>
@@ -178,7 +178,7 @@ export default function ViewTransactionsClient() {
                   <select
                     value={filters.dateFilter || ''}
                     onChange={(e) => handleFilterChange('dateFilter', e.target.value || undefined)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3b1804] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2a1407] focus:border-transparent"
                   >
                     <option value="">No Date Filter</option>
                     <option value="day">Today</option>
@@ -202,7 +202,7 @@ export default function ViewTransactionsClient() {
                       type="number"
                       value={filters.dateValue || ''}
                       onChange={(e) => handleFilterChange('dateValue', e.target.value ? parseInt(e.target.value, 10) : undefined)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3b1804] focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2a1407] focus:border-transparent"
                       placeholder={filters.dateFilter === 'days' ? '7' : filters.dateFilter === 'month' ? '1-12' : '2024'}
                     />
                   </div>
@@ -215,7 +215,7 @@ export default function ViewTransactionsClient() {
                     <select
                       value={filters.dateField || 'created_at'}
                       onChange={(e) => handleFilterChange('dateField', e.target.value as 'created_at' | 'updated_at' | 'verified_at')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3b1804] focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2a1407] focus:border-transparent"
                     >
                       <option value="created_at">Created At</option>
                       <option value="updated_at">Updated At</option>
@@ -247,7 +247,7 @@ export default function ViewTransactionsClient() {
               <select
                 value={limit}
                 onChange={handleLimitChange}
-                className="px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3b1804] focus:border-transparent"
+                className="px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2a1407] focus:border-transparent"
               >
                 <option value="10">10</option>
                 <option value="20">20</option>
