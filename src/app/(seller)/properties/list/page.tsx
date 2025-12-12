@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useProperties } from '@/app/(seller)/properties/(hooks)/useProperties'
 import { PropertiesDto } from '@/app/(seller)/properties/dto/PropertiesDto'
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts'
@@ -14,6 +14,8 @@ import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import PropertyStatusChangeModal from '../modal/propertiesStatusChangeModal'
 import { Roles, getUserRoles, hasRole, type UserRole } from '@/utils/roles/roles'
 import { formatPrice } from '@/utils/converter/formatPrice'
+import { getMethod } from '@/services/service'
+import { appEndpoints } from '@/services/endpoints'
 
 // Chart data
 
@@ -36,9 +38,44 @@ export default function PropertiesPage() {
   const [limit, setLimit] = useState(10)
   const [isOpenStatusModal, setIsOpenStatusModal] = useState(false)
   const [propertyId, setPropertyId] = useState<string | null>(null)
+  const [isKycVerified, setIsKycVerified] = useState<boolean>(false)
+  const [isKycLoading, setIsKycLoading] = useState<boolean>(true)
 
   if (!token) {
     redirect('/login')
+  }
+
+  useEffect(() => {
+    let isMounted = true
+
+    const fetchKycStatus = async () => {
+      try {
+        setIsKycLoading(true)
+        const response = await getMethod(appEndpoints.getUserKycStatus)
+        const verified = Boolean((response as any)?.data?.isVerified)
+        if (isMounted) setIsKycVerified(verified)
+      } catch {
+        if (isMounted) setIsKycVerified(false)
+      } finally {
+        if (isMounted) setIsKycLoading(false)
+      }
+    }
+
+    void fetchKycStatus()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  const handlePropertiesRegistrationClick = () => {
+    if (isKycLoading) return
+
+    if (isKycVerified) {
+      router.push('/properties-registration')
+    } else {
+      router.push('/kyc-pending')
+    }
   }
 
   console.log('PropertiesPage: user', user)
@@ -274,7 +311,8 @@ export default function PropertiesPage() {
         </div>
         <Button
           type="button"
-          onClick={() => router.push('/properties-registration')}
+          onClick={handlePropertiesRegistrationClick}
+          disabled={isKycLoading}
           className="flex items-center gap-2 bg-[#2a1407] hover:from-[#3b1804] hover:to-[#2a1407] px-4 py-2 text-sm font-medium text-white rounded-md shadow-md transition"
         >
           Properties Registration

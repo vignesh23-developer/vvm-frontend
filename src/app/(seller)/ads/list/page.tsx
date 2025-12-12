@@ -286,6 +286,16 @@ export default function AdsListPage() {
     ]
   }
 
+  const handleAdsCreation = () => {
+    const isVerifiedUser = user?.isVerified
+    if (token && !isVerifiedUser) {
+      router.push('/kyc-pending')
+      return
+    } else {
+      router.push('/ads')
+    }
+  }
+
   // Calculate monthly data from actual ads
   const calculateMonthlyData = () => {
     const monthCounts: { [key: string]: number } = {}
@@ -330,7 +340,7 @@ export default function AdsListPage() {
           )}
           <Button
             type="button"
-            onClick={() => router.push('/ads')}
+            onClick={handleAdsCreation}
             className="flex items-center gap-2 bg-[#2a1407] px-4 py-2 text-sm font-medium text-white rounded-md shadow-md hover:bg-[#641717] transition"
           >
             Add Ads

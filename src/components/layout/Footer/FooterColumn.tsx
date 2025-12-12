@@ -13,7 +13,7 @@ interface FooterColumnProps {
 
 export default function FooterColumn({ title, links }: FooterColumnProps) {
   const t = useTranslations()
-  const { token } = useAuth()
+  const { user, token } = useAuth()
   const router = useRouter()
   // console.log('FooterColumn links:', links)
   return (
@@ -23,6 +23,17 @@ export default function FooterColumn({ title, links }: FooterColumnProps) {
         {links.map(({ label, href }) => {
           const requiresAuth = href === '/properties-registration'
           const disabled = requiresAuth && !token
+          const isVerifiedUser = user?.isVerified
+          if (href === '/properties-registration' && requiresAuth && token && !isVerifiedUser) {
+            // If the user is logged in but not verified, disable the link
+            return (
+              <li key={label}>
+                <Button type="button" onClick={() => router.push('/kyc-pending')} className="hover:text-white" title="Verification required">
+                  {t(`Footer.${label}`)}
+                </Button>
+              </li>
+            )
+          }
           return (
             <li key={label}>
               {disabled ? (
