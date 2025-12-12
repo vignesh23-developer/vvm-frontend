@@ -8,6 +8,8 @@ export type * from './types'
 
 // Hook exports
 export { useSubscriptionData } from './hooks/useSubscriptionData'
+export { useSubscriptionPlanAnalytics } from './hooks/useSubscriptionPlanAnalytics'
+export type { PlanAnalytics } from './hooks/useSubscriptionPlanAnalytics'
 
 // Utils exports
 export { formatCurrency, formatDate } from './utils/subscriptionUtils'

@@ -52,7 +52,9 @@ export interface PaymentTransaction {
 }
 
 export interface PaginatedTransactionResponse {
-  data: PaymentTransaction[]
+  data: {
+    data: PaymentTransaction[]
+  }
   total: number
   page: number
   limit: number
@@ -76,4 +78,3 @@ export interface TransactionQueryParams extends TransactionFilters {
   order?: 'ASC' | 'DESC'
   orderBy?: string
 }
-
