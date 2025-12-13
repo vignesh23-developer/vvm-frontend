@@ -52,11 +52,7 @@ export const AnimatedTestimonials = ({ testimonials, autoplay = false }: { testi
         {/* Image Stack Section */}
         <div className="order-2 md:order-1">
           <div className="relative h-96 w-full md:h-[500px]">
-<<<<<<< HEAD
             <div className="relative w-full h-full">
-=======
-            <AnimatePresence>
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
               {testimonials.map((testimonial, index) => (
                 <motion.div
                   key={testimonial.id || testimonial.name || index}
@@ -89,7 +85,6 @@ export const AnimatedTestimonials = ({ testimonials, autoplay = false }: { testi
                       className="h-full w-full rounded-3xl object-cover object-center shadow-2xl border-4 border-white"
                     />
                   ) : (
-<<<<<<< HEAD
                     <div className="h-full w-full rounded-3xl bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 flex items-center justify-center shadow-2xl border-4 border-white relative overflow-hidden">
                       <div className="absolute inset-0 backdrop-blur-3xl bg-white/30" />
                       <div className="relative z-10 flex flex-col items-center justify-center opacity-60">
@@ -97,10 +92,6 @@ export const AnimatedTestimonials = ({ testimonials, autoplay = false }: { testi
                           <span className="text-5xl font-bold text-gray-500">{getAvatarContent(testimonial.name)}</span>
                         </div>
                       </div>
-=======
-                    <div className="h-full w-full rounded-3xl bg-gradient-to-br from-yellow-100 via-yellow-50 to-white flex items-center justify-center shadow-2xl border-4 border-white">
-                      <span className="text-8xl font-black text-[#3b1804]">{getAvatarContent(testimonial.name)}</span>
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
                     </div>
                   )}
                 </motion.div>
@@ -140,17 +131,12 @@ export const AnimatedTestimonials = ({ testimonials, autoplay = false }: { testi
 
             {/* Name and Designation */}
             <div className="mb-6">
-<<<<<<< HEAD
               <h3 className="text-3xl md:text-4xl font-black text-[#2a1407] mb-2 ">
                 {testimonials[active].name}
               </h3>
               <p className="text-base md:text-lg font-semibold text-yellow-600">
                 {testimonials[active].designation}
               </p>
-=======
-              <h3 className="text-3xl md:text-4xl font-black text-[#3b1804] mb-2 ">{testimonials[active].name}</h3>
-              <p className="text-base md:text-lg font-semibold text-yellow-600">{testimonials[active].designation}</p>
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
             </div>
 
             {/* Rating Stars */}
@@ -159,16 +145,10 @@ export const AnimatedTestimonials = ({ testimonials, autoplay = false }: { testi
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star
                     key={i}
-<<<<<<< HEAD
                     className={`w-5 h-5 transition-all duration-300 ${i < (testimonials[active].rating || 0)
                       ? 'fill-yellow-500 text-yellow-500 scale-110'
                       : 'text-gray-300'
                       }`}
-=======
-                    className={`w-5 h-5 transition-all duration-300 ${
-                      i < (testimonials[active].rating || 0) ? 'fill-yellow-500 text-yellow-500 scale-110' : 'text-gray-300'
-                    }`}
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
                   />
                 ))}
               </div>
@@ -210,16 +190,10 @@ export const AnimatedTestimonials = ({ testimonials, autoplay = false }: { testi
                 <button
                   key={index}
                   onClick={() => setActive(index)}
-<<<<<<< HEAD
                   className={`h-2 rounded-full transition-all duration-300 ${isActive(index)
                     ? 'w-8 bg-gradient-to-r from-yellow-500 to-yellow-600'
                     : 'w-2 bg-gray-300 hover:bg-yellow-400'
                     }`}
-=======
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    isActive(index) ? 'w-8 bg-gradient-to-r from-yellow-500 to-yellow-600' : 'w-2 bg-gray-300 hover:bg-yellow-400'
-                  }`}
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
                   aria-label={`Go to testimonial ${index + 1}`}
                 />
               ))}

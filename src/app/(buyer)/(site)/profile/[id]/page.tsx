@@ -91,14 +91,6 @@ const ProfilePage = () => {
   }
 
   return (
-<<<<<<< HEAD
-    <div className="p-6 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-      <div className="space-y-6">
-        <ProfileForm initialValues={initialValues} validationSchema={ProfileValidationSchema} isEdit={!!id} />
-      </div>
-      <div className="space-y-6">
-        <KYCStatus />
-=======
     <div className="p-6">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
         {/* Left Column - Profile */}
@@ -131,9 +123,9 @@ const ProfilePage = () => {
           <KYCStatus />
           <WalletCard />
         </div>
->>>>>>> 34fb84ca8b39ba2d9e94ba34c4cc47984132ad21
       </div>
     </div>
+
   )
 }
 

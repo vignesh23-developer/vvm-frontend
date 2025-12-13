@@ -499,11 +499,7 @@ export default function AgencyDetails({ name }: { name: string }) {
               <div className="w-full max-w-7xl mx-auto px-4 md:px-8">
                 <h2 className="mb-6 text-center text-2xl font-bold tracking-wide text-stone-900">Properties by this Agency</h2>
 
-<<<<<<< HEAD
-                {/* Tabs - Always show all three (SALE, RENT, LEASE) */}
-=======
                 {/* Tabs - Always show All plus category names derived from properties */}
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
                 {isLoading ? (
                   <div className="flex justify-center py-10">
                     <Loader2 className="h-8 w-8 animate-spin text-amber-600" />
@@ -767,11 +763,7 @@ export default function AgencyDetails({ name }: { name: string }) {
                 ></motion.aside>
               </div>
             </div>
-<<<<<<< HEAD
 
-
-=======
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
           </div>
         )}
       </div>

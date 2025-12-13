@@ -65,11 +65,7 @@ export default function Testimonials() {
       quote:
         'One of the standout qualities of this platform is their commitment to understanding client needs. This dedication to service and attention to detail sets them apart in the real estate industry. Found my dream home in Coimbatore!',
       rating: 5,
-<<<<<<< HEAD
       src: '/images/t1.png',
-=======
-      // src: '/testimonials/priya.jpg',
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
     },
     {
       id: 2,
@@ -78,11 +74,7 @@ export default function Testimonials() {
       quote:
         'This dedication to research and knowledge-building sets them apart from the competition. I found exactly what I was looking for with their help. Great investment opportunities in Tamil Nadu!',
       rating: 5,
-<<<<<<< HEAD
       src: '/images/t2.png',
-=======
-      // src: '/testimonials/senthil.jpg',
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
     },
     {
       id: 3,
@@ -91,11 +83,7 @@ export default function Testimonials() {
       quote:
         'Their professionalism and eye for detail impressed us throughout the entire process. The team made finding a rental property in Chennai a breeze! Verified listings gave us peace of mind.',
       rating: 5,
-<<<<<<< HEAD
       src: '/images/t3.png',
-=======
-      // src: '/testimonials/divya.jpg',
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
     },
     {
       id: 4,
@@ -104,11 +92,7 @@ export default function Testimonials() {
       quote:
         'Exceptional service and deep market knowledge. They helped us find the perfect investment properties with great returns. The platform connects us with genuine buyers.',
       rating: 5,
-<<<<<<< HEAD
       src: '/images/t4.png',
-=======
-      // src: '/testimonials/rajesh.jpg',
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
     },
     {
       id: 5,
@@ -117,11 +101,7 @@ export default function Testimonials() {
       quote:
         'The platform made selling my property in Madurai so easy. Professional, efficient, and always available to answer questions. Highly recommended for all property transactions!',
       rating: 5,
-<<<<<<< HEAD
       src: '/images/t5.png',
-=======
-      // src: '/testimonials/lakshmi.jpg',
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
     },
     {
       id: 6,
@@ -130,11 +110,7 @@ export default function Testimonials() {
       quote:
         'Found the perfect commercial space in Trichy through this platform. The verification process and agent support made the entire transaction smooth and transparent.',
       rating: 5,
-<<<<<<< HEAD
       src: '/images/t6.png',
-=======
-      // src: '/testimonials/arun.jpg',
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
     },
   ]
 

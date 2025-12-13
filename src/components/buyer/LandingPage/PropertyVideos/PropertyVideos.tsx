@@ -146,13 +146,9 @@ export default function PropertyVideos() {
             viewport={{ once: true }}
             className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 mb-6 tracking-tight"
           >
-<<<<<<< HEAD
             <span className="bg-[#2a1407] bg-clip-text text-transparent">
               {t('ExploreVideo.title') || 'Virtual Property Tours'}
             </span>
-=======
-            <span className="bg-[#3b1804] bg-clip-text text-transparent">{t('ExploreVideo.title') || 'Virtual Property Tours'}</span>
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
           </motion.h2>
 
           <motion.p

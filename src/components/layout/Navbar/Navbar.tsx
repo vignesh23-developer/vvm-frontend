@@ -720,82 +720,47 @@ export default function Navbar({
                       </span>
                     </div>
 
-<<<<<<< HEAD
                     <div className="flex flex-col pl-4 space-y-1">
-                      {section.subMenu?.map((sub: any) =>
-                        sub.label === 'logout' ? (
-                          <Button
-                            key="mobile-logout"
-                            onClick={() => {
-                              setIsMenuOpen(false)
-                              handleLogout()
-                            }}
-                            className="flex items-center gap-2 w-full px-4 py-1 text-sm text-gray-200 hover:text-white transition"
-                          >
-                            <span className="text-gray-400">{sub.icon ? sub.icon : <CircleSmall size={12} />}</span>
-                            {t(`Navbar.subMenus.${sub.label}`)}
-                          </Button>
-                        ) : (
+                      {section.subMenu?.map((sub: any) => {
+                        if (sub.label === 'logout') {
+                          return (
+                            <Button
+                              key="mobile-logout"
+                              onClick={() => {
+                                setIsMenuOpen(false)
+                                handleLogout()
+                              }}
+                              className="flex items-center gap-2 w-full px-4 py-1 text-sm text-gray-200 hover:text-white transition"
+                            >
+                              <span className="text-gray-400">{sub.icon ? sub.icon : <CircleSmall size={12} />}</span>
+                              {t(`Navbar.subMenus.${sub.label}`)}
+                            </Button>
+                          )
+                        }
+
+                        const requiresAuth =
+                          typeof sub?.href === 'string' && (sub.href === '/company-profile' || sub.href.startsWith('/company-profile/'))
+                        const isVerifiedUser = Boolean(requiresAuth && token && user?.isVerified)
+                        const targetHref = requiresAuth && !isVerifiedUser ? '/kyc-pending' : sub.href
+
+                        return (
                           <Link
-                            key={sub.href}
-                            href={sub.href}
+                            key={String(sub.href)}
+                            href={targetHref}
                             onClick={() => setIsMenuOpen(false)}
                             className="flex items-center gap-2 px-4 py-1 text-sm text-gray-200 hover:text-white transition no-underline"
                           >
                             <span className="text-gray-400">{sub.icon ? sub.icon : <CircleSmall size={12} />}</span>
                             {t(`Navbar.subMenus.${sub.label}`)}
                           </Link>
-                        ),
-                      )}
+                        )
+                      })}
                     </div>
                   </>
                 )}
               </div>
             ))
-=======
-                      <div className="flex flex-col pl-4 space-y-1">
-                        {section.subMenu?.map((sub: any) => {
-                          if (sub.label === 'logout') {
-                            return (
-                              <Button
-                                key="mobile-logout"
-                                onClick={() => {
-                                  setIsMenuOpen(false)
-                                  handleLogout()
-                                }}
-                                className="flex items-center gap-2 w-full px-4 py-1 text-sm text-gray-200 hover:text-white transition"
-                              >
-                                <span className="text-gray-400">{sub.icon ? sub.icon : <CircleSmall size={12} />}</span>
-                                {t(`Navbar.subMenus.${sub.label}`)}
-                              </Button>
-                            )
-                          }
-
-                          const requiresAuth =
-                            typeof sub?.href === 'string' && (sub.href === '/company-profile' || sub.href.startsWith('/company-profile/'))
-                          const isVerifiedUser = Boolean(requiresAuth && token && user?.isVerified)
-                          const targetHref = requiresAuth && !isVerifiedUser ? '/kyc-pending' : sub.href
-
-                          return (
-                            <Link
-                              key={String(sub.href)}
-                              href={targetHref}
-                              onClick={() => setIsMenuOpen(false)}
-                              className="flex items-center gap-2 px-4 py-1 text-sm text-gray-200 hover:text-white transition no-underline"
-                            >
-                              <span className="text-gray-400">{sub.icon ? sub.icon : <CircleSmall size={12} />}</span>
-                              {t(`Navbar.subMenus.${sub.label}`)}
-                            </Link>
-                          )
-                        })}
-                      </div>
-                    </>
-                  )}
-                </div>
-              ))
->>>>>>> 34fb84ca8b39ba2d9e94ba34c4cc47984132ad21
             : showLoginButton && (
-<<<<<<< HEAD
               <div className="flex flex-col gap-2 mt-4">
                 <Link
                   href="/login"
@@ -811,17 +776,6 @@ export default function Navbar({
                 </Link>
               </div>
             )}
-=======
-                <div className="flex flex-col gap-2 mt-4">
-                  <Link
-                    href="/login"
-                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#2a1407] px-5 py-2.5 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-600 transition shadow-md text-sm"
-                  >
-                    {t('Auth.login')}
-                  </Link>
-                </div>
-              )}
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
 
           {/* Keep your language selector & profile/login below unchanged */}
           {showLanguageSelector && <LanguageSwitch />}

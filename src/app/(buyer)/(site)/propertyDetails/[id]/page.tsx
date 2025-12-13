@@ -386,13 +386,9 @@ const page = () => {
       let values: string[] = []
 
       if (Array.isArray(fv.feature_options) && fv.feature_options.length > 0) {
-<<<<<<< HEAD
         values = fv.feature_options
           .map((opt: any) => opt?.name)
           .filter((n: any) => typeof n === 'string' && n.trim().length > 0)
-=======
-        values = fv.feature_options.map((opt: any) => opt?.name).filter((n: any) => typeof n === 'string' && n.trim().length > 0)
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
 
         // If multiple values, join with comma for display
         if (values.length > 0) {
@@ -693,7 +689,6 @@ const page = () => {
                   onClick={() => galleryImages[0] && setSelectedImageIndex(0)}
                   style={{ cursor: galleryImages[0] ? 'pointer' : 'default' }}
                 >
-<<<<<<< HEAD
                   {galleryImages[0] ? (
                     <>
                       <Image
@@ -711,16 +706,6 @@ const page = () => {
                         </div>
                       )}
                     </>
-=======
-                  {galleryImages[0] && galleryImages[0].trim() !== '' ? (
-                    <Image
-                      src={galleryImages[0]}
-                      alt="Property main image"
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
-                      priority
-                    />
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                       <Camera size={48} className="text-gray-400" />
@@ -737,7 +722,6 @@ const page = () => {
                   onClick={() => galleryImages[1] && setSelectedImageIndex(1)}
                   style={{ cursor: galleryImages[1] ? 'pointer' : 'default' }}
                 >
-<<<<<<< HEAD
                   {galleryImages[1] ? (
                     <>
                       <Image
@@ -754,15 +738,6 @@ const page = () => {
                         </div>
                       )}
                     </>
-=======
-                  {galleryImages[1] && galleryImages[1].trim() !== '' ? (
-                    <Image
-                      src={galleryImages[1]}
-                      alt="Property image 2"
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                       <Camera size={48} className="text-gray-400" />
@@ -782,7 +757,6 @@ const page = () => {
                   onClick={() => galleryImages[0] && setSelectedImageIndex(0)}
                   style={{ cursor: galleryImages[0] ? 'pointer' : 'default' }}
                 >
-<<<<<<< HEAD
                   {galleryImages[0] ? (
                     <>
                       <Image
@@ -800,16 +774,6 @@ const page = () => {
                         </div>
                       )}
                     </>
-=======
-                  {galleryImages[0] && galleryImages[0].trim() !== '' ? (
-                    <Image
-                      src={galleryImages[0]}
-                      alt="Property main image"
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
-                      priority
-                    />
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                       <Camera size={48} className="text-gray-400" />
@@ -831,7 +795,6 @@ const page = () => {
                       style={{ cursor: galleryImages[1] ? 'pointer' : 'default' }}
                     >
                       {galleryImages[1] ? (
-<<<<<<< HEAD
                         <>
                           <Image
                             src={galleryImages[1].url}
@@ -847,14 +810,6 @@ const page = () => {
                             </div>
                           )}
                         </>
-=======
-                        <Image
-                          src={galleryImages[1]}
-                          alt="Property image 2"
-                          fill
-                          className="object-cover transition-transform duration-500 group-hover:scale-110"
-                        />
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                           <Camera size={24} className="text-gray-400" />
@@ -876,7 +831,6 @@ const page = () => {
                         onClick={() => galleryImages[2] && setSelectedImageIndex(2)}
                         style={{ cursor: galleryImages[2] ? 'pointer' : 'default' }}
                       >
-<<<<<<< HEAD
                         {galleryImages[2] ? (
                           <>
                             <Image
@@ -893,15 +847,6 @@ const page = () => {
                               </div>
                             )}
                           </>
-=======
-                        {galleryImages[2] && galleryImages[2].trim() !== '' ? (
-                          <Image
-                            src={galleryImages[2]}
-                            alt="Property image 3"
-                            fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-110"
-                          />
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                             <Camera size={24} className="text-gray-400" />
@@ -926,7 +871,6 @@ const page = () => {
                       >
                         {galleryImages[3] ? (
                           <>
-<<<<<<< HEAD
                             <Image
                               src={galleryImages[3].url}
                               alt="Property media 4"
@@ -938,20 +882,9 @@ const page = () => {
                                 <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm border border-white/50 flex items-center justify-center">
                                   <Play className="text-white fill-white ml-1" size={16} />
                                 </div>
-=======
-                            {galleryImages[3] && galleryImages[3].trim() !== '' ? (
-                              <Image
-                                src={galleryImages[3]}
-                                alt="Property image 4"
-                                fill
-                                className="object-cover transition-transform duration-500 group-hover:scale-110"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                                <Camera size={24} className="text-gray-400" />
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
                               </div>
                             )}
+
                             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
                             {totalImageCount > galleryImages.length && (
                               <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-white cursor-pointer group-hover:bg-black/70 transition-colors">
@@ -967,12 +900,13 @@ const page = () => {
                           <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                             <Camera size={24} className="text-gray-400" />
                           </div>
-                        )}
-                      </motion.div>
+                        )
+                        }
+                      </motion.div >
                     )}
-                  </div>
-                </div>
-              </div>
+                  </div >
+                </div >
+              </div >
             )}
 
             {/* Floating Action Buttons */}
@@ -1002,10 +936,10 @@ const page = () => {
                 )}
               </motion.div>
             </div>
-          </motion.div>
+          </motion.div >
 
           {/* Property Header Card */}
-          <motion.div variants={fadeInUp} className="relative -mt-20 mx-4 md:mx-8 z-10">
+          < motion.div variants={fadeInUp} className="relative -mt-20 mx-4 md:mx-8 z-10" >
             <div className="bg-gradient-to-br from-white to-yellow-50/20 rounded-2xl shadow-xl border border-yellow-200 p-6 md:p-8">
               <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
                 {/* Left Section */}
@@ -1078,12 +1012,13 @@ const page = () => {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </motion.div >
         </div>
       </div>
 
+
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
+      < div className="max-w-7xl mx-auto px-4 md:px-8 py-8" >
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Left Content - 2 columns */}
           <div className="lg:col-span-2 space-y-8">
@@ -1326,9 +1261,8 @@ const page = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.08 }}
                       whileHover={{ y: -3, boxShadow: '0 18px 40px rgba(0,0,0,0.07)' }}
-                      className={`relative flex flex-col justify-between rounded-2xl bg-gradient-to-br from-yellow-50/50 to-white px-5 py-4 border border-yellow-100 ${
-                        isPrivileged ? 'cursor-pointer hover:shadow-md' : ''
-                      }`}
+                      className={`relative flex flex-col justify-between rounded-2xl bg-gradient-to-br from-yellow-50/50 to-white px-5 py-4 border border-yellow-100 ${isPrivileged ? 'cursor-pointer hover:shadow-md' : ''
+                        }`}
                       role={isPrivileged ? 'button' : undefined}
                       tabIndex={isPrivileged ? 0 : undefined}
                       onClick={() => {
@@ -1367,7 +1301,6 @@ const page = () => {
               </div>
             </motion.div>
 
-<<<<<<< HEAD
             {/* Contact Form Card */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -1433,65 +1366,14 @@ const page = () => {
                 </Button>
               </div>
             </motion.div>
-=======
-            {/* Enquiry Form Card */}
-            <EnquiryFormCard Id={propertyId || ''} entityType="property" handleSubmit={handleEnquirySubmit} defaultValues={enquiryPrefillValues} />
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
 
-            {/* Contact Owner */}
-            {/* <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              whileHover={{ scale: 1.01 }}
-              className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm"
-            >
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Contact Owner</h3>
-              <div className="space-y-3 mb-6">
-                <div className="flex items-center gap-3 text-gray-700">
-                  <MessageSquare size={18} className="text-yellow-600" />
-                  <span className="font-medium">{ownerNameDisplay}</span>
-                </div>
-                <div className="flex items-center gap-3 text-gray-700">
-                  <Phone size={18} className="text-yellow-600" />
-                  <span className="font-medium">{ownerPhoneDisplay}</span>
-                </div>
-              </div>
 
-            <div className="space-y-3">
-                <Button
-                  type="button"
-                  onClick={() => setEnquiryModalOpen(true)}
-                  className="w-full bg-[#2a1407] text-white hover:bg-[#2a1407] py-3 rounded-lg font-semibold transition-all"
-                >
-                  <MessageSquare size={18} className="inline mr-2" />
-                  Enquire Now
-                </Button>
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    onClick={() => setReportModalOpen(true)}
-                    className="flex-1 bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200 py-2.5 rounded-lg font-medium text-sm transition-all"
-                  >
-                    <Flag size={16} className="inline mr-1" />
-                    Report
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={handleDownloadBrochure}
-                    className="flex-1 bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200 py-2.5 rounded-lg font-medium text-sm transition-all"
-                  >
-                    <Download size={16} className="inline mr-1" />
-                    Brochure
-                  </Button>
-                </div>
-                </div>
-              </motion.div> */}
-          </motion.aside>
-        </div>
-      </div>
+          </motion.aside >
+        </div >
+      </div >
 
       {/* Full-width Location Map Section */}
-      <motion.section
+      < motion.section
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}
@@ -1531,7 +1413,7 @@ const page = () => {
             </div>
           </div>
         </div>
-      </motion.section>
+      </motion.section >
 
       {/* Property Video & Ads Section */}
       <motion.section
@@ -1840,81 +1722,82 @@ const page = () => {
             </motion.div>
           </motion.div>
         </div>
-      </motion.section>
+      </motion.section >
 
       {/* Similar Projects Carousel Section */}
-      {filteredSimilarProperties.length > 0 && (
-        <motion.section
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.6 }}
-          className="max-w-7xl mx-auto px-4 md:px-8 py-12"
-        >
-          <div className="mb-8 flex items-center justify-between">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="w-5 h-5 text-yellow-600" />
-                <h2 className="text-3xl md:text-4xl font-bold text-[#2a1407]">Similar Projects</h2>
-              </div>
-              <p className="text-gray-600">Explore other properties you might be interested in</p>
-            </div>
-
-            {/* Carousel Navigation Buttons */}
-            {!isLoadingSimilar && !isLoadingPopularSimilar && filteredSimilarProperties.length > 0 && (
-              <div className="hidden md:flex items-center gap-2">
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => {
-                    if (carouselRef.current) {
-                      const cardWidth = 320 // Approximate card width with gap
-                      carouselRef.current.scrollBy({ left: -cardWidth, behavior: 'smooth' })
-                    }
-                  }}
-                  disabled={carouselScrollPosition === 0}
-                  className={cn(
-                    'flex h-10 w-10 items-center justify-center rounded-full border transition-all',
-                    carouselScrollPosition === 0
-                      ? 'border-gray-200 text-gray-300 cursor-not-allowed'
-                      : 'border-yellow-200 bg-yellow-50 text-yellow-600 hover:bg-yellow-100',
-                  )}
-                  aria-label="Previous properties"
-                >
-                  <ChevronLeft size={20} />
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => {
-                    if (carouselRef.current) {
-                      const cardWidth = 320
-                      carouselRef.current.scrollBy({ left: cardWidth, behavior: 'smooth' })
-                    }
-                  }}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-yellow-200 bg-yellow-50 text-yellow-600 hover:bg-yellow-100 transition-all"
-                  aria-label="Next properties"
-                >
-                  <ChevronRight size={20} />
-                </motion.button>
-              </div>
-            )}
-          </div>
-
-          {isLoadingSimilar ? (
-            <div className="flex gap-6 overflow-hidden">
-              {[1, 2, 3, 4].map(i => (
-                <div key={i} className="flex-shrink-0 w-80 bg-white rounded-xl border border-gray-200 p-4 animate-pulse">
-                  <div className="h-48 bg-gray-200 rounded-lg mb-4" />
-                  <div className="h-4 w-3/4 bg-gray-200 rounded mb-2" />
-                  <div className="h-4 w-1/2 bg-gray-200 rounded" />
+      {
+        filteredSimilarProperties.length > 0 && (
+          <motion.section
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.6 }}
+            className="max-w-7xl mx-auto px-4 md:px-8 py-12"
+          >
+            <div className="mb-8 flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="w-5 h-5 text-yellow-600" />
+                  <h2 className="text-3xl md:text-4xl font-bold text-[#2a1407]">Similar Projects</h2>
                 </div>
-              ))}
+                <p className="text-gray-600">Explore other properties you might be interested in</p>
+              </div>
+
+              {/* Carousel Navigation Buttons */}
+              {!isLoadingSimilar && !isLoadingPopularSimilar && filteredSimilarProperties.length > 0 && (
+                <div className="hidden md:flex items-center gap-2">
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => {
+                      if (carouselRef.current) {
+                        const cardWidth = 320 // Approximate card width with gap
+                        carouselRef.current.scrollBy({ left: -cardWidth, behavior: 'smooth' })
+                      }
+                    }}
+                    disabled={carouselScrollPosition === 0}
+                    className={cn(
+                      'flex h-10 w-10 items-center justify-center rounded-full border transition-all',
+                      carouselScrollPosition === 0
+                        ? 'border-gray-200 text-gray-300 cursor-not-allowed'
+                        : 'border-yellow-200 bg-yellow-50 text-yellow-600 hover:bg-yellow-100',
+                    )}
+                    aria-label="Previous properties"
+                  >
+                    <ChevronLeft size={20} />
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => {
+                      if (carouselRef.current) {
+                        const cardWidth = 320
+                        carouselRef.current.scrollBy({ left: cardWidth, behavior: 'smooth' })
+                      }
+                    }}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-yellow-200 bg-yellow-50 text-yellow-600 hover:bg-yellow-100 transition-all"
+                    aria-label="Next properties"
+                  >
+                    <ChevronRight size={20} />
+                  </motion.button>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="relative">
-              {/* Carousel Container */}
-              <style jsx>{`
+
+            {isLoadingSimilar ? (
+              <div className="flex gap-6 overflow-hidden">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="flex-shrink-0 w-80 bg-white rounded-xl border border-gray-200 p-4 animate-pulse">
+                    <div className="h-48 bg-gray-200 rounded-lg mb-4" />
+                    <div className="h-4 w-3/4 bg-gray-200 rounded mb-2" />
+                    <div className="h-4 w-1/2 bg-gray-200 rounded" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="relative">
+                {/* Carousel Container */}
+                <style jsx>{`
                 .property-carousel::-webkit-scrollbar {
                   display: none;
                 }
@@ -1923,91 +1806,92 @@ const page = () => {
                   scrollbar-width: none;
                 }
               `}</style>
-              <div
-                ref={carouselRef}
-                onScroll={e => {
-                  const target = e.target as HTMLDivElement
-                  setCarouselScrollPosition(target.scrollLeft)
-                }}
-                className="property-carousel flex gap-6 overflow-x-auto scroll-smooth pb-4"
-                style={{
-                  scrollSnapType: 'x mandatory',
-                  WebkitOverflowScrolling: 'touch',
-                }}
-              >
-                {filteredSimilarProperties.map((property: any, idx: number) => (
-                  <motion.div
-                    key={property.id || idx}
-                    initial={{ opacity: 0, x: 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: idx * 0.1 }}
-                    whileHover={cardHover}
-                    className="flex-shrink-0 w-80 flex flex-col bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-all cursor-pointer"
-                    style={{ scrollSnapAlign: 'start' }}
-                    onClick={() => router.push(`/propertyDetails/${property.id}`)}
-                  >
-                    <div className="relative h-48 w-full overflow-hidden flex-shrink-0">
-                      <Image
-                        src={property.media?.[0]?.url || property.image || '/villa.png'}
-                        alt={property.title || 'Property'}
-                        fill
-                        className="object-cover transition-transform duration-500 hover:scale-110"
-                      />
-                      <div className="absolute top-3 right-3 flex gap-2">
-                        {property.is_published && (
-                          <span className="px-2 py-1 rounded-full bg-yellow-50 border border-yellow-200 text-yellow-700 text-xs font-semibold backdrop-blur-sm">
-                            Verified
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="p-4 flex flex-col flex-1">
-                      <div className="mb-3">
-                        <h3 className="font-bold text-[#2a1407] mb-1 line-clamp-1">{property.title || 'Property'}</h3>
-                        <p className="text-sm text-gray-600 line-clamp-1 flex items-center gap-1">
-                          <MapPin size={14} className="text-yellow-600 flex-shrink-0" />
-                          {property.address_line || 'Location not available'}
-                        </p>
-                      </div>
-
-                      <div className="mt-auto flex items-center justify-between pt-3 border-t border-gray-50 bg-gray-50/50 -mx-4 -mb-4 px-4 py-3">
-                        <div>
-                          <p className="text-[10px] uppercase text-gray-500 font-medium tracking-wide mb-0.5">Price</p>
-                          <p className="text-lg font-bold text-[#2a1407]">
-                            {property.price ? `₹${formatPrice(Number(property.price))}` : 'Price on request'}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-[10px] uppercase text-gray-500 font-medium tracking-wide mb-0.5">Size</p>
-                          <p className="text-sm font-semibold text-gray-700">
-                            {property.property_size ? `${property.property_size} ${property.property_size_unit || 'sqft'}` : 'N/A'}
-                          </p>
+                <div
+                  ref={carouselRef}
+                  onScroll={e => {
+                    const target = e.target as HTMLDivElement
+                    setCarouselScrollPosition(target.scrollLeft)
+                  }}
+                  className="property-carousel flex gap-6 overflow-x-auto scroll-smooth pb-4"
+                  style={{
+                    scrollSnapType: 'x mandatory',
+                    WebkitOverflowScrolling: 'touch',
+                  }}
+                >
+                  {filteredSimilarProperties.map((property: any, idx: number) => (
+                    <motion.div
+                      key={property.id || idx}
+                      initial={{ opacity: 0, x: 20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: idx * 0.1 }}
+                      whileHover={cardHover}
+                      className="flex-shrink-0 w-80 flex flex-col bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-all cursor-pointer"
+                      style={{ scrollSnapAlign: 'start' }}
+                      onClick={() => router.push(`/propertyDetails/${property.id}`)}
+                    >
+                      <div className="relative h-48 w-full overflow-hidden flex-shrink-0">
+                        <Image
+                          src={property.media?.[0]?.url || property.image || '/villa.png'}
+                          alt={property.title || 'Property'}
+                          fill
+                          className="object-cover transition-transform duration-500 hover:scale-110"
+                        />
+                        <div className="absolute top-3 right-3 flex gap-2">
+                          {property.is_published && (
+                            <span className="px-2 py-1 rounded-full bg-yellow-50 border border-yellow-200 text-yellow-700 text-xs font-semibold backdrop-blur-sm">
+                              Verified
+                            </span>
+                          )}
                         </div>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+                      <div className="p-4 flex flex-col flex-1">
+                        <div className="mb-3">
+                          <h3 className="font-bold text-[#2a1407] mb-1 line-clamp-1">{property.title || 'Property'}</h3>
+                          <p className="text-sm text-gray-600 line-clamp-1 flex items-center gap-1">
+                            <MapPin size={14} className="text-yellow-600 flex-shrink-0" />
+                            {property.address_line || 'Location not available'}
+                          </p>
+                        </div>
 
-              {/* Scroll Indicator Dots */}
-              {filteredSimilarProperties.length > 4 && (
-                <div className="flex justify-center gap-2 mt-6">
-                  {Array.from({ length: Math.ceil(filteredSimilarProperties.length / 4) }).map((_, idx) => (
-                    <div
-                      key={idx}
-                      className={cn(
-                        'h-2 rounded-full transition-all',
-                        Math.floor(carouselScrollPosition / 1280) === idx ? 'w-8 bg-yellow-600' : 'w-2 bg-gray-300',
-                      )}
-                    />
+                        <div className="mt-auto flex items-center justify-between pt-3 border-t border-gray-50 bg-gray-50/50 -mx-4 -mb-4 px-4 py-3">
+                          <div>
+                            <p className="text-[10px] uppercase text-gray-500 font-medium tracking-wide mb-0.5">Price</p>
+                            <p className="text-lg font-bold text-[#2a1407]">
+                              {property.price ? `₹${formatPrice(Number(property.price))}` : 'Price on request'}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-[10px] uppercase text-gray-500 font-medium tracking-wide mb-0.5">Size</p>
+                            <p className="text-sm font-semibold text-gray-700">
+                              {property.property_size ? `${property.property_size} ${property.property_size_unit || 'sqft'}` : 'N/A'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
                   ))}
                 </div>
-              )}
-            </div>
-          )}
-        </motion.section>
-      )}
+
+                {/* Scroll Indicator Dots */}
+                {filteredSimilarProperties.length > 4 && (
+                  <div className="flex justify-center gap-2 mt-6">
+                    {Array.from({ length: Math.ceil(filteredSimilarProperties.length / 4) }).map((_, idx) => (
+                      <div
+                        key={idx}
+                        className={cn(
+                          'h-2 rounded-full transition-all',
+                          Math.floor(carouselScrollPosition / 1280) === idx ? 'w-8 bg-yellow-600' : 'w-2 bg-gray-300',
+                        )}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </motion.section>
+        )
+      }
 
       {/* Modals */}
       <ApproveOrRejectPropertyModal
@@ -2036,13 +1920,7 @@ const page = () => {
       {/* Image Gallery Modal Carousel - Only show if there's an actual image */}
       <AnimatePresence>
         {selectedImageIndex !== null &&
-<<<<<<< HEAD
           apiImages[selectedImageIndex] && (
-=======
-          galleryImages[selectedImageIndex] &&
-          typeof galleryImages[selectedImageIndex] === 'string' &&
-          galleryImages[selectedImageIndex].trim() !== '' && (
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
             <>
               <motion.div
                 initial={{ opacity: 0 }}
@@ -2052,8 +1930,7 @@ const page = () => {
                 onClick={() => setSelectedImageIndex(null)}
               >
                 <style jsx global>{`
-<<<<<<< HEAD
-                body {
+                 body {
                   overflow: hidden;
                 }
               `}</style>
@@ -2073,30 +1950,6 @@ const page = () => {
                 >
                   <X size={24} />
                 </motion.button>
-
-=======
-                  body {
-                    overflow: hidden;
-                  }
-                `}</style>
-
-                {/* Close Button */}
-                <motion.button
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="absolute top-6 right-6 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all"
-                  onClick={e => {
-                    e.stopPropagation()
-                    setSelectedImageIndex(null)
-                  }}
-                  aria-label="Close gallery"
-                >
-                  <X size={24} />
-                </motion.button>
-
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
                 {/* Navigation Buttons - Only show if there are actual images */}
                 {apiImages.length > 1 && (
                   <>
@@ -2166,7 +2019,6 @@ const page = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.3 }}
-<<<<<<< HEAD
                   className="relative flex w-full max-w-6xl justify-center h-full items-center"
                   onClick={e => e.stopPropagation()}
                 >
@@ -2191,145 +2043,90 @@ const page = () => {
                         priority
                       />
                     )
-=======
-                  className="relative flex w-full max-w-6xl justify-center"
-                  onClick={e => e.stopPropagation()}
-                >
-                  {galleryImages[selectedImageIndex] &&
-                  typeof galleryImages[selectedImageIndex] === 'string' &&
-                  galleryImages[selectedImageIndex].trim() !== '' ? (
-                    <Image
-                      src={galleryImages[selectedImageIndex]}
-                      alt={`Property image ${selectedImageIndex + 1}`}
-                      width={1600}
-                      height={900}
-                      className="max-h-[90vh] w-auto object-contain rounded-lg select-none"
-                      priority
-                    />
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
                   ) : (
                     <div className="max-h-[90vh] w-full max-w-6xl flex items-center justify-center bg-gray-800 rounded-lg">
                       <div className="text-center text-white">
                         <Camera size={64} className="mx-auto mb-4 opacity-50" />
-<<<<<<< HEAD
                         <p className="text-lg opacity-75">Media not available</p>
-=======
-                        <p className="text-lg opacity-75">Image not available</p>
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
-                      </div>
-                    </div>
+                      </div >
+                    </div >
                   )}
-                </motion.div>
+                </motion.div >
 
                 {/* Image Counter */}
-                <motion.div
+                < motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-white text-sm font-medium"
                 >
-<<<<<<< HEAD
                   {selectedImageIndex + 1} / {apiImages.length}
-=======
-                  {selectedImageIndex + 1} / {apiImages.length || galleryImages.length}
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
-                </motion.div>
+                </motion.div >
 
                 {/* Thumbnail Strip */}
-                {galleryImages.length > 1 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 flex gap-2 max-w-4xl overflow-x-auto px-4"
-                    onClick={e => e.stopPropagation()}
-                  >
-<<<<<<< HEAD
-                    {apiImages.map((img: any, idx: number) => {
-                      const hasValidImage = img.url && img.url.trim() !== ''
-=======
-                    {galleryImages.map((img, idx) => {
-                      const hasValidImage = img && img.trim() !== ''
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
-                      return (
-                        <motion.button
-                          key={idx}
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => hasValidImage && setSelectedImageIndex(idx)}
-                          disabled={!hasValidImage}
-                          className={cn(
-                            'relative h-16 w-16 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all',
-                            selectedImageIndex === idx ? 'border-yellow-500 scale-110' : 'border-white/30 opacity-60 hover:opacity-100',
-                            !hasValidImage && 'bg-gray-800 border-gray-600',
-                          )}
-                        >
-                          {hasValidImage ? (
-<<<<<<< HEAD
-                            img.type === 'video' ? (
-                              <div className="w-full h-full flex items-center justify-center bg-black">
-                                <Play size={20} className="text-white" />
-                              </div>
-                            ) : (
-                              <Image src={img.url} alt={`Thumbnail ${idx + 1}`} fill className="object-cover" />
-                            )
-=======
-                            <Image src={img} alt={`Thumbnail ${idx + 1}`} fill className="object-cover" />
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gray-800">
-                              <Camera size={20} className="text-gray-500" />
-                            </div>
-                          )}
-                        </motion.button>
-                      )
-                    })}
-                  </motion.div>
-                )}
-              </motion.div>
+                {
+                  galleryImages.length > 1 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                      className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 flex gap-2 max-w-4xl overflow-x-auto px-4"
+                      onClick={e => e.stopPropagation()}
+                    >
+                      {
+                        apiImages.map((img: any, idx: number) => {
+                          const hasValidImage = img.url && img.url.trim() !== ''
+                          return (
+                            <motion.button
+                              key={idx}
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => hasValidImage && setSelectedImageIndex(idx)}
+                              disabled={!hasValidImage}
+                              className={cn(
+                                'relative h-16 w-16 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all',
+                                selectedImageIndex === idx ? 'border-yellow-500 scale-110' : 'border-white/30 opacity-60 hover:opacity-100',
+                                !hasValidImage && 'bg-gray-800 border-gray-600',
+                              )}
+                            >
+                              {hasValidImage ? (
+                                img.type === 'video' ? (
+                                  <div className="w-full h-full flex items-center justify-center bg-black">
+                                    <Play size={20} className="text-white" />
+                                  </div>
+                                ) : (
+                                  <Image src={img.url} alt={`Thumbnail ${idx + 1}`} fill className="object-cover" />
+                                )
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-gray-800">
+                                  <Camera size={20} className="text-gray-500" />
+                                </div>
+                              )}
+                            </motion.button>
+                          )
+                        })
+                      }
+                    </motion.div >
+                  )
+                }
+              </motion.div >
 
               {/* Keyboard Navigation */}
-              {selectedImageIndex !== null && (
-                <ImageCarouselKeyboardHandler
-                  currentIndex={selectedImageIndex}
-                  totalImages={apiImages.length}
-                  onNavigate={dir => {
-                    if (dir === 'next') {
-<<<<<<< HEAD
-                      setSelectedImageIndex((prev) => (prev !== null ? (prev + 1) % apiImages.length : 0))
-                    } else {
-                      setSelectedImageIndex((prev) => (prev !== null ? (prev - 1 + apiImages.length) % apiImages.length : apiImages.length - 1))
-=======
-                      // Find next actual image
-                      let newIndex = selectedImageIndex + 1
-                      while (newIndex < galleryImages.length && !galleryImages[newIndex]) {
-                        newIndex++
+              {
+                selectedImageIndex !== null && (
+                  <ImageCarouselKeyboardHandler
+                    currentIndex={selectedImageIndex}
+                    totalImages={apiImages.length}
+                    onNavigate={dir => {
+                      if (dir === 'next') {
+                        setSelectedImageIndex((prev) => (prev !== null ? (prev + 1) % apiImages.length : 0))
+                      } else {
+                        setSelectedImageIndex((prev) => (prev !== null ? (prev - 1 + apiImages.length) % apiImages.length : apiImages.length - 1))
                       }
-                      if (newIndex >= galleryImages.length) {
-                        newIndex = 0
-                        while (newIndex < galleryImages.length && !galleryImages[newIndex]) {
-                          newIndex++
-                        }
-                      }
-                      if (newIndex < galleryImages.length) setSelectedImageIndex(newIndex)
-                    } else {
-                      // Find previous actual image
-                      let newIndex = selectedImageIndex - 1
-                      while (newIndex >= 0 && !galleryImages[newIndex]) {
-                        newIndex--
-                      }
-                      if (newIndex < 0) {
-                        newIndex = galleryImages.length - 1
-                        while (newIndex >= 0 && !galleryImages[newIndex]) {
-                          newIndex--
-                        }
-                      }
-                      if (newIndex >= 0) setSelectedImageIndex(newIndex)
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
-                    }
-                  }}
-                  onClose={() => setSelectedImageIndex(null)}
-                />
-              )}
+                    }}
+                    onClose={() => setSelectedImageIndex(null)}
+                  />
+                )
+              }
             </>
           )}
       </AnimatePresence>

@@ -311,14 +311,9 @@ export default function PropertiesPage() {
         </div>
         <Button
           type="button"
-<<<<<<< HEAD
-          onClick={() => router.push('/properties-registration')}
-          className="flex items-center gap-2 bg-[#2a1407] hover:from-[#2a1407] hover:to-[#2a1407] px-4 py-2 text-sm font-medium text-white rounded-md shadow-md transition"
-=======
           onClick={handlePropertiesRegistrationClick}
           disabled={isKycLoading}
           className="flex items-center gap-2 bg-[#2a1407] hover:from-[#3b1804] hover:to-[#2a1407] px-4 py-2 text-sm font-medium text-white rounded-md shadow-md transition"
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
         >
           Properties Registration
           <ArrowRight size={16} />

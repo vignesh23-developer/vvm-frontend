@@ -37,35 +37,12 @@ export default function ExploreCard({ item, variants }: ExploreCardProps) {
                   <span>{item.count} properties</span>
                 </p>
 
-<<<<<<< HEAD
                 <p className={`flex items-center gap-2 text-sm font-semibold text-gray-900 ${agentsCount > 0 ? '' : 'invisible'}`}>
                   <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-yellow-50 border border-yellow-200">
                     <HatGlasses size={14} className="text-yellow-700" />
                   </span>
                   <span>{agentsCount > 0 ? `${agentsCount} agents` : '0 agents'}</span>
                 </p>
-
-                {Array.isArray(item.propertyCategories) && item.propertyCategories.length > 0 && (
-                  <div className="pt-1 flex flex-wrap gap-2">
-                    {item.propertyCategories.map((category, index) => (
-                      <span
-                        key={index}
-                        className="inline-block bg-yellow-50 text-yellow-800 border border-yellow-200 text-[11px] font-medium px-3 py-1 rounded-full"
-                      >
-                        {category}
-                      </span>
-                    ))}
-                  </div>
-=======
-                {agentsCount > 0 && (
-                  <p className="flex items-center gap-2 text-sm font-semibold text-gray-900">
-                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-yellow-50 border border-yellow-200">
-                      <HatGlasses size={14} className="text-yellow-700" />
-                    </span>
-                    <span>{agentsCount} agents</span>
-                  </p>
->>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
-                )}
               </div>
 
               {Array.isArray(item.propertyCategories) && item.propertyCategories.length > 0 && (
