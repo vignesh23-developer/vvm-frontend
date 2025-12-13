@@ -91,35 +91,38 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="py-6">
-      <div className="max-w-md mx-auto bg-white shadow-md rounded-2xl p-6">
-        <h2 className="text-xl font-semibold text-gray-800 text-center mb-6">Edit Profile</h2>
+    <div className="p-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
+        {/* Left Column - Profile */}
+        <div className="lg:row-span-2 bg-white shadow-md rounded-2xl p-4">
+          <h2 className="text-center text-xl font-semibold text-gray-800">Edit Profile</h2>
 
-        <LogoOrProfileImageUpload
-          logoUrl={imageUrl || ''}
-          onClick={() => setIsModalOpen(true)}
-          label="Profile Image"
-          title="Upload Profile Image"
-          changeText="Change"
-        />
+          <LogoOrProfileImageUpload
+            logoUrl={imageUrl || ''}
+            onClick={() => setIsModalOpen(true)}
+            label="Profile Image"
+            title="Upload Profile Image"
+            changeText="Change"
+          />
 
-        <ProfileForm initialValues={initialValues} validationSchema={ProfileValidationSchema} isEdit={!!id} />
+          <ProfileForm initialValues={initialValues} validationSchema={ProfileValidationSchema} isEdit={!!id} />
 
-        <UploadProfileImageModal
-          isModalOpen={isModalOpen}
-          setIsModalOpen={setIsModalOpen}
-          buttonText="Upload Image"
-          modalTitle="Upload Profile Image"
-          modalLabel="Profile Image"
-          modalDescription="Kindly upload your profile image below 👇"
-          onImageUploadSubmit={handleProfileImageSubmit}
-        />
-      </div>
+          <UploadProfileImageModal
+            isModalOpen={isModalOpen}
+            setIsModalOpen={setIsModalOpen}
+            buttonText="Upload Image"
+            modalTitle="Upload Profile Image"
+            modalLabel="Profile Image"
+            modalDescription="Kindly upload your profile image below 👇"
+            onImageUploadSubmit={handleProfileImageSubmit}
+          />
+        </div>
 
-      <KYCStatus />
-
-      <div>
-        <WalletCard />
+        {/* Right Column - KYC + Wallet */}
+        <div className="space-y-6">
+          <KYCStatus />
+          <WalletCard />
+        </div>
       </div>
     </div>
   )
