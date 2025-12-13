@@ -9,11 +9,7 @@ import { PaymentTransaction, PaginatedTransactionResponse, TransactionQueryParam
 /**
  * Custom hook to fetch user payment transactions with pagination and filtering
  */
-export function useTransactionData(
-  page: number = 1,
-  limit: number = 10,
-  filters?: TransactionQueryParams,
-) {
+export function useTransactionData(page: number = 1, limit: number = 10, filters?: TransactionQueryParams) {
   const router = useRouter()
   const { user: userData } = useAuth()
   const [transactions, setTransactions] = useState<PaymentTransaction[]>([])
@@ -54,19 +50,16 @@ export function useTransactionData(
       if (filters?.dateValue !== undefined) params.dateValue = filters.dateValue
       if (filters?.dateField) params.dateField = filters.dateField
 
-      const response = await getMethod<ResponseDTO<PaginatedTransactionResponse>>(
-        appEndpoints.getUserTransactions,
-        params,
-      )
+      const response = await getMethod<ResponseDTO<PaginatedTransactionResponse>>(appEndpoints.getUserTransactions, params)
 
       if (response.error) {
         setError(response.message || 'Failed to fetch transactions')
         return
       }
 
-      const transactionData = response.data?.data
+      const transactionData = response.data?.data as any
       if (transactionData) {
-        const transfomredTransactionData = transactionData.data.map((transaction: PaymentTransaction) => {
+        const transfomredTransactionData = transactionData?.data?.map((transaction: PaymentTransaction) => {
           return {
             ...transaction,
             amount: transaction.amount / 100,
@@ -103,4 +96,3 @@ export function useTransactionData(
     refetch,
   }
 }
-
