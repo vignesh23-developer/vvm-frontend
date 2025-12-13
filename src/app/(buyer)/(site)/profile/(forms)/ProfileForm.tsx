@@ -2,14 +2,18 @@
 
 import React, { useState } from 'react'
 import { Formik, Form } from 'formik'
+import { useRouter } from 'next/navigation'
+import { ResponseDTO } from '@/components/dto/response_dto'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
 import Button from '@/components/ui/CustomComponent/Button/Button'
-import { patchMethod } from '@/services/service'
+import { patchMethod, postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import Image from 'next/image'
 import { Camera } from 'lucide-react'
 import UploadProfileImageModal from '@/components/ui/LogoOrProfileImageUpload/modal/UploadProfileImage'
 import LogoOrProfileImageUpload from '@/components/ui/LogoOrProfileImageUpload/LogoOrProfileImageUpload'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import toast from 'react-hot-toast'
 
 interface ProfileFormProps {
   initialValues: {
@@ -23,12 +27,21 @@ interface ProfileFormProps {
 
 const ProfileForm: React.FC<ProfileFormProps> = ({ initialValues, validationSchema, isEdit = false }) => {
   const [profileImage, setProfileImage] = useState<string | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const router = useRouter()
+  const { setUser } = useAuth()
 
   const handleImageUpload = (e: any) => {
     const file = e.target.files?.[0]
     if (file) setProfileImage(URL.createObjectURL(file))
   }
-  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const handleProfileImageSubmit = async (values: any, { resetForm }: any) => {
+    setIsModalOpen(false)
+    console.log("Image upload implementation pending integration.")
+    toast.error("Image upload logic is currently being updated.")
+  }
 
   const handleSubmit = async (values: any) => {
     console.log('Form submitted with values:', values)
@@ -41,51 +54,18 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialValues, validationSche
     try {
       if (isEdit) {
         const res = await patchMethod(appEndpoints.updateUserProfile, payload)
-        console.log('Profile updated:', res)
+        if (res && Number(res.status) === 200) {
+          setUser(res?.data as any)
+          toast.success('Profile updated successfully!')
+        } else {
+          toast.error(res?.message || 'Failed to update profile.')
+        }
       } else {
         console.log('Creating new profile...')
       }
     } catch (error) {
       console.error('Error submitting form:', error)
     }
-  }
-
-  const handleProfileImageSubmit = async (values: any, { resetForm }: any) => {
-    console.log('Profile image upload submitted with values:', values)
-    setIsModalOpen(false)
-    // try {
-    //   if (!values.file) {
-    //     toast.error('Please select a file before submitting.')
-    //     return
-    //   }
-    //   const formData = new FormData()
-    //   formData.append('file', values.file)
-    //   const companyIdToUse = companyId || companyProfileId
-    //   if (!companyIdToUse) {
-    //     toast.error('Company ID is missing. Cannot upload logo.')
-    //     return
-    //   }
-    //   const response: ResponseDTO = await postMethod(appEndpoints.uploadCompanyProfileImage(companyIdToUse as string), formData)
-    //   // console.log('Upload response:', response.data.profile.id)
-    //   if (Number(response.status) === 201) {
-    //     const id = response?.data?.profile.id
-    //     if (!isEdit) {
-    //       resetForm()
-    //       setIsModalOpen(false)
-    //       toast.success('Company logo submitted successfully!')
-    //       router.push(`/company-profile/${id}`)
-    //     } else {
-    //       resetForm()
-    //       setIsModalOpen(false)
-    //       if (setUploadedImage) setUploadedImage(true)
-    //       toast.success('Company logo submitted successfully!')
-    //     }
-    //   } else {
-    //     toast.error(response?.message || 'Upload failed.')
-    //   }
-    // } catch (error) {
-    //   toast.error('Failed to submit company logo. Please try again.')
-    // }
   }
 
   return (
@@ -153,6 +133,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialValues, validationSche
           </Form>
         )}
       </Formik>
+
       <UploadProfileImageModal
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}

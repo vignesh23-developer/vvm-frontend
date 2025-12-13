@@ -202,6 +202,35 @@ export async function patchMethod<T = unknown>(url: string, body?: any, headers?
   }
 }
 
+/**
+ * Download a file from the API (for PDFs, images, etc.)
+ */
+export async function downloadFile(url: string, filename?: string): Promise<void> {
+  try {
+    const response = await axiosInstance.get(url, {
+      responseType: 'blob',
+    });
+
+    // Create a blob URL and trigger download
+    const blob = new Blob([response.data], { type: response.headers['content-type'] || 'application/pdf' });
+    const blobUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.download = filename || `download-${Date.now()}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(blobUrl);
+  } catch (err: unknown) {
+    if (axios.isAxiosError(err)) {
+      const axiosErr = err as AxiosError<any>;
+      console.error('Download Error:', axiosErr.message);
+      throw new Error(axiosErr.response?.data?.message || 'Failed to download file');
+    }
+    throw new Error('Failed to download file');
+  }
+}
+
 export async function deleteMethod<T = unknown>(url: string, headers?: Record<string, any>): Promise<ResponseDTO<T>> {
   try {
     console.log(' DELETE Request:', { url, headers })

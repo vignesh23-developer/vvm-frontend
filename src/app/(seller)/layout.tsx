@@ -1,7 +1,7 @@
 'use client'
 
-import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
-import { redirect } from 'next/navigation'
+// import { useRouter as useNextRouter } from 'next/navigation'
+// import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import Navbar from '@/components/layout/Navbar/Navbar'
 import Footer from '@/components/layout/Footer/Footer'
 import ScrollToTop from '@/components/common/ScrollToTop'
@@ -11,23 +11,16 @@ export default function SellerLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const { token } = useAuth()
+  // const { token } = useAuth()
+  // const router = useNextRouter()
 
-  if (!token) {
-    redirect('/login')
-  }
+  // if (!token) {
+  //   router.push('/login')
+  // }
   return (
     <div>
       <header>
-        <Navbar
-        // navLinks={[
-        //   { label: 'home', href: '/' },
-        //   { label: 'properties', href: '/properties' },
-        //   { label: 'leads', href: '/leads' },
-        //   { label: 'users', href: '/users' },
-        //   { label: 'support', href: '/support' },
-        // ]}
-        />
+        <Navbar />
       </header>
       <main className="pt-16">{children}</main>
       <footer>

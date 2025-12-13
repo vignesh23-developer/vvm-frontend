@@ -12,9 +12,16 @@ export const appEndpoints = {
   loginUpgradeJWT: '/login/upgrade-jwt',
   forgetPassword: '/forgot-password',
   resetPassword: '/forgot-password/reset',
+
+  // home page endpoints
+  getHomePageData: '/home',
+
+  // dashboard endpoints
+  getDashboardData: '/dashboard',
   // User Endpoints
   getUserProfile: '/profile',
   updateUserProfile: '/profile',
+  uploadUserProfileImage: '/profile/picture',
   getUserHistory: '/profile/login-history',
 
   // KYC enpoints
@@ -91,6 +98,7 @@ export const appEndpoints = {
   // Property Reports Endpoints
   createPropertyReport: (propertyId: string) => `/property-reports/${propertyId}`,
   getAllPropertyReports: '/property-reports',
+  getAllReportByPropertyID: (propertyId: string) => `/property-reports/by-property/${propertyId}`,
   getPropertyReportByID: (reportId: string) => `/property-reports/${reportId}`,
   updatePropertyReportResolve: (reportId: string) => `/property-reports/${reportId}/resolve`,
   updatePropertyReportDismiss: (reportId: string) => `/property-reports/${reportId}/dismiss`,
@@ -125,6 +133,7 @@ export const appEndpoints = {
   approveAd: (adId: string) => `/ad-approvals/ad/${adId}/approve`,
   rejectAd: (adId: string) => `/ad-approvals/ad/${adId}/reject`,
   getAllAdReports: '/ad-reports',
+  getAllReportByAdsID: (adsId: string) => `/ad-reports/by-ad/${adsId}`,
   getAdReportByID: (reportId: string) => `/ad-reports/${reportId}`,
   createAdReport: (adId: string) => `/ad-reports/${adId}`,
   // Ads Images
@@ -139,6 +148,7 @@ export const appEndpoints = {
   deleteFavorite: (propertyId: string) => `/user-interactions/favorites/${propertyId}`,
   // Enquiry
   createPropertyEnquiry: '/user-interactions/enquiries',
+  getAllEnquiryByPropertyIdOrAdsId: (entity_type: string, id: string) => `/user-interactions/enquiries/by-entity/${entity_type}/${id}`,
   createEnquiry: '/user-interactions/enquiries',
   getPropertyEnquiry: '/user-interactions/enquiries',
   getAdEnquiry: '/user-interactions/enquiries',
@@ -164,6 +174,8 @@ export const appEndpoints = {
   createUpgradeOrder: (userId: string, subscriptionId: number) => `/users/${userId}/subscription/${subscriptionId}/upgrade/order`,
   createDowngradeOrder: (userId: string, subscriptionId: number) => `/users/${userId}/subscription/${subscriptionId}/downgrade/order`,
   cancelSubscription: (userId: string, subscriptionId: number) => `/users/${userId}/subscription/${subscriptionId}/cancel`,
+  getAllSubscription: "/users/subscriptions/all",
+  getSubscriptionPlanAnalytics: '/users/subscriptions/analytics',
 
   // Addons
   getUserAddons: (userId: string) => `/users/${userId}/add-ons`,
@@ -177,6 +189,8 @@ export const appEndpoints = {
   // Payment Transactions
   getUserTransactions: '/payment-transactions/users/transactions',
   getAllTransactions: '/payment-transactions/transactions',
+  getTransactionAnalytics: '/payment-transactions/analytics',
+  getTransactionInvoice: (transactionId: string) => `/payment-transactions/transactions/${transactionId}/invoice`,
   // User Wallets
   getUserWalletBalance: (userId: string) => `/user-wallets/users/${userId}/balance`,
 

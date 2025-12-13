@@ -26,8 +26,18 @@ const fetchAdEnquiries = async (endpoint: string): Promise<AdEnquiryResponse> =>
   }
 }
 
-export function useAdEnquiry({ page = 1, limit = 10 } = {}) {
-  const url = `${appEndpoints.getAdEnquiry}?entity_type=ad&page=${page}&limit=${limit}`
+export function useAdEnquiry({ page = 1, limit = 10, adsId }: { page?: number; limit?: number; adsId?: string } = {}) {
+  // Create API URL dynamically
+  const params = new URLSearchParams()
+  if (!adsId) params.set('entity_type', 'ad')
+  params.set('page', String(page))
+  params.set('limit', String(limit))
+  const query = params.toString()
+
+  let url = `${appEndpoints.getAdEnquiry}?${query}`
+  if (adsId) {
+    url = `${appEndpoints.getAllEnquiryByPropertyIdOrAdsId('ad', encodeURIComponent(adsId))}?${query}`
+  }
 
   const { data = { items: [], total: 0 }, error, isLoading, mutate } = useSWR<AdEnquiryResponse>(url, fetchAdEnquiries)
 

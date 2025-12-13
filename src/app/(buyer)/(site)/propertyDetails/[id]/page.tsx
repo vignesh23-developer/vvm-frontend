@@ -1333,8 +1333,14 @@ const page = () => {
                       tabIndex={isPrivileged ? 0 : undefined}
                       onClick={() => {
                         if (!isPrivileged) return
-                        if (insight.label === 'Number of Reports') router.push(`/admin/dashboard/property-reports?propertyId=${propertyId}`)
-                        if (insight.label === 'Total Enquiries') router.push(`/admin/dashboard/property-enquiry?propertyId=${propertyId}`)
+                        if (insight.label === 'Number of Reports')
+                          isAdmin
+                            ? router.push(`/admin/dashboard/property-reports`)
+                            : router.push(`/admin/dashboard/property-reports?propertyId=${propertyId}`)
+                        if (insight.label === 'Total Enquiries')
+                          isAdmin
+                            ? router.push(`/admin/dashboard/property-enquiry`)
+                            : router.push(`/admin/dashboard/property-enquiry?propertyId=${propertyId}`)
                       }}
                     >
                       <div className="flex items-center justify-between mb-3">

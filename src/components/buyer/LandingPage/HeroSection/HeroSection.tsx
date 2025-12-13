@@ -15,6 +15,7 @@ import { useExploreProperties } from '../ExploreProperties/hooks/useExplorePrope
 export default function HeroSection() {
   const t = useTranslations()
   const router = useRouter()
+  const MIN_LOCATION_QUERY_LENGTH = 3
   const [isHeroLoading, setIsHeroLoading] = useState(true)
   const [currentTab, setCurrentTab] = useState('sale')
   const [showBudget, setShowBudget] = useState(false)
@@ -58,10 +59,11 @@ export default function HeroSection() {
 
   const locationSuggestions = useMemo(() => {
     if (!availableDistricts.length) return []
-    if (!debouncedLocationQuery) return availableDistricts.slice(0, 8)
-    const lowered = debouncedLocationQuery.toLowerCase()
+    const trimmedQuery = debouncedLocationQuery.trim()
+    if (trimmedQuery.length < MIN_LOCATION_QUERY_LENGTH) return []
+    const lowered = trimmedQuery.toLowerCase()
     return availableDistricts.filter(name => name.toLowerCase().includes(lowered)).slice(0, 8)
-  }, [availableDistricts, debouncedLocationQuery])
+  }, [availableDistricts, debouncedLocationQuery, MIN_LOCATION_QUERY_LENGTH])
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -294,10 +296,12 @@ export default function HeroSection() {
                         name="location"
                         type="text"
                         value={locationQuery}
+                        autoComplete="off"
                         onChange={e => {
-                          setLocationQuery(e.target.value)
-                          setFieldValue('location', e.target.value)
-                          setShowSuggestions(true)
+                          const nextValue = e.target.value
+                          setLocationQuery(nextValue)
+                          setFieldValue('location', nextValue)
+                          setShowSuggestions(nextValue.trim().length >= MIN_LOCATION_QUERY_LENGTH)
                           setShowBudget(false)
                           setShowType(false)
                         }}
@@ -306,7 +310,7 @@ export default function HeroSection() {
                           setTimeout(() => setShowSuggestions(false), 150)
                         }}
                         onFocus={() => {
-                          setShowSuggestions(true)
+                          setShowSuggestions(locationQuery.trim().length >= MIN_LOCATION_QUERY_LENGTH)
                           setShowBudget(false)
                           setShowType(false)
                         }}
@@ -510,9 +514,10 @@ export default function HeroSection() {
                         type="text"
                         value={locationQuery}
                         onChange={e => {
-                          setLocationQuery(e.target.value)
-                          setFieldValue('location', e.target.value)
-                          setShowSuggestions(true)
+                          const nextValue = e.target.value
+                          setLocationQuery(nextValue)
+                          setFieldValue('location', nextValue)
+                          setShowSuggestions(nextValue.trim().length >= MIN_LOCATION_QUERY_LENGTH)
                           setShowBudget(false)
                           setShowType(false)
                         }}
@@ -521,7 +526,7 @@ export default function HeroSection() {
                           setTimeout(() => setShowSuggestions(false), 150)
                         }}
                         onFocus={() => {
-                          setShowSuggestions(true)
+                          setShowSuggestions(locationQuery.trim().length >= MIN_LOCATION_QUERY_LENGTH)
                           setShowBudget(false)
                           setShowType(false)
                         }}

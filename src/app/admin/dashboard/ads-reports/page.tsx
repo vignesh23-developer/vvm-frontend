@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useMemo, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
@@ -12,8 +13,9 @@ type AdReportTableRow = AdReport & Record<string, unknown>
 export default function AdsReportsPage() {
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
-
-  const { adReports, total, error, isLoading, mutateAdReports } = useAdReports({ page, limit })
+  const params = useSearchParams()
+  const adsId = params.get('adsId')
+  const { adReports, total, error, isLoading, mutateAdReports } = useAdReports({ page, limit, adsId: adsId ?? undefined })
 
   const columns = useMemo(
     () => [

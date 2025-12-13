@@ -48,7 +48,7 @@ const ForgotPassword = () => {
       >
         <Link href="/">
           <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }} className="max-w-xs hover:cursor-pointer">
-            <Image src="/footer_logo.png" alt="Vaazhga Valamudan Logo" width={400} height={300} className="mt-6" priority />
+            <Image src="/footer_logo_new.PNG" alt="Vaazhga Valamudan Logo" width={400} height={300} className="mt-6" priority />
           </motion.div>
         </Link>
       </motion.div>

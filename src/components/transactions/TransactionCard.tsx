@@ -1,9 +1,13 @@
 'use client'
 
+import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Calendar, CreditCard, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
+import { Calendar, CreditCard, Clock, CheckCircle, XCircle, AlertCircle, FileText, Loader2 } from 'lucide-react'
 import { PaymentTransaction } from './types'
 import { formatDateTime, formatCurrency, getStatusBadgeColor, formatStatus, getMethodDisplayName } from './utils/transactionUtils'
+import { downloadFile } from '@/services/service'
+import { appEndpoints } from '@/services/endpoints'
+import toast from 'react-hot-toast'
 
 interface TransactionCardProps {
   transaction: PaymentTransaction
@@ -28,6 +32,22 @@ function getStatusIcon(status: string) {
  * Transaction card component
  */
 export function TransactionCard({ transaction, index }: TransactionCardProps) {
+  const [downloading, setDownloading] = useState(false)
+
+  const handleDownloadInvoice = async () => {
+    try {
+      setDownloading(true)
+      const filename = `invoice-${transaction.payment_order?.order_number || transaction.id.substring(0, 8)}-${Date.now()}.pdf`
+      await downloadFile(appEndpoints.getTransactionInvoice(transaction.id), filename)
+      toast.success('Invoice downloaded successfully')
+    } catch (error) {
+      console.error('Error downloading invoice:', error)
+      toast.error(error instanceof Error ? error.message : 'Failed to download invoice')
+    } finally {
+      setDownloading(false)
+    }
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -119,6 +139,31 @@ export function TransactionCard({ transaction, index }: TransactionCardProps) {
             </div>
           </div>
         )}
+
+        {/* Generate Invoice Button */}
+        <div className="border-t border-gray-200 pt-4 mt-4">
+          <button
+            onClick={handleDownloadInvoice}
+            disabled={downloading}
+            className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+              downloading
+                ? 'bg-gray-400 text-white cursor-not-allowed'
+                : 'bg-[#3b1804] text-white hover:bg-[#5a2a0a]'
+            }`}
+          >
+            {downloading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Generating Invoice...</span>
+              </>
+            ) : (
+              <>
+                <FileText className="w-4 h-4" />
+                <span>Generate Invoice</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </motion.div>
   )

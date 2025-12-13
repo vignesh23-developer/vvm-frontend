@@ -567,12 +567,9 @@ export default function Navbar({
                     <Link href={`/profile/${user?.id}`} className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition">
                       <User size={16} /> {t('Navbar.profile')}
                     </Link>
+
                     <Link
-                      href={
-                        !!companyProfileId
-                          ? `/company-profile/${companyProfileId}` // EDIT MODE
-                          : `/company-profile` // ADD MODE
-                      }
+                      href={!user?.isVerified ? '/kyc-pending' : !!companyProfileId ? `/company-profile/${companyProfileId}` : `/company-profile`}
                       className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition"
                     >
                       <Building2 size={16} /> {t('Navbar.company profile')}
@@ -723,6 +720,7 @@ export default function Navbar({
                       </span>
                     </div>
 
+<<<<<<< HEAD
                     <div className="flex flex-col pl-4 space-y-1">
                       {section.subMenu?.map((sub: any) =>
                         sub.label === 'logout' ? (
@@ -754,6 +752,48 @@ export default function Navbar({
                 )}
               </div>
             ))
+=======
+                      <div className="flex flex-col pl-4 space-y-1">
+                        {section.subMenu?.map((sub: any) => {
+                          if (sub.label === 'logout') {
+                            return (
+                              <Button
+                                key="mobile-logout"
+                                onClick={() => {
+                                  setIsMenuOpen(false)
+                                  handleLogout()
+                                }}
+                                className="flex items-center gap-2 w-full px-4 py-1 text-sm text-gray-200 hover:text-white transition"
+                              >
+                                <span className="text-gray-400">{sub.icon ? sub.icon : <CircleSmall size={12} />}</span>
+                                {t(`Navbar.subMenus.${sub.label}`)}
+                              </Button>
+                            )
+                          }
+
+                          const requiresAuth =
+                            typeof sub?.href === 'string' && (sub.href === '/company-profile' || sub.href.startsWith('/company-profile/'))
+                          const isVerifiedUser = Boolean(requiresAuth && token && user?.isVerified)
+                          const targetHref = requiresAuth && !isVerifiedUser ? '/kyc-pending' : sub.href
+
+                          return (
+                            <Link
+                              key={String(sub.href)}
+                              href={targetHref}
+                              onClick={() => setIsMenuOpen(false)}
+                              className="flex items-center gap-2 px-4 py-1 text-sm text-gray-200 hover:text-white transition no-underline"
+                            >
+                              <span className="text-gray-400">{sub.icon ? sub.icon : <CircleSmall size={12} />}</span>
+                              {t(`Navbar.subMenus.${sub.label}`)}
+                            </Link>
+                          )
+                        })}
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))
+>>>>>>> 34fb84ca8b39ba2d9e94ba34c4cc47984132ad21
             : showLoginButton && (
 <<<<<<< HEAD
               <div className="flex flex-col gap-2 mt-4">

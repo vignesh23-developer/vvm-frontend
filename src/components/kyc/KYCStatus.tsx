@@ -1,52 +1,21 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { getMethod, postMethod } from '@/services/service'
+import { useState } from 'react'
+import { postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import { setLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
 import { useUserSubscription } from '@/components/Plans/hooks/useUserSubscription'
+import { useKycStatus } from './hooks/useKycStatus'
 import toast from 'react-hot-toast'
 import KYCPayment from '@/components/payment/KYCPayment'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { ShieldCheck, Loader2 } from 'lucide-react'
 
-interface KYCStatusData {
-  isVerified: boolean
-  verifiedAt?: string | null
-  aadhaarMasked?: string | null
-  latestAttempt?: {
-    id: string
-    status: string
-    createdAt: string
-  }
-}
-
 export default function KYCStatus() {
   const { activeSubscription, loading: subscriptionLoading } = useUserSubscription()
-  const [kycStatus, setKycStatus] = useState<KYCStatusData | null>(null)
-  const [loading, setLoading] = useState(true)
+  const { kycStatus, loading } = useKycStatus()
   const [initiating, setInitiating] = useState(false)
-
-  // Fetch KYC status
-  useEffect(() => {
-    const fetchKycStatus = async () => {
-      try {
-        setLoading(true)
-        const response = await getMethod(appEndpoints.getUserKycStatus)
-
-        if (!response.error && response.data) {
-          setKycStatus(response.data as KYCStatusData)
-        }
-      } catch (error) {
-        console.error('Failed to fetch KYC status:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchKycStatus()
-  }, [])
 
   const directCallToKyc =
     activeSubscription?.isActive == true ||

@@ -33,13 +33,22 @@ const fetchAdReports = async (endpoint: string): Promise<AdReportResponse> => {
   }
 
   return {
-    items: response?.data?.data ?? [],
+    items: response?.data?.data || response?.data || [],
     total: response?.data?.total ?? 0,
   }
 }
 
-export function useAdReports({ page = 1, limit = 10 } = {}) {
-  const url = `${appEndpoints.getAllAdReports}?page=${page}&limit=${limit}`
+export function useAdReports({ page = 1, limit = 10, adsId }: { page?: number; limit?: number; adsId?: string } = {}) {
+  // Create API URL dynamically
+  const params = new URLSearchParams()
+  params.set('page', String(page))
+  params.set('limit', String(limit))
+  const query = params.toString()
+
+  let url = `${appEndpoints.getAdEnquiry}?${query}`
+  if (adsId) {
+    url = `${appEndpoints.getAllReportByAdsID(encodeURIComponent(adsId))}`
+  }
 
   const { data = { items: [], total: 0 }, error, isLoading, mutate } = useSWR<AdReportResponse>(url, fetchAdReports)
 

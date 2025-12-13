@@ -372,6 +372,9 @@ const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
         buttonText="Upload Logo"
+        modalTitle="Upload Company Logo"
+        modalLabel="Company Logo"
+        modalDescription="Kindly upload your company logo below 👇"
         onImageUploadSubmit={handleCompanyLogoSubmit}
       />
     </div>

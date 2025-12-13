@@ -7,13 +7,16 @@ import { usePropertyEnquiry } from '@/app/admin/dashboard/property-enquiry/(hook
 import { PropertyEnquiry } from '@/app/admin/dashboard/property-enquiry/(dto)/PropertyEnquiryType'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 import toast from 'react-hot-toast'
+import { useSearchParams } from 'next/navigation'
 
 type PropertyEnquiryTableRow = PropertyEnquiry & Record<string, unknown>
 
 export default function PropertyEnquiryPage() {
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
-  const { enquiries, total, error, isLoading, mutateEnquiries } = usePropertyEnquiry({ page, limit })
+  const paramas = useSearchParams()
+  const propertyId = paramas.get('propertyId')
+  const { enquiries, total, error, isLoading, mutateEnquiries } = usePropertyEnquiry({ page, limit, propertyId: propertyId ?? undefined })
 
   // Columns definition
 
