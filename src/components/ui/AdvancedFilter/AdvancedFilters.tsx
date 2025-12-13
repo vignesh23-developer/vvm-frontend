@@ -45,6 +45,7 @@ interface AdvancedFiltersProps {
   isOpen: boolean
   onToggle: () => void
   pageType?: 'property' | 'agency' | 'ads-list' // To distinguish between property, agency, and ads pages
+  hideTriggerButton?: boolean
 }
 
 type PriceRange = { label: string; min: number; max: number | null }
@@ -99,6 +100,7 @@ export default function AdvancedFilters({
   isOpen,
   onToggle,
   pageType = 'property', // Default to property page
+  hideTriggerButton = false,
 }: AdvancedFiltersProps) {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     price: true,
@@ -337,7 +339,7 @@ export default function AdvancedFilters({
       </AnimatePresence>
 
       {/* Desktop Filter Toggle Button - When Closed */}
-      {!isOpen && (
+      {!isOpen && !hideTriggerButton && (
         <button
           onClick={onToggle}
           className="hidden lg:flex fixed right-6 top-24 z-40 bg-[#2a1407] text-white px-4 py-3 rounded-full shadow-xl items-center gap-2 font-bold hover:bg-[#2a1407] transition-all transform hover:scale-105"

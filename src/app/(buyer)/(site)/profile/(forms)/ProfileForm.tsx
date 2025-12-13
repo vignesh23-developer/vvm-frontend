@@ -23,24 +23,37 @@ interface ProfileFormProps {
   }
   isEdit?: boolean
   validationSchema: any
+  profileImageUrl?: string
+  onImageUpload?: (file: File, resetForm: () => void) => void
 }
 
-const ProfileForm: React.FC<ProfileFormProps> = ({ initialValues, validationSchema, isEdit = false }) => {
-  const [profileImage, setProfileImage] = useState<string | null>(null)
+const ProfileForm: React.FC<ProfileFormProps> = ({
+  initialValues,
+  validationSchema,
+  isEdit = false,
+  profileImageUrl,
+  onImageUpload
+}) => {
+  const [profileImage, setProfileImage] = useState<string | null>(profileImageUrl || null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const router = useRouter()
   const { setUser } = useAuth()
 
-  const handleImageUpload = (e: any) => {
-    const file = e.target.files?.[0]
-    if (file) setProfileImage(URL.createObjectURL(file))
-  }
+  // Update local state when prop changes
+  React.useEffect(() => {
+    if (profileImageUrl) {
+      setProfileImage(profileImageUrl)
+    }
+  }, [profileImageUrl])
 
-  const handleProfileImageSubmit = async (values: any, { resetForm }: any) => {
-    setIsModalOpen(false)
-    console.log("Image upload implementation pending integration.")
-    toast.error("Image upload logic is currently being updated.")
+  const handleProfileImageSubmit = async (values: { file: File | null }, { resetForm }: any) => {
+    if (onImageUpload && values.file) {
+      onImageUpload(values.file, resetForm)
+      setIsModalOpen(false)
+    } else {
+      toast.error("Image upload function not provided.")
+    }
   }
 
   const handleSubmit = async (values: any) => {
@@ -81,36 +94,16 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialValues, validationSche
       </div>
 
       {/* Profile Upload Circle */}
-      <div className="flex justify-center mb-8">
-        <label className="relative cursor-pointer group">
-          <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
-
-          <div className="w-28 h-28 rounded-full border-4 border-[#2a1407]/20 overflow-hidden shadow-md group-hover:shadow-lg transition">
-            {profileImage ? (
-              <Image src={profileImage} alt="Profile" width={112} height={112} className="object-cover w-full h-full" />
-            ) : (
-              <div className="flex items-center justify-center w-full h-full bg-gray-100">
-                <Camera className="w-8 h-8 text-gray-500" />
-              </div>
-            )}
-          </div>
-
-          {/* Hover Overlay */}
-          <span className="absolute bottom-2 right-2 bg-[#2a1407] text-white p-1 rounded-full shadow-md group-hover:scale-110 transition">
-            <Camera size={14} />
-          </span>
-        </label>
-      </div>
-
-      {/* Form */}
       {isEdit && (
-        <LogoOrProfileImageUpload
-          logoUrl="" // Replace with actual profile image URL if available
-          onClick={() => setIsModalOpen(true)}
-          label="Profile Image"
-          title="Upload Profile Image"
-          changeText="Change"
-        />
+        <div className="flex justify-center mb-8">
+          <LogoOrProfileImageUpload
+            logoUrl={profileImage || ''}
+            onClick={() => setIsModalOpen(true)}
+            label=""
+            title="Upload Profile Image"
+            changeText="Change"
+          />
+        </div>
       )}
 
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit} enableReinitialize>
@@ -139,6 +132,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialValues, validationSche
         setIsModalOpen={setIsModalOpen}
         buttonText="Upload Image"
         onImageUploadSubmit={handleProfileImageSubmit}
+        modalTitle="Upload Profile Image"
+        modalLabel="Profile Image"
+        modalDescription="Kindly upload your profile image below 👇"
       />
     </div>
   )

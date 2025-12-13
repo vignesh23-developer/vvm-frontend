@@ -13,52 +13,38 @@ import Pagination from '@/components/ui/CustomComponent/Paginations/Pagination'
 import AdvancedFilters from '@/components/ui/AdvancedFilter/AdvancedFilters'
 
 // Enhanced Property Card Skeleton
+// Enhanced Property Card Skeleton - Vertical for Grid
 const PropertyCardSkeleton = () => (
-  <div className="flex w-full flex-col overflow-hidden rounded-2xl bg-white shadow-md border border-gray-100 lg:flex-row animate-pulse">
+  <div className="flex w-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm border border-gray-100 animate-pulse h-full">
     {/* Image Skeleton */}
-    <div className="relative h-48 w-full sm:w-[280px] bg-gradient-to-br from-gray-200 to-gray-300" />
+    <div className="relative h-64 w-full bg-gray-200" />
 
     {/* Content Skeleton */}
-    <div className="flex-1 p-4 sm:p-6 space-y-4">
-      <div className="flex justify-between items-start">
-        <div className="flex-1 space-y-2">
-          <div className="h-6 w-3/4 bg-gray-200 rounded" />
+    <div className="flex flex-col flex-1 p-5 space-y-4">
+      {/* Title & Location */}
+      <div className="space-y-2">
+        <div className="h-6 w-3/4 bg-gray-200 rounded" />
+        <div className="flex gap-2 items-center">
+          <div className="h-4 w-4 rounded-full bg-gray-200" />
           <div className="h-4 w-1/2 bg-gray-200 rounded" />
         </div>
-        <div className="flex gap-2">
-          <div className="h-10 w-10 bg-gray-200 rounded-full" />
-          <div className="h-10 w-10 bg-gray-200 rounded-full" />
-        </div>
       </div>
 
-      <div className="flex gap-2 rounded-xl bg-gray-100 p-3">
-        <div className="flex-1 space-y-2">
-          <div className="h-3 w-16 bg-gray-200 rounded" />
-          <div className="h-4 w-20 bg-gray-200 rounded" />
+      {/* Divider & Footer Grid */}
+      <div className="mt-auto border-t border-gray-100 pt-4 grid grid-cols-2 gap-4">
+        {/* Price Placeholder */}
+        <div className="space-y-1">
+          <div className="h-3 w-10 bg-gray-200 rounded" />
+          <div className="h-6 w-24 bg-gray-200 rounded" />
         </div>
-        <div className="flex-1 space-y-2">
-          <div className="h-3 w-16 bg-gray-200 rounded" />
-          <div className="h-4 w-20 bg-gray-200 rounded" />
-        </div>
-        <div className="flex-1 space-y-2">
-          <div className="h-3 w-16 bg-gray-200 rounded" />
-          <div className="h-4 w-20 bg-gray-200 rounded" />
+        {/* Size Placeholder */}
+        <div className="flex flex-col items-end space-y-1">
+          <div className="h-3 w-10 bg-gray-200 rounded" />
+          <div className="flex items-center gap-1">
+            <div className="h-6 w-16 bg-gray-200 rounded" />
+          </div>
         </div>
       </div>
-
-      <div className="space-y-2">
-        <div className="h-4 w-full bg-gray-200 rounded" />
-        <div className="h-4 w-5/6 bg-gray-200 rounded" />
-      </div>
-    </div>
-
-    {/* Price Section Skeleton */}
-    <div className="w-full lg:w-[260px] bg-gradient-to-br from-gray-800 to-gray-900 p-5">
-      <div className="space-y-2 text-right">
-        <div className="h-8 w-32 bg-gray-700 rounded ml-auto" />
-        <div className="h-4 w-24 bg-gray-700 rounded ml-auto" />
-      </div>
-      <div className="mt-6 h-12 w-full bg-gray-700 rounded-xl" />
     </div>
   </div>
 )
@@ -335,61 +321,100 @@ const PropertiesListPage = () => {
       transition={{ duration: 0.5 }}
     >
       {/* Heading Section */}
+      {/* Heading Section */}
       <div className="border-b border-yellow-100/70 bg-gradient-to-r from-[#FFF3D6] via-[#FFF9EB] to-[#FFFFFF]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 lg:py-10">
-          <div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#2a1407] tracking-tight mb-2 mt-10">Discover Your Dream Property</h1>
-            <p className="text-sm sm:text-base text-gray-600 max-w-2xl">
-              Curated homes, villas and apartments from trusted sellers. Refine your search with smart filters and instant insights.
-            </p>
-            <div className="flex flex-col gap-4 mt-4">
-              <div className="flex items-center justify-between flex-wrap gap-3">
-                <div className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-1 shadow-sm border border-yellow-100">
-                  <span className="h-2 w-2 rounded-full bg-green-500" />
-                  <p className="text-xs sm:text-sm text-gray-700">
-                    <span className="font-semibold text-[#2a1407]">{totalResults}</span> matching properties
-                  </p>
-                </div>
-              </div>
-              {/* Advanced Search with Autocomplete */}
-              <div className="relative max-w-xl">
-                <div className="flex items-center rounded-full bg-white shadow-sm border border-gray-200 px-4 py-2">
-                  <span className="mr-2 text-gray-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 lg:py-12">
+          <div className="flex flex-col gap-6">
+            <div>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#2a1407] tracking-tight mb-3">
+                Discover Your Dream Property
+              </h1>
+              <p className="text-base sm:text-lg text-gray-600 max-w-2xl leading-relaxed">
+                Curated homes, villas and apartments from trusted sellers.
+              </p>
+            </div>
+
+            {/* Full Width Search & Filter Bar */}
+            <div className="w-full">
+              <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center bg-white p-2 rounded-2xl shadow-lg border border-yellow-100/50">
+                {/* Search Input Area */}
+                <div className="relative flex-1">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M11 5a6 6 0 100 12 6 6 0 000-12z" />
                     </svg>
-                  </span>
+                  </div>
                   <input
                     type="text"
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
                     placeholder="Search by title, city, area or address..."
-                    className="flex-1 bg-transparent outline-none text-sm text-gray-800 placeholder:text-gray-400"
+                    className="block w-full pl-11 pr-4 py-3 bg-transparent border-none rounded-xl text-gray-900 placeholder-gray-400 focus:ring-0 sm:text-base"
                   />
                   {searchTerm && (
-                    <button type="button" onClick={() => setSearchTerm('')} className="ml-2 text-xs text-gray-500 hover:text-gray-700">
-                      Clear
+                    <button
+                      type="button"
+                      onClick={() => setSearchTerm('')}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                      </svg>
                     </button>
                   )}
                 </div>
 
-                {/* Autocomplete Suggestions */}
-                {searchSuggestions.length > 0 && (
-                  <div className="absolute z-20 mt-1 w-full rounded-2xl bg-white shadow-lg border border-gray-100 max-h-64 overflow-y-auto">
-                    {searchSuggestions.map(suggestion => (
-                      <button
-                        key={suggestion}
-                        type="button"
-                        onClick={() => setSearchTerm(suggestion)}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-yellow-50"
-                      >
-                        {suggestion}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                {/* Divider (Hidden on mobile) */}
+                <div className="hidden md:block w-px bg-gray-200 my-2"></div>
+
+                {/* Filter Button */}
+                <button
+                  onClick={() => setIsFiltersOpen(!isFiltersOpen)}
+                  className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${isFiltersOpen
+                    ? 'bg-[#2a1407] text-white shadow-md'
+                    : 'bg-yellow-50 text-[#2a1407] hover:bg-yellow-100'
+                    }`}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clipRule="evenodd" />
+                  </svg>
+                  <span>Filters</span>
+                </button>
+              </div>
+
+              {/* Autocomplete Suggestions */}
+              {searchSuggestions.length > 0 && (
+                <div className="absolute z-20 mt-2 w-full max-w-3xl rounded-2xl bg-white shadow-xl border border-gray-100 max-h-64 overflow-y-auto">
+                  {searchSuggestions.map(suggestion => (
+                    <button
+                      key={suggestion}
+                      type="button"
+                      onClick={() => setSearchTerm(suggestion)}
+                      className="w-full text-left px-5 py-3 text-sm text-gray-700 hover:bg-yellow-50 border-b last:border-0 border-gray-50 flex items-center gap-2"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Results Count & Context */}
+            <div className="flex items-center gap-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-50 border border-yellow-100/50">
+                <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                <p className="text-sm font-medium text-gray-700">
+                  <span className="font-extrabold text-[#2a1407]">{totalResults}</span> properties found
+                  {(searchTerm || params.location) && (
+                    <span className="text-gray-500 font-normal"> for <span className="text-[#2a1407] italic">"{searchTerm || params.location}"</span></span>
+                  )}
+                </p>
               </div>
             </div>
+
           </div>
         </div>
       </div>
@@ -496,7 +521,7 @@ const PropertiesListPage = () => {
 
             <>
               {isLoadingList ? (
-                <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {Array.from({ length: limit }).map((_, index) => (
                     <motion.div
                       key={`property-skeleton-${index}`}
@@ -507,6 +532,7 @@ const PropertiesListPage = () => {
                         duration: 0.5,
                         ease: [0.25, 0.46, 0.45, 0.94] as const,
                       }}
+                      className="h-full"
                     >
                       <PropertyCardSkeleton />
                     </motion.div>
@@ -526,7 +552,7 @@ const PropertiesListPage = () => {
                   </button>
                 </div>
               ) : (
-                <div className="space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {displayedProperties.map((property: any, index: number) => (
                     <motion.div
                       key={property.id ?? index}
@@ -539,7 +565,7 @@ const PropertiesListPage = () => {
                         duration: 0.5,
                         ease: [0.25, 0.46, 0.45, 0.94] as const,
                       }}
-                      className="w-full"
+                      className="h-full"
                     >
                       <PropertyCard
                         {...property}
@@ -549,6 +575,7 @@ const PropertiesListPage = () => {
                         handleFavorite={handleFavorite}
                         handleShare={() => console.log('Share', property.id)}
                         isUserFavorited={property.is_user_favorite}
+                        isVerified={property.approval_status === 'APPROVED'}
                       />
                     </motion.div>
                   ))}

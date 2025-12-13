@@ -74,7 +74,7 @@ export default function Testimonials() {
       quote:
         'This dedication to research and knowledge-building sets them apart from the competition. I found exactly what I was looking for with their help. Great investment opportunities in Tamil Nadu!',
       rating: 5,
-      src: '/images/t2.png',
+      src: '/images/t3.png',
     },
     {
       id: 3,
@@ -83,7 +83,7 @@ export default function Testimonials() {
       quote:
         'Their professionalism and eye for detail impressed us throughout the entire process. The team made finding a rental property in Chennai a breeze! Verified listings gave us peace of mind.',
       rating: 5,
-      src: '/images/t3.png',
+      src: '/images/t2.png',
     },
     {
       id: 4,
@@ -92,7 +92,7 @@ export default function Testimonials() {
       quote:
         'Exceptional service and deep market knowledge. They helped us find the perfect investment properties with great returns. The platform connects us with genuine buyers.',
       rating: 5,
-      src: '/images/t4.png',
+      src: '/images/t5.png',
     },
     {
       id: 5,
@@ -101,7 +101,7 @@ export default function Testimonials() {
       quote:
         'The platform made selling my property in Madurai so easy. Professional, efficient, and always available to answer questions. Highly recommended for all property transactions!',
       rating: 5,
-      src: '/images/t5.png',
+      src: '/images/t4.png',
     },
     {
       id: 6,

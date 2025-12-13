@@ -305,59 +305,83 @@ const AdsListPage = () => {
     >
       {/* Heading Section */}
       <div className="border-b border-yellow-100/70 bg-gradient-to-r from-[#FFF3D6] via-[#FFF9EB] to-[#FFFFFF]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 lg:py-10">
-          <div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#2a1407] tracking-tight mb-2 mt-10">
-              Discover High-Impact Property Ads
-            </h1>
-            <p className="text-sm sm:text-base text-gray-600 max-w-2xl">
-              Browse curated campaigns from verified sellers and promoters, complete with pricing, media, and instant contact options.
-            </p>
-            <div className="flex flex-col gap-4 mt-4">
-              <div className="flex items-center justify-between flex-wrap gap-3">
-                {/* <div className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-1 shadow-sm border border-yellow-100">
-                    <span className="h-2 w-2 rounded-full bg-green-500" />
-                    
-                  </div> */}
-              </div>
-              {/* Advanced Search with Autocomplete */}
-              <div className="relative max-w-xl">
-                <div className="flex items-center rounded-full bg-white shadow-sm border border-gray-200 px-4 py-2">
-                  <span className="mr-2 text-gray-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 lg:py-12">
+          <div className="flex flex-col gap-6">
+            <div>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#2a1407] tracking-tight mb-3">
+                Discover High-Impact Property Ads
+              </h1>
+              <p className="text-base sm:text-lg text-gray-600 max-w-2xl leading-relaxed">
+                Browse curated campaigns from verified sellers and promoters.
+              </p>
+            </div>
+
+            {/* Full Width Search & Filter Bar */}
+            <div className="w-full">
+              <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center bg-white p-2 rounded-2xl shadow-lg border border-yellow-100/50">
+                {/* Search Input Area */}
+                <div className="relative flex-1">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M11 5a6 6 0 100 12 6 6 0 000-12z" />
                     </svg>
-                  </span>
+                  </div>
                   <input
                     type="text"
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
                     placeholder="Search ads by title, brand or location..."
-                    className="flex-1 bg-transparent outline-none text-sm text-gray-800 placeholder:text-gray-400"
+                    className="block w-full pl-11 pr-4 py-3 bg-transparent border-none rounded-xl text-gray-900 placeholder-gray-400 focus:ring-0 sm:text-base"
                   />
                   {searchTerm && (
-                    <button type="button" onClick={() => setSearchTerm('')} className="ml-2 text-xs text-gray-500 hover:text-gray-700">
-                      Clear
+                    <button
+                      type="button"
+                      onClick={() => setSearchTerm('')}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                      </svg>
                     </button>
                   )}
                 </div>
 
-                {/* Autocomplete Suggestions */}
-                {searchSuggestions.length > 0 && (
-                  <div className="absolute z-20 mt-1 w-full rounded-2xl bg-white shadow-lg border border-gray-100 max-h-64 overflow-y-auto">
-                    {searchSuggestions.map(suggestion => (
-                      <button
-                        key={suggestion}
-                        type="button"
-                        onClick={() => setSearchTerm(suggestion)}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-yellow-50"
-                      >
-                        {suggestion}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                {/* Divider (Hidden on mobile) */}
+                <div className="hidden md:block w-px bg-gray-200 my-2"></div>
+
+                {/* Filter Button */}
+                <button
+                  onClick={() => setIsFiltersOpen(!isFiltersOpen)}
+                  className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${isFiltersOpen
+                      ? 'bg-[#2a1407] text-white shadow-md'
+                      : 'bg-yellow-50 text-[#2a1407] hover:bg-yellow-100'
+                    }`}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clipRule="evenodd" />
+                  </svg>
+                  <span>Filters</span>
+                </button>
               </div>
+
+              {/* Autocomplete Suggestions */}
+              {searchSuggestions.length > 0 && (
+                <div className="absolute z-20 mt-2 w-full max-w-3xl rounded-2xl bg-white shadow-xl border border-gray-100 max-h-64 overflow-y-auto">
+                  {searchSuggestions.map(suggestion => (
+                    <button
+                      key={suggestion}
+                      type="button"
+                      onClick={() => setSearchTerm(suggestion)}
+                      className="w-full text-left px-5 py-3 text-sm text-gray-700 hover:bg-yellow-50 border-b last:border-0 border-gray-50 flex items-center gap-2"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -375,6 +399,7 @@ const AdsListPage = () => {
             isOpen={isFiltersOpen}
             onToggle={() => setIsFiltersOpen(!isFiltersOpen)}
             pageType={'ads-list'}
+            hideTriggerButton={true}
           />
 
           {/* Properties / Agencies List */}

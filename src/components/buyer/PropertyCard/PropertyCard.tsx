@@ -4,7 +4,7 @@ import { type ReactNode } from 'react'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { hasRole, Roles, getUserRoles } from '@/utils/roles/roles'
 import { motion, type Variants } from 'framer-motion'
-import { Heart, Share, Ruler, Building2, Home, ChevronDown, MapPin, Eye } from 'lucide-react'
+import { Heart, Share, Ruler, MapPin } from 'lucide-react'
 import Image from 'next/image'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import FavoriteButton from '@/components/ui/CustomComponent/FavoriteButton/FavoriteButton'
@@ -12,14 +12,9 @@ import { formatPrice } from '@/utils/converter/formatPrice'
 
 /* ------------------------------ Motion Variants ------------------------------ */
 const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 40 },
+  hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
-  hover: { scale: 1.02 },
-}
-
-const imageHover: Variants = {
-  rest: { scale: 1 },
-  hover: { scale: 1.08 },
+  hover: { y: -5, transition: { duration: 0.2 } },
 }
 
 /* ------------------------------ Helper Function ------------------------------ */
@@ -72,6 +67,7 @@ interface PropertiesCardProps {
   secondaryActionDisabled?: boolean
   thirdActionDisabled?: boolean
   propertyPreviewMode?: boolean
+  isVerified?: boolean
 }
 
 /* ------------------------------ Main Component ------------------------------ */
@@ -83,63 +79,21 @@ export default function PropertyCard(props: PropertiesCardProps) {
   const {
     id,
     title,
-    subtitle,
-    description,
+    // description,
     media,
     property_size,
     property_size_unit,
-    status,
-    // transaction,
     address_line,
-    listing_type,
     price,
     approval_status,
     favorite_count,
     isUserFavorited = false,
-    agent = 'N/A',
-    operatingSince = 'N/A',
-    property_category_name = 'N/A',
     handleFavorite,
     handleShare,
-    language,
-    primaryActionLabel,
-    secondaryActionLabel,
-    thirdActionLabel,
     onPrimaryAction,
-    onSecondaryAction,
-    onThirdAction,
-    primaryActionDisabled = false,
-    secondaryActionDisabled = false,
-    thirdActionDisabled = false,
     propertyPreviewMode = false,
+    isVerified,
   } = props
-
-  const labels = {
-    agent: t(language, 'PropertiesListCard.agent', 'Agent'),
-    since: t(language, 'PropertiesListCard.operating_since', 'Operating since'),
-    status: t(language, 'PropertiesListCard.status', 'Status'),
-    property_size_unit: t(language, 'PropertiesListCard.property_size', 'Property size'),
-    listing_type: t(language, 'PropertiesListCard.listing_type', 'Listing type'),
-  }
-
-  const buttons = {
-    primary: primaryActionLabel ?? t(language, 'PropertiesListCard.contact_agent', 'Contact agent'),
-    secondary: secondaryActionLabel ?? t(language, 'PropertiesListCard.get_phone_number', 'Get phone number'),
-    third: thirdActionLabel ?? t(language, 'PropertiesListCard.check_affordability', 'Check affordability'),
-  }
-
-  // Find primary image or fall back to first image
-  // const getImageUrl = () => {
-  //   // Use images prop if available, otherwise fall back to media prop
-  //   const imageArray = (props as any).images || media || []
-  //   if (imageArray.length === 0) return '/villa.png'
-
-  //   // Find primary image or fall back to first image
-  //   const primary = imageArray.find((img: any) => img.is_primary)
-  //   if (primary?.url) return primary.url
-  //   if (imageArray[0]?.url) return imageArray[0].url
-  //   return '/villa.png'
-  // }
 
   const getMediaUrls = () => {
     const fallbackImage = '/villa.png'
@@ -160,7 +114,6 @@ export default function PropertyCard(props: PropertiesCardProps) {
       return byExt || byMime || byType || byMediaType
     }
 
-    // Prefer explicit props.images / props.videos. If not provided, fall back to `media`.
     const mediaFallback = Array.isArray(media) ? media : []
     const imagesInput = Array.isArray((props as any).images) ? (props as any).images : mediaFallback
     const videosInput = Array.isArray((props as any).videos) ? (props as any).videos : mediaFallback
@@ -188,6 +141,7 @@ export default function PropertyCard(props: PropertiesCardProps) {
   }
 
   const mediaUrls = getMediaUrls()
+  const imageUrl = mediaUrls.image
 
   return (
     <motion.div
@@ -195,241 +149,108 @@ export default function PropertyCard(props: PropertiesCardProps) {
       initial="hidden"
       animate="visible"
       whileHover="hover"
-      className="flex w-full flex-col overflow-hidden rounded-2xl bg-white/95 shadow-md ring-1 ring-gray-100 hover:shadow-xl hover:ring-yellow-200 lg:flex-row transition-shadow duration-300"
+      className="group relative flex w-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 cursor-pointer h-full"
+      onClick={onPrimaryAction}
     >
-      {/* Left: Image + Agent */}
-      <div className="flex-1">
-        <div className="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row">
-          <ImageSection imageUrl={mediaUrls} title={title} agent={agent} operatingSince={operatingSince} labels={labels} />
-          <InfoSection
-            id={id}
-            title={title}
-            property_category_name={property_category_name}
-            subtitle={subtitle}
-            description={description}
-            status={status}
-            address_line={address_line}
-            property_size={property_size}
-            property_size_unit={property_size_unit}
-            labels={labels}
-            listing_type={listing_type}
-            handleFavorite={handleFavorite}
-            handleShare={handleShare}
-            isUserFavorited={isUserFavorited}
-            favorite_count={favorite_count}
-          />
+      {/* 1. Image Section */}
+      <div className="relative h-64 w-full overflow-hidden bg-gray-100">
+        <Image
+          src={imageUrl}
+          alt={title}
+          fill
+          className="object-cover transition-transform duration-700 group-hover:scale-110"
+        />
+
+        {/* Gradients for text visibility */}
+        <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
+
+        {/* Top Badges */}
+        <div className="absolute top-4 left-4 right-4 flex justify-between items-start z-10">
+          {/* Approval Status Badge (if needed) */}
+          {propertyPreviewMode ? (
+            <span className="px-3 py-1 rounded-full bg-yellow-400 text-[#2a1407] text-xs font-bold shadow-sm backdrop-blur-md">
+              Reviewing
+            </span>
+          ) : (
+            <div /> // Spacer
+          )}
+
+          {/* Verified Badge */}
+          {(isVerified || approval_status === 'APPROVED') && (
+            <span className="px-3 py-1 rounded-full bg-[#FFFBEB] text-[#B45309] border border-[#FEF3C7] text-xs font-bold shadow-sm flex items-center gap-1">
+              Verified
+            </span>
+          )}
+        </div>
+
+        {/* Favorite & Share Buttons (Overlay) */}
+        <div className="absolute bottom-4 right-4 flex items-center gap-2 z-10">
+          <div className="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-sm hover:bg-white transition-colors" onClick={(e) => e.stopPropagation()}>
+            <FavoriteButton
+              propertyId={id}
+              isUserFavorited={isUserFavorited}
+              onToggleFavorite={handleFavorite}
+              size={18}
+              favoriteCount={favorite_count}
+            />
+          </div>
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              handleShare?.()
+            }}
+            className="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-sm hover:bg-white transition-colors text-gray-700 hover:text-blue-600"
+          >
+            <Share size={18} />
+          </button>
         </div>
       </div>
 
-      {/* Right: Price / CTAs */}
-      <ActionSection
-        price={formatPrice(Number(price))}
-        approval_status={approval_status}
-        property_size={property_size}
-        property_size_unit={property_size_unit}
-        buttons={buttons}
-        onPrimaryAction={onPrimaryAction}
-        onSecondaryAction={onSecondaryAction}
-        onThirdAction={onThirdAction}
-        primaryDisabled={primaryActionDisabled}
-        secondaryDisabled={secondaryActionDisabled}
-        thirdDisabled={thirdActionDisabled}
-        propertyPreviewMode={propertyPreviewMode}
-        onlyAdmin={onlyAdmin}
-      />
+      {/* 2. Content Section */}
+      <div className="flex flex-col flex-1 p-5">
+        <div className="mb-4">
+          <h3 className="text-lg font-bold text-gray-900 line-clamp-1 mb-2 group-hover:text-yellow-700 transition-colors">
+            {title}
+          </h3>
+          <div className="flex items-start gap-1.5 text-gray-500">
+            <MapPin size={16} className="mt-0.5 flex-shrink-0 text-yellow-600" />
+            <p className="text-sm line-clamp-2 leading-relaxed">
+              {address_line}
+            </p>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="border-t border-gray-100 my-auto" />
+
+        {/* 3. Footer Section (Price & Size) */}
+        <div className="grid grid-cols-2 gap-4 pt-4 mt-4">
+          {/* Price */}
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-1">
+              Price
+            </span>
+            <span className="text-lg sm:text-xl font-bold text-[#2a1407]">
+              {formatPrice(Number(price))}
+            </span>
+          </div>
+
+          {/* Size */}
+          <div className="flex flex-col items-end">
+            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-1">
+              Size
+            </span>
+            <div className="flex items-center gap-1">
+              <span className="text-lg sm:text-xl font-bold text-gray-700">
+                {property_size || '--'}
+              </span>
+              <span className="text-xs text-gray-500 font-medium translate-y-1">
+                {property_size_unit || 'sqft'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
     </motion.div>
   )
 }
-
-/* ------------------------------ Subcomponents ------------------------------ */
-const ImageSection = ({
-  imageUrl,
-  title,
-  agent,
-  operatingSince,
-  labels,
-}: {
-  imageUrl: string | { image: string; video: string | null }
-  title: string
-  agent: string
-  operatingSince: string
-  labels: any
-}) => (
-  <motion.div
-    className="flex flex-col items-start overflow-hidden rounded-xl bg-gradient-to-br from-gray-50 to-white shadow-sm sm:w-auto"
-    variants={imageHover}
-    initial="rest"
-    whileHover="hover"
-  >
-    {typeof imageUrl !== 'string' && imageUrl.video ? (
-      <video src={imageUrl.video} autoPlay muted loop playsInline className="h-full w-full object-cover sm:w-[260px]" />
-    ) : (
-      <Image
-        src={typeof imageUrl === 'string' ? imageUrl : imageUrl.image}
-        alt={title}
-        width={260}
-        height={180}
-        className="h-full w-full object-cover sm:w-[260px]"
-      />
-    )}
-    {/* <div className="w-full px-3 py-2">
-      <p className="text-sm font-semibold text-gray-900">
-        {labels.agent}: {agent}
-      </p>
-      <p className="text-xs text-gray-500">
-        {labels.since}: {operatingSince}
-      </p>
-    </div> */}
-  </motion.div>
-)
-
-const InfoSection = ({
-  id,
-  title,
-  property_category_name,
-  subtitle,
-  description,
-  status,
-  transaction,
-  address_line,
-  property_size,
-  property_size_unit,
-  labels,
-  listing_type,
-  handleFavorite,
-  handleShare,
-  isUserFavorited,
-  favorite_count,
-}: any) => (
-  <div className="flex flex-1 flex-col justify-between">
-    <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-start">
-      <div className="space-y-1">
-        <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-        {(property_category_name || subtitle) && (
-          <p className="text-xs sm:text-sm font-medium text-yellow-700">{property_category_name || subtitle}</p>
-        )}
-      </div>
-
-      <div className="flex items-center gap-2 text-gray-600">
-        <FavoriteButton
-          propertyId={id}
-          isUserFavorited={isUserFavorited}
-          onToggleFavorite={handleFavorite}
-          size={22}
-          favoriteCount={favorite_count}
-        />
-
-        <button
-          type="button"
-          onClick={handleShare}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm hover:border-blue-300 hover:text-blue-500 transition-colors"
-        >
-          <Share size={18} />
-        </button>
-      </div>
-    </div>
-
-    <div className="mt-3 flex w-full flex-col divide-y divide-gray-200 rounded-xl bg-gray-50 text-sm sm:flex-row sm:divide-y-0 sm:divide-x">
-      <PropertyTag icon={<Building2 size={18} />} label={labels.status} value={status} />
-      <PropertyTag
-        icon={<Ruler size={18} />}
-        label={labels.property_size_unit}
-        value={property_size ? property_size.toString() : 'N/A'}
-        suffix={property_size_unit ? <span className="text-gray-500">sqft</span> : null}
-      />
-      <PropertyTag icon={<Home size={18} />} label={labels.listing_type} value={listing_type} />
-    </div>
-
-    <p className="mt-3 flex items-center text-xs sm:text-sm text-gray-700">
-      <MapPin size={24} color="#d41111" className="mr-1.5 flex-shrink-0" />
-      <span className="line-clamp-2">{address_line}</span>
-    </p>
-
-    <p className="mt-2 line-clamp-3 text-xs sm:text-sm text-gray-600">{description}</p>
-  </div>
-)
-
-const ActionSection = ({
-  price,
-  approval_status,
-  property_size,
-  property_size_unit,
-  buttons,
-  onPrimaryAction,
-  onSecondaryAction,
-  onThirdAction,
-  primaryDisabled,
-  secondaryDisabled,
-  thirdDisabled,
-  propertyPreviewMode,
-  onlyAdmin,
-}: any) => (
-  <div className="flex w-full flex-col justify-between bg-gradient-to-b from-[#1F130B] via-[#1A120B] to-[#111111] px-4 py-4 sm:px-5 sm:py-6 lg:w-[250px]">
-    <div className="text-left lg:text-right space-y-1">
-      <p className="text-[10px] uppercase tracking-[0.16em] text-yellow-400/90 font-semibold">
-        {approval_status === 'APPROVED' ? 'Featured Listing' : approval_status.replace(/_/g, ' ')}
-      </p>
-      <h3 className="text-xl font-bold text-white">{'₹ ' + price}</h3>
-      <p className="text-xs sm:text-sm text-gray-300">{`${property_size || '--'} ${property_size_unit || ''}`}</p>
-    </div>
-    {propertyPreviewMode ? (
-      <div className="mt-2 mb-24 text-sm text-gray-500">This property is under review.</div>
-    ) : approval_status === 'UNDER_REVIEW' && onlyAdmin ? (
-      <div className="mt-4 flex w-full flex-col gap-3">
-        {buttons.primary && <ActionButton label={buttons.primary} variant="primary" onClick={onPrimaryAction} disabled={primaryDisabled} />}
-        {buttons.secondary && <ActionButton label={buttons.secondary} variant="secondary" onClick={onSecondaryAction} disabled={secondaryDisabled} />}
-        {buttons.third && <ActionButton label={buttons.third} variant="third" onClick={onThirdAction} disabled={thirdDisabled} />}
-      </div>
-    ) : approval_status === 'APPROVED' ? (
-      <div className="mt-4 flex w-full flex-col mb-15 gap-3">
-        {buttons.primary && <ActionButton label={buttons.primary} variant="primary" onClick={onPrimaryAction} disabled={primaryDisabled} />}
-      </div>
-    ) : (
-      <div className="mb-20 text-center text-sm font-medium italic text-gray-500">
-        This property is {approval_status.replace(/_/g, ' ').toLowerCase()}.
-      </div>
-    )}
-  </div>
-)
-
-const ActionButton = ({
-  label,
-  variant,
-  onClick,
-  disabled,
-}: {
-  label: string
-  variant: 'primary' | 'secondary' | 'third'
-  onClick?: () => void
-  disabled?: boolean
-}) => (
-  <motion.div whileHover={{ y: -3 }}>
-    <Button
-      type="button"
-      onClick={disabled ? () => {} : onClick ?? (() => {})}
-      disabled={disabled}
-      className={`w-full rounded-full py-2 font-medium transition ${
-        disabled
-          ? 'border border-gray-200 bg-gray-100 text-gray-400'
-          : variant === 'primary'
-          ? 'bg-black text-white hover:bg-gray-800'
-          : 'border bg-white hover:bg-gray-200'
-      }`}
-    >
-      {label}
-    </Button>
-  </motion.div>
-)
-
-const PropertyTag = ({ icon, label, value, suffix }: { icon: ReactNode; label: string; value?: string; suffix?: ReactNode }) => (
-  <div className="flex flex-1 items-center gap-2 px-4 py-3">
-    {icon}
-    <div>
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">{label}</div>
-      <div className="flex items-center gap-1 text-[14px] font-bold text-gray-900">
-        {value}
-        {suffix}
-      </div>
-    </div>
-  </div>
-)

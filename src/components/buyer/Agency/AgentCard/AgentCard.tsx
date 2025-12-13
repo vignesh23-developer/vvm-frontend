@@ -51,9 +51,8 @@ export default function AgentCard(props: AgentCardProps) {
 
   return (
     <motion.div
-      className={`flex w-full flex-col overflow-hidden rounded-2xl bg-white/95 shadow-md ring-1 ring-gray-100 hover:shadow-xl hover:ring-yellow-200 transition-shadow duration-300 ${
-        isFiltersOpen ? 'flex-col' : 'xl:flex-row'
-      }`}
+      className={`flex w-full flex-col overflow-hidden rounded-2xl bg-white/95 shadow-md ring-1 ring-gray-100 hover:shadow-xl hover:ring-yellow-200 transition-shadow duration-300 ${isFiltersOpen ? 'flex-col' : 'xl:flex-row'
+        }`}
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
@@ -115,9 +114,8 @@ export default function AgentCard(props: AgentCardProps) {
                     setLiked(prev => !prev)
                     handleFavorite?.(id)
                   }}
-                  className={`flex h-9 w-9 items-center justify-center rounded-full border bg-white shadow-sm transition-colors ${
-                    liked ? 'border-red-300 text-red-500' : 'border-gray-200 hover:border-red-300 hover:text-red-500'
-                  }`}
+                  className={`flex h-9 w-9 items-center justify-center rounded-full border bg-white shadow-sm transition-colors ${liked ? 'border-red-300 text-red-500' : 'border-gray-200 hover:border-red-300 hover:text-red-500'
+                    }`}
                 >
                   <Heart size={18} fill={liked ? 'currentColor' : 'none'} />
                 </button>
@@ -159,9 +157,8 @@ export default function AgentCard(props: AgentCardProps) {
 
       {/* Right CTA Column */}
       <motion.div
-        className={`flex w-full flex-col justify-between bg-gradient-to-b from-[#1F130B] via-[#1A120B] to-[#111111] px-4 py-4 sm:px-5 sm:py-6 ${
-          isFiltersOpen ? 'w-full' : 'xl:w-[250px] xl:flex-shrink-0'
-        }`}
+        className={`flex w-full flex-col justify-between bg-gradient-to-b from-[#1F130B] via-[#1A120B] to-[#111111] px-4 py-4 sm:px-5 sm:py-6 ${isFiltersOpen ? 'w-full' : 'xl:w-[250px] xl:flex-shrink-0'
+          }`}
         initial={{ opacity: 0, x: 24 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.15, duration: 0.35 }}

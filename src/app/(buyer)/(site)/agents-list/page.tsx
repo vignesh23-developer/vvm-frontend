@@ -13,43 +13,30 @@ import useAgentCompanyProfile from '@/app/(buyer)/(site)/agents-list/(hooks)/use
 import AdvancedFilters from '@/components/ui/AdvancedFilter/AdvancedFilters'
 import NextImage from 'next/image'
 
-// Enhanced Agent Card Skeleton
+// Enhanced Agent Card Skeleton - Vertical for Grid
 const AgentCardSkeleton = () => (
-  <div className="flex w-full flex-col overflow-hidden rounded-2xl bg-white shadow-md border border-gray-100 lg:flex-row animate-pulse">
+  <div className="flex w-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm border border-gray-100 animate-pulse h-full">
     {/* Image Skeleton */}
-    <div className="relative h-[180px] w-full sm:w-[200px] bg-gradient-to-br from-gray-200 to-gray-300" />
+    <div className="relative h-64 w-full bg-gray-200" />
 
     {/* Content Skeleton */}
-    <div className="flex-1 p-4 sm:p-6 space-y-4">
-      <div className="flex justify-between items-start">
-        <div className="flex-1 space-y-2">
-          <div className="h-7 w-3/4 bg-gray-200 rounded" />
+    <div className="flex flex-col flex-1 p-5 space-y-4">
+      <div className="space-y-2">
+        <div className="h-6 w-3/4 bg-gray-200 rounded" />
+        <div className="flex gap-2 items-center">
+          <div className="h-4 w-4 rounded-full bg-gray-200" />
           <div className="h-4 w-1/2 bg-gray-200 rounded" />
         </div>
-        <div className="flex gap-2">
-          <div className="h-10 w-10 bg-gray-200 rounded-full" />
-          <div className="h-10 w-10 bg-gray-200 rounded-full" />
+      </div>
+
+      <div className="mt-auto border-t border-gray-100 pt-4 grid grid-cols-2 gap-4">
+        <div className="space-y-1">
+          <div className="h-3 w-10 bg-gray-200 rounded" />
+          <div className="h-6 w-16 bg-gray-200 rounded" />
         </div>
-      </div>
-
-      <div className="space-y-2">
-        <div className="h-4 w-full bg-gray-200 rounded" />
-        <div className="h-4 w-5/6 bg-gray-200 rounded" />
-      </div>
-
-      <div className="space-y-2">
-        <div className="h-4 w-32 bg-gray-200 rounded" />
-        <div className="h-4 w-40 bg-gray-200 rounded" />
-      </div>
-
-      <div className="h-4 w-full bg-gray-200 rounded" />
-    </div>
-
-    {/* Action Section Skeleton */}
-    <div className="w-full lg:w-[260px] bg-gradient-to-br from-gray-800 to-gray-900 p-5">
-      <div className="space-y-3">
-        <div className="h-12 w-full bg-gray-700 rounded-xl" />
-        <div className="h-12 w-full bg-gray-700 rounded-xl" />
+        <div className="flex justify-end items-end">
+          <div className="h-8 w-24 bg-gray-200 rounded-lg" />
+        </div>
       </div>
     </div>
   </div>
@@ -151,15 +138,6 @@ const AgentListPage = () => {
   const totalPages = Math.max(1, Math.ceil(totalNumber / limit))
 
   const changePage = (page: number) => setPage(Math.max(1, Math.min(page, totalPages)))
-
-  //   const handleFavorite = async (propertyId: string) => {
-  //     try {
-  //       const response = await postMethod(appEndpoints.toggleFavorite, { entity_type: 'property', entity_id: propertyId })
-  //       mutateProperties()
-  //     } catch (err) {
-  //       console.error('Error updating favorite:', err)
-  //     }
-  //   }
 
   // Filter agencies based on active filters + search
   const filteredAgencies = useMemo(() => {
@@ -291,57 +269,83 @@ const AgentListPage = () => {
     >
       {/* Heading Section */}
       <div className="border-b border-yellow-100/70 bg-gradient-to-r from-[#FFF3D6] via-[#FFF9EB] to-[#FFFFFF]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 lg:py-10">
-          <div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#2a1407] tracking-tight mb-2 mt-10">Expert Agents Ready to Help</h1>
-            <p className="text-sm sm:text-base text-gray-600 max-w-2xl">
-              Connect with trusted real estate experts who know your neighbourhood and budget.
-            </p>
-            <div className="flex flex-col gap-4 mt-4">
-              <div className="flex items-center justify-between flex-wrap gap-3">
-                {/* <div className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-1 shadow-sm border border-yellow-100">
-                    <span className="h-2 w-2 rounded-full bg-green-500" />
-                    
-                  </div> */}
-              </div>
-              {/* Advanced Search with Autocomplete */}
-              <div className="relative max-w-xl">
-                <div className="flex items-center rounded-full bg-white shadow-sm border border-gray-200 px-4 py-2">
-                  <span className="mr-2 text-gray-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 lg:py-12">
+          <div className="flex flex-col gap-6">
+            <div>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#2a1407] tracking-tight mb-3">
+                Expert Agents Ready to Help
+              </h1>
+              <p className="text-base sm:text-lg text-gray-600 max-w-2xl leading-relaxed">
+                Connect with trusted real estate experts who know your neighbourhood and budget.
+              </p>
+            </div>
+
+            {/* Full Width Search & Filter Bar */}
+            <div className="w-full">
+              <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center bg-white p-2 rounded-2xl shadow-lg border border-yellow-100/50">
+                {/* Search Input Area */}
+                <div className="relative flex-1">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M11 5a6 6 0 100 12 6 6 0 000-12z" />
                     </svg>
-                  </span>
+                  </div>
                   <input
                     type="text"
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
                     placeholder="Search by agent, company or location..."
-                    className="flex-1 bg-transparent outline-none text-sm text-gray-800 placeholder:text-gray-400"
+                    className="block w-full pl-11 pr-4 py-3 bg-transparent border-none rounded-xl text-gray-900 placeholder-gray-400 focus:ring-0 sm:text-base"
                   />
                   {searchTerm && (
-                    <button type="button" onClick={() => setSearchTerm('')} className="ml-2 text-xs text-gray-500 hover:text-gray-700">
-                      Clear
+                    <button
+                      type="button"
+                      onClick={() => setSearchTerm('')}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                      </svg>
                     </button>
                   )}
                 </div>
 
-                {/* Autocomplete Suggestions */}
-                {searchSuggestions.length > 0 && (
-                  <div className="absolute z-20 mt-1 w-full rounded-2xl bg-white shadow-lg border border-gray-100 max-h-64 overflow-y-auto">
-                    {searchSuggestions.map(suggestion => (
-                      <button
-                        key={suggestion}
-                        type="button"
-                        onClick={() => setSearchTerm(suggestion)}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-yellow-50"
-                      >
-                        {suggestion}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                {/* Divider (Hidden on mobile) */}
+                <div className="hidden md:block w-px bg-gray-200 my-2"></div>
+
+                {/* Filter Button */}
+                <button
+                  onClick={() => setIsFiltersOpen(!isFiltersOpen)}
+                  className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${isFiltersOpen
+                      ? 'bg-[#2a1407] text-white shadow-md'
+                      : 'bg-yellow-50 text-[#2a1407] hover:bg-yellow-100'
+                    }`}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clipRule="evenodd" />
+                  </svg>
+                  <span>Filters</span>
+                </button>
               </div>
+
+              {/* Autocomplete Suggestions */}
+              {searchSuggestions.length > 0 && (
+                <div className="absolute z-20 mt-2 w-full max-w-3xl rounded-2xl bg-white shadow-xl border border-gray-100 max-h-64 overflow-y-auto">
+                  {searchSuggestions.map(suggestion => (
+                    <button
+                      key={suggestion}
+                      type="button"
+                      onClick={() => setSearchTerm(suggestion)}
+                      className="w-full text-left px-5 py-3 text-sm text-gray-700 hover:bg-yellow-50 border-b last:border-0 border-gray-50 flex items-center gap-2"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -359,6 +363,7 @@ const AgentListPage = () => {
             isOpen={isFiltersOpen}
             onToggle={() => setIsFiltersOpen(!isFiltersOpen)}
             pageType={'agency'}
+            hideTriggerButton={true}
           />
 
           {/* Properties / Agencies List */}
@@ -454,13 +459,9 @@ const AgentListPage = () => {
                       delay: index * 0.08,
                       duration: 0.5,
                     }}
-                    className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm h-[320px] animate-pulse"
+                    className="h-full"
                   >
-                    <div className="h-48 bg-gray-200" />
-                    <div className="p-4 space-y-3">
-                      <div className="h-5 w-3/4 bg-gray-200 rounded" />
-                      <div className="h-4 w-1/2 bg-gray-200 rounded" />
-                    </div>
+                    <AgentCardSkeleton />
                   </motion.div>
                 ))}
               </div>
@@ -491,51 +492,64 @@ const AgentListPage = () => {
                       delay: index * 0.06,
                       duration: 0.4,
                     }}
-                    className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-all cursor-pointer group flex flex-col"
-                    onClick={() => router.push(`/agent-details/${agentProperty.id}`)} // Assuming connection to detail page
+                    className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer h-full"
+                    onClick={() => router.push(`/agent-details/${agentProperty.id}`)}
                   >
                     {/* Image Section */}
-                    <div className="relative h-48 w-full overflow-hidden bg-gray-100">
+                    <div className="relative h-64 w-full overflow-hidden bg-gray-100">
                       {agentProperty.profile_image ? (
                         <NextImage
                           src={agentProperty.profile_image}
                           alt={agentProperty.companyName || agentProperty.profileName || 'Agent'}
                           fill
-                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                          className="object-cover transition-transform duration-700 group-hover:scale-110"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-yellow-50 text-yellow-700 font-bold text-4xl">
+                        <div className="w-full h-full flex items-center justify-center bg-yellow-50 text-yellow-700 font-bold text-5xl">
                           {(agentProperty.companyName?.[0] || agentProperty.profileName?.[0] || 'A').toUpperCase()}
                         </div>
                       )}
 
-                      <div className="absolute top-3 right-3 flex gap-2">
-                        {agentProperty.isVerified && (
-                          <span className="px-2 py-1 rounded-full bg-yellow-50 border border-yellow-200 text-yellow-700 text-xs font-semibold backdrop-blur-sm shadow-sm">
+                      <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
+
+                      {/* Verified Badge */}
+                      {agentProperty.isVerified && (
+                        <div className="absolute top-4 right-4 z-10">
+                          <span className="px-3 py-1 rounded-full bg-[#FFFBEB] text-[#B45309] border border-[#FEF3C7] text-xs font-bold shadow-sm flex items-center gap-1">
                             Verified
                           </span>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Content Section */}
-                    <div className="p-4 flex flex-col flex-1">
-                      <h3 className="text-lg font-bold text-[#2a1407] mb-1 line-clamp-1">
-                        {agentProperty.companyName || agentProperty.profileName || 'Unknown Agent'}
-                      </h3>
-                      <p className="text-sm text-gray-600 mb-4 line-clamp-1 flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-600 flex-shrink-0"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
-                        {[agentProperty.city, agentProperty.district, agentProperty.state].filter(Boolean).join(', ') || 'Location N/A'}
-                      </p>
-
-                      <div className="mt-auto pt-3 border-t border-gray-100 flex items-center justify-between">
-                        <div className="flex flex-col">
-                          <span className="text-xs text-gray-500 font-medium">Properties</span>
-                          <span className="text-sm font-bold text-[#2a1407]">{agentProperty.property_count || 0}</span>
+                    <div className="flex flex-col flex-1 p-5">
+                      <div className="mb-4">
+                        <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-1 group-hover:text-yellow-700 transition-colors" title={agentProperty.companyName || agentProperty.profileName}>
+                          {agentProperty.companyName || agentProperty.profileName || 'Unknown Agent'}
+                        </h3>
+                        <div className="flex items-start gap-1.5 text-gray-500">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-600 flex-shrink-0 mt-0.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
+                          <p className="text-sm line-clamp-2 leading-relaxed">
+                            {[agentProperty.city, agentProperty.district, agentProperty.state].filter(Boolean).join(', ') || 'Location N/A'}
+                          </p>
                         </div>
-                        <button className="text-sm font-semibold text-yellow-700 bg-yellow-50 hover:bg-yellow-100 px-3 py-1.5 rounded-lg transition-colors">
-                          View Profile
-                        </button>
+                      </div>
+
+                      {/* Divider */}
+                      <div className="border-t border-gray-100 my-auto" />
+
+                      {/* Footer Section */}
+                      <div className="grid grid-cols-2 gap-4 pt-4 mt-4 items-end">
+                        <div className="flex flex-col">
+                          <span className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-1">Properties</span>
+                          <p className="text-xl font-bold text-[#2a1407]">{agentProperty.property_count || 0}</p>
+                        </div>
+                        <div className="flex justify-end">
+                          <button className="text-sm font-semibold text-yellow-700 bg-yellow-50 hover:bg-yellow-100 px-4 py-2 rounded-lg transition-colors border border-yellow-100">
+                            View Profile
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </motion.div>

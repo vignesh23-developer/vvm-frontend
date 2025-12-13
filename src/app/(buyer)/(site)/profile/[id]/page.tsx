@@ -20,7 +20,7 @@ const ProfilePage = () => {
   const router = useRouter()
   const { token } = useAuth()
 
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  /* const [isModalOpen, setIsModalOpen] = useState(false) // Removed as logic moved to ProfileForm */
   const [loading, setLoading] = useState(false)
 
   const [imageUrl, setImageUrl] = useState<string | null>(null)
@@ -58,15 +58,15 @@ const ProfilePage = () => {
   }, [id, fetchUserProfile])
 
   // Upload profile image
-  const handleProfileImageSubmit = async (values: { file: File | null }, { resetForm }: { resetForm: () => void }) => {
-    if (!values?.file) {
+  const handleProfileImageSubmit = async (file: File, resetForm: () => void) => {
+    if (!file) {
       toast.error('Please select an image before submitting.')
       return
     }
 
     try {
       const formData = new FormData()
-      formData.append('file', values.file)
+      formData.append('file', file)
 
       const response: ResponseDTO = await postMethod(appEndpoints.uploadUserProfileImage, formData)
 
@@ -75,7 +75,6 @@ const ProfilePage = () => {
         toast.success('Profile image uploaded successfully!')
 
         resetForm()
-        setIsModalOpen(false)
         fetchUserProfile()
       } else {
         toast.error(response?.message || 'Upload failed. Try again.')
@@ -94,28 +93,20 @@ const ProfilePage = () => {
     <div className="p-6">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
         {/* Left Column - Profile */}
-        <div className="lg:row-span-2 bg-white shadow-md rounded-2xl p-4">
-          <h2 className="text-center text-xl font-semibold text-gray-800">Edit Profile</h2>
-
-          <LogoOrProfileImageUpload
-            logoUrl={imageUrl || ''}
-            onClick={() => setIsModalOpen(true)}
-            label="Profile Image"
-            title="Upload Profile Image"
-            changeText="Change"
-          />
-
-          <ProfileForm initialValues={initialValues} validationSchema={ProfileValidationSchema} isEdit={!!id} />
-
-          <UploadProfileImageModal
-            isModalOpen={isModalOpen}
-            setIsModalOpen={setIsModalOpen}
-            buttonText="Upload Image"
-            modalTitle="Upload Profile Image"
-            modalLabel="Profile Image"
-            modalDescription="Kindly upload your profile image below 👇"
-            onImageUploadSubmit={handleProfileImageSubmit}
-          />
+        <div className="lg:row-span-2">
+          {loading ? (
+            <div className="bg-white shadow-md rounded-2xl p-8 flex items-center justify-center h-64">
+              <span className="text-gray-500">Loading profile data...</span>
+            </div>
+          ) : (
+            <ProfileForm
+              initialValues={initialValues}
+              validationSchema={ProfileValidationSchema}
+              isEdit={!!id}
+              profileImageUrl={imageUrl || undefined}
+              onImageUpload={handleProfileImageSubmit}
+            />
+          )}
         </div>
 
         {/* Right Column - KYC + Wallet */}

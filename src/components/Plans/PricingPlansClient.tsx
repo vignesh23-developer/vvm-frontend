@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import React from 'react'
 import { PricingPlansClientProps } from './types'
 import { useUserSubscription } from './hooks/useUserSubscription'
 
@@ -11,14 +12,33 @@ import { useUserSubscription } from './hooks/useUserSubscription'
  */
 export default function PricingPlansClient({ plans, featuresList, apiPlans }: PricingPlansClientProps) {
   const { activeSubscription, error, loading: isLoading } = useUserSubscription()
+  const [activeTab, setActiveTab] = React.useState<string>('MONTHLY')
+
+  // Extract unique billing cycles for tabs
+  const billingCycles = React.useMemo(() => {
+    const cycles = Array.from(new Set(apiPlans.map(p => p.billingCycle || 'MONTHLY')))
+    // Sort to prioritized order if needed, defaulting to Monthly first
+    return cycles.sort((a, b) => {
+      if (a.toUpperCase() === 'MONTHLY') return -1
+      if (b.toUpperCase() === 'MONTHLY') return 1
+      return 0
+    })
+  }, [apiPlans])
+
+  // Set initial tab
+  React.useEffect(() => {
+    if (billingCycles.length > 0 && !billingCycles.includes(activeTab)) {
+      setActiveTab(billingCycles[0])
+    }
+  }, [billingCycles, activeTab])
 
   // Enrich plans with planAction field based on active subscription
   const enrichedPlans = plans.map(plan => {
     let planAction: 'current' | 'upgrade' | 'downgrade' | 'subscribe' = 'subscribe'
+    const apiPlan = apiPlans.find(p => p.id === plan.id)
 
     if (activeSubscription) {
       const planPrice = parseFloat(plan.price.replace(/[₹,]/g, ''))
-
       // Get current plan price
       let currentPrice = 0
       if (activeSubscription.plan?.price) {
@@ -29,12 +49,6 @@ export default function PricingPlansClient({ plans, featuresList, apiPlans }: Pr
         currentPrice = typeof activeSubscription.paidAmount === 'string'
           ? parseFloat(activeSubscription.paidAmount)
           : activeSubscription.paidAmount
-      } else {
-        // Find from apiPlans
-        const apiPlan = apiPlans.find(p => p.id === activeSubscription.plan_id)
-        if (apiPlan?.price) {
-          currentPrice = parseFloat(apiPlan.price)
-        }
       }
 
       // Determine action
@@ -48,8 +62,11 @@ export default function PricingPlansClient({ plans, featuresList, apiPlans }: Pr
     return {
       ...plan,
       planAction,
+      billingCycle: apiPlan?.billingCycle || 'MONTHLY'
     }
   })
+
+  const filteredPlans = enrichedPlans.filter(p => p.billingCycle === activeTab)
 
   // Skeleton Loader for sleek feel
   if (isLoading) {
@@ -81,7 +98,7 @@ export default function PricingPlansClient({ plans, featuresList, apiPlans }: Pr
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -107,6 +124,26 @@ export default function PricingPlansClient({ plans, featuresList, apiPlans }: Pr
           </motion.p>
         </div>
 
+        {/* Tabs */}
+        {billingCycles.length > 0 && (
+          <div className="flex justify-center mb-12">
+            <div className="bg-gray-100 p-1.5 rounded-full flex">
+              {billingCycles.map((cycle) => (
+                <button
+                  key={cycle}
+                  onClick={() => setActiveTab(cycle)}
+                  className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${activeTab === cycle
+                    ? 'bg-white text-[#2a1407] shadow-md'
+                    : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                >
+                  {cycle.charAt(0).toUpperCase() + cycle.slice(1).toLowerCase()}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Error Message */}
         {error && (
           <motion.div
@@ -118,75 +155,88 @@ export default function PricingPlansClient({ plans, featuresList, apiPlans }: Pr
           </motion.div>
         )}
 
-        {/* Plans Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2  gap-8 lg:gap-10 items-stretch">
-          {enrichedPlans.map((plan, idx) => (
-            <motion.div
-              key={plan.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-              whileHover={{ y: -10, transition: { duration: 0.3 } }}
-              className={`relative flex flex-col p-8 rounded-3xl transition-all duration-300 ${plan.highlight
-                ? 'bg-gradient-to-b from-[#2a1407] to-[#1a0a04] text-white shadow-2xl ring-4 ring-yellow-500/20 scale-105 z-10'
-                : 'bg-white border border-yellow-100 hover:border-yellow-300 shadow-xl hover:shadow-2xl text-gray-900 group'
-                }`}
-            >
-              {plan.highlight && (
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-yellow-500 text-white px-6 py-1.5 rounded-full text-sm font-bold shadow-lg flex items-center gap-1">
-                  <span className="text-lg">👑</span> Most Popular
-                </div>
-              )}
+        {/* Plans Grid or Empty State */}
+        {filteredPlans.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10 items-stretch">
+            {filteredPlans.map((plan, idx) => (
+              <motion.div
+                key={plan.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1 }}
+                whileHover={{ y: -10, transition: { duration: 0.3 } }}
+                className={`relative flex flex-col p-8 rounded-3xl transition-all duration-300 ${plan.highlight
+                  ? 'bg-gradient-to-b from-[#2a1407] to-[#1a0a04] text-white shadow-2xl ring-4 ring-yellow-500/20 scale-105 z-10'
+                  : 'bg-white border border-yellow-100 hover:border-yellow-300 shadow-xl hover:shadow-2xl text-gray-900 group'
+                  }`}
+              >
+                {plan.highlight && (
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-yellow-500 text-white px-6 py-1.5 rounded-full text-sm font-bold shadow-lg flex items-center gap-1">
+                    <span className="text-lg">👑</span> Most Popular
+                  </div>
+                )}
 
-              {/* Plan Header */}
-              <div className="mb-8">
-                <h3 className={`text-2xl font-bold mb-2 ${plan.highlight ? 'text-white' : 'text-[#2a1407]'}`}>
-                  {plan.name}
-                </h3>
-                <div className="flex items-baseline gap-1">
-                  <span className={`text-4xl font-extrabold ${plan.highlight ? 'text-yellow-400' : 'text-[#2a1407]'}`}>
-                    {plan.price}
-                  </span>
-                  <span className={`text-sm ${plan.highlight ? 'text-gray-400' : 'text-gray-500'}`}>
-                    / month
-                  </span>
-                </div>
-              </div>
-
-              {/* Features List */}
-              <div className="flex-1 space-y-4 mb-8">
-                {plan.features.map((feature, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <div className={`mt-0.5 rounded-full p-0.5 ${plan.highlight ? 'bg-yellow-500/20 text-yellow-400' : 'bg-yellow-100 text-yellow-700'}`}>
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                    <span className={`text-sm font-medium ${plan.highlight ? 'text-gray-300' : 'text-gray-600 group-hover:text-gray-900'}`}>
-                      {feature.text} {feature.value && typeof feature.value === 'string' && feature.value !== 'Enabled' && (
-                        <span className={`font-bold ${plan.highlight ? 'text-white' : 'text-[#2a1407]'}`}> - {feature.value}</span>
-                      )}
+                {/* Plan Header */}
+                <div className="mb-8">
+                  <h3 className={`text-2xl font-bold mb-2 ${plan.highlight ? 'text-white' : 'text-[#2a1407]'}`}>
+                    {plan.name}
+                  </h3>
+                  <div className="flex items-baseline gap-1">
+                    <span className={`text-4xl font-extrabold ${plan.highlight ? 'text-yellow-400' : 'text-[#2a1407]'}`}>
+                      {plan.price}
+                    </span>
+                    <span className={`text-sm ${plan.highlight ? 'text-gray-400' : 'text-gray-500'}`}>
+                      / {activeTab.toLowerCase().replace('ly', '')}
                     </span>
                   </div>
-                ))}
-              </div>
+                </div>
 
-              {/* Action Button */}
-              <button
-                className={`w-full py-4 rounded-xl font-bold text-sm transition-all duration-300 ${plan.planAction === 'current'
-                  ? 'bg-gray-100 text-gray-400 cursor-default'
-                  : plan.highlight
-                    ? 'bg-yellow-500 text-[#2a1407] hover:bg-yellow-400 shadow-lg hover:shadow-yellow-500/50'
-                    : 'bg-[#2a1407] text-white hover:bg-[#4a2e1d] shadow-md hover:shadow-lg'
-                  }`}
-                disabled={plan.planAction === 'current'}
-              >
-                {plan.planAction === 'current' ? 'Current Plan' : plan.planAction === 'upgrade' ? 'Upgrade Plan' : plan.planAction === 'downgrade' ? 'Downgrade' : 'Get Started'}
-              </button>
-            </motion.div>
-          ))}
-        </div>
+                {/* Features List */}
+                <div className="flex-1 space-y-4 mb-8">
+                  {plan.features.map((feature, i) => (
+                    <div key={i} className="flex items-start gap-3">
+                      <div className={`mt-0.5 rounded-full p-0.5 ${plan.highlight ? 'bg-yellow-500/20 text-yellow-400' : 'bg-yellow-100 text-yellow-700'}`}>
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <span className={`text-sm font-medium ${plan.highlight ? 'text-gray-300' : 'text-gray-600 group-hover:text-gray-900'}`}>
+                        {feature.text} {feature.value && typeof feature.value === 'string' && feature.value !== 'Enabled' && (
+                          <span className={`font-bold ${plan.highlight ? 'text-white' : 'text-[#2a1407]'}`}> - {feature.value}</span>
+                        )}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Action Button */}
+                <button
+                  className={`w-full py-4 rounded-xl font-bold text-sm transition-all duration-300 ${plan.planAction === 'current'
+                    ? 'bg-gray-100 text-gray-400 cursor-default'
+                    : plan.highlight
+                      ? 'bg-yellow-500 text-[#2a1407] hover:bg-yellow-400 shadow-lg hover:shadow-yellow-500/50'
+                      : 'bg-[#2a1407] text-white hover:bg-[#4a2e1d] shadow-md hover:shadow-lg'
+                    }`}
+                  disabled={plan.planAction === 'current'}
+                >
+                  {plan.planAction === 'current' ? 'Current Plan' : plan.planAction === 'upgrade' ? 'Upgrade Plan' : plan.planAction === 'downgrade' ? 'Downgrade' : 'Get Started'}
+                </button>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="bg-yellow-50 p-6 rounded-full mb-6">
+              <span className="text-6xl">🎁</span>
+            </div>
+            <h3 className="text-2xl font-bold text-[#2a1407] mb-2">Enjoy Your Trial Period!</h3>
+            <p className="text-gray-500 max-w-md mx-auto">
+              We don't have any {activeTab.toLowerCase()} plans listed at the moment.
+              Keep exploring our features with your current trial benefits.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )

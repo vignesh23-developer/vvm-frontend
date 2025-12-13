@@ -152,9 +152,9 @@ const LoadingAnimation: React.FC = () => {
               <Image
                 src="/footer_logo.png"
                 alt="Vaazhga Valamudan Logo"
-                width={180}
-                height={90}
-                className="w-[160px] h-auto object-contain hover:brightness-110 transition duration-300"
+                width={300}
+                height={150}
+                className="w-[300px] h-auto object-contain hover:brightness-110 transition duration-300"
               />
             </div>
           </div>
