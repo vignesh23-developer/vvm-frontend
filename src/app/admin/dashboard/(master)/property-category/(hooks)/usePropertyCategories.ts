@@ -51,7 +51,7 @@ export function usePropertyCategories({ page = 1, limit = 10 } = {} as PropertyC
 
   return {
     categories: data?.data?.data as PropertyCategory[] | undefined,
-    total: data?.data?.data?.total as number | undefined,
+    total: data?.data?.total as number | undefined,
     error,
     isLoading,
     handleAdd,

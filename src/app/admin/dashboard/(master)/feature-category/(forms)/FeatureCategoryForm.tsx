@@ -59,6 +59,9 @@ const createSafeInitialValues = (initialValues: FeatureCategoryFormValues): Feat
   }
 }
 
+const limit = 0
+const page = 1
+
 export default function FeatureCategoryForm({ initialValues, onSubmit, submitLabel, isEdit = false }: FeatureCategoryFormProps) {
   const router = useRouter()
   const safeInitialValues = createSafeInitialValues(initialValues)
@@ -84,7 +87,11 @@ export default function FeatureCategoryForm({ initialValues, onSubmit, submitLab
     return response
   }
 
-  const { data, error: groupError, isLoading } = useSWR<ResponseDTO>(`${appEndpoints.getAllFeatureGroups}?activeOnly=true`, fetcher)
+  const {
+    data,
+    error: groupError,
+    isLoading,
+  } = useSWR<ResponseDTO>(`${appEndpoints.getAllFeatureGroups}?activeOnly=true&limit=${limit}&page=${page}`, fetcher)
 
   const featureGroups = data?.data?.data || []
   const featureGroupOptions =

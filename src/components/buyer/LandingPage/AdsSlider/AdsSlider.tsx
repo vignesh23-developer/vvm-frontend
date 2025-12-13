@@ -113,34 +113,38 @@ export default function AdsSlider() {
               variants={slideVariants}
             >
               <Link href={`/adsDetails/${item.id}`}>
-                {/* Background Image */}
-                {item.images && item.images.length > 0 ? (
-                  <Image
-                    src={item.images[0].url}
-                    alt={item.title}
-                    fill
-                    className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
-                    priority
-                    onLoadingComplete={handleImageLoad}
-                  />
-                ) : (
-                  <Image
-                    src="/ads-1.jpg"
-                    alt="Imagine. Inspire. Live."
-                    fill
-                    className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
-                    priority
-                    onLoadingComplete={handleImageLoad}
-                  />
-                )}
+                {/* Background Image Wrapper */}
+                <div className="relative w-full h-full group overflow-hidden rounded-lg">
+                  {item.images && item.images.length > 0 ? (
+                    <Image
+                      src={item.images[0].url}
+                      alt={item.title}
+                      fill
+                      className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      priority
+                      onLoad={handleImageLoad}
+                    />
+                  ) : (
+                    <Image
+                      src="/ads-1.jpg"
+                      alt="Imagine. Inspire. Live."
+                      fill
+                      className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      priority
+                      onLoad={handleImageLoad}
+                    />
+                  )}
 
-                {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300" />
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300" />
 
-                {/* Content */}
-                <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                  <h3 className="text-xl md:text-2xl font-bold text-white mb-2 drop-shadow-md leading-tight">{item.title}</h3>
-                  <div className="h-1 w-12 bg-yellow-500 rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+                  {/* Content */}
+                  <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                    <h3 className="text-xl md:text-2xl font-bold text-white mb-2 drop-shadow-md leading-tight">{item.title}</h3>
+                    <div className="h-1 w-12 bg-yellow-500 rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+                  </div>
                 </div>
               </Link>
             </motion.div>

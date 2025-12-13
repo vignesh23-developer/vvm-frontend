@@ -9,11 +9,12 @@ import { useRouter } from 'next/navigation'
 import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
 import Pagination from '@/components/ui/CustomComponent/Tables/Pagination'
 import Button from '@/components/ui/CustomComponent/Button/Button'
-import { Edit, Edit3, Eye, Trash2 } from 'lucide-react'
+import { Edit, Edit3, Eye, Trash2, Heart, Phone } from 'lucide-react'
 import { onDeleteAd } from '@/app/(seller)/ads/(action)/ads_action'
 import toast from 'react-hot-toast'
 import { Roles, getUserRoles, hasRole, type UserRole } from '@/utils/roles/roles'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { formatPrice } from '@/utils/converter/formatPrice'
 
 // Chart data - these would ideally be calculated from the actual ads data
 const statusData = [
@@ -46,6 +47,7 @@ export default function AdsListPage() {
   const { ads, total, error, isLoading, mutateAds } = useAds({ page: currentPage, limit: currentLimit })
   const { categories } = useAdsCategories()
 
+  console.log('Fetched Ads:', ads)
   // Create a map for quick category lookup
   const categoryMap = useMemo(() => {
     return categories.reduce((acc: any, cat: any) => {
@@ -94,6 +96,9 @@ export default function AdsListPage() {
       title: 'Price',
       sortable: true,
       filterable: true,
+      render: (value: any) => {
+        return formatPrice(value)
+      },
     },
     {
       field: 'status',
@@ -149,6 +154,54 @@ export default function AdsListPage() {
       sortable: true,
       filterable: true,
     },
+    {
+      field: 'view_count',
+      title: 'Views',
+      sortable: true,
+      filterable: true,
+      render: (value: unknown) => {
+        const n = Number(value ?? 0)
+        const label = n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n)
+        return (
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 text-sm font-medium text-gray-900">
+            <Eye className="w-4 h-4 text-gray-600" />
+            <span>{label}</span>
+          </div>
+        )
+      },
+    },
+    {
+      field: 'favorite_count',
+      title: 'Favorites',
+      sortable: true,
+      filterable: true,
+      render: (value: unknown) => {
+        const n = Number(value ?? 0)
+        const label = n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n)
+        return (
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 text-sm font-medium text-gray-900">
+            <Heart className="w-4 h-4 text-red-500" />
+            <span>{label}</span>
+          </div>
+        )
+      },
+    },
+    {
+      field: 'contact_count',
+      title: 'Enquiries',
+      sortable: true,
+      filterable: true,
+      render: (value: unknown) => {
+        const n = Number(value ?? 0)
+        const label = n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n)
+        return (
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 text-sm font-medium text-gray-900">
+            <Phone className="w-4 h-4 text-green-600" />
+            <span>{label}</span>
+          </div>
+        )
+      },
+    },
   ]
 
   const fetchAds = useCallback(async (): Promise<{ data: AdsTableRow[]; totalItems: number }> => {
@@ -189,13 +242,13 @@ export default function AdsListPage() {
       {
         icon: Eye, // correct for view
         onClick: handleView,
-        color: '#1e6897',
+        color: '#2a1407',
         title: 'View',
       },
       {
         icon: Edit3, // correct for edit
         onClick: handleEdit,
-        color: '#1e6897',
+        color: '#2a1407',
         title: 'Edit',
       },
     ]
@@ -233,6 +286,16 @@ export default function AdsListPage() {
     ]
   }
 
+  const handleAdsCreation = () => {
+    const isVerifiedUser = user?.isVerified
+    if (token && !isVerifiedUser) {
+      router.push('/kyc-pending')
+      return
+    } else {
+      router.push('/ads')
+    }
+  }
+
   // Calculate monthly data from actual ads
   const calculateMonthlyData = () => {
     const monthCounts: { [key: string]: number } = {}
@@ -252,6 +315,10 @@ export default function AdsListPage() {
 
   const currentStatusData = ads.length > 0 ? calculateStatusData() : statusData
   const currentMonthlyData = ads.length > 0 ? calculateMonthlyData() : monthlyData
+
+  const handleRefresh = async () => {
+    await mutateAds()
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -273,7 +340,7 @@ export default function AdsListPage() {
           )}
           <Button
             type="button"
-            onClick={() => router.push('/ads')}
+            onClick={handleAdsCreation}
             className="flex items-center gap-2 bg-[#2a1407] px-4 py-2 text-sm font-medium text-white rounded-md shadow-md hover:bg-[#641717] transition"
           >
             Add Ads
@@ -282,15 +349,32 @@ export default function AdsListPage() {
       </div>
 
       {/* Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="">
         {/* Table Section */}
-        <div className="col-span-2 bg-white rounded-xl shadow">
+        <div className="bg-gradient-to-br from-white to-yellow-50/20 rounded-xl shadow border border-yellow-200 p-4">
           <div className="p-4">
-            <DataTable columns={columns} fetchData={fetchAds} loading={isLoading} isPagination={false} pageSize={currentLimit} actions={actions} />
+            <DataTable
+              columns={columns}
+              actions={actions}
+              fetchData={fetchAds}
+              loading={isLoading}
+              isPagination={true}
+              initialPage={currentPage}
+              pageSize={currentLimit}
+              totalItemsData={total}
+              totalPageData={Math.ceil(total / currentLimit)}
+              pageSizeOptions={[5, 10, 25, 50, 100]}
+              setPage={setCurrentPage}
+              setCurrentPageSize={setCurrentLimit}
+              onRefresh={handleRefresh}
+              allowExport
+              allowGrouping
+              allowRefresh
+            />
           </div>
 
           {/* Custom Server-Side Pagination */}
-          <Pagination
+          {/* <Pagination
             page={currentPage}
             setPage={setCurrentPage}
             totalPages={Math.ceil(total / currentLimit)}
@@ -303,13 +387,13 @@ export default function AdsListPage() {
             }}
             isLoading={isLoading}
             dataLength={ads.length}
-          />
+          /> */}
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Pie Chart */}
-          <div className="bg-white rounded-xl shadow p-4">
+        {/* <div className="space-y-6"> */}
+        {/* Pie Chart */}
+        {/* <div className="bg-white rounded-xl shadow p-4">
             <h3 className="font-semibold mb-4 text-gray-700">Ads by Status</h3>
             <ResponsiveContainer width="100%" height={200}>
               <PieChart>
@@ -322,10 +406,10 @@ export default function AdsListPage() {
                 <Legend verticalAlign="bottom" height={36} />
               </PieChart>
             </ResponsiveContainer>
-          </div>
+          </div> */}
 
-          {/* Bar Chart */}
-          <div className="bg-white rounded-xl shadow p-4">
+        {/* Bar Chart */}
+        {/* <div className="bg-white rounded-xl shadow p-4">
             <h3 className="font-semibold mb-4 text-gray-700">Ads Added Over Time</h3>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={currentMonthlyData}>
@@ -335,10 +419,10 @@ export default function AdsListPage() {
                 <Bar dataKey="count" fill="#3b82f6" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
-          </div>
+          </div> */}
 
-          {/* Stats */}
-          <div className="bg-white rounded-xl shadow p-4">
+        {/* Stats */}
+        {/* <div className="bg-white rounded-xl shadow p-4">
             <h3 className="font-semibold mb-4 text-gray-700">Ad Statistics</h3>
             <ul className="space-y-2 text-gray-700">
               <li className="flex justify-between">
@@ -354,8 +438,8 @@ export default function AdsListPage() {
                 <span className="font-semibold">{ads.filter(ad => ad.is_boosted).length}</span>
               </li>
             </ul>
-          </div>
-        </div>
+          </div> */}
+        {/* </div> */}
       </div>
     </div>
   )

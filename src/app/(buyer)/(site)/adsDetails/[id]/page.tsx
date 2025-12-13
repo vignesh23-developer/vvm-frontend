@@ -4,7 +4,29 @@ import { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { motion, Variants, AnimatePresence } from 'framer-motion'
-import { Share2, Flag, MessageSquare, MapPin, Phone, Mail, Eye, BarChart3, MessageSquareMore, Camera, Heart, Building2, Users, Home, TrendingUp, Shield, Sparkles, ChevronLeft, ChevronRight, Play, X } from 'lucide-react'
+import {
+  Share2,
+  Flag,
+  MessageSquare,
+  MapPin,
+  Phone,
+  Mail,
+  Eye,
+  BarChart3,
+  MessageSquareMore,
+  Camera,
+  Heart,
+  Building2,
+  Users,
+  Home,
+  TrendingUp,
+  Shield,
+  Sparkles,
+  ChevronLeft,
+  ChevronRight,
+  Play,
+  X,
+} from 'lucide-react'
 import Image from 'next/image'
 import toast from 'react-hot-toast'
 
@@ -23,6 +45,7 @@ import { cn } from '@/lib/utils'
 import ReportAdModal from './modal/ReportAdModal'
 import EnquiryAdModal from './modal/EnquiryAdModal'
 import { getUserRoles, hasRole, Roles } from '@/utils/roles/roles'
+import EnquiryFormCard from '@/components/enquiry/forms/EnquiryFormCard'
 
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 40 },
@@ -44,7 +67,8 @@ const AdsDetailsPage = () => {
   const router = useRouter()
   const { user } = useAuth()
   const userRoles = getUserRoles(user)
-  const onlyAdmin = hasRole(userRoles, [Roles.ADMIN])
+  const isAdmin = hasRole(userRoles, [Roles.ADMIN])
+  const isAgent = hasRole(userRoles, [Roles.AGENT])
 
   const adIdParam = params?.id
   const adId = Array.isArray(adIdParam) ? adIdParam[0] : adIdParam
@@ -267,6 +291,40 @@ const AdsDetailsPage = () => {
       closeApproveModal()
     }
   }, [adDetails, approveAction, reviewerId, handleAdApprovalAction, approvalComment, rejectReason, closeApproveModal])
+
+  const handleEnquiryAds = async (values: any, { resetForm }: any) => {
+    try {
+      const payload = {
+        entity_type: values.entity_type,
+        entity_id: values.entity_id,
+        name: values.name,
+        email: values.email,
+        phone: values.phone,
+        message: values.message,
+      }
+
+      const response = await postMethod(appEndpoints.createEnquiry, payload)
+
+      if (Number(response.status) === 201) {
+        toast.success('Enquiry sent successfully')
+        adDetailsRefresh()
+      } else {
+        toast.error(response.message || 'Failed to submit enquiry')
+      }
+    } catch (err) {
+      console.error('Failed to send enquiry', err)
+      toast.error('Unable to send enquiry right now')
+    }
+  }
+
+  const enquiryPrefillValues = useMemo(
+    () => ({
+      name: (user?.firstName || '') + ' ' + (user?.lastName || ''),
+      email: user?.email || '',
+      phone: user?.phoneNumber || '',
+    }),
+    [user],
+  )
 
   if (adDetailsLoading) {
     return <CustomLoader text="Loading ad details..." />
@@ -577,7 +635,7 @@ const AdsDetailsPage = () => {
                   {/* Badge - Category */}
                   <div className="flex flex-wrap items-center gap-3">
                     <span className="px-3 py-1.5 rounded-full bg-yellow-50 border border-yellow-200 text-[#2a1407] text-xs font-semibold uppercase">
-                      {adDetails.category_id || 'AD'}
+                      {adDetails?.category?.name || 'AD'}
                     </span>
                   </div>
 
@@ -613,14 +671,14 @@ const AdsDetailsPage = () => {
                           <Flag size={16} />
                           <span>Report</span>
                         </Button>
-                        <Button
+                        {/* <Button
                           type="button"
                           onClick={() => setEnquiryModalOpen(true)}
                           className="flex-1 bg-[#2a1407] text-white rounded-full py-2.5 px-4 text-sm hover:bg-[#2a1407] flex items-center justify-center gap-1 transition-all"
                         >
                           <MessageSquare size={16} />
                           <span>Enquire</span>
-                        </Button>
+                        </Button> */}
                       </div>
                     </div>
                   </div>
@@ -686,12 +744,7 @@ const AdsDetailsPage = () => {
                 className="rounded-3xl border border-gray-200 bg-white shadow-md overflow-hidden"
               >
                 <div className="h-[400px] w-full">
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="space-y-2 p-8"
-                  >
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="space-y-2 p-8">
                     <h3 className="text-xl font-bold text-[#2a1407]">Location</h3>
                     <p className="text-sm text-gray-600">{formattedAddress || 'Location not provided'}</p>
                   </motion.div>
@@ -711,7 +764,6 @@ const AdsDetailsPage = () => {
                 </div>
               </motion.div>
             )}
-
           </motion.section>
 
           <motion.aside
@@ -721,7 +773,7 @@ const AdsDetailsPage = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            {adDetails.approval_status === 'UNDER_REVIEW' && onlyAdmin && (
+            {adDetails.approval_status === 'UNDER_REVIEW' && isAdmin && (
               <motion.div
                 variants={fadeInUp}
                 whileHover={{ scale: 1.01 }}
@@ -767,6 +819,7 @@ const AdsDetailsPage = () => {
               <div className="grid md:grid-cols-3 lg:grid-cols-1 gap-4">
                 {adInsights.map((insight, idx) => {
                   const Icon = insight.icon
+                  const isPrivileged = (insight.label === 'Number of Reports' || insight.label === 'Total Enquiries') && (isAdmin || isAgent)
                   return (
                     <motion.div
                       key={idx}
@@ -774,7 +827,15 @@ const AdsDetailsPage = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.08 }}
                       whileHover={{ y: -3, boxShadow: '0 18px 40px rgba(0,0,0,0.07)' }}
-                      className="relative flex flex-col justify-between rounded-2xl bg-gradient-to-br from-yellow-50/50 to-white px-5 py-4 border border-yellow-100"
+                      className={`relative flex flex-col justify-between rounded-2xl bg-gradient-to-br from-yellow-50/50 to-white px-5 py-4 border border-yellow-100 ${isPrivileged ? 'cursor-pointer hover:shadow-md' : ''
+                        }`}
+                      role={isPrivileged ? 'button' : undefined}
+                      tabIndex={isPrivileged ? 0 : undefined}
+                      onClick={() => {
+                        if (!isPrivileged) return
+                        if (insight.label === 'Number of Reports') router.push(`/admin/dashboard/ads-reports`)
+                        if (insight.label === 'Total Enquiries') router.push(`/admin/dashboard/ads-enquiry`)
+                      }}
                     >
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
@@ -801,146 +862,84 @@ const AdsDetailsPage = () => {
             </motion.div>
 
             {/* Why Search Alone */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              whileHover={{ scale: 1.01 }}
-              className="bg-gradient-to-br from-yellow-50 to-yellow-100/30 rounded-xl border border-yellow-200 p-6 shadow-sm"
-            >
-              <div className="text-center mb-6">
-                <motion.div
-                  whileHover={{ rotate: 360 }}
-                  transition={{ duration: 0.6 }}
-                  className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#2a1407] mb-4"
-                >
-                  <Users size={24} className="text-white" />
-                </motion.div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Why Search Alone?</h3>
-                <p className="text-sm text-gray-600">Looking for your dream home?</p>
-              </div>
-
-              <ul className="space-y-3 mb-6">
-                {[
-                  { icon: Home, text: 'Free site visits to explore your options' },
-                  { icon: TrendingUp, text: 'Expert insights on locations & neighborhoods' },
-                  { icon: Shield, text: 'Pros & cons reviewed by experts' },
-                ].map((item, idx) => {
-                  const Icon = item.icon
-                  return (
-                    <motion.li
-                      key={idx}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.1 }}
-                      className="flex items-start gap-3 text-sm text-gray-700"
-                    >
-                      <Icon size={18} className="text-yellow-600 mt-0.5 flex-shrink-0" />
-                      <span>{item.text}</span>
-                    </motion.li>
-                  )
-                })}
-              </ul>
-
-              <div className="space-y-3">
-                <input
-                  type="text"
-                  placeholder="Your Name"
-                  className="w-full px-4 py-3 rounded-lg border border-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400 transition-all bg-white"
-                />
-                <input
-                  type="email"
-                  placeholder="Your Email"
-                  className="w-full px-4 py-3 rounded-lg border border-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400 transition-all bg-white"
-                />
-                <input
-                  type="tel"
-                  placeholder="Your Phone"
-                  className="w-full px-4 py-3 rounded-lg border border-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400 transition-all bg-white"
-                />
-                <Button
-                  type="button"
-                  className="w-full bg-[#2a1407] text-white hover:from-[#2a1407] hover:to-[#2a1407] py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all"
-                >
-                  Connect →
-                </Button>
-              </div>
-            </motion.div>
-          </motion.aside>
-        </div>
-      </div>
+            <EnquiryFormCard Id={adDetails.id} entityType="ad" handleSubmit={handleEnquiryAds} defaultValues={enquiryPrefillValues} />
+          </motion.aside >
+        </div >
+      </div >
 
       {/* Similar Ads Carousel Section */}
-      {similarAds.length > 0 && (
-        <motion.section
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.6 }}
-          className="max-w-7xl mx-auto px-4 md:px-8 py-12"
-        >
-          <div className="mb-8 flex items-center justify-between">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="w-5 h-5 text-yellow-600" />
-                <h2 className="text-3xl md:text-4xl font-bold text-[#2a1407]">Similar Ads</h2>
-              </div>
-              <p className="text-gray-600">Explore other ads you might be interested in</p>
-            </div>
-
-            {/* Carousel Navigation Buttons */}
-            {!isLoadingSimilarAds && similarAds.length > 0 && (
-              <div className="hidden md:flex items-center gap-2">
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => {
-                    if (carouselRef.current) {
-                      const cardWidth = 320
-                      carouselRef.current.scrollBy({ left: -cardWidth, behavior: 'smooth' })
-                    }
-                  }}
-                  disabled={carouselScrollPosition === 0}
-                  className={cn(
-                    'flex h-10 w-10 items-center justify-center rounded-full border transition-all',
-                    carouselScrollPosition === 0
-                      ? 'border-gray-200 text-gray-300 cursor-not-allowed'
-                      : 'border-yellow-200 bg-yellow-50 text-yellow-600 hover:bg-yellow-100',
-                  )}
-                  aria-label="Previous ads"
-                >
-                  <ChevronLeft size={20} />
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => {
-                    if (carouselRef.current) {
-                      const cardWidth = 320
-                      carouselRef.current.scrollBy({ left: cardWidth, behavior: 'smooth' })
-                    }
-                  }}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-yellow-200 bg-yellow-50 text-yellow-600 hover:bg-yellow-100 transition-all"
-                  aria-label="Next ads"
-                >
-                  <ChevronRight size={20} />
-                </motion.button>
-              </div>
-            )}
-          </div>
-
-          {isLoadingSimilarAds ? (
-            <div className="flex gap-6 overflow-hidden">
-              {[1, 2, 3, 4].map(i => (
-                <div key={i} className="flex-shrink-0 w-80 bg-white rounded-xl border border-gray-200 p-4 animate-pulse">
-                  <div className="h-48 bg-gray-200 rounded-lg mb-4" />
-                  <div className="h-4 w-3/4 bg-gray-200 rounded mb-2" />
-                  <div className="h-4 w-1/2 bg-gray-200 rounded" />
+      {
+        similarAds.length > 0 && (
+          <motion.section
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.6 }}
+            className="max-w-7xl mx-auto px-4 md:px-8 py-12"
+          >
+            <div className="mb-8 flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="w-5 h-5 text-yellow-600" />
+                  <h2 className="text-3xl md:text-4xl font-bold text-[#2a1407]">Similar Ads</h2>
                 </div>
-              ))}
+                <p className="text-gray-600">Explore other ads you might be interested in</p>
+              </div>
+
+              {/* Carousel Navigation Buttons */}
+              {!isLoadingSimilarAds && similarAds.length > 0 && (
+                <div className="hidden md:flex items-center gap-2">
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => {
+                      if (carouselRef.current) {
+                        const cardWidth = 320
+                        carouselRef.current.scrollBy({ left: -cardWidth, behavior: 'smooth' })
+                      }
+                    }}
+                    disabled={carouselScrollPosition === 0}
+                    className={cn(
+                      'flex h-10 w-10 items-center justify-center rounded-full border transition-all',
+                      carouselScrollPosition === 0
+                        ? 'border-gray-200 text-gray-300 cursor-not-allowed'
+                        : 'border-yellow-200 bg-yellow-50 text-yellow-600 hover:bg-yellow-100',
+                    )}
+                    aria-label="Previous ads"
+                  >
+                    <ChevronLeft size={20} />
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => {
+                      if (carouselRef.current) {
+                        const cardWidth = 320
+                        carouselRef.current.scrollBy({ left: cardWidth, behavior: 'smooth' })
+                      }
+                    }}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-yellow-200 bg-yellow-50 text-yellow-600 hover:bg-yellow-100 transition-all"
+                    aria-label="Next ads"
+                  >
+                    <ChevronRight size={20} />
+                  </motion.button>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="relative">
-              <style jsx>{`
+
+            {isLoadingSimilarAds ? (
+              <div className="flex gap-6 overflow-hidden">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="flex-shrink-0 w-80 bg-white rounded-xl border border-gray-200 p-4 animate-pulse">
+                    <div className="h-48 bg-gray-200 rounded-lg mb-4" />
+                    <div className="h-4 w-3/4 bg-gray-200 rounded mb-2" />
+                    <div className="h-4 w-1/2 bg-gray-200 rounded" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="relative">
+                <style jsx>{`
                 .ads-carousel::-webkit-scrollbar {
                   display: none;
                 }
@@ -949,81 +948,80 @@ const AdsDetailsPage = () => {
                   scrollbar-width: none;
                 }
               `}</style>
-              <div
-                ref={carouselRef}
-                onScroll={e => {
-                  const target = e.target as HTMLDivElement
-                  setCarouselScrollPosition(target.scrollLeft)
-                }}
-                className="ads-carousel flex gap-6 overflow-x-auto scroll-smooth pb-4"
-                style={{
-                  scrollSnapType: 'x mandatory',
-                  WebkitOverflowScrolling: 'touch',
-                }}
-              >
-                {similarAds.map((ad: any, idx: number) => (
-                  <motion.div
-                    key={ad.id || idx}
-                    initial={{ opacity: 0, x: 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: idx * 0.1 }}
-                    whileHover={{ y: -4, boxShadow: '0 12px 24px rgba(0,0,0,0.1)' }}
-                    className="flex-shrink-0 w-80 bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-all cursor-pointer"
-                    style={{ scrollSnapAlign: 'start' }}
-                    onClick={() => router.push(`/adsDetails/${ad.id}`)}
-                  >
-                    <div className="relative h-48 w-full overflow-hidden">
-                      <Image
-                        src={ad.images?.[0]?.url || ad.image || '/villa.png'}
-                        alt={ad.title || 'Ad'}
-                        fill
-                        className="object-cover transition-transform duration-500 hover:scale-110"
-                      />
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-bold text-[#2a1407] mb-1 line-clamp-1">{ad.title || 'Ad'}</h3>
-                      <p className="text-sm text-gray-600 mb-3 line-clamp-1 flex items-center gap-1">
-                        <MapPin size={14} className="text-yellow-600 flex-shrink-0" />
-                        {ad.address_line || ad.city || 'Location not available'}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-xs text-gray-500 mb-1">Price</p>
-                          <p className="text-lg font-bold text-[#2a1407]">
-                            {ad.price ? `₹${formatPrice(Number(ad.price))}` : 'Price on request'}
-                          </p>
-                        </div>
-                        {ad.is_negotiable && (
-                          <div className="text-right">
-                            <p className="text-xs text-gray-500 mb-1">Negotiable</p>
-                            <p className="text-sm font-semibold text-gray-700">Yes</p>
-                          </div>
-                        )}
+                <div
+                  ref={carouselRef}
+                  onScroll={e => {
+                    const target = e.target as HTMLDivElement
+                    setCarouselScrollPosition(target.scrollLeft)
+                  }}
+                  className="ads-carousel flex gap-6 overflow-x-auto scroll-smooth pb-4"
+                  style={{
+                    scrollSnapType: 'x mandatory',
+                    WebkitOverflowScrolling: 'touch',
+                  }}
+                >
+                  {similarAds.map((ad: any, idx: number) => (
+                    <motion.div
+                      key={ad.id || idx}
+                      initial={{ opacity: 0, x: 20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: idx * 0.1 }}
+                      whileHover={{ y: -4, boxShadow: '0 12px 24px rgba(0,0,0,0.1)' }}
+                      className="flex-shrink-0 w-80 bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-all cursor-pointer"
+                      style={{ scrollSnapAlign: 'start' }}
+                      onClick={() => router.push(`/adsDetails/${ad.id}`)}
+                    >
+                      <div className="relative h-48 w-full overflow-hidden">
+                        <Image
+                          src={ad.images?.[0]?.url || ad.image || '/villa.png'}
+                          alt={ad.title || 'Ad'}
+                          fill
+                          className="object-cover transition-transform duration-500 hover:scale-110"
+                        />
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-
-              {/* Scroll Indicator Dots */}
-              {similarAds.length > 4 && (
-                <div className="flex justify-center gap-2 mt-6">
-                  {Array.from({ length: Math.ceil(similarAds.length / 4) }).map((_, idx) => (
-                    <div
-                      key={idx}
-                      className={cn(
-                        'h-2 rounded-full transition-all',
-                        Math.floor(carouselScrollPosition / 1280) === idx ? 'w-8 bg-yellow-600' : 'w-2 bg-gray-300',
-                      )}
-                    />
+                      <div className="p-4">
+                        <h3 className="font-bold text-[#2a1407] mb-1 line-clamp-1">{ad.title || 'Ad'}</h3>
+                        <p className="text-sm text-gray-600 mb-3 line-clamp-1 flex items-center gap-1">
+                          <MapPin size={14} className="text-yellow-600 flex-shrink-0" />
+                          {ad.address_line || ad.city || 'Location not available'}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-xs text-gray-500 mb-1">Price</p>
+                            <p className="text-lg font-bold text-[#2a1407]">{ad.price ? `₹${formatPrice(Number(ad.price))}` : 'Price on request'}</p>
+                          </div>
+                          {ad.is_negotiable && (
+                            <div className="text-right">
+                              <p className="text-xs text-gray-500 mb-1">Negotiable</p>
+                              <p className="text-sm font-semibold text-gray-700">Yes</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
                   ))}
                 </div>
-              )}
-            </div>
-          )}
-        </motion.section>
-      )}
+
+                {/* Scroll Indicator Dots */}
+                {similarAds.length > 4 && (
+                  <div className="flex justify-center gap-2 mt-6">
+                    {Array.from({ length: Math.ceil(similarAds.length / 4) }).map((_, idx) => (
+                      <div
+                        key={idx}
+                        className={cn(
+                          'h-2 rounded-full transition-all',
+                          Math.floor(carouselScrollPosition / 1280) === idx ? 'w-8 bg-yellow-600' : 'w-2 bg-gray-300',
+                        )}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </motion.section>
+        )
+      }
 
       <ReportAdModal open={reportModalOpen} onClose={() => setReportModalOpen(false)} adId={adDetails.id} />
       <EnquiryAdModal open={enquiryModalOpen} onClose={() => setEnquiryModalOpen(false)} adId={adDetails.id} />
@@ -1121,7 +1119,7 @@ const AdsDetailsPage = () => {
                 </motion.button>
 
                 <div className="relative h-full w-full max-w-5xl" onClick={e => e.stopPropagation()}>
-                  <AnimatePresence mode="wait">
+                  <AnimatePresence>
                     <motion.div
                       key={selectedImageIndex}
                       initial={{ opacity: 0, x: 20 }}
@@ -1221,9 +1219,9 @@ const AdsDetailsPage = () => {
                 onNavigate={dir => {
                   if (dir === 'next') {
                     // Simple loop
-                    setSelectedImageIndex((prev) => (prev !== null ? (prev + 1) % totalImageCount : 0))
+                    setSelectedImageIndex(prev => (prev !== null ? (prev + 1) % totalImageCount : 0))
                   } else {
-                    setSelectedImageIndex((prev) => (prev !== null ? (prev - 1 + totalImageCount) % totalImageCount : totalImageCount - 1))
+                    setSelectedImageIndex(prev => (prev !== null ? (prev - 1 + totalImageCount) % totalImageCount : totalImageCount - 1))
                   }
                 }}
                 onClose={() => setSelectedImageIndex(null)}
@@ -1233,7 +1231,8 @@ const AdsDetailsPage = () => {
         )}
       </AnimatePresence>
 
-    </motion.main>
+
+    </motion.main >
   )
 }
 

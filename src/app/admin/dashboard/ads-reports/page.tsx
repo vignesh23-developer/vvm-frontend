@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from 'react'
 
 import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
-import { useAdReports, AdReport } from '@/hooks/CustomHooks/useAdReports'
+import { useAdReports, AdReport } from '@/app/admin/dashboard/ads-reports/(hooks)/useAdReports'
 import toast from 'react-hot-toast'
 
 type AdReportTableRow = AdReport & Record<string, unknown>
@@ -17,6 +17,16 @@ export default function AdsReportsPage() {
 
   const columns = useMemo(
     () => [
+      {
+        field: 'title',
+        title: 'Title',
+        sortable: true,
+        filterable: true,
+        // DataRow passes (value, row) to render; use the row to read nested `ad.title` safely
+        render: (_value: any, row: any) => {
+          return <span>{row?.ad?.title ?? row?.title ?? 'N/A'}</span>
+        },
+      },
       {
         field: 'report_type',
         title: 'Report Type',

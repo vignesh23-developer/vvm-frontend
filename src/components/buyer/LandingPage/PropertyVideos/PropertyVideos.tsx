@@ -146,9 +146,13 @@ export default function PropertyVideos() {
             viewport={{ once: true }}
             className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 mb-6 tracking-tight"
           >
+<<<<<<< HEAD
             <span className="bg-[#2a1407] bg-clip-text text-transparent">
               {t('ExploreVideo.title') || 'Virtual Property Tours'}
             </span>
+=======
+            <span className="bg-[#3b1804] bg-clip-text text-transparent">{t('ExploreVideo.title') || 'Virtual Property Tours'}</span>
+>>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
           </motion.h2>
 
           <motion.p
@@ -163,13 +167,7 @@ export default function PropertyVideos() {
         </motion.div>
 
         {/* Videos Carousel with Enhanced Styling */}
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-          variants={containerVariants}
-          className="mt-20"
-        >
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={containerVariants} className="mt-20">
           <SwiperWrapper
             data={videos}
             slidesPerView={1}
@@ -183,12 +181,7 @@ export default function PropertyVideos() {
               1280: { slidesPerView: 3, spaceBetween: 32 },
             }}
             renderItem={item => (
-              <motion.div
-                key={item.id}
-                variants={itemVariants}
-                whileHover={{ y: -15, transition: { duration: 0.3 } }}
-                className="group h-full"
-              >
+              <motion.div key={item.id} variants={itemVariants} whileHover={{ y: -15, transition: { duration: 0.3 } }} className="group h-full">
                 {/* Premium Card Container */}
                 <div className="relative h-full rounded-3xl overflow-hidden bg-white shadow-lg hover:shadow-2xl transition-all duration-500 border border-yellow-100/60 hover:border-yellow-200">
                   {/* Animated Gradient Border */}
@@ -208,13 +201,13 @@ export default function PropertyVideos() {
 
                   {/* Video Container */}
                   <div className="relative aspect-video w-full overflow-hidden bg-gray-900">
-                    {/* Loading Shimmer */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 animate-pulse z-10"></div>
+                    {/* Loading Shimmer (behind the iframe) */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 animate-pulse z-0"></div>
 
                     <motion.div
                       whileHover={{ scale: 1.05 }}
                       transition={{ type: 'spring', stiffness: 200, damping: 25 }}
-                      className="w-full h-full relative"
+                      className="w-full h-full relative z-10"
                     >
                       <iframe
                         src={item.url}
@@ -246,7 +239,9 @@ export default function PropertyVideos() {
                     <div className="space-y-2 mb-4">
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <MapPin size={14} className="text-yellow-600" />
-                        <span>{item.location} • {item.type} • {item.bedrooms}</span>
+                        <span>
+                          {item.location} • {item.type} • {item.bedrooms}
+                        </span>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-gray-500">
                         <Clock size={14} className="text-yellow-600" />
@@ -272,7 +267,7 @@ export default function PropertyVideos() {
         </motion.div>
 
         {/* View All Videos Button */}
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -286,13 +281,14 @@ export default function PropertyVideos() {
           >
             View All Property Videos →
           </Button>
-        </motion.div>
+        </motion.div> */}
       </div>
 
       {/* Enhanced CSS Animations */}
       <style jsx>{`
         @keyframes blob {
-          0%, 100% {
+          0%,
+          100% {
             transform: translate(0, 0) scale(1);
           }
           33% {
@@ -316,7 +312,8 @@ export default function PropertyVideos() {
         }
 
         @keyframes pulse-glow {
-          0%, 100% {
+          0%,
+          100% {
             opacity: 0.3;
           }
           50% {
@@ -346,7 +343,7 @@ export default function PropertyVideos() {
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ type: 'spring', duration: 0.5 }}
               className="relative w-full max-w-5xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-gray-800"
-              onClick={(e) => e.stopPropagation()}
+              onClick={e => e.stopPropagation()}
             >
               {/* Close Button */}
               <button
@@ -358,7 +355,7 @@ export default function PropertyVideos() {
 
               {/* Video Player */}
               <iframe
-                src={`${selectedVideo.url}?autoplay=1`}
+                src={`${selectedVideo.url}${String(selectedVideo.url || '').includes('?') ? '&' : '?'}autoplay=1`}
                 title={selectedVideo.title}
                 className="w-full h-full"
                 frameBorder="0"

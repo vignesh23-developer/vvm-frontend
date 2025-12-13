@@ -15,13 +15,18 @@ export interface AdsCategoryDto {
   updatedAt: string
 }
 
+const page = 1
+const limit = 0
 // Custom hook for fetching ads categories
 export function useAdsCategories() {
   const fetcher = async (url: string) => {
     const response = await getMethod(url)
     return response
   }
-  const { data, error, isLoading, mutate } = useSWR<ResponseDTO>(appEndpoints.getAllAdsCategories, fetcher)
+  const { data, error, isLoading, mutate } = useSWR<ResponseDTO>(
+    appEndpoints.getAllAdsCategories + `?activeOnly=true&limit=${limit}&page=${page}`,
+    fetcher,
+  )
 
   return {
     categories: data?.data?.data ?? [],

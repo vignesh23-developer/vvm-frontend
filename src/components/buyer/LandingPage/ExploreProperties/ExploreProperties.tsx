@@ -122,7 +122,7 @@ export default function ExploreProperties() {
           </motion.p>
 
           {/* View Properties Button */}
-          <motion.div
+          {/* <motion.div
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -136,7 +136,7 @@ export default function ExploreProperties() {
             >
               View All Properties →
             </Button>
-          </motion.div>
+          </motion.div> */}
         </motion.div>
 
         {/* Grid */}

@@ -1,18 +1,21 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useProperties } from '@/app/(seller)/properties/(hooks)/useProperties'
 import { PropertiesDto } from '@/app/(seller)/properties/dto/PropertiesDto'
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { redirect, useRouter } from 'next/navigation'
 import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
 import Button from '@/components/ui/CustomComponent/Button/Button'
-import { ArrowRight, Edit3, Trash2, Eye, RefreshCcw } from 'lucide-react'
+import { ArrowRight, Edit3, Trash2, Eye, RefreshCcw, Heart, Phone } from 'lucide-react'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import PropertyStatusChangeModal from '../modal/propertiesStatusChangeModal'
 import { Roles, getUserRoles, hasRole, type UserRole } from '@/utils/roles/roles'
+import { formatPrice } from '@/utils/converter/formatPrice'
+import { getMethod } from '@/services/service'
+import { appEndpoints } from '@/services/endpoints'
 
 // Chart data
 
@@ -35,9 +38,44 @@ export default function PropertiesPage() {
   const [limit, setLimit] = useState(10)
   const [isOpenStatusModal, setIsOpenStatusModal] = useState(false)
   const [propertyId, setPropertyId] = useState<string | null>(null)
+  const [isKycVerified, setIsKycVerified] = useState<boolean>(false)
+  const [isKycLoading, setIsKycLoading] = useState<boolean>(true)
 
   if (!token) {
     redirect('/login')
+  }
+
+  useEffect(() => {
+    let isMounted = true
+
+    const fetchKycStatus = async () => {
+      try {
+        setIsKycLoading(true)
+        const response = await getMethod(appEndpoints.getUserKycStatus)
+        const verified = Boolean((response as any)?.data?.isVerified)
+        if (isMounted) setIsKycVerified(verified)
+      } catch {
+        if (isMounted) setIsKycVerified(false)
+      } finally {
+        if (isMounted) setIsKycLoading(false)
+      }
+    }
+
+    void fetchKycStatus()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  const handlePropertiesRegistrationClick = () => {
+    if (isKycLoading) return
+
+    if (isKycVerified) {
+      router.push('/properties-registration')
+    } else {
+      router.push('/kyc-pending')
+    }
   }
 
   console.log('PropertiesPage: user', user)
@@ -58,6 +96,12 @@ export default function PropertiesPage() {
   }
 
   const columns = [
+    // {
+    //   field: 'sno',
+    //   title: 'S.No',
+    //   sortable: true,
+    //   filterable: true,
+    // },
     {
       field: 'title',
       title: 'Title',
@@ -87,6 +131,9 @@ export default function PropertiesPage() {
       title: 'Price',
       sortable: true,
       filterable: true,
+      render: (value: any) => {
+        return formatPrice(value)
+      },
     },
     {
       field: 'status',
@@ -129,6 +176,54 @@ export default function PropertiesPage() {
       title: 'Contact Number',
       sortable: true,
       filterable: true,
+    },
+    {
+      field: 'view_count',
+      title: 'Views',
+      sortable: true,
+      filterable: true,
+      render: (value: unknown) => {
+        const n = Number(value ?? 0)
+        const label = n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n)
+        return (
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 text-sm font-medium text-gray-900">
+            <Eye className="w-4 h-4 text-gray-600" />
+            <span>{label}</span>
+          </div>
+        )
+      },
+    },
+    {
+      field: 'favorite_count',
+      title: 'Favorites',
+      sortable: true,
+      filterable: true,
+      render: (value: unknown) => {
+        const n = Number(value ?? 0)
+        const label = n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n)
+        return (
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 text-sm font-medium text-gray-900">
+            <Heart className="w-4 h-4 text-red-500" />
+            <span>{label}</span>
+          </div>
+        )
+      },
+    },
+    {
+      field: 'contact_count',
+      title: 'Enquiries',
+      sortable: true,
+      filterable: true,
+      render: (value: unknown) => {
+        const n = Number(value ?? 0)
+        const label = n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n)
+        return (
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 text-sm font-medium text-gray-900">
+            <Phone className="w-4 h-4 text-green-600" />
+            <span>{label}</span>
+          </div>
+        )
+      },
     },
   ]
 
@@ -216,8 +311,14 @@ export default function PropertiesPage() {
         </div>
         <Button
           type="button"
+<<<<<<< HEAD
           onClick={() => router.push('/properties-registration')}
           className="flex items-center gap-2 bg-[#2a1407] hover:from-[#2a1407] hover:to-[#2a1407] px-4 py-2 text-sm font-medium text-white rounded-md shadow-md transition"
+=======
+          onClick={handlePropertiesRegistrationClick}
+          disabled={isKycLoading}
+          className="flex items-center gap-2 bg-[#2a1407] hover:from-[#3b1804] hover:to-[#2a1407] px-4 py-2 text-sm font-medium text-white rounded-md shadow-md transition"
+>>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
         >
           Properties Registration
           <ArrowRight size={16} />

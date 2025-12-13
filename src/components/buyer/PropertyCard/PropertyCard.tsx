@@ -52,6 +52,7 @@ interface PropertiesCardProps {
   favorite_count: number
   media?: MediaItem[]
   images?: MediaItem[]
+  videos?: MediaItem[]
   agent?: string
   operatingSince?: string
   subtitle?: string
@@ -141,41 +142,52 @@ export default function PropertyCard(props: PropertiesCardProps) {
   // }
 
   const getMediaUrls = () => {
-    // Use images/videos from props or fallback to media array
-    const imageArray = (props as any).images || media || []
-    const videoArray = (props as any).videos || media || []
+    const fallbackImage = '/villa.png'
 
-    // ---------- IMAGE ----------
-    let imageUrl = '/villa.png' // default
-
-    if (imageArray.length > 0) {
-      const primaryImage = imageArray.find((img: any) => img.is_primary)
-      if (primaryImage?.url) {
-        imageUrl = primaryImage.url
-      } else if (imageArray[0]?.url) {
-        imageUrl = imageArray[0].url
-      }
+    const toUrl = (item: any): string | null => {
+      if (!item) return null
+      if (typeof item === 'string') return item
+      return item.url ?? item.thumbnail_url ?? item.thumbnailUrl ?? item.image_url ?? item.imageUrl ?? null
     }
 
-    // ---------- VIDEO ----------
-    let videoUrl: string | null = null
+    const isVideo = (url: string | null, item?: any) => {
+      if (!url) return false
+      const lower = url.toLowerCase()
+      const byExt = /\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/.test(lower)
+      const byMime = typeof item?.mime_type === 'string' ? item.mime_type.startsWith('video/') : false
+      const byType = typeof item?.type === 'string' ? item.type.toLowerCase() === 'video' : false
+      const byMediaType = typeof item?.media_type === 'string' ? item.media_type.toLowerCase() === 'video' : false
+      return byExt || byMime || byType || byMediaType
+    }
 
-    if (videoArray.length > 0) {
-      const primaryVideo = videoArray.find((vid: any) => vid.is_primary)
-      if (primaryVideo?.url) {
-        videoUrl = primaryVideo.url
-      } else if (videoArray[0]?.url) {
-        videoUrl = videoArray[0].url
-      }
+    // Prefer explicit props.images / props.videos. If not provided, fall back to `media`.
+    const mediaFallback = Array.isArray(media) ? media : []
+    const imagesInput = Array.isArray((props as any).images) ? (props as any).images : mediaFallback
+    const videosInput = Array.isArray((props as any).videos) ? (props as any).videos : mediaFallback
+
+    const normalize = (arr: any[]) =>
+      (Array.isArray(arr) ? arr : [])
+        .map(item => ({
+          item,
+          url: toUrl(item),
+          isPrimary: Boolean(item?.is_primary ?? item?.isPrimary),
+        }))
+        .filter(x => Boolean(x.url)) as Array<{ item: any; url: string; isPrimary: boolean }>
+
+    const normalizedImages = normalize(imagesInput).filter(x => !isVideo(x.url, x.item))
+    const normalizedVideos = normalize(videosInput).filter(x => isVideo(x.url, x.item))
+
+    const pickPrimaryOrFirst = (arr: Array<{ url: string; isPrimary: boolean }>) => {
+      return arr.find(x => x.isPrimary)?.url ?? arr[0]?.url ?? null
     }
 
     return {
-      image: imageUrl,
-      video: videoUrl,
+      image: pickPrimaryOrFirst(normalizedImages) ?? fallbackImage,
+      video: pickPrimaryOrFirst(normalizedVideos),
     }
   }
 
-  const imageUrl = getMediaUrls()
+  const mediaUrls = getMediaUrls()
 
   return (
     <motion.div
@@ -188,7 +200,7 @@ export default function PropertyCard(props: PropertiesCardProps) {
       {/* Left: Image + Agent */}
       <div className="flex-1">
         <div className="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row">
-          <ImageSection imageUrl={imageUrl} title={title} agent={agent} operatingSince={operatingSince} labels={labels} />
+          <ImageSection imageUrl={mediaUrls} title={title} agent={agent} operatingSince={operatingSince} labels={labels} />
           <InfoSection
             id={id}
             title={title}
@@ -249,25 +261,25 @@ const ImageSection = ({
     initial="rest"
     whileHover="hover"
   >
-    {typeof imageUrl === 'string' || !imageUrl.video ? (
+    {typeof imageUrl !== 'string' && imageUrl.video ? (
+      <video src={imageUrl.video} autoPlay muted loop playsInline className="h-full w-full object-cover sm:w-[260px]" />
+    ) : (
       <Image
         src={typeof imageUrl === 'string' ? imageUrl : imageUrl.image}
         alt={title}
         width={260}
         height={180}
-        className="h-40 w-full object-cover sm:w-[260px]"
+        className="h-full w-full object-cover sm:w-[260px]"
       />
-    ) : (
-      <video src={imageUrl.video} autoPlay muted loop className="h-40 w-full object-cover sm:w-[260px]" />
     )}
-    <div className="w-full px-3 py-2">
+    {/* <div className="w-full px-3 py-2">
       <p className="text-sm font-semibold text-gray-900">
         {labels.agent}: {agent}
       </p>
       <p className="text-xs text-gray-500">
         {labels.since}: {operatingSince}
       </p>
-    </div>
+    </div> */}
   </motion.div>
 )
 

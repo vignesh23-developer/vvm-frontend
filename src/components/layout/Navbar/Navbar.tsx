@@ -132,7 +132,7 @@ const DASHBOARD_SECTIONS: NavItem[] = [
     icon: <CreditCard size={16} />,
     subMenu: [
       { label: 'subscription master', href: '/admin/dashboard/subscription-master' },
-      { label: 'my subscription', href: '/admin/dashboard/my-subscription' },
+      // { label: 'my subscription', href: '/admin/dashboard/my-subscription' },
       { label: 'user subscription', href: '/admin/dashboard/user-subscription' },
     ],
   },
@@ -144,8 +144,8 @@ const DASHBOARD_SECTIONS: NavItem[] = [
     subMenu: [
       { label: 'view transactions', href: '/admin/dashboard/view-transactions' },
       { label: 'payment reports / revenue summary', href: '/admin/dashboard/payment-reports' },
-      { label: 'refund management', href: '/admin/dashboard/refund-management' },
-      { label: 'promo usage reports', href: '/admin/dashboard/promo-usage-reports' },
+      // { label: 'refund management', href: '/admin/dashboard/refund-management' },
+      // { label: 'promo usage reports', href: '/admin/dashboard/promo-usage-reports' },
     ],
   },
 ]
@@ -160,6 +160,7 @@ const PROFILE_SECTIONS = (userId: string, companyId: string): NavItem[] => [
       { label: 'company profile', href: companyId ? `/company-profile/${companyId}` : '/company-profile', icon: <Building2 size={16} /> },
       { label: 'view subscriptions', href: '/view-subscriptions', icon: <Crown size={16} /> },
       { label: 'view transactions', href: '/admin/dashboard/view-transactions', icon: <BadgeIndianRupee size={16} /> },
+      { label: 'feedback', href: '/feedback', icon: <Info size={16} /> },
       { label: 'logout', href: '/logout', icon: <LogOut size={16} /> },
     ],
   },
@@ -426,9 +427,7 @@ export default function Navbar({
                 }}
                 className="relative group flex-shrink-0"
               >
-                <div className="relative text-sm md:text-base font-medium whitespace-nowrap px-1">
-                  {t(`Navbar.${links.label}`)}
-                </div>
+                <div className="relative text-sm md:text-base font-medium whitespace-nowrap px-1">{t(`Navbar.${links.label}`)}</div>
               </div>
             ))}
           </div>
@@ -505,18 +504,35 @@ export default function Navbar({
 
                         {openSections.has(section.label) && (
                           <div className="flex flex-col pl-8 mt-1">
-                            {section.subMenu?.map((links: any) => (
-                              <Link
-                                key={String(links.href)}
-                                href={String(links.href)}
-                                className="flex items-center gap-2 px-4 py-1 hover:bg-yellow-50 rounded-md text-sm transition"
-                              >
-                                <span className="text-yellow-600">
-                                  <ChevronRight size={16} />
-                                </span>
-                                {t(`Navbar.subMenus.${links.label}`)}
-                              </Link>
-                            ))}
+                            {section.subMenu?.map((links: any) => {
+                              const onlyAccessVerifiedUser = links?.href === '/properties-registration'
+                              if (onlyAccessVerifiedUser && !user?.isVerified) {
+                                return (
+                                  <Link
+                                    key={String(links.href)}
+                                    href={'/kyc-pending'}
+                                    className="flex items-center gap-2 px-4 py-1 hover:bg-yellow-50 rounded-md text-sm transition"
+                                  >
+                                    <span className="text-yellow-600">
+                                      <ChevronRight size={16} />
+                                    </span>
+                                    {t(`Navbar.subMenus.${links.label}`)}
+                                  </Link>
+                                )
+                              }
+                              return (
+                                <Link
+                                  key={String(links.href)}
+                                  href={String(links.href)}
+                                  className="flex items-center gap-2 px-4 py-1 hover:bg-yellow-50 rounded-md text-sm transition"
+                                >
+                                  <span className="text-yellow-600">
+                                    <ChevronRight size={16} />
+                                  </span>
+                                  {t(`Navbar.subMenus.${links.label}`)}
+                                </Link>
+                              )
+                            })}
                           </div>
                         )}
                       </div>
@@ -567,6 +583,9 @@ export default function Navbar({
                     <Link href="/view-transactions" className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition">
                       <BadgeIndianRupee size={16} /> {t('Navbar.view transactions')}
                     </Link>
+                    <Link href="/feedback" className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition">
+                      <Info size={16} /> {t('Navbar.feedback')}
+                    </Link>
                     <Button
                       onClick={handleLogout}
                       className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-yellow-50 text-sm transition"
@@ -585,12 +604,6 @@ export default function Navbar({
                   className="flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#2a1407] border border-yellow-300 px-5 py-2.5 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-600 transition shadow-md hover:shadow-lg text-sm md:text-base"
                 >
                   {t('Auth.login')}
-                </Link>
-                <Link
-                  href="/signup"
-                  className="flex items-center gap-2 bg-white/90 backdrop-blur-sm text-[#2a1407] border border-white/50 px-5 py-2.5 rounded-lg font-semibold hover:bg-white transition shadow-md hover:shadow-lg text-sm md:text-base"
-                >
-                  {t('Auth.signup') || 'Register'}
                 </Link>
               </div>
             )
@@ -651,17 +664,34 @@ export default function Navbar({
 
                   {openSections.has(section.label) && (
                     <div className="flex flex-col pl-4 space-y-1">
-                      {section.subMenu?.map((sub: any) => (
-                        <Link
-                          key={sub.href}
-                          href={sub.href}
-                          onClick={() => setIsMenuOpen(false)}
-                          className="flex items-center gap-2 px-4 py-1 text-sm text-gray-200 hover:text-white transition no-underline"
-                        >
-                          <span className="text-gray-500">{sub.icon ? sub.icon : <ChevronRight size={16} />}</span>
-                          {t(`Navbar.subMenus.${sub.label}`)}
-                        </Link>
-                      ))}
+                      {section.subMenu?.map((sub: any) => {
+                        const onlyAccessVerifiedUser = sub?.href === '/properties-registration'
+                        if (onlyAccessVerifiedUser && !user?.isVerified) {
+                          return (
+                            <Link
+                              key={String(sub.href)}
+                              href={'/kyc-pending'}
+                              className="flex items-center gap-2 px-4 py-1 hover:bg-yellow-50 rounded-md text-sm transition"
+                            >
+                              <span className="text-yellow-600">
+                                <ChevronRight size={16} />
+                              </span>
+                              {t(`Navbar.subMenus.${sub.label}`)}
+                            </Link>
+                          )
+                        }
+                        return (
+                          <Link
+                            key={sub.href}
+                            href={sub.href}
+                            onClick={() => setIsMenuOpen(false)}
+                            className="flex items-center gap-2 px-4 py-1 text-sm text-gray-200 hover:text-white transition no-underline"
+                          >
+                            <span className="text-gray-500">{sub.icon ? sub.icon : <ChevronRight size={16} />}</span>
+                            {t(`Navbar.subMenus.${sub.label}`)}
+                          </Link>
+                        )
+                      })}
                     </div>
                   )}
                 </div>
@@ -725,6 +755,7 @@ export default function Navbar({
               </div>
             ))
             : showLoginButton && (
+<<<<<<< HEAD
               <div className="flex flex-col gap-2 mt-4">
                 <Link
                   href="/login"
@@ -740,25 +771,20 @@ export default function Navbar({
                 </Link>
               </div>
             )}
+=======
+                <div className="flex flex-col gap-2 mt-4">
+                  <Link
+                    href="/login"
+                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#2a1407] px-5 py-2.5 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-600 transition shadow-md text-sm"
+                  >
+                    {t('Auth.login')}
+                  </Link>
+                </div>
+              )}
+>>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
 
           {/* Keep your language selector & profile/login below unchanged */}
-          {showLanguageSelector && (
-            <div className="flex items-center gap-2 mt-4 text-white">
-              <Globe size={18} />
-              <select
-                value={locale}
-                onChange={e => handleLanguageChange(e.target.value as 'en' | 'ta')}
-                className="bg-transparent border border-white/40 text-white rounded-md px-2 py-1 text-sm focus:outline-none focus:border-white"
-              >
-                <option className="text-black" value="en">
-                  EN
-                </option>
-                <option className="text-black" value="ta">
-                  TA
-                </option>
-              </select>
-            </div>
-          )}
+          {showLanguageSelector && <LanguageSwitch />}
         </div>
       </div>
     </nav>

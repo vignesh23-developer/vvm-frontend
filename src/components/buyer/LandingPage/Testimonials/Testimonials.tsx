@@ -35,7 +35,7 @@ const TestimonialsSkeleton = () => {
               <div className="h-4 w-4/6 bg-gray-200 rounded" />
             </div>
             <div className="flex gap-1 mt-4">
-              {[1, 2, 3, 4, 5].map((i) => (
+              {[1, 2, 3, 4, 5].map(i => (
                 <div key={i} className="w-4 h-4 bg-gray-200 rounded" />
               ))}
             </div>
@@ -62,49 +62,79 @@ export default function Testimonials() {
       id: 1,
       name: 'Priya S.',
       designation: 'First-time Home Buyer',
-      quote: 'One of the standout qualities of this platform is their commitment to understanding client needs. This dedication to service and attention to detail sets them apart in the real estate industry. Found my dream home in Coimbatore!',
+      quote:
+        'One of the standout qualities of this platform is their commitment to understanding client needs. This dedication to service and attention to detail sets them apart in the real estate industry. Found my dream home in Coimbatore!',
       rating: 5,
+<<<<<<< HEAD
       src: '/images/t1.png',
+=======
+      // src: '/testimonials/priya.jpg',
+>>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
     },
     {
       id: 2,
       name: 'Senthil Kumar',
       designation: 'Land Investor',
-      quote: 'This dedication to research and knowledge-building sets them apart from the competition. I found exactly what I was looking for with their help. Great investment opportunities in Tamil Nadu!',
+      quote:
+        'This dedication to research and knowledge-building sets them apart from the competition. I found exactly what I was looking for with their help. Great investment opportunities in Tamil Nadu!',
       rating: 5,
+<<<<<<< HEAD
       src: '/images/t2.png',
+=======
+      // src: '/testimonials/senthil.jpg',
+>>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
     },
     {
       id: 3,
       name: 'Divya R.',
       designation: 'Rental Customer',
-      quote: 'Their professionalism and eye for detail impressed us throughout the entire process. The team made finding a rental property in Chennai a breeze! Verified listings gave us peace of mind.',
+      quote:
+        'Their professionalism and eye for detail impressed us throughout the entire process. The team made finding a rental property in Chennai a breeze! Verified listings gave us peace of mind.',
       rating: 5,
+<<<<<<< HEAD
       src: '/images/t3.png',
+=======
+      // src: '/testimonials/divya.jpg',
+>>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
     },
     {
       id: 4,
       name: 'Rajesh M.',
       designation: 'Property Developer',
-      quote: 'Exceptional service and deep market knowledge. They helped us find the perfect investment properties with great returns. The platform connects us with genuine buyers.',
+      quote:
+        'Exceptional service and deep market knowledge. They helped us find the perfect investment properties with great returns. The platform connects us with genuine buyers.',
       rating: 5,
+<<<<<<< HEAD
       src: '/images/t4.png',
+=======
+      // src: '/testimonials/rajesh.jpg',
+>>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
     },
     {
       id: 5,
       name: 'Lakshmi K.',
       designation: 'Home Seller',
-      quote: 'The platform made selling my property in Madurai so easy. Professional, efficient, and always available to answer questions. Highly recommended for all property transactions!',
+      quote:
+        'The platform made selling my property in Madurai so easy. Professional, efficient, and always available to answer questions. Highly recommended for all property transactions!',
       rating: 5,
+<<<<<<< HEAD
       src: '/images/t5.png',
+=======
+      // src: '/testimonials/lakshmi.jpg',
+>>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
     },
     {
       id: 6,
       name: 'Arun V.',
       designation: 'Commercial Space Buyer',
-      quote: 'Found the perfect commercial space in Trichy through this platform. The verification process and agent support made the entire transaction smooth and transparent.',
+      quote:
+        'Found the perfect commercial space in Trichy through this platform. The verification process and agent support made the entire transaction smooth and transparent.',
       rating: 5,
+<<<<<<< HEAD
       src: '/images/t6.png',
+=======
+      // src: '/testimonials/arun.jpg',
+>>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
     },
   ]
 
@@ -178,9 +208,7 @@ export default function Testimonials() {
             whileInView="visible"
             viewport={{ once: true }}
           >
-            <span className="bg-[#3b1804] bg-clip-text text-transparent">
-              {t('Testimonials.title')}
-            </span>
+            <span className="bg-[#3b1804] bg-clip-text text-transparent">{t('Testimonials.title')}</span>
           </motion.h2>
 
           <motion.p

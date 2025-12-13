@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import useSWR from 'swr'
 import { useParams, useRouter } from 'next/navigation'
+import { Roles, getUserRoles, hasRole, type UserRole } from '@/utils/roles/roles'
 import Link from 'next/link'
 import {
   Heart,
@@ -54,8 +55,11 @@ import EnquiryPropertyModal from './modal/EnquiryPropertyModal'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 import { formatPrice } from '@/utils/converter/formatPrice'
 import ApproveOrRejectPropertyModal from '@/components/ui/CustomComponent/Modal/ApproveOrReject/ApproveOrRejectModal'
+import { ResponseDTO } from '@/components/dto/response_dto'
+import EnquiryForm from '@/components/enquiry/forms/EnquiryFormCard'
 import { cn } from '@/lib/utils'
 import toast from 'react-hot-toast'
+import EnquiryFormCard from '@/components/enquiry/forms/EnquiryFormCard'
 
 // Animation variants
 const fadeInUp: Variants = {
@@ -143,6 +147,12 @@ const page = () => {
   const t = useTranslations()
   const router = useRouter()
   const { user } = useAuth()
+  console.log('User in Property Details page:', user)
+  const userRoles = getUserRoles(user)
+  // Simplified flag: true if user is ADMIN or AGENT
+  const isAdmin = hasRole(userRoles, [Roles.ADMIN])
+  const isAgent = hasRole(userRoles, [Roles.AGENT])
+  console.log('User Roles:', userRoles, 'isAdmin:', isAdmin, 'isAgent:', isAgent)
   const params = useParams<{ id: string | string[] }>()
   const propertyIdParam = params?.id
   const propertyId = Array.isArray(propertyIdParam) ? propertyIdParam[0] : propertyIdParam
@@ -376,9 +386,13 @@ const page = () => {
       let values: string[] = []
 
       if (Array.isArray(fv.feature_options) && fv.feature_options.length > 0) {
+<<<<<<< HEAD
         values = fv.feature_options
           .map((opt: any) => opt?.name)
           .filter((n: any) => typeof n === 'string' && n.trim().length > 0)
+=======
+        values = fv.feature_options.map((opt: any) => opt?.name).filter((n: any) => typeof n === 'string' && n.trim().length > 0)
+>>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
 
         // If multiple values, join with comma for display
         if (values.length > 0) {
@@ -568,19 +582,6 @@ const page = () => {
     return raw
   }, [primaryVideoMedia])
 
-  // FAQ Data (removed from UI as per latest design, kept here for future use if needed)
-
-  const handleDownloadBrochure = useCallback(() => {
-    const brochureUrl = (propertyDetailsData as any)?.brochure_url as string | undefined
-    if (!brochureUrl) {
-      toast.error('Brochure is not available for this property yet.')
-      return
-    }
-    if (typeof window !== 'undefined') {
-      window.open(brochureUrl, '_blank', 'noopener,noreferrer')
-    }
-  }, [propertyDetailsData])
-
   // Tabs configuration
   const tabs: { id: TabType; label: string; icon?: LucideIcon }[] = [
     { id: 'overview', label: 'Overview' },
@@ -590,6 +591,41 @@ const page = () => {
     { id: 'location', label: 'Location' },
     { id: 'reviews', label: 'Reviews' },
   ]
+
+  const handleEnquirySubmit = async (values: any) => {
+    const payload = {
+      entity_type: values.entity_type,
+      entity_id: values.entity_id,
+      name: values.name,
+      email: values.email,
+      phone: values.phone,
+      message: values.message,
+    }
+
+    console.log('Report Payload:', payload)
+
+    try {
+      let response = (await postMethod(appEndpoints.createPropertyEnquiry, payload)) as ResponseDTO
+
+      if (Number(response.status) === 201) {
+        toast.success('Enquiry submitted successfully!')
+        propertyDetailsRefresh()
+      } else {
+        toast.error(response.message || 'Failed to submit enquiry')
+      }
+    } catch (error) {
+      toast.error('Failed to submit enquiry')
+    }
+  }
+
+  const enquiryPrefillValues = useMemo(
+    () => ({
+      name: (user?.firstName || '') + ' ' + (user?.lastName || ''),
+      email: user?.email || '',
+      phone: user?.phoneNumber || '',
+    }),
+    [user],
+  )
 
   if (propertyDetailsFetchErr) {
     return (
@@ -657,6 +693,7 @@ const page = () => {
                   onClick={() => galleryImages[0] && setSelectedImageIndex(0)}
                   style={{ cursor: galleryImages[0] ? 'pointer' : 'default' }}
                 >
+<<<<<<< HEAD
                   {galleryImages[0] ? (
                     <>
                       <Image
@@ -674,6 +711,16 @@ const page = () => {
                         </div>
                       )}
                     </>
+=======
+                  {galleryImages[0] && galleryImages[0].trim() !== '' ? (
+                    <Image
+                      src={galleryImages[0]}
+                      alt="Property main image"
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      priority
+                    />
+>>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                       <Camera size={48} className="text-gray-400" />
@@ -690,6 +737,7 @@ const page = () => {
                   onClick={() => galleryImages[1] && setSelectedImageIndex(1)}
                   style={{ cursor: galleryImages[1] ? 'pointer' : 'default' }}
                 >
+<<<<<<< HEAD
                   {galleryImages[1] ? (
                     <>
                       <Image
@@ -706,6 +754,15 @@ const page = () => {
                         </div>
                       )}
                     </>
+=======
+                  {galleryImages[1] && galleryImages[1].trim() !== '' ? (
+                    <Image
+                      src={galleryImages[1]}
+                      alt="Property image 2"
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+>>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                       <Camera size={48} className="text-gray-400" />
@@ -725,6 +782,7 @@ const page = () => {
                   onClick={() => galleryImages[0] && setSelectedImageIndex(0)}
                   style={{ cursor: galleryImages[0] ? 'pointer' : 'default' }}
                 >
+<<<<<<< HEAD
                   {galleryImages[0] ? (
                     <>
                       <Image
@@ -742,6 +800,16 @@ const page = () => {
                         </div>
                       )}
                     </>
+=======
+                  {galleryImages[0] && galleryImages[0].trim() !== '' ? (
+                    <Image
+                      src={galleryImages[0]}
+                      alt="Property main image"
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      priority
+                    />
+>>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                       <Camera size={48} className="text-gray-400" />
@@ -763,6 +831,7 @@ const page = () => {
                       style={{ cursor: galleryImages[1] ? 'pointer' : 'default' }}
                     >
                       {galleryImages[1] ? (
+<<<<<<< HEAD
                         <>
                           <Image
                             src={galleryImages[1].url}
@@ -778,6 +847,14 @@ const page = () => {
                             </div>
                           )}
                         </>
+=======
+                        <Image
+                          src={galleryImages[1]}
+                          alt="Property image 2"
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+>>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                           <Camera size={24} className="text-gray-400" />
@@ -799,6 +876,7 @@ const page = () => {
                         onClick={() => galleryImages[2] && setSelectedImageIndex(2)}
                         style={{ cursor: galleryImages[2] ? 'pointer' : 'default' }}
                       >
+<<<<<<< HEAD
                         {galleryImages[2] ? (
                           <>
                             <Image
@@ -815,6 +893,15 @@ const page = () => {
                               </div>
                             )}
                           </>
+=======
+                        {galleryImages[2] && galleryImages[2].trim() !== '' ? (
+                          <Image
+                            src={galleryImages[2]}
+                            alt="Property image 3"
+                            fill
+                            className="object-cover transition-transform duration-500 group-hover:scale-110"
+                          />
+>>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                             <Camera size={24} className="text-gray-400" />
@@ -839,6 +926,7 @@ const page = () => {
                       >
                         {galleryImages[3] ? (
                           <>
+<<<<<<< HEAD
                             <Image
                               src={galleryImages[3].url}
                               alt="Property media 4"
@@ -850,6 +938,18 @@ const page = () => {
                                 <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm border border-white/50 flex items-center justify-center">
                                   <Play className="text-white fill-white ml-1" size={16} />
                                 </div>
+=======
+                            {galleryImages[3] && galleryImages[3].trim() !== '' ? (
+                              <Image
+                                src={galleryImages[3]}
+                                alt="Property image 4"
+                                fill
+                                className="object-cover transition-transform duration-500 group-hover:scale-110"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                                <Camera size={24} className="text-gray-400" />
+>>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
                               </div>
                             )}
                             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
@@ -913,7 +1013,7 @@ const page = () => {
                   {/* Badge - Listing type only */}
                   <div className="flex flex-wrap items-center gap-3">
                     <span className="px-3 py-1.5 rounded-full bg-yellow-50 border border-yellow-200 text-[#2a1407] text-xs font-semibold uppercase">
-                      {propertyDetailsData?.listing_type || 'SALE'}
+                      {propertyDetailsData?.property_category_name || 'Category'}
                     </span>
                   </div>
 
@@ -949,14 +1049,6 @@ const page = () => {
                           <Flag size={16} />
                           <span>Report</span>
                         </Button>
-                        <Button
-                          type="button"
-                          onClick={handleDownloadBrochure}
-                          className="flex-1 bg-white border border-yellow-200 rounded-full py-2.5 px-4 text-sm text-gray-700 hover:bg-yellow-50 flex items-center justify-center gap-1 transition-all"
-                        >
-                          <Download size={16} />
-                          <span>Brochure</span>
-                        </Button>
                       </div>
                     </div>
                   </div>
@@ -980,9 +1072,9 @@ const page = () => {
                   {/* Construction Status */}
                   <div className="flex items-center gap-2 text-sm justify-end">
                     <div className="h-2 w-2 rounded-full bg-yellow-600"></div>
-                    <span className="text-gray-700 font-medium">Under Construction</span>
+                    <span className="text-gray-700 font-medium">{propertyDetailsData?.approval_status}</span>
                   </div>
-                  <p className="text-sm text-gray-600">Possession in October 2026</p>
+                  {/* <p className="text-sm text-gray-600">Possession in October 2026</p> */}
                 </div>
               </div>
             </div>
@@ -1023,9 +1115,7 @@ const page = () => {
                             </span>
                           ))}
                         </div>
-                        {card.values!.length > 3 && (
-                          <p className="text-xs text-gray-500 mt-1">+{card.values!.length - 3} more</p>
-                        )}
+                        {card.values!.length > 3 && <p className="text-xs text-gray-500 mt-1">+{card.values!.length - 3} more</p>}
                       </div>
                     ) : (
                       <p className="text-sm font-bold text-gray-900">{card.value || 'N/A'}</p>
@@ -1181,8 +1271,8 @@ const page = () => {
 
           {/* Right Sidebar */}
           <motion.aside variants={fadeInUp} className="space-y-6">
-            {/* Approve / Reject Section - Moved Above Property Insights */}
-            {propertyDetailsData?.approval_status === 'UNDER_REVIEW' && (
+            {/* Approve / Reject Section - visible to Admins only */}
+            {propertyDetailsData?.approval_status === 'UNDER_REVIEW' && isAdmin && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -1227,6 +1317,8 @@ const page = () => {
               <div className="grid md:grid-cols-3 lg:grid-cols-1 gap-4">
                 {propertyInsights.map((insight, idx) => {
                   const Icon = insight.icon
+                  const isPrivileged = (insight.label === 'Number of Reports' || insight.label === 'Total Enquiries') && (isAdmin || isAgent)
+
                   return (
                     <motion.div
                       key={idx}
@@ -1234,7 +1326,16 @@ const page = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.08 }}
                       whileHover={{ y: -3, boxShadow: '0 18px 40px rgba(0,0,0,0.07)' }}
-                      className="relative flex flex-col justify-between rounded-2xl bg-gradient-to-br from-yellow-50/50 to-white px-5 py-4 border border-yellow-100"
+                      className={`relative flex flex-col justify-between rounded-2xl bg-gradient-to-br from-yellow-50/50 to-white px-5 py-4 border border-yellow-100 ${
+                        isPrivileged ? 'cursor-pointer hover:shadow-md' : ''
+                      }`}
+                      role={isPrivileged ? 'button' : undefined}
+                      tabIndex={isPrivileged ? 0 : undefined}
+                      onClick={() => {
+                        if (!isPrivileged) return
+                        if (insight.label === 'Number of Reports') router.push(`/admin/dashboard/property-reports?propertyId=${propertyId}`)
+                        if (insight.label === 'Total Enquiries') router.push(`/admin/dashboard/property-enquiry?propertyId=${propertyId}`)
+                      }}
                     >
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
@@ -1260,6 +1361,7 @@ const page = () => {
               </div>
             </motion.div>
 
+<<<<<<< HEAD
             {/* Contact Form Card */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -1325,6 +1427,10 @@ const page = () => {
                 </Button>
               </div>
             </motion.div>
+=======
+            {/* Enquiry Form Card */}
+            <EnquiryFormCard Id={propertyId || ''} entityType="property" handleSubmit={handleEnquirySubmit} defaultValues={enquiryPrefillValues} />
+>>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
 
             {/* Contact Owner */}
             {/* <motion.div
@@ -1924,7 +2030,13 @@ const page = () => {
       {/* Image Gallery Modal Carousel - Only show if there's an actual image */}
       <AnimatePresence>
         {selectedImageIndex !== null &&
+<<<<<<< HEAD
           apiImages[selectedImageIndex] && (
+=======
+          galleryImages[selectedImageIndex] &&
+          typeof galleryImages[selectedImageIndex] === 'string' &&
+          galleryImages[selectedImageIndex].trim() !== '' && (
+>>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
             <>
               <motion.div
                 initial={{ opacity: 0 }}
@@ -1934,6 +2046,7 @@ const page = () => {
                 onClick={() => setSelectedImageIndex(null)}
               >
                 <style jsx global>{`
+<<<<<<< HEAD
                 body {
                   overflow: hidden;
                 }
@@ -1955,6 +2068,29 @@ const page = () => {
                   <X size={24} />
                 </motion.button>
 
+=======
+                  body {
+                    overflow: hidden;
+                  }
+                `}</style>
+
+                {/* Close Button */}
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="absolute top-6 right-6 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all"
+                  onClick={e => {
+                    e.stopPropagation()
+                    setSelectedImageIndex(null)
+                  }}
+                  aria-label="Close gallery"
+                >
+                  <X size={24} />
+                </motion.button>
+
+>>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
                 {/* Navigation Buttons - Only show if there are actual images */}
                 {apiImages.length > 1 && (
                   <>
@@ -2024,6 +2160,7 @@ const page = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.3 }}
+<<<<<<< HEAD
                   className="relative flex w-full max-w-6xl justify-center h-full items-center"
                   onClick={e => e.stopPropagation()}
                 >
@@ -2048,11 +2185,31 @@ const page = () => {
                         priority
                       />
                     )
+=======
+                  className="relative flex w-full max-w-6xl justify-center"
+                  onClick={e => e.stopPropagation()}
+                >
+                  {galleryImages[selectedImageIndex] &&
+                  typeof galleryImages[selectedImageIndex] === 'string' &&
+                  galleryImages[selectedImageIndex].trim() !== '' ? (
+                    <Image
+                      src={galleryImages[selectedImageIndex]}
+                      alt={`Property image ${selectedImageIndex + 1}`}
+                      width={1600}
+                      height={900}
+                      className="max-h-[90vh] w-auto object-contain rounded-lg select-none"
+                      priority
+                    />
+>>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
                   ) : (
                     <div className="max-h-[90vh] w-full max-w-6xl flex items-center justify-center bg-gray-800 rounded-lg">
                       <div className="text-center text-white">
                         <Camera size={64} className="mx-auto mb-4 opacity-50" />
+<<<<<<< HEAD
                         <p className="text-lg opacity-75">Media not available</p>
+=======
+                        <p className="text-lg opacity-75">Image not available</p>
+>>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
                       </div>
                     </div>
                   )}
@@ -2064,7 +2221,11 @@ const page = () => {
                   animate={{ opacity: 1, y: 0 }}
                   className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-white text-sm font-medium"
                 >
+<<<<<<< HEAD
                   {selectedImageIndex + 1} / {apiImages.length}
+=======
+                  {selectedImageIndex + 1} / {apiImages.length || galleryImages.length}
+>>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
                 </motion.div>
 
                 {/* Thumbnail Strip */}
@@ -2076,8 +2237,13 @@ const page = () => {
                     className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 flex gap-2 max-w-4xl overflow-x-auto px-4"
                     onClick={e => e.stopPropagation()}
                   >
+<<<<<<< HEAD
                     {apiImages.map((img: any, idx: number) => {
                       const hasValidImage = img.url && img.url.trim() !== ''
+=======
+                    {galleryImages.map((img, idx) => {
+                      const hasValidImage = img && img.trim() !== ''
+>>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
                       return (
                         <motion.button
                           key={idx}
@@ -2092,6 +2258,7 @@ const page = () => {
                           )}
                         >
                           {hasValidImage ? (
+<<<<<<< HEAD
                             img.type === 'video' ? (
                               <div className="w-full h-full flex items-center justify-center bg-black">
                                 <Play size={20} className="text-white" />
@@ -2099,6 +2266,9 @@ const page = () => {
                             ) : (
                               <Image src={img.url} alt={`Thumbnail ${idx + 1}`} fill className="object-cover" />
                             )
+=======
+                            <Image src={img} alt={`Thumbnail ${idx + 1}`} fill className="object-cover" />
+>>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
                           ) : (
                             <div className="w-full h-full flex items-center justify-center bg-gray-800">
                               <Camera size={20} className="text-gray-500" />
@@ -2118,9 +2288,37 @@ const page = () => {
                   totalImages={apiImages.length}
                   onNavigate={dir => {
                     if (dir === 'next') {
+<<<<<<< HEAD
                       setSelectedImageIndex((prev) => (prev !== null ? (prev + 1) % apiImages.length : 0))
                     } else {
                       setSelectedImageIndex((prev) => (prev !== null ? (prev - 1 + apiImages.length) % apiImages.length : apiImages.length - 1))
+=======
+                      // Find next actual image
+                      let newIndex = selectedImageIndex + 1
+                      while (newIndex < galleryImages.length && !galleryImages[newIndex]) {
+                        newIndex++
+                      }
+                      if (newIndex >= galleryImages.length) {
+                        newIndex = 0
+                        while (newIndex < galleryImages.length && !galleryImages[newIndex]) {
+                          newIndex++
+                        }
+                      }
+                      if (newIndex < galleryImages.length) setSelectedImageIndex(newIndex)
+                    } else {
+                      // Find previous actual image
+                      let newIndex = selectedImageIndex - 1
+                      while (newIndex >= 0 && !galleryImages[newIndex]) {
+                        newIndex--
+                      }
+                      if (newIndex < 0) {
+                        newIndex = galleryImages.length - 1
+                        while (newIndex >= 0 && !galleryImages[newIndex]) {
+                          newIndex--
+                        }
+                      }
+                      if (newIndex >= 0) setSelectedImageIndex(newIndex)
+>>>>>>> c6cbc4e3d9f2fcc41d5f42588f6110f22844d23d
                     }
                   }}
                   onClose={() => setSelectedImageIndex(null)}

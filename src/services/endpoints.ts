@@ -179,4 +179,11 @@ export const appEndpoints = {
   getAllTransactions: '/payment-transactions/transactions',
   // User Wallets
   getUserWalletBalance: (userId: string) => `/user-wallets/users/${userId}/balance`,
+
+  // Reviews Endpoints
+  createReview: '/reviews',
+  getAllReviews: '/reviews',
+  getReviewByID: (reviewId: string) => `/reviews/${reviewId}`,
+  updateReview: (reviewId: string) => `/reviews/${reviewId}`,
+  deleteReview: (reviewId: string) => `/reviews/${reviewId}`,
 }

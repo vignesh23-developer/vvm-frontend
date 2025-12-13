@@ -9,6 +9,7 @@ import AppPromo from '@/components/buyer/LandingPage/AppPromo/AppPromo'
 import PropertyVideos from '@/components/buyer/LandingPage/PropertyVideos/PropertyVideos'
 import ExploreProperties from '@/components/buyer/LandingPage/ExploreProperties/ExploreProperties'
 import AdsSlider from '@/components/buyer/LandingPage/AdsSlider/AdsSlider'
+import { WebsiteReview } from '@/components/Reviews'
 import WhyChooseUs from '@/components/buyer/LandingPage/WhyChooseUs/WhyChooseUs'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 
@@ -24,7 +25,7 @@ const sectionVariants: Variants = {
 export default function SitePage() {
   const searchParams = useSearchParams()
   const district = searchParams?.get('district')
-  
+
   return (
     <main className="flex flex-col gap-0">
       <motion.div variants={sectionVariants} initial="hidden" animate="visible">
@@ -95,7 +96,7 @@ export default function SitePage() {
           >
             <Button
               type="button"
-              onClick={() => window.location.href = '/properties-list'}
+              onClick={() => (window.location.href = '/properties-list')}
               className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#2a1407] px-8 py-4 rounded-lg font-bold text-lg hover:from-yellow-500 hover:to-yellow-600 transition shadow-xl hover:shadow-2xl"
             >
               Start Searching →

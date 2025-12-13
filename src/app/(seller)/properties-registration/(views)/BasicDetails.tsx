@@ -13,11 +13,22 @@ import LucideIconRenderer from '@/components/ui/CustomComponent/LucideIconRender
 interface Step1BasicDetailsProps {
   formik: FormikProps<PropertyCreationFormValues>
   data: Array<PropertyCategory>
+  loading?: boolean
+  error?: any
+  refresh?: () => void
   setFeatureData: Dispatch<SetStateAction<Array<FeatureMappingDTO> | null>>
   onGetPropertyCategoryFeatureMapping: (id: string) => Promise<PropertyCategoryFeatureMappingResponse>
 }
 
-export default function Step1BasicDetails({ formik, data, onGetPropertyCategoryFeatureMapping, setFeatureData }: Step1BasicDetailsProps) {
+export default function Step1BasicDetails({
+  formik,
+  data,
+  loading,
+  error,
+  refresh,
+  onGetPropertyCategoryFeatureMapping,
+  setFeatureData,
+}: Step1BasicDetailsProps) {
   const { values, errors, touched, handleChange, setFieldValue } = formik
 
   async function onSelectPropertyHandler(id: string) {
@@ -56,6 +67,15 @@ export default function Step1BasicDetails({ formik, data, onGetPropertyCategoryF
             Property Type <span className="text-red-500">*</span>
           </label>
           <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {loading && <p>Loading property types...</p>}
+            {error && (
+              <div>
+                <p className="text-red-600 text-xs mt-1">Error loading property types.</p>
+                <button onClick={refresh} className="text-blue-600 underline text-xs mt-1">
+                  Retry
+                </button>
+              </div>
+            )}
             {data?.map((val, idx) => (
               <button
                 key={idx}

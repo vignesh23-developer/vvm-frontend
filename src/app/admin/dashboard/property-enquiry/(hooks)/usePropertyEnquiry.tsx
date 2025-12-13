@@ -37,6 +37,8 @@ export function usePropertyEnquiry({ page = 1, limit = 10 } = {}) {
   // SWR
   const { data = { items: [], total: 0 }, error, isLoading, mutate: mutateEnquiries } = useSWR<EnquiryResponse>(url, fetchEnquiries)
 
+  console.log('Fetched Property Enquiries:', data.items)
+
   return {
     enquiries: data.items,
     total: data.total,

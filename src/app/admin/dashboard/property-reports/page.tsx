@@ -4,7 +4,7 @@ import { Plus, Settings, Edit3, Trash2 } from 'lucide-react'
 import { useState, useMemo, useCallback } from 'react'
 import Table from '@/components/ui/CustomComponent/Table/Table'
 import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
-import { usePropertyReports, PropertyReports } from '@/hooks/CustomHooks/usePropertyReport'
+import { usePropertyReports, PropertyReports } from '@/app/admin/dashboard/property-reports/(hooks)/usePropertyReport'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 import toast from 'react-hot-toast'
 
@@ -21,10 +21,20 @@ export default function PropertyReportsPage() {
     mutateReports, // now included
   } = usePropertyReports({ page, limit })
 
-  console
+  console.log('Property Reports Page - reports:', reports)
   // Columns definition
   const columns = useMemo(
     () => [
+      {
+        field: 'title',
+        title: 'Title',
+        sortable: true,
+        filterable: true,
+        // DataRow passes (value, row) to render; use the row to read nested `property.title` safely
+        render: (_value: any, row: any) => {
+          return <span>{row?.property?.title ?? row?.title ?? 'N/A'}</span>
+        },
+      },
       {
         field: 'report_type',
         title: 'Report Type',

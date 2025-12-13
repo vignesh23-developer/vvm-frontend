@@ -8,6 +8,8 @@ import { patchMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import Image from 'next/image'
 import { Camera } from 'lucide-react'
+import UploadProfileImageModal from '@/components/ui/LogoOrProfileImageUpload/modal/UploadProfileImage'
+import LogoOrProfileImageUpload from '@/components/ui/LogoOrProfileImageUpload/LogoOrProfileImageUpload'
 
 interface ProfileFormProps {
   initialValues: {
@@ -26,6 +28,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialValues, validationSche
     const file = e.target.files?.[0]
     if (file) setProfileImage(URL.createObjectURL(file))
   }
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handleSubmit = async (values: any) => {
     console.log('Form submitted with values:', values)
@@ -45,6 +48,44 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialValues, validationSche
     } catch (error) {
       console.error('Error submitting form:', error)
     }
+  }
+
+  const handleProfileImageSubmit = async (values: any, { resetForm }: any) => {
+    console.log('Profile image upload submitted with values:', values)
+    setIsModalOpen(false)
+    // try {
+    //   if (!values.file) {
+    //     toast.error('Please select a file before submitting.')
+    //     return
+    //   }
+    //   const formData = new FormData()
+    //   formData.append('file', values.file)
+    //   const companyIdToUse = companyId || companyProfileId
+    //   if (!companyIdToUse) {
+    //     toast.error('Company ID is missing. Cannot upload logo.')
+    //     return
+    //   }
+    //   const response: ResponseDTO = await postMethod(appEndpoints.uploadCompanyProfileImage(companyIdToUse as string), formData)
+    //   // console.log('Upload response:', response.data.profile.id)
+    //   if (Number(response.status) === 201) {
+    //     const id = response?.data?.profile.id
+    //     if (!isEdit) {
+    //       resetForm()
+    //       setIsModalOpen(false)
+    //       toast.success('Company logo submitted successfully!')
+    //       router.push(`/company-profile/${id}`)
+    //     } else {
+    //       resetForm()
+    //       setIsModalOpen(false)
+    //       if (setUploadedImage) setUploadedImage(true)
+    //       toast.success('Company logo submitted successfully!')
+    //     }
+    //   } else {
+    //     toast.error(response?.message || 'Upload failed.')
+    //   }
+    // } catch (error) {
+    //   toast.error('Failed to submit company logo. Please try again.')
+    // }
   }
 
   return (
@@ -82,6 +123,16 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialValues, validationSche
       </div>
 
       {/* Form */}
+      {isEdit && (
+        <LogoOrProfileImageUpload
+          logoUrl="" // Replace with actual profile image URL if available
+          onClick={() => setIsModalOpen(true)}
+          label="Profile Image"
+          title="Upload Profile Image"
+          changeText="Change"
+        />
+      )}
+
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit} enableReinitialize>
         {({ isSubmitting }) => (
           <Form className="space-y-6">
@@ -102,6 +153,12 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialValues, validationSche
           </Form>
         )}
       </Formik>
+      <UploadProfileImageModal
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        buttonText="Upload Image"
+        onImageUploadSubmit={handleProfileImageSubmit}
+      />
     </div>
   )
 }

@@ -21,7 +21,7 @@ export function useAdDetails({ id }: UseAdDetailsParams) {
 
   const swrKey = adId ? appEndpoints.getAdByID(adId) : null
 
-  const { data, error, isLoading, mutate } = useSWR<ResponseDTO<AdsDto>>(swrKey, fetcher)
+  const { data, error, isLoading, mutate } = useSWR<ResponseDTO>(swrKey, fetcher)
 
   const handleAdApprovalAction = async (
     adId: string,
@@ -35,12 +35,12 @@ export function useAdDetails({ id }: UseAdDetailsParams) {
       action === 'approve'
         ? {
             reviewer_id: reviewerId,
-            ...(extraData?.comment ? { comments: extraData.comment } : {})
+            ...(extraData?.comment ? { comments: extraData.comment } : {}),
           }
         : {
             reviewer_id: reviewerId,
             rejection_reason: extraData?.rejectReason,
-            ...(extraData?.comment ? { comments: extraData.comment } : {})
+            ...(extraData?.comment ? { comments: extraData.comment } : {}),
           }
 
     try {

@@ -12,6 +12,8 @@ const fetcher = async (endpoints: string) => {
   const result = await getMethod(endpoints)
   return result
 }
+const LIMIT = 0
+const PAGE = 1
 
 export type PropertyCategoryFeatureMappingResponse = Omit<ResponseDTO, 'data'> & {
   data: GetAllPropertyCategoryFeatureMappingDTO
@@ -23,7 +25,7 @@ export default function useLandRegistration() {
     error: propertyCategoryFetchErr,
     isLoading: propertyCategoryFetchLoader,
     mutate: propertyCategoryRefresh,
-  } = useSWR<ResponseDTO>(`${appEndpoints.getAllPropertyCategories}?activeOnly=true`, fetcher)
+  } = useSWR<ResponseDTO>(`${appEndpoints.getAllPropertyCategories}?activeOnly=true&limit=${LIMIT}&page=${PAGE}`, fetcher)
 
   const propertyCategoryResult: Array<PropertyCategory> = propertyCategoryFetchVal?.data?.data
 

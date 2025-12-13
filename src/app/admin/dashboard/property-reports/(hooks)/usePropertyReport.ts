@@ -7,6 +7,11 @@ import { ResponseDTO } from '@/components/dto/response_dto'
 
 export interface PropertyReports {
   id: number
+  property: {
+    id: number
+    title: string
+  }
+  title: string
   report_type: string
   description?: string
   status: string

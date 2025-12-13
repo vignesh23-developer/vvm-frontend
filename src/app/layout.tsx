@@ -25,16 +25,14 @@ const geistMono = Geist_Mono({
 
 // Metadata (update this later per page if needed)
 export const metadata: Metadata = {
-  title: {
-    default: 'Vaazhga Valamudan – Real Estate Platform',
-    template: '%s | Vaazhga Valamudan',
-  },
-  description: 'Property management and listing app built with Next.js',
+  title: 'Buy Sell Rent Properties in Tamil Nadu - TN’s Leading Real Estate Listing Platform | Vaazhga Valamudan',
+  description:
+    'Vaazhga Valamudan offers verified real estate listings across Tamil Nadu. Buy, sell, or rent property in Chennai, Madurai, Coimbatore, Trichy & Tirunelveli & Etc',
   keywords: ['real estate', 'next.js', 'property portal'],
   authors: [{ name: 'Vaazhga Valamudan', url: 'https://vaazhgavalamudan.com' }],
-  openGraph: {
-    title: 'Vaazhga Valamudan – Real Estate Platform',
-  },
+  // openGraph: {
+  //   title: 'Vaazhga Valamudan – Real Estate Platform',
+  // },
 }
 
 //Root Layout
@@ -48,7 +46,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="ta" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body suppressHydrationWarning className="font-sans antialiased bg-gradient-to-b from-yellow-50 via-white to-yellow-50 text-gray-900 min-h-screen">
+      <body
+        suppressHydrationWarning
+        className="font-sans antialiased bg-gradient-to-b from-yellow-50 via-white to-yellow-50 text-gray-900 min-h-screen"
+      >
         <AuthProvider initialUser={initialUser} initialToken={initialToken}>
           <GlobalProvider>
             {/* client-only loader (renders GSAP animation, hides itself when complete) */}

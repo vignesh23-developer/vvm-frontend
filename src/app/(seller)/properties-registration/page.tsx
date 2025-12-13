@@ -729,6 +729,9 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
               {currentStep === 1 && (
                 <Step1BasicDetails
                   data={propertyCategoryData}
+                  loading={propertyCategoryFetchLoader}
+                  error={propertyCategoryFetchErr}
+                  refresh={propertyCategoryRefresh}
                   formik={formik}
                   onGetPropertyCategoryFeatureMapping={onGetPropertyCategoryFeatureMapping}
                   setFeatureData={setFeatureData}
