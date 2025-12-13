@@ -29,6 +29,7 @@ import {
   BadgeIndianRupee,
   ChevronRight,
   MoreHorizontal,
+  Bell,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTranslationContext } from '@/hooks/Translation/TranslationProvider'
@@ -41,6 +42,8 @@ import Button from '@/components/ui/CustomComponent/Button/Button'
 import { appEndpoints } from '@/services/endpoints'
 import { getMethod } from '@/services/service'
 import { Roles, getUserRoles, hasRole, type UserRole } from '@/utils/roles/roles'
+import NotificationPopup from '@/components/Notification/NotificationPopup'
+import NotificationBadge from '@/components/Notification/NotificationBadge'
 
 export interface NavLink {
   label: string
@@ -184,6 +187,7 @@ export default function Navbar({
   const [isOpen, setIsOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false)
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
   const [visibleNavItems, setVisibleNavItems] = useState<typeof navLinks>(navLinks)
   const [overflowNavItems, setOverflowNavItems] = useState<typeof navLinks>([])
   const [companyProfileId, setCompanyProfileId] = useState<any | null>(null)
@@ -471,6 +475,20 @@ export default function Navbar({
 
           {user ? (
             <>
+              {/* Notification Bell */}
+              <div className="relative">
+                <button
+                  onClick={() => setIsNotificationOpen((prev) => !prev)}
+                  className="relative p-2 hover:bg-gray-400 rounded-md transition focus:outline-none focus:ring-2 focus:ring-primary-300"
+                  title="Notifications"
+                  aria-label="Notifications"
+                >
+                  <Bell size={24} color="white" />
+                  {user && <NotificationBadge />}
+                </button>
+                <NotificationPopup isOpen={isNotificationOpen} onClose={() => setIsNotificationOpen(false)} />
+              </div>
+
               <div className="relative grip-menu" ref={gripRef}>
                 {/* Grip Icon */}
                 <button

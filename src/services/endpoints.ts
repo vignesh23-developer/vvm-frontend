@@ -200,4 +200,26 @@ export const appEndpoints = {
   getReviewByID: (reviewId: string) => `/reviews/${reviewId}`,
   updateReview: (reviewId: string) => `/reviews/${reviewId}`,
   deleteReview: (reviewId: string) => `/reviews/${reviewId}`,
+
+  // Notification Endpoints
+  getNotifications: '/notifications',
+  getUnreadCount: '/notifications/unread-count',
+  markNotificationAsRead: (id: string) => `/notifications/${id}/read`,
+  markMultipleAsRead: '/notifications/mark-read',
+  markAllAsRead: '/notifications/mark-all-read',
+  deleteNotification: (id: string) => `/notifications/${id}`,
+  deleteAllNotifications: '/notifications',
+  // Admin Notification Endpoints
+  getNotificationTemplates: '/admin/notifications/templates',
+  getNotificationTemplate: (id: string) => `/admin/notifications/templates/${id}`,
+  getNotificationTemplateByCode: (code: string) => `/admin/notifications/templates/code/${code}`,
+  createNotificationTemplate: '/admin/notifications/templates',
+  updateNotificationTemplate: (id: string) => `/admin/notifications/templates/${id}`,
+  deleteNotificationTemplate: (id: string) => `/admin/notifications/templates/${id}`,
+  sendNotification: '/admin/notifications/send',
+  sendBulkNotification: '/admin/notifications/send-bulk',
+  getUserQuota: (userId: string) => `/admin/notifications/quota/user/${userId}`,
+  getUsersNearQuotaLimit: '/admin/notifications/quota/near-limit',
+  processScheduledNotifications: '/admin/notifications/process-scheduled',
+  previewNotificationTemplate: '/admin/notifications/templates/preview',
 }
