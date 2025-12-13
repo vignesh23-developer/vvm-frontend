@@ -796,8 +796,10 @@ const AdsDetailsPage = () => {
                       tabIndex={isPrivileged ? 0 : undefined}
                       onClick={() => {
                         if (!isPrivileged) return
-                        if (insight.label === 'Number of Reports') router.push(`/admin/dashboard/ads-reports`)
-                        if (insight.label === 'Total Enquiries') router.push(`/admin/dashboard/ads-enquiry`)
+                        if (insight.label === 'Number of Reports')
+                          isAdmin ? router.push(`/admin/dashboard/ads-reports`) : router.push(`/admin/dashboard/ads-reports?adsId=${adId}`)
+                        if (insight.label === 'Total Enquiries')
+                          isAdmin ? router.push(`/admin/dashboard/ads-enquiry`) : router.push(`/admin/dashboard/ads-enquiry?adsId=${adId}`)
                       }}
                     >
                       <div className="flex items-center justify-between mb-3">

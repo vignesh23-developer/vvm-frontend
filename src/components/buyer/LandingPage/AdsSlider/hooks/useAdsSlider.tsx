@@ -6,9 +6,7 @@ import { getMethod } from '@/services/service'
 import { ResponseDTO } from '@/components/dto/response_dto'
 
 interface UseAdsSliderOptions {
-  page?: number
-  limit?: number
-  status?: string
+  ads_limit?: number
 }
 
 const fetchAdsSlider = async (url: string) => {
@@ -17,30 +15,22 @@ const fetchAdsSlider = async (url: string) => {
 }
 
 export function useAdsSlider(options: UseAdsSliderOptions = {}) {
-  const { page, limit, status = 'AVAILABLE' } = options
+  const { ads_limit } = options
 
   const queryParams = new URLSearchParams()
-  if (status != null) {
-    queryParams.set('status', status)
+  if (ads_limit != null) {
+    queryParams.set('ads_limit', String(ads_limit))
   }
 
-  if (limit != null) {
-    queryParams.set('limit', String(limit))
-  }
-
-  if (page != null) {
-    queryParams.set('page', String(page))
-  }
-
-  const swrKey = queryParams.toString() ? `${appEndpoints.getAllAds}?${queryParams.toString()}` : appEndpoints.getAllAds
+  const swrKey = queryParams.toString() && `${appEndpoints.getHomePageData}?${queryParams.toString()}`
 
   const { data, error, isLoading } = useSWR<ResponseDTO>(swrKey, fetchAdsSlider)
 
-  console.log('useAdsSlider data:', data)
+  // console.log('useAdsSlider data:', data)
 
   return {
-    items: data?.data?.data ?? [],
-    total: data?.data?.total ?? 0,
+    items: data?.data?.featuredAds?.data ?? [],
+    total: data?.data?.featuredAds?.total ?? 0,
     isLoading,
     error,
   }

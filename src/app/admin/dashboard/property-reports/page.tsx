@@ -7,19 +7,22 @@ import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
 import { usePropertyReports, PropertyReports } from '@/app/admin/dashboard/property-reports/(hooks)/usePropertyReport'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 import toast from 'react-hot-toast'
+import { useSearchParams } from 'next/navigation'
 
 type PropertyReportsTableRow = PropertyReports & Record<string, unknown>
 
 export default function PropertyReportsPage() {
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
+  const searchParams = useSearchParams()
+  const propertyId = searchParams.get('propertyId')
   const {
     reports,
     total,
     error,
     isLoading,
     mutateReports, // now included
-  } = usePropertyReports({ page, limit })
+  } = usePropertyReports({ page, limit, propertyId: propertyId ?? undefined })
 
   console.log('Property Reports Page - reports:', reports)
   // Columns definition

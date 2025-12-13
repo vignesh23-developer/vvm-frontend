@@ -51,7 +51,7 @@ function ProfileCreation() {
       >
         <Link href="/">
           <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 200 }} className="max-w-xs cursor-pointer">
-            <Image src="/footer_logo.png" alt="Vaazhga Valamudan Logo" width={400} height={300} className="mt-6" />
+            <Image src="/footer_logo_new.PNG" alt="Vaazhga Valamudan Logo" width={400} height={300} className="mt-6" />
           </motion.div>
         </Link>
       </motion.div>

@@ -40,9 +40,7 @@ const AdsSliderSkeleton = () => {
 export default function AdsSlider() {
   const [isLoading, setIsLoading] = useState(true)
   const [imagesLoaded, setImagesLoaded] = useState(0)
-  const { items: Ads, isLoading: adsLoading } = useAdsSlider({ status: 'AVAILABLE' })
-
-  console.log('Ads in AdsSlider:', Ads)
+  const { items: Ads, isLoading: adsLoading } = useAdsSlider({ ads_limit: 6 })
 
   useEffect(() => {
     // Simulate loading delay

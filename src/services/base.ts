@@ -1,8 +1,18 @@
 import axios from 'axios'
-import useAuth from '../hooks/AuthContext/AuthContextProvider'
-import { getLocalStorageItem, removeLocalStorageItem } from '../utils/local_storage/local_storage_handler'
-import { LOCAL_STORAGE_NAME } from '../utils/local_storage/local_storage_constant'
 import { onDeleteCookies, onGetCookies } from '@/utils/cookies/cookiesHelper'
+
+let isRedirectingToLogin = false
+
+const redirectToLogin = () => {
+  if (typeof window === 'undefined') return
+  if (isRedirectingToLogin) return
+
+  const currentPath = `${window.location.pathname}${window.location.search}`
+  if (window.location.pathname === '/login') return
+
+  isRedirectingToLogin = true
+  window.location.replace(`/login?next=${encodeURIComponent(currentPath)}`)
+}
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -42,17 +52,8 @@ axiosInstance.interceptors.response.use(
 
       onDeleteCookies('authToken')
       onDeleteCookies('userData')
-      // removeLocalStorageItem(LOCAL_STORAGE_NAME.authToken)
-      // removeLocalStorageItem(LOCAL_STORAGE_NAME.userData)
 
-      // if (window.location.pathname !== '/signin') {
-
-      //     window.location.replace('/signin');
-      // }
-
-      //   const navigate = useNavigate();
-
-      //   navigate('/login');
+      redirectToLogin()
     }
     return Promise.reject(error)
   },

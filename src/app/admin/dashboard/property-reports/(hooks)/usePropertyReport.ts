@@ -27,7 +27,7 @@ const fetchReports = async (url: string) => {
     console.error('Error fetching property reports:', response.message)
     return { items: [], total: 0 }
   }
-  console.log('Fetched property reports:', response.data.data)
+  // console.log('Fetched property reports:', response.data.data)
 
   return {
     items: response?.data?.data ?? [],
@@ -36,10 +36,16 @@ const fetchReports = async (url: string) => {
 }
 
 // hook
-export function usePropertyReports({ page = 1, limit = 10 } = {}) {
-  const endpoint = `${appEndpoints.getAllPropertyReports}?activeOnly=true&page=${page}&limit=${limit}`
-
+export function usePropertyReports({ page = 1, limit = 10, propertyId }: { page?: number; limit?: number; propertyId?: string } = {}) {
+  let endpoint = ''
+  if (propertyId) {
+    endpoint = `${appEndpoints.getAllReportByPropertyID(propertyId)}`
+  } else {
+    endpoint = `${appEndpoints.getAllPropertyReports}?activeOnly=true&page=${page}&limit=${limit}`
+  }
   const { data = { items: [], total: 0 }, error, isLoading, mutate } = useSWR(endpoint, fetchReports)
+
+  // console.log('usePropertyReports - data:', data, error, isLoading)
 
   return {
     reports: data.items,

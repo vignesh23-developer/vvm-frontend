@@ -14,9 +14,18 @@ interface EnquiryResponse {
 }
 
 // Hook
-export function usePropertyEnquiry({ page = 1, limit = 10 } = {}) {
+export function usePropertyEnquiry({ page = 1, limit = 10, propertyId }: { page?: number; limit?: number; propertyId?: string } = {}) {
   // Create API URL dynamically
-  const url = `${appEndpoints.getPropertyEnquiry}?entity_type=property&page=${page}&limit=${limit}`
+  const params = new URLSearchParams()
+  if (!propertyId) params.set('entity_type', 'property')
+  params.set('page', String(page))
+  params.set('limit', String(limit))
+  const query = params.toString()
+
+  let url = `${appEndpoints.getPropertyEnquiry}?${query}`
+  if (propertyId) {
+    url = `${appEndpoints.getAllEnquiryByPropertyIdOrAdsId('property', encodeURIComponent(propertyId))}?${query}`
+  }
 
   // Fetcher
   const fetchEnquiries = async (endpoint: string): Promise<EnquiryResponse> => {

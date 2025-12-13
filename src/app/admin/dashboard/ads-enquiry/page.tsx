@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useMemo, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
@@ -12,7 +13,9 @@ type AdEnquiryTableRow = AdEnquiry & Record<string, unknown>
 export default function AdsEnquiryPage() {
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
-  const { enquiries, total, error, isLoading, mutateEnquiries } = useAdEnquiry({ page, limit })
+  const params = useSearchParams()
+  const adsId = params.get('adsId')
+  const { enquiries, total, error, isLoading, mutateEnquiries } = useAdEnquiry({ page, limit, adsId: adsId ?? undefined })
 
   const columns = useMemo(
     () => [
