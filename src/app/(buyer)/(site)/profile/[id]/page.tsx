@@ -13,6 +13,7 @@ import UploadProfileImageModal from '@/components/ui/LogoOrProfileImageUpload/mo
 import LogoOrProfileImageUpload from '@/components/ui/LogoOrProfileImageUpload/LogoOrProfileImageUpload'
 import toast from 'react-hot-toast'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
+import WalletCard from '@/components/buyer/Wallet/WalletCard'
 
 const ProfilePage = () => {
   const { id } = useParams()
@@ -116,6 +117,10 @@ const ProfilePage = () => {
       </div>
 
       <KYCStatus />
+
+      <div>
+        <WalletCard />
+      </div>
     </div>
   )
 }

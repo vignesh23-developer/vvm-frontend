@@ -174,6 +174,8 @@ export const appEndpoints = {
   createUpgradeOrder: (userId: string, subscriptionId: number) => `/users/${userId}/subscription/${subscriptionId}/upgrade/order`,
   createDowngradeOrder: (userId: string, subscriptionId: number) => `/users/${userId}/subscription/${subscriptionId}/downgrade/order`,
   cancelSubscription: (userId: string, subscriptionId: number) => `/users/${userId}/subscription/${subscriptionId}/cancel`,
+  getAllSubscription: "/users/subscriptions/all",
+  getSubscriptionPlanAnalytics: '/users/subscriptions/analytics',
 
   // Addons
   getUserAddons: (userId: string) => `/users/${userId}/add-ons`,
@@ -187,6 +189,8 @@ export const appEndpoints = {
   // Payment Transactions
   getUserTransactions: '/payment-transactions/users/transactions',
   getAllTransactions: '/payment-transactions/transactions',
+  getTransactionAnalytics: '/payment-transactions/analytics',
+  getTransactionInvoice: (transactionId: string) => `/payment-transactions/transactions/${transactionId}/invoice`,
   // User Wallets
   getUserWalletBalance: (userId: string) => `/user-wallets/users/${userId}/balance`,
 

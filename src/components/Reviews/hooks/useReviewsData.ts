@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
 import { getMethod } from '@/services/service'
-import { ResponseDTO } from '@/components/dto/response_dto'
 import { appEndpoints } from '@/services/endpoints'
 import { Review, ReviewFilters, ReviewsResponse } from '../types'
 
