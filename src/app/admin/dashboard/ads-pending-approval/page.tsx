@@ -14,6 +14,7 @@ import { AdsDto } from '@/app/(seller)/ads/dto/AdsDto'
 import { appEndpoints } from '@/services/endpoints'
 import { postMethod, getMethod } from '@/services/service'
 import { getUserRoles, hasRole, Roles } from '@/utils/roles/roles'
+import PropertyOrAdsApproveRejectCard from '@/components/buyer/PropertyOrAdsApproveRejectCard/PropertyOrAdsCard'
 
 const PAGE_SIZE = 10
 const AdsPendingApprovalPage = () => {
@@ -178,7 +179,7 @@ const AdsPendingApprovalPage = () => {
       ) : (
         <div className="grid gap-6">
           {ads.map(ad => (
-            <PropertyCard
+            <PropertyOrAdsApproveRejectCard
               key={ad.id}
               {...(ad as any)}
               title={ad.title}

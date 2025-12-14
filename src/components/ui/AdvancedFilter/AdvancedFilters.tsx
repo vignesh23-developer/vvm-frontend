@@ -49,6 +49,7 @@ interface AdvancedFiltersProps {
 }
 
 type PriceRange = { label: string; min: number; max: number | null }
+type FilterOption = { value: string; label: string }
 
 // Frontend defaults – only overridden where the backend provides values.
 const defaultListingTypes: string[] = ['SALE', 'RENT']
@@ -110,44 +111,91 @@ export default function AdvancedFilters({
     location: true,
   })
 
-  // Load filter metadata (price ranges, listing types, statuses) from backend
-  const { data: filtersMeta, error: filtersError } = useSWR(appEndpoints.publicSearchPropertyFilters, async (url: string) => {
-    console.log('🔍 Filter Options API Call:', url)
-    try {
-      const response = await getMethod<any>(url)
+  // Load filter metadata from backend (property page)
+  const { data: filtersMeta, error: filtersError } = useSWR(
+    pageType !== 'ads-list' ? appEndpoints.publicSearchPropertyFilters : null,
+    async (url: string) => {
+      console.log('🔍 Filter Options API Call:', url)
+      try {
+        const response = await getMethod<any>(url)
 
-      // The backend now provides a consistent filters payload, but this parser
-      // still supports older nested formats.
-      // Supported shapes (inside ResponseDTO.data):
-      // 1) { filters: {...} }
-      // 2) { data: { filters: {...} } }
-      // 3) { data: { data: { filters: {...} } } }  (legacy)
-      const dtoPayload = response.data
+        // The backend now provides a consistent filters payload, but this parser
+        // still supports older nested formats.
+        // Supported shapes (inside ResponseDTO.data):
+        // 1) { filters: {...} }
+        // 2) { data: { filters: {...} } }
+        // 3) { data: { data: { filters: {...} } } }  (legacy)
+        const dtoPayload = response.data
 
-      let container = dtoPayload as any
-      if (container && typeof container === 'object' && 'data' in container && !Array.isArray(container.data)) {
-        container = container.data
+        let container = dtoPayload as any
+        if (container && typeof container === 'object' && 'data' in container && !Array.isArray(container.data)) {
+          container = container.data
+        }
+        if (container && typeof container === 'object' && 'data' in container && !Array.isArray(container.data)) {
+          container = container.data
+        }
+
+        const filters = (container && container.filters) || {}
+        const message = (container && (container as any).message) || (dtoPayload && (dtoPayload as any).message) || undefined
+
+        console.log('✅ Filter Options API Response (normalized):', {
+          raw: dtoPayload,
+          container,
+          filterKeys: Object.keys(filters),
+          message,
+        })
+
+        return { data: { filters, message } }
+      } catch (error) {
+        console.error('❌ Filter Options API Error:', error)
+        return { data: { filters: {} } }
       }
-      if (container && typeof container === 'object' && 'data' in container && !Array.isArray(container.data)) {
-        container = container.data
+    },
+  )
+
+  // Load filter metadata from backend (ads page)
+  const { data: filtersAdsMeta, error: filtersAdsError } = useSWR(
+    pageType === 'ads-list' ? appEndpoints.publicSearchAdsFilters : null,
+    async (url: string) => {
+      console.log('🔍 Filter AAds Options API Call:', url)
+      try {
+        const response = await getMethod<any>(url)
+
+        // The backend now provides a consistent filters payload, but this parser
+        // still supports older nested formats.
+        // Supported shapes (inside ResponseDTO.data):
+        // 1) { filters: {...} }
+        // 2) { data: { filters: {...} } }
+        // 3) { data: { data: { filters: {...} } } }  (legacy)
+        const dtoPayload = response.data
+
+        let container = dtoPayload as any
+        if (container && typeof container === 'object' && 'data' in container && !Array.isArray(container.data)) {
+          container = container.data
+        }
+        if (container && typeof container === 'object' && 'data' in container && !Array.isArray(container.data)) {
+          container = container.data
+        }
+
+        const filters = (container && container.filters) || {}
+        const message = (container && (container as any).message) || (dtoPayload && (dtoPayload as any).message) || undefined
+
+        console.log('✅ Filter Options API Response (normalized):', {
+          raw: dtoPayload,
+          container,
+          filterKeys: Object.keys(filters),
+          message,
+        })
+
+        return { data: { filters, message } }
+      } catch (error) {
+        console.error('❌ Filter Options API Error:', error)
+        return { data: { filters: {} } }
       }
+    },
+  )
 
-      const filters = (container && container.filters) || {}
-      const message = (container && (container as any).message) || (dtoPayload && (dtoPayload as any).message) || undefined
-
-      console.log('✅ Filter Options API Response (normalized):', {
-        raw: dtoPayload,
-        container,
-        filterKeys: Object.keys(filters),
-        message,
-      })
-
-      return { data: { filters, message } }
-    } catch (error) {
-      console.error('❌ Filter Options API Error:', error)
-      return { data: { filters: {} } }
-    }
-  })
+  console.log('🔧 AdvancedFilters Component - Filter Meta Data:', { filtersMeta, filtersError, filtersAdsMeta, filtersAdsError })
 
   // Extract filter options from backend response
   // After normalization above we always expect: { data: { filters: {...}, message?: string } }
@@ -156,10 +204,17 @@ export default function AdvancedFilters({
   const backendFilters = filtersMetaData?.data?.filters || filtersMetaData?.data?.data?.filters || {}
   const backendMessage = filtersMetaData?.data?.message as string | undefined
 
+  const adsFiltersMetaData = filtersAdsMeta as any
+  const backendAdsFilters = adsFiltersMetaData?.data?.filters || adsFiltersMetaData?.data?.data?.filters || {}
+  const backendAdsMessage = adsFiltersMetaData?.data?.message as string | undefined
+
+  const activeBackendFilters = pageType === 'ads-list' ? backendAdsFilters : backendFilters
+  const activeBackendMessage = pageType === 'ads-list' ? backendAdsMessage : backendMessage
+
   // Log filter availability for debugging (more neutral messaging)
-  if (Object.keys(backendFilters).length === 0) {
+  if (Object.keys(activeBackendFilters).length === 0) {
     console.info('ℹ️ No filter buckets received from backend – falling back to default filter options.', {
-      backendMessage,
+      backendMessage: activeBackendMessage,
     })
     console.log('📊 Filter Meta Structure:', {
       hasData: !!filtersMetaData?.data,
@@ -167,21 +222,17 @@ export default function AdvancedFilters({
       hasFilters: !!filtersMetaData?.data?.filters || !!filtersMetaData?.data?.data?.filters,
       dataKeys: filtersMetaData?.data ? Object.keys(filtersMetaData.data) : [],
       nestedDataKeys: filtersMetaData?.data?.data ? Object.keys(filtersMetaData.data.data) : [],
-      filtersKeys: filtersMetaData?.data?.filters
-        ? Object.keys(filtersMetaData.data.filters)
-        : filtersMetaData?.data?.data?.filters
-          ? Object.keys(filtersMetaData.data.data.filters)
-          : [],
+      filtersKeys: Object.keys(activeBackendFilters),
     })
   } else {
     console.log('✅ Backend filters loaded:', {
-      filterKeys: Object.keys(backendFilters),
-      totalFilters: Object.keys(backendFilters).length,
-      sampleFilter: Object.keys(backendFilters)[0]
+      filterKeys: Object.keys(activeBackendFilters),
+      totalFilters: Object.keys(activeBackendFilters).length,
+      sampleFilter: Object.keys(activeBackendFilters)[0]
         ? {
-          key: Object.keys(backendFilters)[0],
-          value: backendFilters[Object.keys(backendFilters)[0]],
-        }
+            key: Object.keys(activeBackendFilters)[0],
+            value: (activeBackendFilters as any)[Object.keys(activeBackendFilters)[0]],
+          }
         : null,
     })
   }
@@ -192,46 +243,55 @@ export default function AdvancedFilters({
     return buckets.map(b => b.value || b.label).filter(Boolean)
   }
 
-  // Values driven purely by backend – no local fallbacks.
-  const listingTypes = transformFilterBuckets(backendFilters.listing_types)
+  // Transform backend buckets into value/label options (so we can display names but keep IDs)
+  const transformFilterOptions = (buckets: Array<{ value: string; label: string; count: number }> | undefined): FilterOption[] => {
+    if (!Array.isArray(buckets)) return []
+    return buckets.map(b => ({ value: String(b.value ?? ''), label: String(b.label ?? b.value ?? '') })).filter(o => o.value && o.label)
+  }
 
-  const statuses = transformFilterBuckets(backendFilters.statuses)
+  // Values driven purely by backend – no local fallbacks.
+  const listingTypes = transformFilterBuckets((activeBackendFilters as any).listing_types)
+
+  const statuses = transformFilterBuckets((activeBackendFilters as any).statuses)
 
   // Price ranges - backend provides min/max, we create ranges from that.
   // If backend doesn't send stats, the list stays empty.
-  const backendPriceStats = backendFilters.price
+  const backendPriceStats = (activeBackendFilters as any).price
   const priceRanges: PriceRange[] =
     backendPriceStats?.min !== undefined && backendPriceStats?.max !== undefined
       ? [
-        { label: `Under ${(backendPriceStats.min / 1000).toFixed(0)}k`, min: 0, max: backendPriceStats.min },
-        {
-          label: `${(backendPriceStats.min / 1000).toFixed(0)}k - ${(backendPriceStats.max / 1000).toFixed(0)}k`,
-          min: backendPriceStats.min,
-          max: backendPriceStats.max,
-        },
-        { label: `${(backendPriceStats.max / 1000).toFixed(0)}k+`, min: backendPriceStats.max, max: null },
-      ]
+          { label: `Under ${(backendPriceStats.min / 1000).toFixed(0)}k`, min: 0, max: backendPriceStats.min },
+          {
+            label: `${(backendPriceStats.min / 1000).toFixed(0)}k - ${(backendPriceStats.max / 1000).toFixed(0)}k`,
+            min: backendPriceStats.min,
+            max: backendPriceStats.max,
+          },
+          { label: `${(backendPriceStats.max / 1000).toFixed(0)}k+`, min: backendPriceStats.max, max: null },
+        ]
       : []
 
-  // These sections now use backend data only. If backend doesn't send buckets,
-  // the corresponding filter list will be empty.
-  const propertyTypes = transformFilterBuckets((backendFilters as any).property_types || (backendFilters as any).property_categories)
+  // Property Types (e.g., Apartment/Villa) and Property Categories (master categories) are different.
+  // - `propertyType` is used for `property_type` query param.
+  // - `propertyCategoryId` is used for `property_category_id` query param (expects IDs).
+  const propertyTypes = transformFilterBuckets((activeBackendFilters as any).property_types)
+  const propertyCategories = transformFilterOptions((activeBackendFilters as any).property_categories)
+  const adsCategories = transformFilterOptions((activeBackendFilters as any).categories)
 
-  const bedrooms = transformFilterBuckets(backendFilters.bhk)
-  const bathrooms = transformFilterBuckets(backendFilters.bathrooms)
-  const locations = transformFilterBuckets(backendFilters.cities)
-  const districts = transformFilterBuckets((backendFilters as any).districts)
-  const states = transformFilterBuckets((backendFilters as any).states)
-  const amenities = transformFilterBuckets(backendFilters.amenities)
+  const bedrooms = transformFilterBuckets((activeBackendFilters as any).bhk)
+  const bathrooms = transformFilterBuckets((activeBackendFilters as any).bathrooms)
+  const locations = transformFilterBuckets((activeBackendFilters as any).cities)
+  const districts = transformFilterBuckets((activeBackendFilters as any).districts)
+  const states = transformFilterBuckets((activeBackendFilters as any).states)
+  const amenities = transformFilterBuckets((activeBackendFilters as any).amenities)
 
   // These remain local-only toggles (no backend buckets), but they don't affect API params
   // beyond simple flags, so we keep the UX defaults.
   const verifiedOptions = defaultVerifiedOptions
   const featuredOptions = defaultFeaturedOptions
 
-  const furnishingOptions = transformFilterBuckets(backendFilters.furnishing)
+  const furnishingOptions = transformFilterBuckets((activeBackendFilters as any).furnishing)
   const facingOptions = defaultFacing // still local; backend doesn't provide facing aggregations
-  const parkingOptions = transformFilterBuckets(backendFilters.parking)
+  const parkingOptions = transformFilterBuckets((activeBackendFilters as any).parking)
   const sortOptions = defaultSortOptions
 
   const toggleSection = (section: string) => {
@@ -243,7 +303,7 @@ export default function AdvancedFilters({
   }
 
   const toggleArrayFilter = (key: keyof FilterState, value: string) => {
-    const current = filters[key] as string[]
+    const current = Array.isArray(filters[key]) ? (filters[key] as string[]) : []
     const updated = current.includes(value) ? current.filter(item => item !== value) : [...current, value]
     updateFilter(key, updated)
   }
@@ -268,6 +328,7 @@ export default function AdvancedFilters({
     (filters.state.length > 0 ? 1 : 0) +
     (filters.postalCode.length > 0 ? 1 : 0) +
     (filters.propertyCategoryId.length > 0 ? 1 : 0) +
+    (filters.category_id.length > 0 ? 1 : 0) +
     (filters.sortBy ? 1 : 0)
 
   return (
@@ -320,6 +381,8 @@ export default function AdvancedFilters({
               statuses={statuses}
               priceRanges={priceRanges}
               propertyTypes={propertyTypes}
+              propertyCategories={propertyCategories}
+              adsCategories={adsCategories}
               bedrooms={bedrooms}
               bathrooms={bathrooms}
               locations={locations}
@@ -399,6 +462,8 @@ export default function AdvancedFilters({
                 statuses={statuses}
                 priceRanges={priceRanges}
                 propertyTypes={propertyTypes}
+                propertyCategories={propertyCategories}
+                adsCategories={adsCategories}
                 bedrooms={bedrooms}
                 bathrooms={bathrooms}
                 locations={locations}
@@ -433,6 +498,8 @@ function FilterContent({
   statuses,
   priceRanges,
   propertyTypes,
+  propertyCategories,
+  adsCategories,
   bedrooms,
   bathrooms,
   locations,
@@ -458,6 +525,8 @@ function FilterContent({
   statuses: string[]
   priceRanges: PriceRange[]
   propertyTypes: string[]
+  propertyCategories: FilterOption[]
+  adsCategories: FilterOption[]
   bedrooms: string[]
   bathrooms: string[]
   locations: string[]
@@ -501,14 +570,15 @@ function FilterContent({
                 <label key={idx} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
                   <input
                     type="checkbox"
-                    checked={filters.priceRangePreset.includes(range.label)}
+                    checked={Array.isArray(filters.priceRangePreset) && filters.priceRangePreset.includes(range.label)}
                     onChange={() => {
-                      const updated = filters.priceRangePreset.includes(range.label)
-                        ? filters.priceRangePreset.filter(p => p !== range.label)
+                      const currentPresets = Array.isArray(filters.priceRangePreset) ? filters.priceRangePreset : []
+                      const updated = currentPresets.includes(range.label)
+                        ? currentPresets.filter(p => p !== range.label)
                         : [...filters.priceRangePreset, range.label]
                       updateFilter('priceRangePreset', updated)
-                      if (!filters.priceRangePreset.includes(range.label)) {
-                        updateFilter('priceRange', [range.min, range.max])
+                      if (!currentPresets.includes(range.label)) {
+                        updateFilter('priceRange', [range.min, range.max ?? 100000000])
                       }
                     }}
                     className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
@@ -522,8 +592,15 @@ function FilterContent({
                     <label className="text-xs text-gray-500 mb-1 block">Min</label>
                     <input
                       type="number"
-                      value={filters.priceRange[0] || ''}
-                      onChange={e => updateFilter('priceRange', [Number(e.target.value) || 0, filters.priceRange[1]])}
+                      value={(() => {
+                        const min = Array.isArray(filters.priceRange) ? filters.priceRange[0] : 0
+                        return typeof min === 'number' && Number.isFinite(min) ? (min === 0 ? '' : min) : ''
+                      })()}
+                      onChange={e => {
+                        const nextMin = e.target.value === '' ? 0 : Number(e.target.value) || 0
+                        const currentMax = Array.isArray(filters.priceRange) ? filters.priceRange[1] : 100000000
+                        updateFilter('priceRange', [nextMin, typeof currentMax === 'number' && Number.isFinite(currentMax) ? currentMax : 100000000])
+                      }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
                       placeholder="0"
                     />
@@ -532,7 +609,11 @@ function FilterContent({
                     <label className="text-xs text-gray-500 mb-1 block">Max</label>
                     <input
                       type="number"
-                      value={filters.priceRange[1] === 100000000 ? '' : filters.priceRange[1]}
+                      value={(() => {
+                        const max =
+                          typeof filters.priceRange[1] === 'number' && Number.isFinite(filters.priceRange[1]) ? filters.priceRange[1] : 100000000
+                        return max === 100000000 ? '' : max
+                      })()}
                       onChange={e => updateFilter('priceRange', [filters.priceRange[0], Number(e.target.value) || 100000000])}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
                       placeholder="No limit"
@@ -544,15 +625,53 @@ function FilterContent({
           </FilterSection>
         )}
 
-        {/* Property Category - Only show on property page if more than 1 type */}
-        {pageType === 'property' && propertyTypes.length > 1 && (
+        {/* Property Category - show name (label) but store ID (value) */}
+        {pageType === 'property' && propertyCategories.length > 1 && (
           <FilterSection title="Property Category" isExpanded={expandedSections.propertyType} onToggle={() => toggleSection('propertyType')}>
             <div className="space-y-2">
-              {propertyTypes.map((type: string) => (
+              {propertyCategories.map(option => (
+                <label key={option.value} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                  <input
+                    type="checkbox"
+                    checked={Array.isArray(filters.propertyCategoryId) && filters.propertyCategoryId.includes(option.value)}
+                    onChange={() => toggleArrayFilter('propertyCategoryId', option.value)}
+                    className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
+                  />
+                  <span className="text-sm text-gray-700">{option.label}</span>
+                </label>
+              ))}
+            </div>
+          </FilterSection>
+        )}
+
+        {/* Ads Category - show name (label) but store ID (value) into category_id */}
+        {pageType === 'ads-list' && adsCategories.length > 0 && (
+          <FilterSection title="Category" isExpanded={expandedSections.category_id || false} onToggle={() => toggleSection('category_id')}>
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {adsCategories.map(option => (
+                <label key={option.value} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                  <input
+                    type="checkbox"
+                    checked={Array.isArray(filters.category_id) && filters.category_id.includes(option.value)}
+                    onChange={() => toggleArrayFilter('category_id', option.value)}
+                    className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
+                  />
+                  <span className="text-sm text-gray-700">{option.label}</span>
+                </label>
+              ))}
+            </div>
+          </FilterSection>
+        )}
+
+        {/* Property Type (e.g., Apartment/Villa) - optional backend buckets */}
+        {pageType === 'property' && propertyTypes.length > 1 && (
+          <FilterSection title="Property Type" isExpanded={expandedSections.propertyType} onToggle={() => toggleSection('propertyType')}>
+            <div className="space-y-2">
+              {propertyTypes.map(type => (
                 <label key={type} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
                   <input
                     type="checkbox"
-                    checked={filters.propertyType.includes(type)}
+                    checked={Array.isArray(filters.propertyType) && filters.propertyType.includes(type)}
                     onChange={() => toggleArrayFilter('propertyType', type)}
                     className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
                   />
@@ -617,7 +736,7 @@ function FilterContent({
                 <label key={location} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
                   <input
                     type="checkbox"
-                    checked={filters.location.includes(location)}
+                    checked={Array.isArray(filters.location) && filters.location.includes(location)}
                     onChange={() => toggleArrayFilter('location', location)}
                     className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
                   />
@@ -636,7 +755,7 @@ function FilterContent({
                 <label key={type} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
                   <input
                     type="checkbox"
-                    checked={filters.listingType.includes(type)}
+                    checked={Array.isArray(filters.listingType) && filters.listingType.includes(type)}
                     onChange={() => toggleArrayFilter('listingType', type)}
                     className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
                   />
@@ -655,7 +774,7 @@ function FilterContent({
                 <label key={status} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
                   <input
                     type="checkbox"
-                    checked={filters.status.includes(status)}
+                    checked={Array.isArray(filters.status) && filters.status.includes(status)}
                     onChange={() => toggleArrayFilter('status', status)}
                     className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
                   />
@@ -674,7 +793,7 @@ function FilterContent({
                 <label key={amenity} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
                   <input
                     type="checkbox"
-                    checked={filters.amenities.includes(amenity)}
+                    checked={Array.isArray(filters.amenities) && filters.amenities.includes(amenity)}
                     onChange={() => toggleArrayFilter('amenities', amenity)}
                     className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
                   />
@@ -686,14 +805,14 @@ function FilterContent({
         )}
 
         {/* Districts - Show on agency page if more than 1 district */}
-        {pageType === 'agency' && districts.length > 1 && (
+        {/* {pageType === 'agency' && districts.length > 1 && (
           <FilterSection title="Districts" isExpanded={expandedSections.district || false} onToggle={() => toggleSection('district')}>
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {districts.map((district: string) => (
                 <label key={district} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
                   <input
                     type="checkbox"
-                    checked={filters.district.includes(district)}
+                    checked={Array.isArray(filters.district) && filters.district.includes(district)}
                     onChange={() => toggleArrayFilter('district', district)}
                     className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
                   />
@@ -702,7 +821,7 @@ function FilterContent({
               ))}
             </div>
           </FilterSection>
-        )}
+        )} */}
 
         {/* States - Show on agency page if more than 1 state */}
         {pageType === 'agency' && states.length > 1 && (
@@ -712,7 +831,7 @@ function FilterContent({
                 <label key={state} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
                   <input
                     type="checkbox"
-                    checked={filters.state.includes(state)}
+                    checked={Array.isArray(filters.state) && filters.state.includes(state)}
                     onChange={() => toggleArrayFilter('state', state)}
                     className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
                   />
@@ -732,8 +851,15 @@ function FilterContent({
                   <label className="text-xs text-gray-500 mb-1 block">Min</label>
                   <input
                     type="number"
-                    value={filters.sizeRange[0] || ''}
-                    onChange={e => updateFilter('sizeRange', [Number(e.target.value) || 0, filters.sizeRange[1]])}
+                    value={(() => {
+                      const min = Array.isArray(filters.sizeRange) ? filters.sizeRange[0] : 0
+                      return typeof min === 'number' && Number.isFinite(min) ? (min === 0 ? '' : min) : ''
+                    })()}
+                    onChange={e => {
+                      const nextMin = e.target.value === '' ? 0 : Number(e.target.value) || 0
+                      const currentMax = Array.isArray(filters.sizeRange) ? filters.sizeRange[1] : 0
+                      updateFilter('sizeRange', [nextMin, typeof currentMax === 'number' && Number.isFinite(currentMax) ? currentMax : 0])
+                    }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
                     placeholder="0"
                   />
@@ -742,8 +868,15 @@ function FilterContent({
                   <label className="text-xs text-gray-500 mb-1 block">Max</label>
                   <input
                     type="number"
-                    value={filters.sizeRange[1] || ''}
-                    onChange={e => updateFilter('sizeRange', [filters.sizeRange[0], Number(e.target.value) || 0])}
+                    value={(() => {
+                      const max = Array.isArray(filters.sizeRange) ? filters.sizeRange[1] : 0
+                      return typeof max === 'number' && Number.isFinite(max) ? (max === 0 ? '' : max) : ''
+                    })()}
+                    onChange={e => {
+                      const nextMax = e.target.value === '' ? 0 : Number(e.target.value) || 0
+                      const currentMin = Array.isArray(filters.sizeRange) ? filters.sizeRange[0] : 0
+                      updateFilter('sizeRange', [typeof currentMin === 'number' && Number.isFinite(currentMin) ? currentMin : 0, nextMax])
+                    }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
                     placeholder="No limit"
                   />
@@ -784,7 +917,7 @@ function FilterContent({
                 <label key={option} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
                   <input
                     type="checkbox"
-                    checked={filters.parking.includes(option)}
+                    checked={Array.isArray(filters.parking) && filters.parking.includes(option)}
                     onChange={() => toggleArrayFilter('parking', option)}
                     className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
                   />

@@ -78,10 +78,10 @@ export default function PropertiesPage() {
     }
   }
 
-  console.log('PropertiesPage: user', user)
+  // console.log('PropertiesPage: user', user)
   const userRoles = getUserRoles(user)
 
-  console.log('PropertiesPage: userRoles', userRoles)
+  // console.log('PropertiesPage: userRoles', userRoles)
   const onlyAdmin = hasRole(userRoles, [Roles.ADMIN])
   const canChangeStatus = hasRole(userRoles, [Roles.ADMIN])
   const { properties, handleView, handleEdit, handleDelete, total, error, isLoadingProperties, mutateProperties, handlePropertyAction } =
@@ -147,8 +147,8 @@ export default function PropertiesPage() {
           status === 'AVAILABLE'
             ? 'bg-green-100 text-green-700 border border-green-300'
             : status === 'SOLD'
-              ? 'bg-red-100 text-red-700 border border-red-300'
-              : 'bg-yellow-100 text-yellow-700 border border-yellow-300'
+            ? 'bg-red-100 text-red-700 border border-red-300'
+            : 'bg-yellow-100 text-yellow-700 border border-yellow-300'
 
         return <span className={`px-3 py-1 rounded-full text-xs font-semibold ${colorClass}`}>{status}</span>
       },
@@ -165,8 +165,8 @@ export default function PropertiesPage() {
           approvalStatus === 'UNDER_REVIEW'
             ? 'bg-yellow-100 text-yellow-700 border border-yellow-300'
             : approvalStatus === 'APPROVED'
-              ? 'bg-green-100 text-green-700 border border-green-300'
-              : 'bg-red-100 text-red-700 border border-red-300'
+            ? 'bg-green-100 text-green-700 border border-green-300'
+            : 'bg-red-100 text-red-700 border border-red-300'
 
         return <span className={`px-3 py-1 rounded-full text-xs font-semibold ${colorClass}`}>{approvalStatus}</span>
       },

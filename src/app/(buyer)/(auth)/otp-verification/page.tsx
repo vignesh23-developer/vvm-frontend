@@ -40,7 +40,7 @@ export default function OtpVerification() {
   const handleSubmit = async (values: OtpValues, { setSubmitting }: FormikHelpers<OtpValues>) => {
     try {
       if (!globalValue?.phoneNumber) {
-        toast.error('Missing phone number. Please restart the login process.')
+        toast.error('Missing phone number. Please click back to the login process.')
         return
       }
 
@@ -142,7 +142,7 @@ export default function OtpVerification() {
         <motion.div variants={containerVariants} initial="hidden" animate="show" className="w-full max-w-md">
           {/* Back Button */}
           <motion.div variants={itemVariants}>
-            <Link href="/forgot-password" className="flex items-center text-sm font-semibold text-green-900 mb-2 hover:underline">
+            <Link href="/login" className="flex items-center text-sm font-semibold text-green-900 mb-2 hover:underline">
               <ArrowLeft size={20} className="mr-2" /> {t('Auth.back')}
             </Link>
           </motion.div>

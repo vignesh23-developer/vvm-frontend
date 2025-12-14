@@ -134,10 +134,13 @@ export default function OTPInput({
 
   const handleResend = async () => {
     setIsLoading(true)
-
+    const resendPayload = {
+      phoneNumber: reSendData?.phoneNumber,
+      otpTypes: reSendData?.otpTypes || 'SMS',
+    }
     try {
-      const response = (await postMethod(appEndpoints.loginSendOtp, reSendData)) as ResponseDTO
-      console.log('Resend OTP response:', response)
+      const response = (await postMethod(appEndpoints.loginSendOtp, resendPayload)) as ResponseDTO
+      // console.log('Resend OTP response:', response)
       if (response.status === '200') {
         toast.success('OTP resent successfully')
       } else {

@@ -32,6 +32,40 @@ interface PropertiesFetcherResult {
   total: number
 }
 
+const parseBudgetRange = (budget?: string): { min?: number; max?: number } => {
+  if (!budget) {
+    return {}
+  }
+
+  const trimmed = budget.trim()
+  if (!trimmed) {
+    return {}
+  }
+
+  // Expected format: "<min>-<max>" (numbers). Example: "0-10000000"
+  const parts = trimmed.split('-').map(part => part.trim())
+  if (parts.length !== 2) {
+    return {}
+  }
+
+  const min = Number(parts[0])
+  const max = Number(parts[1])
+
+  const safeMin = Number.isFinite(min) && min >= 0 ? min : undefined
+  const safeMax = Number.isFinite(max) && max >= 0 ? max : undefined
+
+  if (safeMin == null && safeMax == null) {
+    return {}
+  }
+
+  // If both present but swapped, normalize.
+  if (safeMin != null && safeMax != null) {
+    return safeMin <= safeMax ? { min: safeMin, max: safeMax } : { min: safeMax, max: safeMin }
+  }
+
+  return { min: safeMin, max: safeMax }
+}
+
 // Custom hook for managing properties
 export function useSearchProperties(options: UsePropertiesOptions = {}) {
   const router = useRouter()
@@ -47,6 +81,14 @@ export function useSearchProperties(options: UsePropertiesOptions = {}) {
   if (type) {
     queryParams.set('property_category_id', type)
   }
+
+  const budgetRange = parseBudgetRange(budget)
+  if (budgetRange.min != null && budgetRange.min > 0) {
+    queryParams.set('price_min', String(budgetRange.min))
+  }
+  if (budgetRange.max != null && budgetRange.max > 0) {
+    queryParams.set('price_max', String(budgetRange.max))
+  }
   if (limit != null) {
     queryParams.set('limit', String(limit))
   }
@@ -54,12 +96,7 @@ export function useSearchProperties(options: UsePropertiesOptions = {}) {
     queryParams.set('page', String(page))
   }
 
-  // if (type) {
-  //   queryParams.set('type', type)
-  // }
-  // if (budget) {
-  //   queryParams.set('budget', budget)
-  // }
+  // Note: API expects price_min/price_max, not a raw "budget" param.
 
   const swrKey = queryParams.toString() ? `${appEndpoints.getSearchByProperties}?${queryParams.toString()}` : appEndpoints.getSearchByProperties
 

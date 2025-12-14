@@ -252,13 +252,15 @@ const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({
               {/* Address Information */}
               <section>
                 <h3 className="text-lg font-medium text-gray-700 mb-3 border-l-4 border-black pl-2">Address Information</h3>
-                <LocationSearchBox
-                  label="Full Address"
-                  name="address_line"
-                  placeholder="Enter address line"
-                  value={values.address_line}
-                  onSelectLocation={(lat, lng, fullAddress, parts) => handleLocationSelect(setFieldValue, lat, lng, parts, fullAddress)}
-                />
+                <div className="mb-4">
+                  <LocationSearchBox
+                    label="Full Address"
+                    name="address_line"
+                    placeholder="Enter address line"
+                    value={values.address_line}
+                    onSelectLocation={(lat, lng, fullAddress, parts) => handleLocationSelect(setFieldValue, lat, lng, parts, fullAddress)}
+                  />
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <FormikTextField label="Door Number" name="door_number" placeholder="Enter door number" />
                   <FormikTextField label="Street Name" name="street_name" placeholder="Enter street name" />

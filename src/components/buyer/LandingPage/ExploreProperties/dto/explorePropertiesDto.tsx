@@ -1,5 +1,5 @@
 export interface ExplorePropertyDto {
-  district: number
+  district: string | null
   count: number
   minAmount: number
   maxAmount: number

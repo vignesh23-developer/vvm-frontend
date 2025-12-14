@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -79,6 +79,7 @@ const AgentListPage = () => {
   const [limit, setLimit] = useState(10)
   const [isFiltersOpen, setIsFiltersOpen] = useState(false) // Closed by default, user can open
   const [searchTerm, setSearchTerm] = useState('') // Advanced search term
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
   const [filters, setFilters] = useState<FilterState>({
     priceRange: [0, 100000000],
     propertyType: [],
@@ -112,8 +113,16 @@ const AgentListPage = () => {
   const { agentCompanyProfileData, agentCompanyProfileFetchErr, agentCompanyProfileFetchLoader, agentCompanyProfileRefresh } =
     useAgentCompanyProfile()
 
-  const trimmedSearch = searchTerm.trim()
-  const shouldUseBackendAutocomplete = trimmedSearch.length >= 2
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm)
+    }, 300)
+
+    return () => clearTimeout(handle)
+  }, [searchTerm])
+
+  const trimmedSearch = debouncedSearchTerm.trim()
+  const shouldUseBackendAutocomplete = trimmedSearch.length >= 3
 
   const { data: autocompleteResponse } = useSWR(
     shouldUseBackendAutocomplete ? `${appEndpoints.publicSearchProperties}?q=${encodeURIComponent(trimmedSearch)}&limit=10` : null,
@@ -134,14 +143,10 @@ const AgentListPage = () => {
     return [] as string[]
   }, [autocompleteResponse])
 
-  const totalNumber = Number(agentCompanyProfileData?.length ?? 0)
-  const totalPages = Math.max(1, Math.ceil(totalNumber / limit))
-
-  const changePage = (page: number) => setPage(Math.max(1, Math.min(page, totalPages)))
-
   // Filter agencies based on active filters + search
   const filteredAgencies = useMemo(() => {
-    const query = searchTerm.trim().toLowerCase()
+    const query = debouncedSearchTerm.trim().toLowerCase()
+    const shouldApplySearch = query.length >= 3
 
     return (agentCompanyProfileData || []).filter((agency: any) => {
       // Location filter
@@ -161,7 +166,7 @@ const AgentListPage = () => {
       }
 
       // Search filter (company / contact / location)
-      if (query) {
+      if (shouldApplySearch) {
         const matchesSearch =
           agency.companyName?.toLowerCase().includes(query) ||
           agency.profileName?.toLowerCase().includes(query) ||
@@ -175,29 +180,48 @@ const AgentListPage = () => {
 
       return true
     })
-  }, [agentCompanyProfileData, filters, searchTerm])
+  }, [agentCompanyProfileData, filters, debouncedSearchTerm])
+
+  const totalNumber = Number(filteredAgencies?.length ?? 0)
+  const totalPages = Math.max(1, Math.ceil(totalNumber / limit))
+
+  const changePage = (nextPage: number) => setPage(Math.max(1, Math.min(nextPage, totalPages)))
+
+  useEffect(() => {
+    setPage(1)
+  }, [debouncedSearchTerm, filters, limit])
+
+  const pagedAgencies = useMemo(() => {
+    const start = (page - 1) * limit
+    return (filteredAgencies || []).slice(start, start + limit)
+  }, [filteredAgencies, page, limit])
 
   // Suggestions for autocomplete in advanced search
   const searchSuggestions = useMemo(() => {
-    const query = searchTerm.trim().toLowerCase()
-    if (!query) return []
+    const query = debouncedSearchTerm.trim().toLowerCase()
+    if (query.length < 3) return []
 
     const suggestionsSet = new Set<string>()
 
-      ; (agentCompanyProfileData || []).forEach((agency: any) => {
-        const candidates = [agency.companyName, agency.profileName, agency.contact_name, agency.city, agency.district, agency.state]
-        candidates.forEach(value => {
-          if (typeof value === 'string') {
-            const lower = value.toLowerCase()
-            if (lower.includes(query)) {
-              suggestionsSet.add(value)
-            }
+    backendSuggestions.forEach(s => {
+      if (typeof s === 'string' && s.trim().length > 0) {
+        suggestionsSet.add(s)
+      }
+    })
+    ;(agentCompanyProfileData || []).forEach((agency: any) => {
+      const candidates = [agency.companyName, agency.profileName, agency.contact_name, agency.city, agency.district, agency.state]
+      candidates.forEach(value => {
+        if (typeof value === 'string') {
+          const lower = value.toLowerCase()
+          if (lower.includes(query)) {
+            suggestionsSet.add(value)
           }
-        })
+        }
       })
+    })
 
     return Array.from(suggestionsSet).slice(0, 8)
-  }, [searchTerm, agentCompanyProfileData, backendSuggestions])
+  }, [debouncedSearchTerm, agentCompanyProfileData, backendSuggestions])
 
   const hasActivePropertyFilters =
     filters.location.length > 0 ||
@@ -272,9 +296,7 @@ const AgentListPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 lg:py-12">
           <div className="flex flex-col gap-6">
             <div>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#2a1407] tracking-tight mb-3">
-                Expert Agents Ready to Help
-              </h1>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#2a1407] tracking-tight mb-3">Expert Agents Ready to Help</h1>
               <p className="text-base sm:text-lg text-gray-600 max-w-2xl leading-relaxed">
                 Connect with trusted real estate experts who know your neighbourhood and budget.
               </p>
@@ -301,10 +323,14 @@ const AgentListPage = () => {
                     <button
                       type="button"
                       onClick={() => setSearchTerm('')}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 cursor-pointer"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                          clipRule="evenodd"
+                        />
                       </svg>
                     </button>
                   )}
@@ -316,27 +342,30 @@ const AgentListPage = () => {
                 {/* Filter Button */}
                 <button
                   onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-                  className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${isFiltersOpen
-                      ? 'bg-[#2a1407] text-white shadow-md'
-                      : 'bg-yellow-50 text-[#2a1407] hover:bg-yellow-100'
-                    }`}
+                  className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
+                    isFiltersOpen ? 'bg-[#2a1407] text-white shadow-md' : 'bg-yellow-50 text-[#2a1407] hover:bg-yellow-100'
+                  } cursor-pointer`}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clipRule="evenodd" />
+                    <path
+                      fillRule="evenodd"
+                      d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   <span>Filters</span>
                 </button>
               </div>
 
               {/* Autocomplete Suggestions */}
-              {searchSuggestions.length > 0 && (
+              {trimmedSearch.length >= 3 && searchSuggestions.length > 0 && (
                 <div className="absolute z-20 mt-2 w-full max-w-3xl rounded-2xl bg-white shadow-xl border border-gray-100 max-h-64 overflow-y-auto">
                   {searchSuggestions.map(suggestion => (
                     <button
                       key={suggestion}
                       type="button"
                       onClick={() => setSearchTerm(suggestion)}
-                      className="w-full text-left px-5 py-3 text-sm text-gray-700 hover:bg-yellow-50 border-b last:border-0 border-gray-50 flex items-center gap-2"
+                      className="w-full text-left px-5 py-3 text-sm text-gray-700 hover:bg-yellow-50 border-b last:border-0 border-gray-50 flex items-center gap-2 cursor-pointer"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -381,7 +410,7 @@ const AgentListPage = () => {
                     onClick={() => {
                       setFilters(prev => ({ ...prev, location: prev.location.filter(l => l !== loc) }))
                     }}
-                    className="ml-1 hover:bg-yellow-600 rounded-full p-0.5"
+                    className="ml-1 hover:bg-yellow-600 rounded-full p-0.5 cursor-pointer"
                   >
                     ×
                   </button>
@@ -397,7 +426,7 @@ const AgentListPage = () => {
                     onClick={() => {
                       setFilters(prev => ({ ...prev, listingType: prev.listingType.filter(t => t !== type) }))
                     }}
-                    className="ml-1 hover:bg-yellow-600 rounded-full p-0.5"
+                    className="ml-1 hover:bg-yellow-600 rounded-full p-0.5 cursor-pointer"
                   >
                     ×
                   </button>
@@ -413,7 +442,7 @@ const AgentListPage = () => {
                     onClick={() => {
                       setFilters(prev => ({ ...prev, verified: prev.verified.filter(v => v !== ver) }))
                     }}
-                    className="ml-1 hover:bg-yellow-600 rounded-full p-0.5"
+                    className="ml-1 hover:bg-yellow-600 rounded-full p-0.5 cursor-pointer"
                   >
                     ×
                   </button>
@@ -429,7 +458,7 @@ const AgentListPage = () => {
                     onClick={() => {
                       setFilters(prev => ({ ...prev, priceRangePreset: prev.priceRangePreset.filter(p => p !== preset) }))
                     }}
-                    className="ml-1 hover:bg-yellow-600 rounded-full p-0.5"
+                    className="ml-1 hover:bg-yellow-600 rounded-full p-0.5 cursor-pointer"
                   >
                     ×
                   </button>
@@ -441,7 +470,7 @@ const AgentListPage = () => {
                 </span>
                 <button
                   onClick={handleClearFilters}
-                  className="px-3 py-1 text-xs sm:text-sm font-semibold text-yellow-800 hover:text-yellow-900 underline underline-offset-4"
+                  className="px-3 py-1 text-xs sm:text-sm font-semibold text-yellow-800 hover:text-yellow-900 underline underline-offset-4 cursor-pointer"
                 >
                   Clear all
                 </button>
@@ -473,14 +502,14 @@ const AgentListPage = () => {
                 </p>
                 <button
                   onClick={handleClearFilters}
-                  className="mt-5 px-6 py-2.5 bg-yellow-500 text-[#2a1407] rounded-full text-sm font-semibold hover:bg-yellow-600 transition-all shadow-sm"
+                  className="mt-5 px-6 py-2.5 bg-yellow-500 text-[#2a1407] rounded-full text-sm font-semibold hover:bg-yellow-600 transition-all shadow-sm cursor-pointer"
                 >
                   Clear Filters
                 </button>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredAgencies?.map((agentProperty: any, index: number) => (
+                {pagedAgencies?.map((agentProperty: any, index: number) => (
                   <motion.div
                     key={agentProperty.id ?? index}
                     variants={cardVariants}
@@ -493,13 +522,13 @@ const AgentListPage = () => {
                       duration: 0.4,
                     }}
                     className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer h-full"
-                    onClick={() => router.push(`/agent-details/${agentProperty.id}`)}
+                    onClick={() => router.push(`/agent-profile/${agentProperty.profileName}`)}
                   >
                     {/* Image Section */}
                     <div className="relative h-64 w-full overflow-hidden bg-gray-100">
-                      {agentProperty.profile_image ? (
+                      {agentProperty.companyLogo || agentProperty.profile_image ? (
                         <NextImage
-                          src={agentProperty.profile_image}
+                          src={agentProperty.companyLogo || agentProperty.profile_image}
                           alt={agentProperty.companyName || agentProperty.profileName || 'Agent'}
                           fill
                           className="object-cover transition-transform duration-700 group-hover:scale-110"
@@ -525,11 +554,28 @@ const AgentListPage = () => {
                     {/* Content Section */}
                     <div className="flex flex-col flex-1 p-5">
                       <div className="mb-4">
-                        <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-1 group-hover:text-yellow-700 transition-colors" title={agentProperty.companyName || agentProperty.profileName}>
-                          {agentProperty.companyName || agentProperty.profileName || 'Unknown Agent'}
+                        <h3
+                          className="text-lg font-bold text-gray-900 mb-2 line-clamp-1 group-hover:text-yellow-700 transition-colors"
+                          title={agentProperty.companyName}
+                        >
+                          {agentProperty.companyName || 'Unknown Agent'}
                         </h3>
                         <div className="flex items-start gap-1.5 text-gray-500">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-600 flex-shrink-0 mt-0.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="text-yellow-600 flex-shrink-0 mt-0.5"
+                          >
+                            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                            <circle cx="12" cy="10" r="3" />
+                          </svg>
                           <p className="text-sm line-clamp-2 leading-relaxed">
                             {[agentProperty.city, agentProperty.district, agentProperty.state].filter(Boolean).join(', ') || 'Location N/A'}
                           </p>
@@ -542,11 +588,18 @@ const AgentListPage = () => {
                       {/* Footer Section */}
                       <div className="grid grid-cols-2 gap-4 pt-4 mt-4 items-end">
                         <div className="flex flex-col">
-                          <span className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-1">Properties</span>
-                          <p className="text-xl font-bold text-[#2a1407]">{agentProperty.property_count || 0}</p>
+                          <span className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-1">Status</span>
+                          <p className="text-sm font-semibold text-gray-700">{agentProperty.isActive ? 'Active' : 'Inactive'}</p>
                         </div>
                         <div className="flex justify-end">
-                          <button className="text-sm font-semibold text-yellow-700 bg-yellow-50 hover:bg-yellow-100 px-4 py-2 rounded-lg transition-colors border border-yellow-100">
+                          <button
+                            type="button"
+                            onClick={event => {
+                              event.stopPropagation()
+                              router.push(`/agent-profile/${agentProperty.profileName}`)
+                            }}
+                            className="text-sm font-semibold text-yellow-700 bg-yellow-50 hover:bg-yellow-100 px-4 py-2 rounded-lg transition-colors border border-yellow-100 cursor-pointer"
+                          >
                             View Profile
                           </button>
                         </div>

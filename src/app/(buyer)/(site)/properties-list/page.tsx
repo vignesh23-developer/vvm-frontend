@@ -1,5 +1,5 @@
 'use client'
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import useSWR from 'swr'
 import { useTranslations } from 'next-intl'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -94,6 +94,7 @@ const PropertiesListPage = () => {
 
   const [isFiltersOpen, setIsFiltersOpen] = useState(false) // Closed by default, user can open
   const [searchTerm, setSearchTerm] = useState('') // Advanced search term
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [filters, setFilters] = useState<FilterState>({
     priceRange: [0, 100000000],
     propertyType: [],
@@ -125,6 +126,17 @@ const PropertiesListPage = () => {
   })
 
   const trimmedSearch = searchTerm.trim()
+
+  // Debounce autocomplete: only trigger after 3+ characters and a short pause.
+  useEffect(() => {
+    if (trimmedSearch.length < 3) {
+      setDebouncedSearch('')
+      return
+    }
+
+    const handle = setTimeout(() => setDebouncedSearch(trimmedSearch), 300)
+    return () => clearTimeout(handle)
+  }, [trimmedSearch])
 
   const hasActivePropertyFilters = useMemo(() => {
     const arrayFilters = [
@@ -184,10 +196,10 @@ const PropertiesListPage = () => {
     includeFilters: true,
     enabled: shouldUseAdvancedResults,
   })
-  const shouldUseBackendAutocomplete = trimmedSearch.length >= 2
+  const shouldUseBackendAutocomplete = debouncedSearch.length >= 3
 
   const { data: autocompleteResponse } = useSWR(
-    shouldUseBackendAutocomplete ? `${appEndpoints.publicSearchProperties}?q=${encodeURIComponent(trimmedSearch)}&limit=10` : null,
+    shouldUseBackendAutocomplete ? `${appEndpoints.publicSearchProperties}?q=${encodeURIComponent(debouncedSearch)}&limit=10` : null,
     (url: string) => getMethod<any[]>(url),
   )
 
@@ -236,8 +248,8 @@ const PropertiesListPage = () => {
   // For explore_by_category we now rely on backend search; for other params we keep original list.
   // Suggestions for autocomplete in advanced search
   const searchSuggestions = useMemo(() => {
-    const query = trimmedSearch.toLowerCase()
-    if (!query) return []
+    const query = debouncedSearch.toLowerCase()
+    if (!query || query.length < 3) return []
 
     if (backendSuggestions.length > 0) {
       return backendSuggestions
@@ -259,7 +271,7 @@ const PropertiesListPage = () => {
     })
 
     return Array.from(suggestionsSet).slice(0, 8)
-  }, [trimmedSearch, properties, searchedProperties, backendSuggestions, shouldUseAdvancedResults])
+  }, [debouncedSearch, properties, searchedProperties, backendSuggestions, shouldUseAdvancedResults])
 
   const handleClearFilters = () => {
     setFilters({
@@ -326,9 +338,7 @@ const PropertiesListPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 lg:py-12">
           <div className="flex flex-col gap-6">
             <div>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#2a1407] tracking-tight mb-3">
-                Discover Your Dream Property
-              </h1>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#2a1407] tracking-tight mb-3">Discover Your Dream Property</h1>
               <p className="text-base sm:text-lg text-gray-600 max-w-2xl leading-relaxed">
                 Curated homes, villas and apartments from trusted sellers.
               </p>
@@ -355,10 +365,14 @@ const PropertiesListPage = () => {
                     <button
                       type="button"
                       onClick={() => setSearchTerm('')}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 cursor-pointer"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                          clipRule="evenodd"
+                        />
                       </svg>
                     </button>
                   )}
@@ -370,13 +384,16 @@ const PropertiesListPage = () => {
                 {/* Filter Button */}
                 <button
                   onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-                  className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${isFiltersOpen
-                    ? 'bg-[#2a1407] text-white shadow-md'
-                    : 'bg-yellow-50 text-[#2a1407] hover:bg-yellow-100'
-                    }`}
+                  className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
+                    isFiltersOpen ? 'bg-[#2a1407] text-white shadow-md' : 'bg-yellow-50 text-[#2a1407] hover:bg-yellow-100'
+                  } cursor-pointer`}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clipRule="evenodd" />
+                    <path
+                      fillRule="evenodd"
+                      d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   <span>Filters</span>
                 </button>
@@ -390,7 +407,7 @@ const PropertiesListPage = () => {
                       key={suggestion}
                       type="button"
                       onClick={() => setSearchTerm(suggestion)}
-                      className="w-full text-left px-5 py-3 text-sm text-gray-700 hover:bg-yellow-50 border-b last:border-0 border-gray-50 flex items-center gap-2"
+                      className="w-full text-left px-5 py-3 text-sm text-gray-700 hover:bg-yellow-50 border-b last:border-0 border-gray-50 flex items-center gap-2 cursor-pointer"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -409,12 +426,14 @@ const PropertiesListPage = () => {
                 <p className="text-sm font-medium text-gray-700">
                   <span className="font-extrabold text-[#2a1407]">{totalResults}</span> properties found
                   {(searchTerm || params.location) && (
-                    <span className="text-gray-500 font-normal"> for <span className="text-[#2a1407] italic">"{searchTerm || params.location}"</span></span>
+                    <span className="text-gray-500 font-normal">
+                      {' '}
+                      for <span className="text-[#2a1407] italic">"{searchTerm || params.location}"</span>
+                    </span>
                   )}
                 </p>
               </div>
             </div>
-
           </div>
         </div>
       </div>
@@ -451,7 +470,7 @@ const PropertiesListPage = () => {
                     onClick={() => {
                       setFilters(prev => ({ ...prev, location: prev.location.filter(l => l !== loc) }))
                     }}
-                    className="ml-1 hover:bg-yellow-600 rounded-full p-0.5"
+                    className="ml-1 hover:bg-yellow-600 rounded-full p-0.5 cursor-pointer"
                   >
                     ×
                   </button>
@@ -467,7 +486,7 @@ const PropertiesListPage = () => {
                     onClick={() => {
                       setFilters(prev => ({ ...prev, listingType: prev.listingType.filter(t => t !== type) }))
                     }}
-                    className="ml-1 hover:bg-yellow-600 rounded-full p-0.5"
+                    className="ml-1 hover:bg-yellow-600 rounded-full p-0.5 cursor-pointer"
                   >
                     ×
                   </button>
@@ -483,7 +502,7 @@ const PropertiesListPage = () => {
                     onClick={() => {
                       setFilters(prev => ({ ...prev, verified: prev.verified.filter(v => v !== ver) }))
                     }}
-                    className="ml-1 hover:bg-yellow-600 rounded-full p-0.5"
+                    className="ml-1 hover:bg-yellow-600 rounded-full p-0.5 cursor-pointer"
                   >
                     ×
                   </button>
@@ -499,7 +518,7 @@ const PropertiesListPage = () => {
                     onClick={() => {
                       setFilters(prev => ({ ...prev, priceRangePreset: prev.priceRangePreset.filter(p => p !== preset) }))
                     }}
-                    className="ml-1 hover:bg-yellow-600 rounded-full p-0.5"
+                    className="ml-1 hover:bg-yellow-600 rounded-full p-0.5 cursor-pointer"
                   >
                     ×
                   </button>
@@ -511,7 +530,7 @@ const PropertiesListPage = () => {
                 </span>
                 <button
                   onClick={handleClearFilters}
-                  className="px-3 py-1 text-xs sm:text-sm font-semibold text-yellow-800 hover:text-yellow-900 underline underline-offset-4"
+                  className="px-3 py-1 text-xs sm:text-sm font-semibold text-yellow-800 hover:text-yellow-900 underline underline-offset-4 cursor-pointer"
                 >
                   Clear all
                 </button>
@@ -546,7 +565,7 @@ const PropertiesListPage = () => {
                   </p>
                   <button
                     onClick={handleClearFilters}
-                    className="mt-5 px-6 py-2.5 bg-yellow-500 text-[#2a1407] rounded-full text-sm font-semibold hover:bg-yellow-600 transition-all shadow-sm"
+                    className="mt-5 px-6 py-2.5 bg-yellow-500 text-[#2a1407] rounded-full text-sm font-semibold hover:bg-yellow-600 transition-all shadow-sm cursor-pointer"
                   >
                     Clear Filters
                   </button>

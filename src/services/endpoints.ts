@@ -49,6 +49,7 @@ export const appEndpoints = {
   publicSearchPropertyFilters: '/search/properties-filters',
   publicSearchAgents: '/search/agents',
   publicSearchAds: '/search/ads',
+  publicSearchAdsFilters: '/search/ads/filters',
   publicSearchAgentsAutocomplete: '/search/agents/autocomplete',
   publicSearchAgentsFilters: '/search/agents/filters',
   getPropertiesByID: (propertyId: string) => `/properties/${propertyId}`,
@@ -174,7 +175,7 @@ export const appEndpoints = {
   createUpgradeOrder: (userId: string, subscriptionId: number) => `/users/${userId}/subscription/${subscriptionId}/upgrade/order`,
   createDowngradeOrder: (userId: string, subscriptionId: number) => `/users/${userId}/subscription/${subscriptionId}/downgrade/order`,
   cancelSubscription: (userId: string, subscriptionId: number) => `/users/${userId}/subscription/${subscriptionId}/cancel`,
-  getAllSubscription: "/users/subscriptions/all",
+  getAllSubscription: '/users/subscriptions/all',
   getSubscriptionPlanAnalytics: '/users/subscriptions/analytics',
 
   // Addons

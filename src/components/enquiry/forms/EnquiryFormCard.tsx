@@ -88,8 +88,20 @@ const EnquiryFormCard = ({ Id, entityType, handleSubmit, defaultValues }: Enquir
                   type="text"
                   label="Name"
                   name="name"
+                  readOnly
                   placeholder="Enter your name"
-                  className="w-full px-4 py-3 rounded-lg border border-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400 transition-all bg-white"
+                  className="
+    w-full 
+    p-2 
+    border border-gray-300 
+    rounded-md 
+    bg-gray-100 
+    cursor-not-allowed
+    text-gray-700
+    focus:outline-none 
+    focus:ring-0 
+    focus:border-gray-300
+  "
                 />
               </div>
 
@@ -100,7 +112,19 @@ const EnquiryFormCard = ({ Id, entityType, handleSubmit, defaultValues }: Enquir
                   label="Email"
                   name="email"
                   placeholder="Enter your email"
-                  className="w-full px-4 py-3 rounded-lg border border-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400 transition-all bg-white"
+                  readOnly
+                  className="
+    w-full 
+    p-2 
+    border border-gray-300 
+    rounded-md 
+    bg-gray-100 
+    cursor-not-allowed
+    text-gray-700
+    focus:outline-none 
+    focus:ring-0 
+    focus:border-gray-300
+  "
                 />
               </div>
 
@@ -111,7 +135,19 @@ const EnquiryFormCard = ({ Id, entityType, handleSubmit, defaultValues }: Enquir
                   label="Mobile Number"
                   name="phone"
                   placeholder="Enter your mobile number"
-                  className="w-full px-4 py-3 rounded-lg border border-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400 transition-all bg-white"
+                  readOnly
+                  className="
+    w-full 
+    p-2 
+    border border-gray-300 
+    rounded-md 
+    bg-gray-100 
+    cursor-not-allowed
+    text-gray-700
+    focus:outline-none 
+    focus:ring-0 
+    focus:border-gray-300
+  "
                 />
               </div>
 

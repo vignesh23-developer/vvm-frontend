@@ -30,7 +30,7 @@ const LoadingAnimation: React.FC = () => {
         y: '0px',
         opacity: 1,
         stagger: 0.4,
-      }
+      },
     )
 
     timeline.to(
@@ -39,7 +39,7 @@ const LoadingAnimation: React.FC = () => {
         opacity: 0,
         y: '-30',
       },
-      '+=.3'
+      '+=.3',
     )
 
     timeline.fromTo(
@@ -51,7 +51,7 @@ const LoadingAnimation: React.FC = () => {
       {
         opacity: 1,
         x: '-30',
-      }
+      },
     )
 
     timeline.to(
@@ -61,7 +61,7 @@ const LoadingAnimation: React.FC = () => {
         width: '100%',
         x: 0,
       },
-      '+=.1'
+      '+=.1',
     )
 
     timeline.to('.milRevealBox', {
@@ -80,7 +80,7 @@ const LoadingAnimation: React.FC = () => {
       {
         opacity: 1,
       },
-      '-=.5'
+      '-=.5',
     )
 
     timeline.to(
@@ -90,7 +90,7 @@ const LoadingAnimation: React.FC = () => {
         opacity: 0,
         y: '-30',
       },
-      '+=.5'
+      '+=.5',
     )
 
     timeline.to(
@@ -100,7 +100,7 @@ const LoadingAnimation: React.FC = () => {
         opacity: 0,
         ease: 'sine',
       },
-      '+=.2'
+      '+=.2',
     )
 
     timeline.fromTo(
@@ -122,7 +122,7 @@ const LoadingAnimation: React.FC = () => {
           setIsPageLoading(false)
         },
       },
-      '-=1'
+      '-=1',
     )
   }, [])
 
@@ -136,7 +136,8 @@ const LoadingAnimation: React.FC = () => {
       <div className="milPreloaderAnimation relative z-10">
         <div className="milPosAbs milAnimation1">
           <p className="milH3 milBla milThin" id="color-mil-txt">
-            TamilNadu's </p>
+            TamilNadu's{' '}
+          </p>
           <p className="milH3 milMaroon" id="color-mil-txt" style={{ color: '#fde047' }}>
             Trusted
           </p>
@@ -150,7 +151,7 @@ const LoadingAnimation: React.FC = () => {
             <div className="milH3 milMaroon milThin minWebHeader">
               {/* use logo from public folder */}
               <Image
-                src="/footer_logo.png"
+                src="/footer_logo_new.PNG"
                 alt="Vaazhga Valamudan Logo"
                 width={300}
                 height={150}

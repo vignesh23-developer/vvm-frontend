@@ -94,7 +94,6 @@ export default function HeroSection() {
     'https://images.unsplash.com/photo-1599423300746-b62533397364?q=80&w=1920&auto=format&fit=crop',
   ]
 
-
   const [activeBgIndex, setActiveBgIndex] = useState(0)
 
   // Auto-rotate hero background every 7 seconds
@@ -207,8 +206,9 @@ export default function HeroSection() {
             <button
               key={idx}
               onClick={() => setActiveBgIndex(idx)}
-              className={`h-2 rounded-full transition-all duration-300 ${activeBgIndex === idx ? 'w-8 bg-yellow-400' : 'w-2 bg-white/50 hover:bg-white/80'
-                }`}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                activeBgIndex === idx ? 'w-8 bg-yellow-400' : 'w-2 bg-white/50 hover:bg-white/80'
+              }`}
             />
           ))}
         </div>
@@ -237,8 +237,9 @@ export default function HeroSection() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setCurrentTab(tab)}
-                  className={`py-2 px-3 rounded-lg text-sm font-medium transition ${currentTab === tab ? 'bg-yellow-400 text-[#2a1407]' : 'bg-white/10 hover:bg-white/20'
-                    }`}
+                  className={`py-2 px-3 rounded-lg text-sm font-medium transition ${
+                    currentTab === tab ? 'bg-yellow-400 text-[#2a1407]' : 'bg-white/10 hover:bg-white/20'
+                  }`}
                 >
                   {t(`Hero.HeroMenu.${tab}`)}
                 </motion.button>
@@ -253,8 +254,9 @@ export default function HeroSection() {
                     type="button"
                     variant="tertiary"
                     size="small"
-                    className={`pb-1 transition ${currentTab === tab ? 'text-yellow-300 border-b-2 border-yellow-300' : 'text-white/80 hover:text-yellow-200'
-                      }`}
+                    className={`pb-1 transition ${
+                      currentTab === tab ? 'text-yellow-300 border-b-2 border-yellow-300' : 'text-white/80 hover:text-yellow-200'
+                    }`}
                     onClick={() => setCurrentTab(tab)}
                   >
                     {t(`Hero.HeroMenu.${tab}`)}
@@ -279,8 +281,9 @@ export default function HeroSection() {
                   {/* Location */}
                   <motion.div
                     whileHover={{ scale: 1.02 }}
-                    className={`relative p-3 rounded-lg transition ${touched.location && errors.location ? 'border border-red-500 bg-red-50' : 'bg-white'
-                      }`}
+                    className={`relative p-3 rounded-lg transition ${
+                      touched.location && errors.location ? 'border border-red-500 bg-red-50' : 'bg-white'
+                    }`}
                   >
                     <div className="flex items-center gap-2 w-full">
                       <MapPin
@@ -432,8 +435,9 @@ export default function HeroSection() {
                               }}
                               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#2a1407]"
                               style={{
-                                background: `linear-gradient(to right, #2a1407 0%, #2a1407 ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100
-                                  }%, #e5e7eb ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100}%, #e5e7eb 100%)`,
+                                background: `linear-gradient(to right, #2a1407 0%, #2a1407 ${
+                                  ((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100
+                                }%, #e5e7eb ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100}%, #e5e7eb 100%)`,
                               }}
                             />
                             <input
@@ -494,8 +498,9 @@ export default function HeroSection() {
                   {/* Location */}
                   <motion.div
                     whileHover={{ scale: 1.02 }}
-                    className={`relative p-3 rounded-lg transition ${touched.location && errors.location ? 'border border-red-500 bg-red-50' : 'bg-white'
-                      }`}
+                    className={`relative p-3 rounded-lg transition ${
+                      touched.location && errors.location ? 'border border-red-500 bg-red-50' : 'bg-white'
+                    }`}
                   >
                     <div className="flex items-center gap-2 w-full">
                       <MapPin
@@ -507,6 +512,7 @@ export default function HeroSection() {
                       <input
                         name="location"
                         type="text"
+                        autoComplete="off"
                         value={locationQuery}
                         onChange={e => {
                           const nextValue = e.target.value
@@ -634,8 +640,9 @@ export default function HeroSection() {
                               }}
                               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#2a1407]"
                               style={{
-                                background: `linear-gradient(to right, #2a1407 0%, #2a1407 ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100
-                                  }%, #e5e7eb ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100}%, #e5e7eb 100%)`,
+                                background: `linear-gradient(to right, #2a1407 0%, #2a1407 ${
+                                  ((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100
+                                }%, #e5e7eb ${((budgetRange[0] - budgetMin) / (budgetMax - budgetMin)) * 100}%, #e5e7eb 100%)`,
                               }}
                             />
                             <input

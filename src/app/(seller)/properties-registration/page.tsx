@@ -262,7 +262,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
       // city: Yup.string().trim().required('City is required'),
       // district: Yup.string().trim().required('District is required'),
       city: Yup.string().trim().optional().notRequired(),
-      district: Yup.string().trim().optional().notRequired(),
+      district: Yup.string().trim().required('District is required'),
       state: Yup.string().oneOf(['Tamil Nadu'], 'State must be Tamil Nadu'),
       // postal_code: Yup.string().trim().required('Postal code is required'),
       postal_code: Yup.string().trim().optional().notRequired(),

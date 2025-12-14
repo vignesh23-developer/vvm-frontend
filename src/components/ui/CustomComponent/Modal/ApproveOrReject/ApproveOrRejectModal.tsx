@@ -68,7 +68,7 @@ const ApproveOrRejectPropertyModal = ({
       if (response.error) {
         toast.error(`Failed to ${approveOrRejectReason} property: ${response.message}`)
       } else {
-        toast.success(`Property ${approveOrRejectReason}d successfully`)
+        toast.success(`Property ${approveOrRejectReason} successfully`)
         setApproveOrRejectModalOpen(false)
         if (propertyRefresh) {
           propertyRefresh()

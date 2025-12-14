@@ -16,6 +16,7 @@ import { ResponseDTO } from '@/components/dto/response_dto'
 import ApproveOrRejectPropertyModal from '@/components/ui/CustomComponent/Modal/ApproveOrReject/ApproveOrRejectModal'
 import SkeletonLoader from '@/components/ui/CustomComponent/SkeletonLoader/SkeletonLoader'
 import toast from 'react-hot-toast'
+import PropertyOrAdsApproveRejectCard from '@/components/buyer/PropertyOrAdsApproveRejectCard/PropertyOrAdsCard'
 
 const PAGE_SIZE = 10
 
@@ -157,13 +158,14 @@ const PropertiesPage = () => {
               isLoading ? (
                 <SkeletonLoader key={`property-skeleton-${i}`} />
               ) : (
-                <PropertyCard
+                <PropertyOrAdsApproveRejectCard
                   key={property.id ?? i}
                   {...property}
                   language={t}
                   primaryActionLabel="Approve"
                   secondaryActionLabel="Reject"
                   thirdActionLabel="View Details"
+                  media={property?.media}
                   onPrimaryAction={() => openModal(property, 'approve')}
                   onSecondaryAction={() => openModal(property, 'reject')}
                   onThirdAction={() => router.push(`/propertyDetails/${property.id}`)}

@@ -10,8 +10,8 @@ import Button from '../CustomComponent/Button/Button'
 type LocationPickerModalProps = {
   open: boolean
   setOpen: Dispatch<SetStateAction<boolean>>
-  initialLat: number
-  initialLng: number
+  initialLat?: number | string | null
+  initialLng?: number | string | null
   onLocationSelect: (lat: number, lng: number, address: AddressParts, fullAddress: string) => void
 }
 
@@ -27,8 +27,21 @@ export type AddressParts = {
 }
 
 export default function LocationPickerModal({ open, setOpen, initialLat, initialLng, onLocationSelect }: LocationPickerModalProps) {
-  const [selectedLat, setSelectedLat] = useState<number>(initialLat)
-  const [selectedLng, setSelectedLng] = useState<number>(initialLng)
+  const DEFAULT_CENTER = { lat: 13.0827, lng: 80.2707 }
+
+  const toFiniteNumber = (value: unknown, fallback: number) => {
+    const n = typeof value === 'number' ? value : Number(value)
+    return Number.isFinite(n) ? n : fallback
+  }
+
+  const [selectedLat, setSelectedLat] = useState<number>(() => toFiniteNumber(initialLat, DEFAULT_CENTER.lat))
+  const [selectedLng, setSelectedLng] = useState<number>(() => toFiniteNumber(initialLng, DEFAULT_CENTER.lng))
+
+  useEffect(() => {
+    if (!open) return
+    setSelectedLat(toFiniteNumber(initialLat, DEFAULT_CENTER.lat))
+    setSelectedLng(toFiniteNumber(initialLng, DEFAULT_CENTER.lng))
+  }, [open, initialLat, initialLng])
 
   useEffect(() => {
     // if (!open) return
@@ -65,6 +78,11 @@ export default function LocationPickerModal({ open, setOpen, initialLat, initial
 
   const handleSave = () => {
     try {
+      if (!Number.isFinite(selectedLat) || !Number.isFinite(selectedLng)) {
+        toast.error('Please pick a valid location')
+        return
+      }
+
       const geocoder = new google.maps.Geocoder()
       const latlng = { lat: selectedLat, lng: selectedLng }
 

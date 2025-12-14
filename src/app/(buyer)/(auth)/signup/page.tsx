@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Formik, Form, FieldArray } from 'formik'
 import { useTranslations } from 'next-intl'
-import { MessageCircle } from 'lucide-react'
+import { ArrowLeft, MessageCircle } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
@@ -59,7 +59,7 @@ export default function SignupPage() {
         lastName: values.lastName,
         email: values.email,
       },
-      // otpType: buttonType === 'whatsapp' ? 'whatsapp_otp' : 'sms_otp',
+      // otpTypes: globalValue?.otpTypes || 'SMS',
     }
     // console.log('Signup Payload:', payload)
     try {
@@ -129,6 +129,12 @@ export default function SignupPage() {
         transition={{ duration: 0.8 }}
       >
         <motion.div className="w-full max-w-md" initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.5 }}>
+          {/* Back Button */}
+          <motion.div variants={itemVariants}>
+            <Link href="/login" className="flex items-center text-sm font-semibold text-green-900 mb-2 hover:underline">
+              <ArrowLeft size={20} className="mr-2" /> {t('Auth.back')}
+            </Link>
+          </motion.div>
           <motion.h2
             className="text-2xl font-bold text-[#2a1407]"
             initial={{ y: -20, opacity: 0 }}
@@ -213,20 +219,20 @@ export default function SignupPage() {
                     disabled={isSubmitting}
                     className="w-full bg-[#2a1407] text-white text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:from-[#2a1407] hover:to-[#2a1407] disabled:opacity-60 cursor-pointer"
                   >
-                    <span>{isSubmitting ? 'Submitting...' : t('Auth.whatapp_button')}</span>
+                    <span>{isSubmitting ? 'Submitting...' : t('Auth.submit')}</span>
                   </Button>
                 </motion.div>
 
                 {/* Login Link */}
-                <motion.p className="text-center text-gray-600 text-xs" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
+                {/* <motion.p className="text-center text-gray-600 text-xs" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
                   {t('Auth.signup_message')}{' '}
                   <a href="/login" className="font-semibold text-yellow-700 hover:text-yellow-800">
                     {t('Auth.login')}
                   </a>
-                </motion.p>
+                </motion.p> */}
 
                 {/* Divider */}
-                <motion.div
+                {/* <motion.div
                   className="flex items-center justify-center space-x-2"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -235,10 +241,10 @@ export default function SignupPage() {
                   <div className="flex-1 border-t border-gray-300"></div>
                   <span className="text-gray-500 text-sm">OR</span>
                   <div className="flex-1 border-t border-gray-300"></div>
-                </motion.div>
+                </motion.div> */}
 
                 {/* Continue with SMS */}
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                {/* <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Button
                     type="button"
                     className="w-full border border-yellow-300 text-sm rounded-md py-2 flex items-center justify-center space-x-2 hover:bg-yellow-50 bg-gradient-to-r from-yellow-50 to-yellow-100/50 text-[#2a1407] cursor-pointer"
@@ -246,7 +252,7 @@ export default function SignupPage() {
                     <MessageCircle size={20} />
                     <span>{t('Auth.continue_with_sms')}</span>
                   </Button>
-                </motion.div>
+                </motion.div> */}
               </Form>
             )}
           </Formik>

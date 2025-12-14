@@ -1,10 +1,11 @@
 'use client'
 
+import { useEffect } from 'react'
 import ExploreCard from '@/components/buyer/LandingPage/ExploreProperties/ExploreCard'
 import { useExploreProperties } from '@/components/buyer/LandingPage/ExploreProperties/hooks/useExploreProperties'
 import { ExplorePropertyDto } from '@/components/buyer/LandingPage/ExploreProperties/dto/explorePropertiesDto'
 import { motion, Variants } from 'framer-motion'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
 import { CircleDollarSign, Filter, Flame, MapPin, RefreshCw, Search, ShieldCheck, TrendingUp, UsersRound } from 'lucide-react'
@@ -12,11 +13,29 @@ import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 
 const PAGE_SIZE = 12
 
+const toFiniteNumber = (value: unknown, fallback = 0): number => {
+  const asNumber = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN
+  return Number.isFinite(asNumber) ? asNumber : fallback
+}
+
+const getDistrictKey = (district: unknown): string | number | null => {
+  if (typeof district === 'string') {
+    const normalized = district.trim()
+    return normalized.length ? normalized : null
+  }
+
+  if (typeof district === 'number') {
+    return Number.isFinite(district) ? district : null
+  }
+
+  return null
+}
+
 const dedupeByDistrict = (items: ExplorePropertyDto[] = []) => {
   const seen = new Set<number | string>()
   return items.filter(item => {
-    const key = item?.district
-    if (key === undefined || key === null) {
+    const key = getDistrictKey(item?.district)
+    if (key === null) {
       return false
     }
 
@@ -29,70 +48,38 @@ const dedupeByDistrict = (items: ExplorePropertyDto[] = []) => {
   })
 }
 
-const isSameDistrictOrder = (first: ExplorePropertyDto[], second: ExplorePropertyDto[]) => {
-  if (first.length !== second.length) {
-    return false
-  }
-
-  return first.every((item, index) => item.district === second[index]?.district)
-}
-
-const mergeDistricts = (existing: ExplorePropertyDto[], incoming: ExplorePropertyDto[]) => {
-  const existingDistricts = new Set(existing.map(item => item.district))
-  const newItems = incoming.filter(item => !existingDistricts.has(item.district))
-  return newItems.length ? [...existing, ...newItems] : existing
-}
-
 function ExploreByDistrict() {
   const t = useTranslations()
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [sortBy, setSortBy] = useState<'popular' | 'agents' | 'alphabetical'>('popular')
   const [quickFilter, setQuickFilter] = useState<QuickFilterId>('none')
-  const [properties, setProperties] = useState<ExplorePropertyDto[]>([])
-  const { items, total, isLoading, error } = useExploreProperties({ page, limit: PAGE_SIZE })
+  const { items, isLoading, error } = useExploreProperties()
 
-  const filteredItems = useMemo(() => {
-    if (!Array.isArray(items)) {
-      return []
-    }
-
-    return dedupeByDistrict(items)
-  }, [items])
+  const sanitizedItems = useMemo(() => dedupeByDistrict(items), [items])
 
   useEffect(() => {
-    if (page === 1) {
-      setProperties(prev => (isSameDistrictOrder(prev, filteredItems) ? prev : filteredItems))
-      return
-    }
-
-    if (!filteredItems.length) {
-      return
-    }
-
-    setProperties(prev => mergeDistricts(prev, filteredItems))
-  }, [filteredItems, page])
-
-  const canLoadMore = total ? properties.length < total : filteredItems.length === PAGE_SIZE
-  const hasProperties = properties.length > 0
+    setPage(1)
+  }, [search, sortBy, quickFilter])
 
   const sortedProperties = useMemo(() => {
-    const next = [...properties]
+    const next = [...sanitizedItems]
 
     switch (sortBy) {
       case 'agents':
-        return next.sort((a, b) => (b.noOfAgents ?? 0) - (a.noOfAgents ?? 0))
+        return next.sort((a, b) => toFiniteNumber(b.noOfAgents) - toFiniteNumber(a.noOfAgents))
       case 'alphabetical':
-        return next.sort((a, b) => String(a.district).localeCompare(String(b.district)))
+        return next.sort((a, b) => String(getDistrictKey(a.district) ?? '').localeCompare(String(getDistrictKey(b.district) ?? '')))
       default:
-        return next.sort((a, b) => (b.count ?? 0) - (a.count ?? 0))
+        return next.sort((a, b) => toFiniteNumber(b.count) - toFiniteNumber(a.count))
     }
-  }, [properties, sortBy])
+  }, [sanitizedItems, sortBy])
 
   const visibleProperties = useMemo(() => {
-    const baseList = !search.trim()
+    const normalizedSearch = search.trim().toLowerCase()
+    const baseList = !normalizedSearch
       ? sortedProperties
-      : sortedProperties.filter(item => String(item.district).toLowerCase().includes(search.toLowerCase()))
+      : sortedProperties.filter(item => String(getDistrictKey(item.district)).toLowerCase().includes(normalizedSearch))
 
     const selectedFilter = quickFilterOptions.find(option => option.id === quickFilter)
     if (!selectedFilter || quickFilter === 'none') {
@@ -102,35 +89,46 @@ function ExploreByDistrict() {
     return baseList.filter(item => selectedFilter.predicate(item))
   }, [sortedProperties, search, quickFilter])
 
+  const pagedVisibleProperties = useMemo(() => {
+    if (!search.trim()) {
+      return visibleProperties // show ALL when no search
+    }
+    return visibleProperties.slice(0, page * PAGE_SIZE)
+  }, [visibleProperties, page, search])
+  const canLoadMore = pagedVisibleProperties.length < visibleProperties.length
+  const hasProperties = sanitizedItems.length > 0
+
+  const canReset = page !== 1 || Boolean(search.trim()) || sortBy !== 'popular' || quickFilter !== 'none'
+
   const highlight = useMemo(() => {
-    if (!properties.length) {
+    if (!sanitizedItems.length) {
       return null
     }
 
-    return properties.reduce((prev, curr) => ((curr.count ?? 0) > (prev.count ?? 0) ? curr : prev))
-  }, [properties])
+    return sanitizedItems.reduce((prev, curr) => (toFiniteNumber(curr.count) > toFiniteNumber(prev.count) ? curr : prev))
+  }, [sanitizedItems])
 
-  const totalProperties = useMemo(() => properties.reduce((sum, item) => sum + (item.count ?? 0), 0), [properties])
-  const totalAgents = useMemo(() => properties.reduce((sum, item) => sum + (item.noOfAgents ?? 0), 0), [properties])
+  const totalProperties = useMemo(() => sanitizedItems.reduce((sum, item) => sum + toFiniteNumber(item.count), 0), [sanitizedItems])
+  const totalAgents = useMemo(() => sanitizedItems.reduce((sum, item) => sum + toFiniteNumber(item.noOfAgents), 0), [sanitizedItems])
   const budgetRange = useMemo(() => {
-    if (!properties.length) {
+    if (!sanitizedItems.length) {
       return { min: 0, max: 0 }
     }
 
-    const mins = properties.map(item => item.minAmount ?? 0)
-    const maxs = properties.map(item => item.maxAmount ?? 0)
+    const mins = sanitizedItems.map(item => toFiniteNumber(item.minAmount))
+    const maxs = sanitizedItems.map(item => toFiniteNumber(item.maxAmount))
     return {
       min: Math.min(...mins),
       max: Math.max(...maxs),
     }
-  }, [properties])
+  }, [sanitizedItems])
   const trendingDistricts = useMemo(() => {
-    if (!properties.length) {
+    if (!sanitizedItems.length) {
       return []
     }
 
-    return [...properties].sort((a, b) => (b.count ?? 0) - (a.count ?? 0)).slice(0, 4)
-  }, [properties])
+    return [...sanitizedItems].sort((a, b) => toFiniteNumber(b.count) - toFiniteNumber(a.count)).slice(0, 4)
+  }, [sanitizedItems])
   const maxInventory = trendingDistricts[0]?.count ?? 0
   // Animation variants
   const containerVariants: Variants = {
@@ -281,13 +279,13 @@ function ExploreByDistrict() {
       )} */}
 
       <section className="mx-auto max-w-6xl space-y-8 px-4">
-        <div className="flex flex-col gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm md:flex-row md:items-center md:justify-between">
+        {/* <div className="flex flex-col gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm md:flex-row md:items-center md:justify-between">
           <div className="relative w-full md:max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
             <input
               type="text"
               value={search}
-              onChange={event => setSearch(event.target.value)}
+              onChange={e => setSearch(e.target.value)}
               placeholder="Search by district name"
               className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2 pl-10 pr-3 text-sm outline-none transition focus:border-primary focus:bg-white"
             />
@@ -298,9 +296,16 @@ function ExploreByDistrict() {
               <button
                 key={option.id}
                 type="button"
-                onClick={() => setSortBy(option.id)}
+                onClick={() => {
+                  setSortBy(option.id)
+                  if (page !== 1) {
+                    setPage(1)
+                  }
+                }}
                 className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                  sortBy === option.id ? 'border-primary bg-primary/10 text-primary' : 'border-gray-200 text-gray-600 hover:border-primary/40'
+                  sortBy === option.id
+                    ? 'border-primary bg-primary/10 text-primary cursor-pointer'
+                    : 'border-gray-200 text-gray-600 hover:border-primary/40 cursor-pointer'
                 }`}
               >
                 {option.icon}
@@ -308,7 +313,7 @@ function ExploreByDistrict() {
               </button>
             ))}
 
-            {hasProperties && (
+            {canReset && (
               <button
                 type="button"
                 onClick={() => {
@@ -317,13 +322,13 @@ function ExploreByDistrict() {
                   setQuickFilter('none')
                   setPage(1)
                 }}
-                className="inline-flex items-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 transition hover:border-primary/40"
+                className="inline-flex items-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 transition hover:border-primary/40 cursor-pointer"
               >
                 <RefreshCw size={16} /> Reset view
               </button>
             )}
           </div>
-        </div>
+        </div> */}
 
         <motion.div
           className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 mb-4"
@@ -332,8 +337,10 @@ function ExploreByDistrict() {
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
         >
-          {hasProperties && visibleProperties.length ? (
-            visibleProperties.map((p: ExplorePropertyDto) => <ExploreCard key={`district-${p.district}`} item={p} variants={cardVariants} />)
+          {hasProperties && pagedVisibleProperties.length ? (
+            pagedVisibleProperties.map((p: ExplorePropertyDto) => (
+              <ExploreCard key={`district-${String(getDistrictKey(p.district) ?? '')}`} item={p} variants={cardVariants} />
+            ))
           ) : (
             <div className="col-span-full rounded-2xl border border-dashed border-gray-300 bg-white p-8 text-center text-sm text-gray-500">
               {search ? 'No districts match your search. Try another name.' : 'No districts to explore yet.'}
@@ -345,7 +352,7 @@ function ExploreByDistrict() {
           <div className="flex justify-center">
             <button
               type="button"
-              className="inline-flex items-center gap-2 rounded-full border border-primary px-6 py-3 text-sm font-semibold text-primary transition hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-full border border-primary px-6 py-3 text-sm font-semibold text-primary transition hover:bg-primary/10 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
               onClick={() => setPage(prev => prev + 1)}
               disabled={isLoading}
             >
@@ -384,19 +391,19 @@ const quickFilterOptions: QuickFilterOption[] = [
     id: 'budget',
     label: 'Budget friendly (< ₹25L)',
     helper: 'Ideal for first-time buyers',
-    predicate: item => (item.minAmount ?? 0) <= 2_500_000,
+    predicate: item => toFiniteNumber(item.minAmount) <= 2_500_000,
   },
   {
     id: 'premium',
     label: 'Premium hubs (> ₹1Cr)',
     helper: 'High appreciation corridors',
-    predicate: item => (item.maxAmount ?? 0) >= 10_000_000,
+    predicate: item => toFiniteNumber(item.maxAmount) >= 10_000_000,
   },
   {
     id: 'agentHeavy',
     label: 'Agent-heavy districts',
     helper: '25+ verified agents active',
-    predicate: item => (item.noOfAgents ?? 0) >= 25,
+    predicate: item => toFiniteNumber(item.noOfAgents) >= 25,
   },
 ]
 
