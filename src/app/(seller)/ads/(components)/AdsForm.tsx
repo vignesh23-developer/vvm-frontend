@@ -15,6 +15,7 @@ import StepperComponent from '@/components/ui/CustomComponent/StepperComponent/S
 import AdsImages from '../(views)/Images'
 import { onCreateAd, onUpdateAd } from '../(action)/ads_action'
 import { AdsCreationFormValues } from '../page'
+import { useKycStatus } from '@/components/kyc/hooks/useKycStatus'
 
 interface AdsFormProps {
   mode: 'create' | 'edit'
@@ -26,27 +27,38 @@ export default function AdsForm({ mode, initialData, adId }: AdsFormProps) {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
   const [createdAdId, setCreatedAdId] = useState<string | undefined>(adId)
-  
+
   // Initialize action state
-  const adActionInitState = { 
-    error: false, 
-    data: null, 
-    message: '', 
-    success: false 
+  const adActionInitState = {
+    error: false,
+    data: null,
+    message: '',
+    success: false,
   }
-  
+
   // Define the action return type
   type AdActionReturn = Promise<{
-    success: boolean;
-    error: boolean;
-    message: string;
-    data: any;
-  }>;
+    success: boolean
+    error: boolean
+    message: string
+    data: any
+  }>
 
   const [adActionState, adAction, adIsPending] = useActionState<any, any>(
     (mode === 'create' ? onCreateAd : onUpdateAd) as (prevState: any, payload: any) => AdActionReturn,
-    adActionInitState
+    adActionInitState,
   )
+
+  // KYC Verification Hook
+  const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
+
+  useEffect(() => {
+    if (kycStatus && kycStatus.isVerified) {
+      router.push('/properties-registration')
+    } else {
+      router.push('/kyc-pending')
+    }
+  }, [kycStatus, router])
 
   // Handle action state changes
   useEffect(() => {
@@ -111,10 +123,7 @@ export default function AdsForm({ mode, initialData, adId }: AdsFormProps) {
       title: Yup.string().trim().required('Title is required'),
       description: Yup.string().trim().required('Description is required'),
       category_id: Yup.string().required('Category is required'),
-      price: Yup.number()
-        .typeError('Price must be a number')
-        .positive('Price must be greater than zero')
-        .required('Price is required'),
+      price: Yup.number().typeError('Price must be a number').positive('Price must be greater than zero').required('Price is required'),
       price_unit: Yup.string().required('Price unit is required'),
     }),
 
@@ -135,18 +144,13 @@ export default function AdsForm({ mode, initialData, adId }: AdsFormProps) {
         .trim()
         .required('Contact phone is required')
         .matches(/^\+?[1-9]\d{1,14}$/, 'Please enter a valid phone number'),
-      contact_email: Yup.string()
-        .email('Invalid email address')
-        .required('Contact email is required'),
+      contact_email: Yup.string().email('Invalid email address').required('Contact email is required'),
     }),
   }
 
   const isLastStep = currentStep === 3 // the Formik-controlled steps end at 3; step 4 is a separate upload flow
 
-  const handleSubmit = async (
-    values: AdsCreationFormValues,
-    actions: FormikHelpers<AdsCreationFormValues>
-  ) => {
+  const handleSubmit = async (values: AdsCreationFormValues, actions: FormikHelpers<AdsCreationFormValues>) => {
     try {
       // Validate only the schema for the current step
       await validationSchemas[currentStep].validate(values, { abortEarly: false })
@@ -162,29 +166,29 @@ export default function AdsForm({ mode, initialData, adId }: AdsFormProps) {
               return
             }
           } else {
-            const result = await onCreateAd({}, values);
+            const result = await onCreateAd({}, values)
             if (!result.error) {
-              const newAdId = result.data?.id || result.data?.data?.id;
+              const newAdId = result.data?.id || result.data?.data?.id
               if (newAdId) {
-                setCreatedAdId(newAdId);
-                setCurrentStep(4);
-                toast.success('Ad created successfully! Now upload images.');
-                return;
+                setCreatedAdId(newAdId)
+                setCurrentStep(4)
+                toast.success('Ad created successfully! Now upload images.')
+                return
               }
             } else {
-              throw new Error(result.message || 'Failed to create ad');
+              throw new Error(result.message || 'Failed to create ad')
             }
           }
         } catch (error: any) {
-          console.error('Error creating/updating ad:', error);
-          toast.error(error?.message || 'Failed to save ad. Please try again.');
-          actions.setSubmitting(false);
-          return;
+          console.error('Error creating/updating ad:', error)
+          toast.error(error?.message || 'Failed to save ad. Please try again.')
+          actions.setSubmitting(false)
+          return
         }
       } else {
         // Move to next step
-        setCurrentStep(step => step + 1);
-        actions.setTouched({});
+        setCurrentStep(step => step + 1)
+        actions.setTouched({})
       }
     } catch (err) {
       if (err instanceof Yup.ValidationError) {
@@ -211,25 +215,14 @@ export default function AdsForm({ mode, initialData, adId }: AdsFormProps) {
         />
       </div>
 
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchemas[currentStep]}
-        onSubmit={handleSubmit}
-        enableReinitialize
-      >
+      <Formik initialValues={initialValues} validationSchema={validationSchemas[currentStep]} onSubmit={handleSubmit} enableReinitialize>
         {formik => (
           <Form>
             <div className={`max-w-4xl mx-auto ${currentStep === 4 ? 'max-w-3xl' : ''}`}>
               {currentStep === 1 && <Step1BasicDetails formik={formik} />}
               {currentStep === 2 && <Step2Location formik={formik} />}
               {currentStep === 3 && <Step3Contact formik={formik} />}
-              {currentStep === 4 && (
-                <AdsImages
-                  adId={createdAdId || adId || ''}
-                  onUploaded={() => router.push('/ads/list')}
-                  mode={mode}
-                />
-              )}
+              {currentStep === 4 && <AdsImages adId={createdAdId || adId || ''} onUploaded={() => router.push('/ads/list')} mode={mode} />}
             </div>
 
             {/* Navigation Buttons */}
@@ -244,25 +237,25 @@ export default function AdsForm({ mode, initialData, adId }: AdsFormProps) {
                   <ArrowLeft size={20} /> Previous
                 </button>
               )}
-                <div className={currentStep === 4 ? 'w-full' : ''}>
-                  {currentStep <= 3 && (
-                    <button
-                      type="submit"
-                      disabled={formik.isSubmitting || adIsPending}
-                      className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#2a1407] text-white hover:bg-[#641717] cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ${
-                        formik.isSubmitting || adIsPending ? 'opacity-50 cursor-not-allowed' : ''
-                      }`}
-                    >
-                      {formik.isSubmitting || adIsPending ? (
-                        'Loading...'
-                      ) : (
-                        <>
-                          {isLastStep ? (mode === 'create' ? 'Create Ad & Continue' : 'Update Ad') : 'Next Step'} <ArrowRight size={20} />
-                        </>
-                      )}
-                    </button>
-                  )}
-                </div>
+              <div className={currentStep === 4 ? 'w-full' : ''}>
+                {currentStep <= 3 && (
+                  <button
+                    type="submit"
+                    disabled={formik.isSubmitting || adIsPending}
+                    className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#2a1407] text-white hover:bg-[#641717] cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ${
+                      formik.isSubmitting || adIsPending ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    {formik.isSubmitting || adIsPending ? (
+                      'Loading...'
+                    ) : (
+                      <>
+                        {isLastStep ? (mode === 'create' ? 'Create Ad & Continue' : 'Update Ad') : 'Next Step'} <ArrowRight size={20} />
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
             </div>
           </Form>
         )}
