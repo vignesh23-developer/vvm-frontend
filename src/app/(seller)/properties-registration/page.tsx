@@ -1,5 +1,6 @@
 'use client'
 import { CheckCircle, ContactRound, Home, MapPin, Star, Camera, Check, ArrowRight, ArrowLeft } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { SetStateAction, startTransition, use, useActionState, useEffect, useState, useTransition } from 'react'
 import { Formik, Form, FormikHelpers } from 'formik'
 import * as Yup from 'yup'
@@ -23,6 +24,8 @@ import { getMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { useKycStatus } from '@/components/kyc/hooks/useKycStatus'
+import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 // import Step5UploadImages from './(views)/UploadImages'
 
 const mapFeatureValuesToPayload = (featureValues: any[] | undefined, mappings: FeatureMappingDTO[] | null): FeaturePayloadDTO[] => {
@@ -173,6 +176,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
   const { globalValue, setGlobalValue } = useGlobalContext()
   console.log(globalValue, 'value in property reg page')
   const { user } = useAuth()
+  const router = useRouter()
   const [valueData, setValueData] = useState<any>(null)
   const fectchPropertiesById = async (id: string | undefined) => {
     if (id) {
@@ -181,6 +185,16 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
       setValueData(res?.data)
     }
   }
+  // KYC Verification Hook
+  const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
+
+  useEffect(() => {
+    if (kycStatus && kycStatus.isVerified) {
+      router.push('/properties-registration')
+    } else {
+      router.push('/kyc-pending')
+    }
+  }, [kycStatus, router])
 
   useEffect(() => {
     fectchPropertiesById(propertiesId)
@@ -587,6 +601,14 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
         actions.setSubmitting(false)
       }
     }
+  }
+
+  if (isKycLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <CustomLoader text="Loading..." />
+      </div>
+    )
   }
 
   return (

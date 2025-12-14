@@ -2,6 +2,7 @@
 
 import { useCallback, useState, useMemo } from 'react'
 import { useAds } from '@/app/(seller)/ads/(hooks)/useAds'
+import { useKycStatus } from '@/components/kyc/hooks/useKycStatus'
 import { useAdsCategories } from '@/app/(seller)/ads/(hooks)/useAdsCategories'
 import { AdsDto } from '@/app/(seller)/ads/dto/AdsDto'
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts'
@@ -42,6 +43,9 @@ export default function AdsListPage() {
   const onlyAdmin = hasRole(userRoles, [Roles.ADMIN])
   const [currentPage, setCurrentPage] = useState(1)
   const [currentLimit, setCurrentLimit] = useState(10)
+
+  // KYC Verification Hook
+  const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
 
   // Fetch ads with current page and limit - triggers API call when these change
   const { ads, total, error, isLoading, mutateAds } = useAds({ page: currentPage, limit: currentLimit })
@@ -287,12 +291,10 @@ export default function AdsListPage() {
   }
 
   const handleAdsCreation = () => {
-    const isVerifiedUser = user?.isVerified
-    if (token && !isVerifiedUser) {
-      router.push('/kyc-pending')
-      return
-    } else {
+    if (kycStatus?.isVerified) {
       router.push('/ads')
+    } else {
+      router.push('/kyc-pending')
     }
   }
 

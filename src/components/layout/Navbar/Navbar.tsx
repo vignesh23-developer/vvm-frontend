@@ -44,6 +44,7 @@ import { getMethod } from '@/services/service'
 import { Roles, getUserRoles, hasRole, type UserRole } from '@/utils/roles/roles'
 import NotificationPopup from '@/components/Notification/NotificationPopup'
 import NotificationBadge from '@/components/Notification/NotificationBadge'
+import { useKycStatus } from '@/components/kyc/hooks/useKycStatus'
 
 export interface NavLink {
   label: string
@@ -224,6 +225,8 @@ export default function Navbar({
     return hasSectionAccess && hasVisibleChildren
   })
 
+  // KYC Verification Hook
+  const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
   console.log('userRoles in Navbar before filtering sections:', userRoles)
 
   useEffect(() => {
@@ -478,7 +481,7 @@ export default function Navbar({
               {/* Notification Bell */}
               <div className="relative">
                 <button
-                  onClick={() => setIsNotificationOpen((prev) => !prev)}
+                  onClick={() => setIsNotificationOpen(prev => !prev)}
                   className="relative p-2 hover:bg-gray-400 rounded-md transition focus:outline-none focus:ring-2 focus:ring-primary-300"
                   title="Notifications"
                   aria-label="Notifications"
@@ -524,7 +527,7 @@ export default function Navbar({
                           <div className="flex flex-col pl-8 mt-1">
                             {section.subMenu?.map((links: any) => {
                               const onlyAccessVerifiedUser = links?.href === '/properties-registration'
-                              if (onlyAccessVerifiedUser && !user?.isVerified) {
+                              if (onlyAccessVerifiedUser && !kycStatus?.isVerified) {
                                 return (
                                   <Link
                                     key={String(links.href)}
@@ -587,7 +590,9 @@ export default function Navbar({
                     </Link>
 
                     <Link
-                      href={!user?.isVerified ? '/kyc-pending' : !!companyProfileId ? `/company-profile/${companyProfileId}` : `/company-profile`}
+                      href={
+                        !kycStatus?.isVerified ? '/kyc-pending' : !!companyProfileId ? `/company-profile/${companyProfileId}` : `/company-profile`
+                      }
                       className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition"
                     >
                       <Building2 size={16} /> {t('Navbar.company profile')}
@@ -637,8 +642,9 @@ export default function Navbar({
 
       {/* Mobile / Tablet Menu */}
       <div
-        className={`md:hidden transition-all duration-300 ease-in-out ${isMenuOpen ? 'max-h-[80vh] opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-3'
-          }`}
+        className={`md:hidden transition-all duration-300 ease-in-out ${
+          isMenuOpen ? 'max-h-[80vh] opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-3'
+        }`}
         style={{ overflow: isMenuOpen ? 'auto' : 'hidden' }}
       >
         <div
@@ -681,7 +687,7 @@ export default function Navbar({
                     <div className="flex flex-col pl-4 space-y-1">
                       {section.subMenu?.map((sub: any) => {
                         const onlyAccessVerifiedUser = sub?.href === '/properties-registration'
-                        if (onlyAccessVerifiedUser && !user?.isVerified) {
+                        if (onlyAccessVerifiedUser && !kycStatus?.isVerified) {
                           return (
                             <Link
                               key={String(sub.href)}
@@ -717,83 +723,83 @@ export default function Navbar({
           {/* Profile / Login Section */}
           {user
             ? PROFILE_SECTIONS(user.id, companyProfileId).map(section => (
-              <div key={section.label} className="w-full mt-2 border-t border-white/20 pt-2">
-                <Button
-                  onClick={() => toggleSection(section.label)}
-                  className="flex justify-between items-center w-full text-left text-white font-medium py-2 px-2 rounded-lg hover:bg-white/10"
-                >
-                  <span className="flex items-center gap-2">
-                    {section.icon}
-                    {t(`Navbar.${section.label}`)}
-                  </span>
-                  {openSections.has(section.label) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                </Button>
+                <div key={section.label} className="w-full mt-2 border-t border-white/20 pt-2">
+                  <Button
+                    onClick={() => toggleSection(section.label)}
+                    className="flex justify-between items-center w-full text-left text-white font-medium py-2 px-2 rounded-lg hover:bg-white/10"
+                  >
+                    <span className="flex items-center gap-2">
+                      {section.icon}
+                      {t(`Navbar.${section.label}`)}
+                    </span>
+                    {openSections.has(section.label) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  </Button>
 
-                {/* Header */}
-                {openSections.has(section.label) && (
-                  <>
-                    <div className="px-4 py-3 border-b border-gray-200 text-center">
-                      <span className="font-semibold text-sm block truncate">
-                        {formatName(user?.firstName)} {formatName(user?.lastName)}
-                      </span>
-                    </div>
+                  {/* Header */}
+                  {openSections.has(section.label) && (
+                    <>
+                      <div className="px-4 py-3 border-b border-gray-200 text-center">
+                        <span className="font-semibold text-sm block truncate">
+                          {formatName(user?.firstName)} {formatName(user?.lastName)}
+                        </span>
+                      </div>
 
-                    <div className="flex flex-col pl-4 space-y-1">
-                      {section.subMenu?.map((sub: any) => {
-                        if (sub.label === 'logout') {
+                      <div className="flex flex-col pl-4 space-y-1">
+                        {section.subMenu?.map((sub: any) => {
+                          if (sub.label === 'logout') {
+                            return (
+                              <Button
+                                key="mobile-logout"
+                                onClick={() => {
+                                  setIsMenuOpen(false)
+                                  handleLogout()
+                                }}
+                                className="flex items-center gap-2 w-full px-4 py-1 text-sm text-gray-200 hover:text-white transition"
+                              >
+                                <span className="text-gray-400">{sub.icon ? sub.icon : <CircleSmall size={12} />}</span>
+                                {t(`Navbar.subMenus.${sub.label}`)}
+                              </Button>
+                            )
+                          }
+
+                          const requiresAuth =
+                            typeof sub?.href === 'string' && (sub.href === '/company-profile' || sub.href.startsWith('/company-profile/'))
+                          const isVerifiedUser = Boolean(requiresAuth && token && kycStatus?.isVerified)
+                          const targetHref = requiresAuth && !isVerifiedUser ? '/kyc-pending' : sub.href
+
                           return (
-                            <Button
-                              key="mobile-logout"
-                              onClick={() => {
-                                setIsMenuOpen(false)
-                                handleLogout()
-                              }}
-                              className="flex items-center gap-2 w-full px-4 py-1 text-sm text-gray-200 hover:text-white transition"
+                            <Link
+                              key={String(sub.href)}
+                              href={targetHref}
+                              onClick={() => setIsMenuOpen(false)}
+                              className="flex items-center gap-2 px-4 py-1 text-sm text-gray-200 hover:text-white transition no-underline"
                             >
                               <span className="text-gray-400">{sub.icon ? sub.icon : <CircleSmall size={12} />}</span>
                               {t(`Navbar.subMenus.${sub.label}`)}
-                            </Button>
+                            </Link>
                           )
-                        }
-
-                        const requiresAuth =
-                          typeof sub?.href === 'string' && (sub.href === '/company-profile' || sub.href.startsWith('/company-profile/'))
-                        const isVerifiedUser = Boolean(requiresAuth && token && user?.isVerified)
-                        const targetHref = requiresAuth && !isVerifiedUser ? '/kyc-pending' : sub.href
-
-                        return (
-                          <Link
-                            key={String(sub.href)}
-                            href={targetHref}
-                            onClick={() => setIsMenuOpen(false)}
-                            className="flex items-center gap-2 px-4 py-1 text-sm text-gray-200 hover:text-white transition no-underline"
-                          >
-                            <span className="text-gray-400">{sub.icon ? sub.icon : <CircleSmall size={12} />}</span>
-                            {t(`Navbar.subMenus.${sub.label}`)}
-                          </Link>
-                        )
-                      })}
-                    </div>
-                  </>
-                )}
-              </div>
-            ))
+                        })}
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))
             : showLoginButton && (
-              <div className="flex flex-col gap-2 mt-4">
-                <Link
-                  href="/login"
-                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#2a1407] px-5 py-2.5 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-600 transition shadow-md text-sm"
-                >
-                  {t('Auth.login')}
-                </Link>
-                <Link
-                  href="/signup"
-                  className="flex items-center justify-center gap-2 bg-white text-[#2a1407] border border-gray-200 px-5 py-2.5 rounded-lg font-semibold hover:bg-gray-50 transition shadow-md text-sm"
-                >
-                  {t('Auth.signup') || 'Register'}
-                </Link>
-              </div>
-            )}
+                <div className="flex flex-col gap-2 mt-4">
+                  <Link
+                    href="/login"
+                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#2a1407] px-5 py-2.5 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-600 transition shadow-md text-sm"
+                  >
+                    {t('Auth.login')}
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="flex items-center justify-center gap-2 bg-white text-[#2a1407] border border-gray-200 px-5 py-2.5 rounded-lg font-semibold hover:bg-gray-50 transition shadow-md text-sm"
+                  >
+                    {t('Auth.signup') || 'Register'}
+                  </Link>
+                </div>
+              )}
 
           {/* Keep your language selector & profile/login below unchanged */}
           {showLanguageSelector && <LanguageSwitch />}

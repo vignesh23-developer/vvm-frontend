@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { useRouter } from 'next/navigation'
 import Button from '@/components/ui/CustomComponent/Button/Button'
+import { useKycStatus } from '@/components/kyc/hooks/useKycStatus'
 
 interface FooterColumnProps {
   title: string
@@ -15,6 +16,9 @@ export default function FooterColumn({ title, links }: FooterColumnProps) {
   const t = useTranslations()
   const { user, token } = useAuth()
   const router = useRouter()
+  // KYC Verification Hook
+  const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
+
   // console.log('FooterColumn links:', links)
   return (
     <div>
@@ -23,7 +27,7 @@ export default function FooterColumn({ title, links }: FooterColumnProps) {
         {links.map(({ label, href }) => {
           const requiresAuth = href === '/properties-registration'
           const disabled = requiresAuth && !token
-          const isVerifiedUser = user?.isVerified
+          const isVerifiedUser = kycStatus?.isVerified
           if (href === '/properties-registration' && requiresAuth && token && !isVerifiedUser) {
             // If the user is logged in but not verified, disable the link
             return (

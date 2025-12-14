@@ -16,6 +16,7 @@ import { Roles, getUserRoles, hasRole, type UserRole } from '@/utils/roles/roles
 import { formatPrice } from '@/utils/converter/formatPrice'
 import { getMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
+import { useKycStatus } from '@/components/kyc/hooks/useKycStatus'
 
 // Chart data
 
@@ -38,40 +39,14 @@ export default function PropertiesPage() {
   const [limit, setLimit] = useState(10)
   const [isOpenStatusModal, setIsOpenStatusModal] = useState(false)
   const [propertyId, setPropertyId] = useState<string | null>(null)
-  const [isKycVerified, setIsKycVerified] = useState<boolean>(false)
-  const [isKycLoading, setIsKycLoading] = useState<boolean>(true)
 
-  if (!token) {
-    redirect('/login')
-  }
-
-  useEffect(() => {
-    let isMounted = true
-
-    const fetchKycStatus = async () => {
-      try {
-        setIsKycLoading(true)
-        const response = await getMethod(appEndpoints.getUserKycStatus)
-        const verified = Boolean((response as any)?.data?.isVerified)
-        if (isMounted) setIsKycVerified(verified)
-      } catch {
-        if (isMounted) setIsKycVerified(false)
-      } finally {
-        if (isMounted) setIsKycLoading(false)
-      }
-    }
-
-    void fetchKycStatus()
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
+  // KYC Verification Hook
+  const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
 
   const handlePropertiesRegistrationClick = () => {
-    if (isKycLoading) return
+    if (kycStatus?.isVerified) return
 
-    if (isKycVerified) {
+    if (kycStatus?.isVerified) {
       router.push('/properties-registration')
     } else {
       router.push('/kyc-pending')
