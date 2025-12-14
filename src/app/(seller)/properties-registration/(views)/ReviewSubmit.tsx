@@ -15,6 +15,7 @@ import { PropertyDetailsResponseDto } from '@/app/(buyer)/(site)/propertyDetails
 import ApproveOrRejectPropertyModal from '@/components/ui/CustomComponent/Modal/ApproveOrReject/ApproveOrRejectModal'
 import { useGlobalContext } from '@/hooks/GlobalContext/GlobalContext'
 import SkeletonLoader from '@/components/ui/CustomComponent/SkeletonLoader/SkeletonLoader'
+import PropertyOrAdsApproveRejectCard from '@/components/buyer/PropertyOrAdsApproveRejectCard/PropertyOrAdsCard'
 
 interface ListingDetails {
   type?: string
@@ -90,7 +91,7 @@ export default function Step6ReviewSubmit({ listingData, onSubmit, formik, prope
           <div className="mb-10 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition p-4">
             {propertyDetailsFetchLoader && <SkeletonLoader />}
             {propertyDetailsData && (
-              <PropertyCard
+              <PropertyOrAdsApproveRejectCard
                 key={String(propertyDetailsData?.id ?? 'preview-id')}
                 {...propertyDetailsData}
                 id={String(propertyDetailsData?.id ?? 'preview-id')}
@@ -151,7 +152,9 @@ export default function Step6ReviewSubmit({ listingData, onSubmit, formik, prope
             onClick={handleSubmit}
             disabled={!agreedToTerms}
             className={`w-full md:w-auto px-8 py-3 rounded-lg font-medium transition-all duration-200 ${
-              agreedToTerms ? 'bg-gradient-to-r from-yellow-500 to-yellow-600  hover:bg-blue-700 text-white cursor-pointer' : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              agreedToTerms
+                ? 'bg-gradient-to-r from-yellow-500 to-yellow-600  hover:bg-blue-700 text-white cursor-pointer'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
           >
             Submit Listing
