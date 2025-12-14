@@ -165,6 +165,7 @@ const page = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null)
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false)
   const [carouselScrollPosition, setCarouselScrollPosition] = useState(0)
+  const [isPlayingTour, setIsPlayingTour] = useState(false)
   const carouselRef = useRef<HTMLDivElement | null>(null)
   const [funFactRevealed, setFunFactRevealed] = useState(false)
   const [revealedFacts, setRevealedFacts] = useState<string[]>([])
@@ -353,7 +354,7 @@ const page = () => {
 
   const totalImageCount = apiImages?.length || 0
 
-  const getVideoEmbedUrl = useCallback((url: string) => {
+  const getVideoEmbedUrlWithFallback = useCallback((url: string) => {
     const fallback = 'https://www.youtube.com/embed/dQw4w9WgXcQ'
     if (!url) return fallback
 
@@ -542,8 +543,8 @@ const page = () => {
       Array.isArray(similarProperties) && similarProperties.length > 0
         ? similarProperties
         : Array.isArray(popularSimilarProperties)
-        ? popularSimilarProperties
-        : []
+          ? popularSimilarProperties
+          : []
 
     if (base.length === 0) return []
 
@@ -562,19 +563,36 @@ const page = () => {
   // Derive primary video URL from media (fallback to a generic YouTube embed)
   const primaryVideoMedia = useMemo(() => propertyDetailsData?.media?.find(media => media.media_type === 'VIDEO'), [propertyDetailsData])
 
+  // Helper to convert video URL to embed URL
+  const getVideoEmbedUrl = useCallback((url: string) => {
+    if (!url) return ''
+    if (url.includes('youtube.com/watch')) {
+      return url.replace('watch?v=', 'embed/')
+    }
+    if (url.includes('youtu.be/')) {
+      return url.replace('youtu.be/', 'www.youtube.com/embed/')
+    }
+    return url
+  }, [])
+
   const videoEmbedUrl = useMemo(() => {
     const fallback = 'https://www.youtube.com/embed/dQw4w9WgXcQ'
     const raw = primaryVideoMedia?.url
     if (!raw) return fallback
+    return getVideoEmbedUrl(raw)
+  }, [primaryVideoMedia, getVideoEmbedUrl])
 
-    if (raw.includes('youtube.com/watch')) {
-      return raw.replace('watch?v=', 'embed/')
-    }
-    if (raw.includes('youtu.be/')) {
-      return raw.replace('youtu.be/', 'www.youtube.com/embed/')
-    }
-    return raw
+  // Extract video thumbnail for cover image
+  const videoThumbnailUrl = useMemo(() => {
+    const url = primaryVideoMedia?.url
+    if (!url) return null
+    // Robust regex for YouTube Video ID
+    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^#&?]+)/)
+    const vidId = match ? match[1] : null
+    if (vidId) return `https://img.youtube.com/vi/${vidId}/maxresdefault.jpg`
+    return null
   }, [primaryVideoMedia])
+
 
   // Tabs configuration
   const tabs: { id: TabType; label: string; icon?: LucideIcon }[] = [
@@ -1255,9 +1273,8 @@ const page = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.08 }}
                       whileHover={{ y: -3, boxShadow: '0 18px 40px rgba(0,0,0,0.07)' }}
-                      className={`relative flex flex-col justify-between rounded-2xl bg-gradient-to-br from-yellow-50/50 to-white px-5 py-4 border border-yellow-100 ${
-                        isPrivileged ? 'cursor-pointer hover:shadow-md' : ''
-                      }`}
+                      className={`relative flex flex-col justify-between rounded-2xl bg-gradient-to-br from-yellow-50/50 to-white px-5 py-4 border border-yellow-100 ${isPrivileged ? 'cursor-pointer hover:shadow-md' : ''
+                        }`}
                       role={isPrivileged ? 'button' : undefined}
                       tabIndex={isPrivileged ? 0 : undefined}
                       onClick={() => {
@@ -1374,14 +1391,32 @@ const page = () => {
                 </div>
               </div>
             </div>
-            <div className="relative w-full pb-[56.25%]">
-              <iframe
-                src={videoEmbedUrl}
-                title={propertyDetailsData?.title || 'Project walkthrough video'}
-                className="absolute inset-0 h-full w-full border-t border-gray-100 rounded-b-2xl"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              />
+            <div className="relative w-full pb-[56.25%] bg-black group cursor-pointer overflow-hidden rounded-b-2xl" onClick={() => !isPlayingTour && setIsPlayingTour(true)}>
+              {!isPlayingTour ? (
+                <>
+                  <Image
+                    src={videoThumbnailUrl || "/images/placeholder-property.jpg"}
+                    alt="Video thumbnail"
+                    fill
+                    className="object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-300"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-xl">
+                      <Play className="w-6 h-6 text-white fill-white ml-1" />
+                    </div>
+                  </div>
+                  {/* Overlay gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                </>
+              ) : (
+                <iframe
+                  src={`${videoEmbedUrl}${videoEmbedUrl.includes('?') ? '&' : '?'}autoplay=1`}
+                  title={propertyDetailsData?.title || 'Project walkthrough video'}
+                  className="absolute inset-0 h-full w-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              )}
             </div>
           </motion.div>
 
@@ -1584,8 +1619,8 @@ const page = () => {
                           typeof totalFromApi === 'number'
                             ? totalFromApi
                             : Array.isArray((res?.data as any)?.data)
-                            ? (res.data as any).data.length
-                            : 0
+                              ? (res.data as any).data.length
+                              : 0
 
                         setQuizResultCount(count)
                         setShowQuizResult(true)
@@ -1954,7 +1989,7 @@ const page = () => {
                   apiImages[selectedImageIndex].type === 'video' ? (
                     <div className="w-full h-full md:h-[80%] aspect-video bg-black rounded-lg overflow-hidden">
                       <iframe
-                        src={getVideoEmbedUrl(apiImages[selectedImageIndex].url)}
+                        src={getVideoEmbedUrlWithFallback(apiImages[selectedImageIndex].url)}
                         title="Property Video"
                         className="w-full h-full"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
