@@ -7,8 +7,12 @@ const redirectToLogin = () => {
   if (typeof window === 'undefined') return
   if (isRedirectingToLogin) return
 
-  const currentPath = `${window.location.pathname}${window.location.search}`
-  if (window.location.pathname === '/login') return
+  const pathSegments = window.location.pathname.split('/').filter(Boolean)
+  const lastSegment = pathSegments[pathSegments.length - 1]
+  const isLoginRoute = lastSegment === 'login'
+  if (isLoginRoute) return
+
+  const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`
 
   isRedirectingToLogin = true
   window.location.replace(`/login?next=${encodeURIComponent(currentPath)}`)

@@ -226,7 +226,7 @@ export default function Navbar({
   })
 
   // KYC Verification Hook
-  const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
+  // const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
   console.log('userRoles in Navbar before filtering sections:', userRoles)
 
   useEffect(() => {
@@ -527,7 +527,7 @@ export default function Navbar({
                           <div className="flex flex-col pl-8 mt-1">
                             {section.subMenu?.map((links: any) => {
                               const onlyAccessVerifiedUser = links?.href === '/properties-registration'
-                              if (onlyAccessVerifiedUser && !kycStatus?.isVerified) {
+                              if (onlyAccessVerifiedUser && !user?.isVerified) {
                                 return (
                                   <Link
                                     key={String(links.href)}
@@ -590,9 +590,7 @@ export default function Navbar({
                     </Link>
 
                     <Link
-                      href={
-                        !kycStatus?.isVerified ? '/kyc-pending' : !!companyProfileId ? `/company-profile/${companyProfileId}` : `/company-profile`
-                      }
+                      href={!user?.isVerified ? '/kyc-pending' : !!companyProfileId ? `/company-profile/${companyProfileId}` : `/company-profile`}
                       className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition"
                     >
                       <Building2 size={16} /> {t('Navbar.company profile')}
@@ -687,7 +685,7 @@ export default function Navbar({
                     <div className="flex flex-col pl-4 space-y-1">
                       {section.subMenu?.map((sub: any) => {
                         const onlyAccessVerifiedUser = sub?.href === '/properties-registration'
-                        if (onlyAccessVerifiedUser && !kycStatus?.isVerified) {
+                        if (onlyAccessVerifiedUser && !user?.isVerified) {
                           return (
                             <Link
                               key={String(sub.href)}
@@ -764,7 +762,7 @@ export default function Navbar({
 
                           const requiresAuth =
                             typeof sub?.href === 'string' && (sub.href === '/company-profile' || sub.href.startsWith('/company-profile/'))
-                          const isVerifiedUser = Boolean(requiresAuth && token && kycStatus?.isVerified)
+                          const isVerifiedUser = Boolean(requiresAuth && token && user?.isVerified)
                           const targetHref = requiresAuth && !isVerifiedUser ? '/kyc-pending' : sub.href
 
                           return (

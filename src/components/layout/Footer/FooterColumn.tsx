@@ -17,7 +17,7 @@ export default function FooterColumn({ title, links }: FooterColumnProps) {
   const { user, token } = useAuth()
   const router = useRouter()
   // KYC Verification Hook
-  const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
+  // const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
 
   // console.log('FooterColumn links:', links)
   return (
@@ -27,7 +27,7 @@ export default function FooterColumn({ title, links }: FooterColumnProps) {
         {links.map(({ label, href }) => {
           const requiresAuth = href === '/properties-registration'
           const disabled = requiresAuth && !token
-          const isVerifiedUser = kycStatus?.isVerified
+          const isVerifiedUser = user?.isVerified
           if (href === '/properties-registration' && requiresAuth && token && !isVerifiedUser) {
             // If the user is logged in but not verified, disable the link
             return (
