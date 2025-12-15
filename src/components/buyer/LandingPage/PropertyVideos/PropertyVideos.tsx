@@ -13,6 +13,12 @@ export default function PropertyVideos() {
   const router = useRouter()
   const [selectedVideo, setSelectedVideo] = React.useState<any>(null)
 
+  const getYouTubeId = (url: string) => {
+    if (!url) return null
+    const m = url.match(/embed\/([^?&/]+)/)
+    return m ? m[1] : null
+  }
+
   const videos = [
     {
       id: 1,
@@ -146,9 +152,7 @@ export default function PropertyVideos() {
             viewport={{ once: true }}
             className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 mb-6 tracking-tight"
           >
-            <span className="bg-[#2a1407] bg-clip-text text-transparent">
-              {t('ExploreVideo.title') || 'Virtual Property Tours'}
-            </span>
+            <span className="bg-[#2a1407] bg-clip-text text-transparent">{t('ExploreVideo.title') || 'Virtual Property Tours'}</span>
           </motion.h2>
 
           <motion.p
@@ -203,17 +207,34 @@ export default function PropertyVideos() {
                     <motion.div
                       whileHover={{ scale: 1.05 }}
                       transition={{ type: 'spring', stiffness: 200, damping: 25 }}
-                      className="w-full h-full relative z-10"
+                      className="w-full h-full relative z-10 cursor-pointer"
+                      onClick={() => setSelectedVideo(item)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && setSelectedVideo(item)}
                     >
-                      <iframe
-                        src={item.url}
-                        title={item.title}
-                        className="w-full h-full"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        referrerPolicy="strict-origin-when-cross-origin"
-                        allowFullScreen
-                      ></iframe>
+                      {
+                        // Show YouTube thumbnail and a play overlay; only create iframe when user opens modal
+                      }
+                      {(() => {
+                        const id = getYouTubeId(item.url)
+                        const thumb = id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : undefined
+                        return (
+                          <div className="w-full h-full bg-black/40 flex items-center justify-center">
+                            {thumb ? (
+                              <img src={thumb} alt={item.title} className="object-cover w-full h-full" loading="lazy" />
+                            ) : (
+                              <div className="w-full h-full bg-gray-800" />
+                            )}
+
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="w-16 h-16 rounded-full bg-black/60 flex items-center justify-center">
+                                <Play className="text-white" size={28} />
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })()}
                     </motion.div>
 
                     {/* Dark Overlay on Hover */}
@@ -351,11 +372,14 @@ export default function PropertyVideos() {
 
               {/* Video Player */}
               <iframe
-                src={`${selectedVideo.url}${String(selectedVideo.url || '').includes('?') ? '&' : '?'}autoplay=1`}
+                src={`${selectedVideo.url}${
+                  String(selectedVideo.url || '').includes('?') ? '&' : '?'
+                }autoplay=1&rel=0&enablejsapi=1&modestbranding=1`}
                 title={selectedVideo.title}
                 className="w-full h-full"
                 frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; autoplay"
+                referrerPolicy="strict-origin-when-cross-origin"
                 allowFullScreen
               ></iframe>
             </motion.div>
