@@ -46,7 +46,6 @@ export default function AdsListPage() {
 
   // KYC Verification Hook
   const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
-
   // Fetch ads with current page and limit - triggers API call when these change
   const { ads, total, error, isLoading, mutateAds } = useAds({ page: currentPage, limit: currentLimit })
   const { categories } = useAdsCategories()

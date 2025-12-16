@@ -180,7 +180,6 @@ export default function Navbar({
   const t = useTranslations()
   const { logout, user, token } = useAuth()
   const { reset } = useGlobalContext()
-  console.log('user in Navbar component:', user)
   const { locale, setLocale } = useTranslationContext()
   const router = useRouter()
 
@@ -231,7 +230,7 @@ export default function Navbar({
 
   useEffect(() => {
     if (!token || !user) return
-    console.log('Fetching user details in Navbar useEffect:', user)
+    // console.log('Fetching user details in Navbar useEffect:', user)
     const fetchData = async () => {
       const companyProfiles = await getMethod(appEndpoints.getCompanyProfilesByUserID(user.id))
       const companyProfilesData = Array.isArray(companyProfiles?.data) ? (companyProfiles.data as any[]) : []
@@ -241,7 +240,7 @@ export default function Navbar({
     fetchData()
   }, [token, user])
 
-  console.log('userValue in Navbar useEffect:', user, companyProfileId)
+  // console.log('userValue in Navbar useEffect:', user, companyProfileId)
 
   // Calculate visible nav items based on available space
   useEffect(() => {
@@ -527,7 +526,7 @@ export default function Navbar({
                           <div className="flex flex-col pl-8 mt-1">
                             {section.subMenu?.map((links: any) => {
                               const onlyAccessVerifiedUser = links?.href === '/properties-registration'
-                              if (onlyAccessVerifiedUser && !user?.isVerified) {
+                              if (onlyAccessVerifiedUser) {
                                 return (
                                   <Link
                                     key={String(links.href)}
@@ -590,7 +589,7 @@ export default function Navbar({
                     </Link>
 
                     <Link
-                      href={!user?.isVerified ? '/kyc-pending' : !!companyProfileId ? `/company-profile/${companyProfileId}` : `/company-profile`}
+                      href={!!companyProfileId ? `/company-profile/${companyProfileId}` : `/company-profile`}
                       className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition"
                     >
                       <Building2 size={16} /> {t('Navbar.company profile')}
@@ -685,7 +684,7 @@ export default function Navbar({
                     <div className="flex flex-col pl-4 space-y-1">
                       {section.subMenu?.map((sub: any) => {
                         const onlyAccessVerifiedUser = sub?.href === '/properties-registration'
-                        if (onlyAccessVerifiedUser && !user?.isVerified) {
+                        if (onlyAccessVerifiedUser) {
                           return (
                             <Link
                               key={String(sub.href)}
@@ -762,8 +761,8 @@ export default function Navbar({
 
                           const requiresAuth =
                             typeof sub?.href === 'string' && (sub.href === '/company-profile' || sub.href.startsWith('/company-profile/'))
-                          const isVerifiedUser = Boolean(requiresAuth && token && user?.isVerified)
-                          const targetHref = requiresAuth && !isVerifiedUser ? '/kyc-pending' : sub.href
+                          const isVerifiedUser = Boolean(requiresAuth && token)
+                          const targetHref = !isVerifiedUser ? '/login' : sub.href
 
                           return (
                             <Link

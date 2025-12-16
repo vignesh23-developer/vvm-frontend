@@ -27,12 +27,16 @@ export default function FooterColumn({ title, links }: FooterColumnProps) {
         {links.map(({ label, href }) => {
           const requiresAuth = href === '/properties-registration'
           const disabled = requiresAuth && !token
-          const isVerifiedUser = user?.isVerified
-          if (href === '/properties-registration' && requiresAuth && token && !isVerifiedUser) {
+          if (href === '/properties-registration' && requiresAuth && token) {
             // If the user is logged in but not verified, disable the link
             return (
               <li key={label}>
-                <Button type="button" onClick={() => router.push('/kyc-pending')} className="hover:text-white" title="Verification required">
+                <Button
+                  type="button"
+                  onClick={() => router.push('/properties-registration')}
+                  className="hover:text-white"
+                  title={`${!token ? 'Login required' : 'Post Your Property'}`}
+                >
                   {t(`Footer.${label}`)}
                 </Button>
               </li>
