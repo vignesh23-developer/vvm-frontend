@@ -189,10 +189,10 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
   const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
 
   useEffect(() => {
-    if (kycStatus && kycStatus.isVerified) {
-      router.push('/properties-registration')
-    } else {
+    if (kycStatus && !kycStatus?.isVerified) {
       router.push('/kyc-pending')
+    } else {
+      router.push('/properties-registration')
     }
   }, [kycStatus, router])
 

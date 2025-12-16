@@ -44,12 +44,10 @@ export default function PropertiesPage() {
   const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
 
   const handlePropertiesRegistrationClick = () => {
-    if (kycStatus?.isVerified) return
-
-    if (kycStatus?.isVerified) {
-      router.push('/properties-registration')
-    } else {
+    if (!kycStatus?.isVerified) {
       router.push('/kyc-pending')
+    } else {
+      router.push('/properties-registration')
     }
   }
 
@@ -287,7 +285,6 @@ export default function PropertiesPage() {
         <Button
           type="button"
           onClick={handlePropertiesRegistrationClick}
-          disabled={isKycLoading}
           className="flex items-center gap-2 bg-[#2a1407] hover:from-[#3b1804] hover:to-[#2a1407] px-4 py-2 text-sm font-medium text-white rounded-md shadow-md transition"
         >
           Properties Registration

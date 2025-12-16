@@ -54,10 +54,10 @@ export default function AdsForm({ mode, initialData, adId }: AdsFormProps) {
   console.log('KYC Status in AdsForm:', kycStatus)
 
   useEffect(() => {
-    if (kycStatus && kycStatus.isVerified) {
-      router.push('/ads')
-    } else {
+    if (kycStatus && !kycStatus?.isVerified) {
       router.push('/kyc-pending')
+    } else {
+      router.push('/ads')
     }
   }, [kycStatus, router])
 

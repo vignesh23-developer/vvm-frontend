@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useKycStatus } from '@/components/kyc/hooks/useKycStatus'
 import Image from 'next/image'
 import { Formik, Form } from 'formik'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
@@ -62,6 +63,17 @@ const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({
   const [verifiedFor, setVerifiedFor] = useState<string | null>(null)
   const [companyId, setCompanyId] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+
+  // KYC Verification Hook
+  const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
+
+  useEffect(() => {
+    if (kycStatus && !kycStatus?.isVerified) {
+      router.push('/kyc-pending')
+    } else {
+      router.push(`${isEdit ? '/company-profile/' + companyProfileId : '/company-profile'}`)
+    }
+  }, [kycStatus, router])
 
   // Normalize Formik initial values
   const normalizedInitialValues: CompanyFormValues = {
