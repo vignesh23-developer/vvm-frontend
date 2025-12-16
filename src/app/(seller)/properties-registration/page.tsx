@@ -603,14 +603,6 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
     }
   }
 
-  if (isKycLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <CustomLoader text="Loading..." />
-      </div>
-    )
-  }
-
   return (
     <div className="w-full px-4 py-6">
       {/* Progress Stepper same as your markup */}
