@@ -27,10 +27,10 @@ export default function NotificationPopup({ isOpen, onClose }: NotificationPopup
   useEffect(() => {
     if (isOpen) {
       refetch()
-      const interval = setInterval(() => {
-        refetch()
-      }, 30000)
-      return () => clearInterval(interval)
+      // const interval = setInterval(() => {
+      //   refetch()
+      // }, 30000)
+      // return () => clearInterval(interval)
     }
   }, [isOpen, refetch])
 
@@ -74,11 +74,7 @@ export default function NotificationPopup({ isOpen, onClose }: NotificationPopup
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-            aria-label="Close notifications"
-          >
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition-colors" aria-label="Close notifications">
             <X size={18} className="text-gray-500" />
           </button>
         </div>
@@ -98,11 +94,7 @@ export default function NotificationPopup({ isOpen, onClose }: NotificationPopup
               <p className="text-gray-500 text-sm">No notifications</p>
             </div>
           ) : (
-            <NotificationList
-              notifications={displayNotifications}
-              loading={false}
-              onMarkAsRead={markAsRead}
-            />
+            <NotificationList notifications={displayNotifications} loading={false} onMarkAsRead={markAsRead} />
           )}
         </div>
 
@@ -122,4 +114,3 @@ export default function NotificationPopup({ isOpen, onClose }: NotificationPopup
     </div>
   )
 }
-

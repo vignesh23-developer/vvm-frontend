@@ -62,7 +62,7 @@ export function useAdminNotification(options: UseAdminNotificationOptions = {}) 
         setLoading(false)
       }
     },
-    [page, initialLimit]
+    [page, initialLimit],
   )
 
   const fetchUnreadCount = useCallback(async () => {
@@ -77,31 +77,24 @@ export function useAdminNotification(options: UseAdminNotificationOptions = {}) 
     }
   }, [])
 
-  const markAsRead = useCallback(
-    async (notificationId: string) => {
-      try {
-        const response = await patchMethod<{ success: boolean }>(
-          appEndpoints.markNotificationAsRead(notificationId)
-        )
+  const markAsRead = useCallback(async (notificationId: string) => {
+    try {
+      const response = await patchMethod<{ success: boolean }>(appEndpoints.markNotificationAsRead(notificationId))
 
-        if (!response.error && response.data?.success) {
-          // Optimistic update
-          setNotifications((prev) =>
-            prev.map((notif) =>
-              notif.id === notificationId ? { ...notif, is_read: true, read_at: new Date().toISOString() } : notif
-            )
-          )
-          setUnreadCount((prev) => Math.max(0, prev - 1))
-          return true
-        }
-        return false
-      } catch (err) {
-        console.error('Error marking notification as read:', err)
-        return false
+      if (!response.error && response.data?.success) {
+        // Optimistic update
+        setNotifications(prev =>
+          prev.map(notif => (notif.id === notificationId ? { ...notif, is_read: true, read_at: new Date().toISOString() } : notif)),
+        )
+        setUnreadCount(prev => Math.max(0, prev - 1))
+        return true
       }
-    },
-    []
-  )
+      return false
+    } catch (err) {
+      console.error('Error marking notification as read:', err)
+      return false
+    }
+  }, [])
 
   const markAllAsRead = useCallback(async () => {
     try {
@@ -109,9 +102,7 @@ export function useAdminNotification(options: UseAdminNotificationOptions = {}) 
 
       if (!response.error && response.data?.success) {
         // Optimistic update
-        setNotifications((prev) =>
-          prev.map((notif) => ({ ...notif, is_read: true, read_at: new Date().toISOString() }))
-        )
+        setNotifications(prev => prev.map(notif => ({ ...notif, is_read: true, read_at: new Date().toISOString() })))
         setUnreadCount(0)
         return response.data.markedCount || 0
       }
@@ -131,14 +122,10 @@ export function useAdminNotification(options: UseAdminNotificationOptions = {}) 
       if (!response.error && response.data?.success) {
         // Optimistic update
         const count = response.data.markedCount || 0
-        setNotifications((prev) =>
-          prev.map((notif) =>
-            notificationIds.includes(notif.id)
-              ? { ...notif, is_read: true, read_at: new Date().toISOString() }
-              : notif
-          )
+        setNotifications(prev =>
+          prev.map(notif => (notificationIds.includes(notif.id) ? { ...notif, is_read: true, read_at: new Date().toISOString() } : notif)),
         )
-        setUnreadCount((prev) => Math.max(0, prev - count))
+        setUnreadCount(prev => Math.max(0, prev - count))
         return count
       }
       return 0
@@ -148,31 +135,34 @@ export function useAdminNotification(options: UseAdminNotificationOptions = {}) 
     }
   }, [])
 
-  const deleteNotification = useCallback(async (notificationId: string) => {
-    try {
-      const response = await deleteMethod<{ success: boolean }>(appEndpoints.deleteNotification(notificationId))
+  const deleteNotification = useCallback(
+    async (notificationId: string) => {
+      try {
+        const response = await deleteMethod<{ success: boolean }>(appEndpoints.deleteNotification(notificationId))
 
-      if (!response.error && response.data?.success) {
-        // Optimistic update
-        const deletedNotif = notifications.find((n) => n.id === notificationId)
-        setNotifications((prev) => prev.filter((notif) => notif.id !== notificationId))
-        if (deletedNotif && !deletedNotif.is_read) {
-          setUnreadCount((prev) => Math.max(0, prev - 1))
+        if (!response.error && response.data?.success) {
+          // Optimistic update
+          const deletedNotif = notifications.find(n => n.id === notificationId)
+          setNotifications(prev => prev.filter(notif => notif.id !== notificationId))
+          if (deletedNotif && !deletedNotif.is_read) {
+            setUnreadCount(prev => Math.max(0, prev - 1))
+          }
+          return true
         }
-        return true
+        return false
+      } catch (err) {
+        console.error('Error deleting notification:', err)
+        return false
       }
-      return false
-    } catch (err) {
-      console.error('Error deleting notification:', err)
-      return false
-    }
-  }, [notifications])
+    },
+    [notifications],
+  )
 
-  const refetch = useCallback(() => {
-    setLoading(true)
-    fetchNotifications()
-    fetchUnreadCount()
-  }, [fetchNotifications, fetchUnreadCount])
+  // const refetch = useCallback(() => {
+  //   setLoading(true)
+  //   fetchNotifications()
+  //   fetchUnreadCount()
+  // }, [fetchNotifications, fetchUnreadCount])
 
   // Store latest functions in refs for polling
   const fetchNotificationsRef = useRef(fetchNotifications)
@@ -191,33 +181,33 @@ export function useAdminNotification(options: UseAdminNotificationOptions = {}) 
   }, [])
 
   // Polling setup - only recreate interval when autoPoll or pollInterval changes
-  useEffect(() => {
-    if (autoPoll) {
-      intervalRef.current = setInterval(() => {
-        fetchNotificationsRef.current()
-        fetchUnreadCountRef.current()
-      }, pollInterval)
+  // useEffect(() => {
+  //   if (autoPoll) {
+  //     intervalRef.current = setInterval(() => {
+  //       fetchNotificationsRef.current()
+  //       fetchUnreadCountRef.current()
+  //     }, pollInterval)
 
-      return () => {
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current)
-        }
-      }
-    }
-  }, [autoPoll, pollInterval])
+  //     return () => {
+  //       if (intervalRef.current) {
+  //         clearInterval(intervalRef.current)
+  //       }
+  //     }
+  //   }
+  // }, [autoPoll, pollInterval])
 
   // Refetch on window focus
-  useEffect(() => {
-    const handleFocus = () => {
-      fetchNotifications()
-      fetchUnreadCount()
-    }
+  // useEffect(() => {
+  //   const handleFocus = () => {
+  //     fetchNotifications()
+  //     fetchUnreadCount()
+  //   }
 
-    window.addEventListener('focus', handleFocus)
-    return () => window.removeEventListener('focus', handleFocus)
-    // Only run once on mount, functions are stable
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  //   window.addEventListener('focus', handleFocus)
+  //   return () => window.removeEventListener('focus', handleFocus)
+  //   // Only run once on mount, functions are stable
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [])
 
   return {
     notifications,
@@ -226,7 +216,7 @@ export function useAdminNotification(options: UseAdminNotificationOptions = {}) 
     error,
     total,
     page,
-    refetch,
+    // refetch,
     fetchNotifications,
     fetchUnreadCount,
     markAsRead,
@@ -235,4 +225,3 @@ export function useAdminNotification(options: UseAdminNotificationOptions = {}) 
     deleteNotification,
   }
 }
-

@@ -783,18 +783,12 @@ export default function Navbar({
                 </div>
               ))
             : showLoginButton && (
-                <div className="flex flex-col gap-2 mt-4">
+                <div className="flex flex-col gap-2 mt-4 mb-2">
                   <Link
                     href="/login"
                     className="flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#2a1407] px-5 py-2.5 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-600 transition shadow-md text-sm"
                   >
                     {t('Auth.login')}
-                  </Link>
-                  <Link
-                    href="/signup"
-                    className="flex items-center justify-center gap-2 bg-white text-[#2a1407] border border-gray-200 px-5 py-2.5 rounded-lg font-semibold hover:bg-gray-50 transition shadow-md text-sm"
-                  >
-                    {t('Auth.signup') || 'Register'}
                   </Link>
                 </div>
               )}
