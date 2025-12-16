@@ -6,5 +6,5 @@ export default function EditPropertiesRegistration() {
   const params = useParams()
   const { id } = params
 
-  return <PropertiesRegistrationPage searchParams={Promise.resolve({ propertiesId: id as string })} mode="edit" />
+  return <PropertiesRegistrationPage searchParams={Promise.resolve({ propertiesId: id as string })} />
 }

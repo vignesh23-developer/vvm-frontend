@@ -154,13 +154,7 @@ export interface PropertyCreationFormValues {
   // you could also include step5 review constraints
 }
 
-export default function PropertiesRegistrationPage({
-  searchParams,
-  mode,
-}: {
-  searchParams: Promise<{ propertiesId?: string }>
-  mode?: 'create' | 'edit'
-}) {
+export default function PropertiesRegistrationPage({ searchParams }: { searchParams: Promise<{ propertiesId?: string }> }) {
   const resolvedParams = use(searchParams)
   const propertiesId = resolvedParams?.propertiesId
   const steps = [
@@ -180,17 +174,11 @@ export default function PropertiesRegistrationPage({
   } = useLandRegistration()
 
   const { globalValue, setGlobalValue } = useGlobalContext()
-  console.log(globalValue, 'value in property reg page')
+
   const { user } = useAuth()
   const router = useRouter()
   const [valueData, setValueData] = useState<any>(null)
-  const fectchPropertiesById = async (id: string | undefined) => {
-    if (id) {
-      const res = (await getMethod(appEndpoints.getPropertiesByID(id as string))) as ResponseDTO<any>
-      console.log('property by id res:', res.data)
-      setValueData(res?.data)
-    }
-  }
+
   // KYC Verification Hook
   const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
 
@@ -198,9 +186,19 @@ export default function PropertiesRegistrationPage({
     if (kycStatus && !kycStatus?.isVerified) {
       router.push('/kyc-pending')
     } else {
-      router.push(`${mode === 'edit' ? `/properties-registration/${propertiesId}` : '/properties-registration'}`)
+      if (!propertiesId) {
+        router.push('/properties-registration')
+      }
     }
   }, [kycStatus])
+
+  const fectchPropertiesById = async (id: string | undefined) => {
+    if (id) {
+      const res = (await getMethod(appEndpoints.getPropertiesByID(id as string))) as ResponseDTO<any>
+      console.log('property by id res:', res.data)
+      setValueData(res?.data)
+    }
+  }
 
   useEffect(() => {
     fectchPropertiesById(propertiesId)
