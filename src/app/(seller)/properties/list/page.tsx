@@ -44,11 +44,12 @@ export default function PropertiesPage() {
   const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
 
   const handlePropertiesRegistrationClick = () => {
-    if (!kycStatus?.isVerified) {
-      router.push('/kyc-pending')
-    } else {
-      router.push('/properties-registration')
-    }
+    router.push('/properties-registration')
+    // if (!kycStatus?.isVerified) {
+    //   router.push('/kyc-pending')
+    // } else {
+    //   router.push('/properties-registration')
+    // }
   }
 
   // console.log('PropertiesPage: user', user)

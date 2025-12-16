@@ -525,21 +525,6 @@ export default function Navbar({
                         {openSections.has(section.label) && (
                           <div className="flex flex-col pl-8 mt-1">
                             {section.subMenu?.map((links: any) => {
-                              const onlyAccessVerifiedUser = links?.href === '/properties-registration'
-                              if (onlyAccessVerifiedUser) {
-                                return (
-                                  <Link
-                                    key={String(links.href)}
-                                    href={'/kyc-pending'}
-                                    className="flex items-center gap-2 px-4 py-1 hover:bg-yellow-50 rounded-md text-sm transition"
-                                  >
-                                    <span className="text-yellow-600">
-                                      <ChevronRight size={16} />
-                                    </span>
-                                    {t(`Navbar.subMenus.${links.label}`)}
-                                  </Link>
-                                )
-                              }
                               return (
                                 <Link
                                   key={String(links.href)}
@@ -683,21 +668,6 @@ export default function Navbar({
                   {openSections.has(section.label) && (
                     <div className="flex flex-col pl-4 space-y-1">
                       {section.subMenu?.map((sub: any) => {
-                        const onlyAccessVerifiedUser = sub?.href === '/properties-registration'
-                        if (onlyAccessVerifiedUser) {
-                          return (
-                            <Link
-                              key={String(sub.href)}
-                              href={'/kyc-pending'}
-                              className="flex items-center gap-2 px-4 py-1 hover:bg-yellow-50 rounded-md text-sm transition"
-                            >
-                              <span className="text-yellow-600">
-                                <ChevronRight size={16} />
-                              </span>
-                              {t(`Navbar.subMenus.${sub.label}`)}
-                            </Link>
-                          )
-                        }
                         return (
                           <Link
                             key={sub.href}

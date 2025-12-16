@@ -293,11 +293,12 @@ export default function AdsListPage() {
 
   const handleAdsCreation = () => {
     console.log('KYC Status on Add Ads:', kycStatus, kycStatus?.isVerified)
-    if (!kycStatus?.isVerified) {
-      router.push('/kyc-pending')
-    } else {
-      router.push('/ads')
-    }
+    router.push('/ads')
+    // if (!kycStatus?.isVerified) {
+    //   router.push('/kyc-pending')
+    // } else {
+    //   router.push('/ads')
+    // }
   }
 
   // Calculate monthly data from actual ads
