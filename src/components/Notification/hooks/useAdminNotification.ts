@@ -158,12 +158,6 @@ export function useAdminNotification(options: UseAdminNotificationOptions = {}) 
     [notifications],
   )
 
-  // const refetch = useCallback(() => {
-  //   setLoading(true)
-  //   fetchNotifications()
-  //   fetchUnreadCount()
-  // }, [fetchNotifications, fetchUnreadCount])
-
   // Store latest functions in refs for polling
   const fetchNotificationsRef = useRef(fetchNotifications)
   const fetchUnreadCountRef = useRef(fetchUnreadCount)
