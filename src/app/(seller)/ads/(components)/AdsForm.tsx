@@ -57,9 +57,9 @@ export default function AdsForm({ mode, initialData, adId }: AdsFormProps) {
     if (kycStatus && !kycStatus?.isVerified) {
       router.push('/kyc-pending')
     } else {
-      router.push('/ads')
+      router.push(`${mode === 'edit' ? `/ads/edit/${adId}` : '/ads'}`)
     }
-  }, [kycStatus, router])
+  }, [kycStatus])
 
   // Handle action state changes
   useEffect(() => {

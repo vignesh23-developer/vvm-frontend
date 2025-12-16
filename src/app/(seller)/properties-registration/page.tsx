@@ -154,7 +154,13 @@ export interface PropertyCreationFormValues {
   // you could also include step5 review constraints
 }
 
-export default function PropertiesRegistrationPage({ searchParams }: { searchParams: Promise<{ propertiesId?: string }> }) {
+export default function PropertiesRegistrationPage({
+  searchParams,
+  mode,
+}: {
+  searchParams: Promise<{ propertiesId?: string }>
+  mode?: 'create' | 'edit'
+}) {
   const resolvedParams = use(searchParams)
   const propertiesId = resolvedParams?.propertiesId
   const steps = [
@@ -192,9 +198,9 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
     if (kycStatus && !kycStatus?.isVerified) {
       router.push('/kyc-pending')
     } else {
-      router.push('/properties-registration')
+      router.push(`${mode === 'edit' ? `/properties-registration/${propertiesId}` : '/properties-registration'}`)
     }
-  }, [kycStatus, router])
+  }, [kycStatus])
 
   useEffect(() => {
     fectchPropertiesById(propertiesId)

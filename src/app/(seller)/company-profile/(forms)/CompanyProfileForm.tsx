@@ -68,10 +68,10 @@ const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({
   const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
 
   useEffect(() => {
-    if (kycStatus && !kycStatus?.isVerified) {
+    if (kycStatus && !kycStatus?.isVerified && !isEdit) {
       router.push('/kyc-pending')
     } else {
-      router.push(`${isEdit ? '/company-profile/' + companyProfileId : '/company-profile'}`)
+      router.push(`${isEdit ? `/company-profile/${companyProfileId}` : '/company-profile'}`)
     }
   }, [kycStatus, router])
 
