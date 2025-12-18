@@ -28,7 +28,7 @@ const Amenities: React.FC<AmenitiesProps> = ({ title, PropertyAmenities = [] }) 
 
   return (
     <div className="w-full space-y-8">
-      {/* DETAILS SECTION - Numeric & Select values (label/value format) */}
+      {/* DETAILS SECTION - Numeric & Single Select values (label/value format) */}
       {Object.entries(detailGroups).map(([groupName, items]) => (
         <section key={`detail-${groupName}`} className="py-2">
           <div className="flex items-center gap-2 mb-6 border-b border-gray-100 pb-2">
@@ -49,7 +49,7 @@ const Amenities: React.FC<AmenitiesProps> = ({ title, PropertyAmenities = [] }) 
             ))}
           </div>
 
-          {/* Boolean Amenities within this group (if any) */}
+          {/* Amenity Chips within this group (multi_select values) */}
           {amenityGroups[groupName] && amenityGroups[groupName].length > 0 && (
             <div className="mt-5">
               <div className="flex flex-wrap gap-2">
@@ -62,7 +62,7 @@ const Amenities: React.FC<AmenitiesProps> = ({ title, PropertyAmenities = [] }) 
         </section>
       ))}
 
-      {/* STANDALONE AMENITY GROUPS - Groups that only have boolean amenities */}
+      {/* STANDALONE AMENITY GROUPS - Groups that only have amenity chips */}
       {Object.entries(amenityGroups)
         .filter(([groupName]) => !detailGroups[groupName])
         .map(([groupName, amenities]) => (
@@ -154,29 +154,35 @@ const extractGroupedFeatures = (featureValues: any[]): GroupedFeatures => {
     const inputType = f?.feature_category?.input_type
     const groupName = f?.feature_group?.name || 'Other'
     const categoryName = f?.feature_category?.name || 'General'
-    const categoryIcon = f?.feature_category?.icon || ''
     const sortOrder = f?.feature_category?.sort_order ?? 999
 
-    // Handle BOOLEAN type - these are amenities (checkmark chips)
-    if (inputType === 'boolean') {
-      // Only show if value is true
-      if (f.values === 'true' || f.values === true) {
+    // =========================================================================
+    // Handle MULTI_SELECT - Display as chips with icons
+    // =========================================================================
+    if (inputType === 'multi_select') {
+      if (Array.isArray(f.feature_options) && f.feature_options.length > 0) {
         amenityGroups[groupName] ||= []
-        amenityGroups[groupName].push({
-          name: categoryName,
-          icon: categoryIcon,
-          sortOrder,
-        })
+
+        // Each selected option becomes a chip with its own icon
+        for (const opt of f.feature_options) {
+          amenityGroups[groupName].push({
+            name: opt.name,
+            icon: opt.icon || '', // Use the option's icon
+            sortOrder: opt.sort_order ?? sortOrder,
+          })
+        }
       }
       continue
     }
 
-    // Handle SINGLE_SELECT / MULTI_SELECT - show option names
-    if (inputType === 'single_select' || inputType === 'multi_select') {
+    // =========================================================================
+    // Handle SINGLE_SELECT - Display as label/value in details
+    // =========================================================================
+    if (inputType === 'single_select') {
       if (Array.isArray(f.feature_options) && f.feature_options.length > 0) {
         detailGroups[groupName] ||= []
 
-        // For multi-select, join all option names
+        // For single select, show the selected option name
         const displayValue = f.feature_options.map((opt: any) => opt.name).join(', ')
 
         detailGroups[groupName].push({
@@ -188,7 +194,9 @@ const extractGroupedFeatures = (featureValues: any[]): GroupedFeatures => {
       continue
     }
 
-    // Handle NUMERIC type - show value with optional unit
+    // =========================================================================
+    // Handle NUMERIC type - Display as label/value with unit
+    // =========================================================================
     if (inputType === 'numeric') {
       if (f.values !== undefined && f.values !== null && f.values !== '') {
         detailGroups[groupName] ||= []
@@ -202,7 +210,9 @@ const extractGroupedFeatures = (featureValues: any[]): GroupedFeatures => {
       continue
     }
 
-    // Handle TEXT type - show as detail
+    // =========================================================================
+    // Handle TEXT type - Display as label/value
+    // =========================================================================
     if (inputType === 'text') {
       if (f.values !== undefined && f.values !== null && f.values !== '') {
         detailGroups[groupName] ||= []
@@ -214,6 +224,11 @@ const extractGroupedFeatures = (featureValues: any[]): GroupedFeatures => {
       }
       continue
     }
+  }
+
+  // Sort amenities within each group by sort_order
+  for (const groupName of Object.keys(amenityGroups)) {
+    amenityGroups[groupName].sort((a, b) => a.sortOrder - b.sortOrder)
   }
 
   return { detailGroups, amenityGroups }
@@ -233,10 +248,15 @@ const getDefaultUnit = (code?: string): string => {
   if (!code) return ''
 
   const unitMap: Record<string, string> = {
+    house_builtup_area: 'Sqft',
     built_up_area: 'Sqft',
     plot_area: 'Sqft',
     carpet_area: 'Sqft',
+    plot_road_width: 'ft',
+    layout_road_width: 'ft',
     road_width: 'ft',
+    agri_num_borewells: '',
+    farm_num_borewells: '',
     num_borewells: '',
   }
 
