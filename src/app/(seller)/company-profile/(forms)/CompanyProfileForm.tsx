@@ -68,14 +68,13 @@ const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({
   const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
 
   useEffect(() => {
-    if (kycStatus && !kycStatus?.isVerified) {
-      router.push('/kyc-pending')
-    } else {
-      if (!isEdit) {
-        router.push('/company-profile')
-      }
+    if (isKycLoading) return
+    if (kycError) return
+
+    if (kycStatus && !kycStatus.isVerified) {
+      router.replace('/kyc-pending')
     }
-  }, [kycStatus])
+  }, [isKycLoading, kycError, kycStatus, router])
 
   // Normalize Formik initial values
   const normalizedInitialValues: CompanyFormValues = {

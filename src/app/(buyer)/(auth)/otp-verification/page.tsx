@@ -1,8 +1,8 @@
 'use client'
 
 import { Formik, Form, type FormikHelpers } from 'formik'
-import { useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
@@ -11,22 +11,35 @@ import { useTranslations } from 'next-intl'
 import { useGlobalContext } from '@/hooks/GlobalContext/GlobalContext'
 import OTPInput from '@/components/ui/OTPInput/OTPInput'
 import LanguageSwitch from '@/components/ui/CustomComponent/languageSwitch/languageSwitch'
-import * as Yup from 'yup'
 import toast from 'react-hot-toast'
 import { appEndpoints } from '@/services/endpoints'
 import { postMethod } from '@/services/service'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { OtpSchema } from '@/utils/validations/auth/AuthValidationSchema'
 import Button from '@/components/ui/CustomComponent/Button/Button'
-import { ResponseDTO } from '@/components/dto/response_dto'
 
 export default function OtpVerification() {
   const t = useTranslations()
   const { globalValue, reset } = useGlobalContext()
-  const { setUser, setToken } = useAuth()
+  const { setUser, setToken, token, loading } = useAuth()
   const router = useRouter()
-  // const searchParams = useSearchParams()
-  // const phone = searchParams.get('phone')
+
+  // Redirect if already logged in or missing phone number
+  useEffect(() => {
+    if (loading) return
+
+    // If user is already logged in, OTP page should not be accessible.
+    if (token) {
+      router.replace('/')
+      return
+    }
+
+    // If user isn't logged in and no phone is present, OTP flow is invalid.
+    if (!globalValue?.phoneNumber) {
+      router.replace('/login')
+      return
+    }
+  }, [globalValue?.phoneNumber, loading, router, token])
 
   type OtpValues = {
     otp: string[]
@@ -63,7 +76,7 @@ export default function OtpVerification() {
         user?: any
       }>(appEndpoints.loginVerifyOtp, payload)
 
-      console.log(response, 'response 93')
+      // console.log(response, 'response 93')
       if (response.error) {
         toast.error(response.message || 'OTP verification failed')
         return
@@ -109,6 +122,10 @@ export default function OtpVerification() {
   const itemVariants = {
     hidden: { opacity: 0, scale: 0.8 },
     show: { opacity: 1, scale: 1, transition: { duration: 0.3 } },
+  }
+
+  if (loading || token) {
+    return null
   }
 
   return (

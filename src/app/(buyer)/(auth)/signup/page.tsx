@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { Formik, Form, FieldArray } from 'formik'
+import { useEffect, useState } from 'react'
+import { Formik, Form } from 'formik'
 import { useTranslations } from 'next-intl'
-import { ArrowLeft, MessageCircle } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
@@ -31,11 +31,27 @@ interface SignupFormValues {
 export default function SignupPage() {
   const t = useTranslations()
   const { globalValue, reset } = useGlobalContext()
-  const { setUser, setToken } = useAuth()
+  const { setUser, setToken, token, loading } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-  // const searchParams = useSearchParams()
-  // const phone = searchParams.get('phone') || ''
+  const searchParams = useSearchParams()
+  const nextUrl = searchParams.get('next') || globalValue?.isRedirect || null
+
+  // Redirect if already logged in or missing phone number
+  useEffect(() => {
+    if (loading) return
+
+    // If user is already logged in, don't show signup page.
+    if (token) {
+      router.replace(nextUrl || '/')
+      return
+    }
+
+    // Signup OTP flow depends on phoneNumber coming from the login step.
+    if (!globalValue?.phoneNumber) {
+      router.replace('/login')
+    }
+  }, [globalValue?.phoneNumber, loading, nextUrl, router, token])
 
   const [buttonType, setButtonType] = useState<'sms' | 'whatsapp'>('sms')
 
@@ -47,9 +63,13 @@ export default function SignupPage() {
     otp: ['', '', '', '', '', ''],
   }
 
+  if (loading || token || !globalValue?.phoneNumber) {
+    return null
+  }
+
   const handleSignupSubmit = async (values: SignupFormValues, setSubmitting: (isSubmitting: boolean) => void, buttonType: 'sms' | 'whatsapp') => {
     const otpValue = values.otp.join('')
-    console.log('Formik Submitted:', { ...values, otpValue, buttonType })
+    // console.log('Formik Submitted:', { ...values, otpValue, buttonType })
 
     const payload = {
       phoneNumber: globalValue?.phoneNumber,

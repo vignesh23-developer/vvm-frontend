@@ -183,14 +183,14 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
   const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
 
   useEffect(() => {
-    if (kycStatus && !kycStatus?.isVerified) {
-      router.push('/kyc-pending')
-    } else {
-      if (!propertiesId) {
-        router.push('/properties-registration')
-      }
+    if (isKycLoading) return
+    if (kycError) return
+
+    // If KYC is not verified, block property registration/editing.
+    if (kycStatus && !kycStatus.isVerified) {
+      router.replace('/kyc-pending')
     }
-  }, [kycStatus])
+  }, [isKycLoading, kycError, kycStatus, router])
 
   const fectchPropertiesById = async (id: string | undefined) => {
     if (id) {

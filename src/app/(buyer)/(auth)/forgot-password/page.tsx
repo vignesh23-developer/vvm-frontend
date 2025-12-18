@@ -21,7 +21,7 @@ const ForgotPassword = () => {
   }
 
   const handleForgotPasswordSubmit = (values: any, setSubmitting: (isSubmitting: boolean) => void) => {
-    console.log('Form Submitted ✅', values)
+    // console.log('Form Submitted ✅', values)
     setTimeout(() => {
       setSubmitting(false)
     }, 1000)

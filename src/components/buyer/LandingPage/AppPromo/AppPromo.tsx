@@ -59,11 +59,7 @@ export default function AppPromo() {
       <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-12 items-center gap-12">
         {/* Left: wrapped in MaskContainer to reveal primary color on hover */}
         <div className="lg:col-span-5">
-          <MaskContainer
-            revealBg="#2a1407"
-            revealSize={320}
-            className="group rounded-2xl"
-          >
+          <MaskContainer revealBg="#2a1407" revealSize={320} className="group rounded-2xl">
             <motion.div
               initial={{ opacity: 0, x: -60 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -77,7 +73,7 @@ export default function AppPromo() {
 
               {/* smooth color transition using CSS variables provided by MaskContainer */}
               <h2
-                className="text-3xl lg:text-5xl font-extrabold leading-tight"
+                className="text-2xl lg:text-4xl font-extrabold leading-tight"
                 style={{
                   color: 'var(--title-color, #2a1407)',
                   transition: 'color 350ms cubic-bezier(.2,.9,.2,1)',
@@ -93,57 +89,39 @@ export default function AppPromo() {
                   transition: 'color 350ms cubic-bezier(.2,.9,.2,1)',
                 }}
               >
-                {t('AppPromo.description') ||
-                  'Find your dream home on the go with our mobile app'}
+                {t('AppPromo.description') || 'Find your dream home on the go with our mobile app'}
               </p>
 
               {/* Benefits List */}
               <ul className="space-y-3 mb-6">
-                {[
-                  'Get real-time property alerts',
-                  'Save your favorite listings',
-                  'Chat with verified agents',
-                  'Faster browsing & videos',
-                ].map((benefit, idx) => (
-                  <motion.li
-                    key={idx}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: idx * 0.1 }}
-                    className="flex items-center gap-2 text-sm"
-                    style={{
-                      color: 'var(--body-color, #4b5563)',
-                      transition: 'color 350ms cubic-bezier(.2,.9,.2,1)',
-                    }}
-                  >
-                    <span className="text-yellow-600 font-bold">✔</span>
-                    <span>{benefit}</span>
-                  </motion.li>
-                ))}
+                {['Get real-time property alerts', 'Save your favorite listings', 'Chat with verified agents', 'Faster browsing & videos'].map(
+                  (benefit, idx) => (
+                    <motion.li
+                      key={idx}
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: idx * 0.1 }}
+                      className="flex items-center gap-2 text-sm"
+                      style={{
+                        color: 'var(--body-color, #4b5563)',
+                        transition: 'color 350ms cubic-bezier(.2,.9,.2,1)',
+                      }}
+                    >
+                      <span className="text-yellow-600 font-bold">✔</span>
+                      <span>{benefit}</span>
+                    </motion.li>
+                  ),
+                )}
               </ul>
 
               <div className="flex flex-wrap gap-4">
-                <Image
-                  src="/googleplay.png"
-                  alt="Get it on Google Play"
-                  width={160}
-                  height={48}
-                  className="cursor-pointer drop-shadow-sm"
-                />
-                <Image
-                  src="/appstore.png"
-                  alt="Download on the App Store"
-                  width={160}
-                  height={48}
-                  className="cursor-pointer drop-shadow-sm"
-                />
+                <Image src="/googleplay.png" alt="Get it on Google Play" width={160} height={48} className="cursor-pointer drop-shadow-sm" />
+                <Image src="/appstore.png" alt="Download on the App Store" width={160} height={48} className="cursor-pointer drop-shadow-sm" />
               </div>
 
               <div className="space-y-2">
-                <p className="text-xs text-gray-500">
-                  Get property alerts, offers & market insights. No spam.
-                </p>
+                <p className="text-xs text-gray-500">Get property alerts, offers & market insights. No spam.</p>
                 <form className="flex max-w-md rounded-lg overflow-hidden border-2 border-yellow-200 focus-within:ring-2 focus-within:ring-yellow-500 focus-within:border-yellow-400 shadow-md">
                   <input
                     type="email"

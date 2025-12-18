@@ -5,7 +5,7 @@ import { useState, useEffect, useActionState, startTransition } from 'react'
 import { Formik, Form, FormikHelpers } from 'formik'
 import * as Yup from 'yup'
 import toast from 'react-hot-toast'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 // Step components
 import Step1BasicDetails from '../(views)/BasicDetails'
@@ -16,6 +16,8 @@ import AdsImages from '../(views)/Images'
 import { onCreateAd, onUpdateAd } from '../(action)/ads_action'
 import { AdsCreationFormValues } from '../page'
 import { useKycStatus } from '@/components/kyc/hooks/useKycStatus'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { getUserRoles, hasRole, Roles } from '@/utils/roles/roles'
 
 interface AdsFormProps {
   mode: 'create' | 'edit'
@@ -25,8 +27,27 @@ interface AdsFormProps {
 
 export default function AdsForm({ mode, initialData, adId }: AdsFormProps) {
   const router = useRouter()
+  const pathname = usePathname()
+  const { user, token, loading: authLoading } = useAuth()
   const [currentStep, setCurrentStep] = useState(1)
   const [createdAdId, setCreatedAdId] = useState<string | undefined>(adId)
+
+  // Admin-only guard (client-side fallback; middleware enforces on initial request)
+  useEffect(() => {
+    // if (authLoading) return
+
+    // if (!token) {
+    //   const next = pathname ? `?next=${encodeURIComponent(pathname)}` : ''
+    //   router.replace(`/login${next}`)
+    //   return
+    // }
+
+    const userRoles = getUserRoles(user)
+    const isAdmin = hasRole(userRoles, [Roles.ADMIN])
+    if (!isAdmin) {
+      router.replace('/')
+    }
+  }, [authLoading, pathname, router, token, user])
 
   // Initialize action state
   const adActionInitState = {
@@ -53,16 +74,14 @@ export default function AdsForm({ mode, initialData, adId }: AdsFormProps) {
   const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
 
   useEffect(() => {
-    if (kycStatus && !kycStatus?.isVerified) {
-      router.push('/kyc-pending')
-    } else {
-      if (mode === 'create') {
-        router.push('/ads')
-      } else {
-        router.push(`/ads/edit/${adId}`)
-      }
+    if (isKycLoading) return
+    if (kycError) return
+
+    // Block ad creation/edit until KYC is verified.
+    if (kycStatus && !kycStatus.isVerified) {
+      router.replace('/kyc-pending')
     }
-  }, [kycStatus])
+  }, [isKycLoading, kycError, kycStatus, router])
 
   // Handle action state changes
   useEffect(() => {

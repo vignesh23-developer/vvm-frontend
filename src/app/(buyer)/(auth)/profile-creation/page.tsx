@@ -29,7 +29,7 @@ function ProfileCreation() {
   const [checking, setChecking] = useState(false)
 
   const handleProfileCreationSubmit = (values: any, setSubmitting: (isSubmitting: boolean) => void) => {
-    console.log('Form Submitted ', values)
+    // console.log('Form Submitted ', values)
     setTimeout(() => {
       setSubmitting(false)
     }, 1000)

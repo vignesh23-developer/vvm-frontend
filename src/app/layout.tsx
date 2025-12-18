@@ -27,12 +27,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'Buy Sell Rent Properties in Tamil Nadu - TN’s Leading Real Estate Listing Platform | Vaazhga Valamudan',
   description:
-    'Vaazhga Valamudan offers verified real estate listings across Tamil Nadu. Buy, sell, or rent property in Chennai, Madurai, Coimbatore, Trichy & Tirunelveli & Etc',
-  keywords: ['real estate', 'next.js', 'property portal'],
+    'Vaazhga Valamudan offers verified real estate listings across Tamil Nadu. Buy, sell, or rent property in Chennai, Madurai, Coimbatore, Trichy & Tirunelveli, etc.',
+  keywords: ['real estate', 'property portal', 'Tamil Nadu real estate'],
   authors: [{ name: 'Vaazhga Valamudan', url: 'https://vaazhgavalamudan.com' }],
-  // openGraph: {
-  //   title: 'Vaazhga Valamudan – Real Estate Platform',
-  // },
+  alternates: {
+    canonical: 'https://vaazhgavalamudan.com',
+  },
 }
 
 //Root Layout

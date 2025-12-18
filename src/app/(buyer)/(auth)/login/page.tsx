@@ -32,23 +32,19 @@ const Login = () => {
   const [activeChannel, setActiveChannel] = useState<'sms' | 'whatsapp' | null>(null)
   const router = useRouter()
   const pathname = usePathname()
-  const { token } = useAuth()
+  const { token, loading } = useAuth()
 
-  console.log('Current pathname:', pathname, isRedirect)
+  // console.log('Current pathname:', pathname, isRedirect)
 
-  // useEffect(() => {
-  //   const publicRoutes = ['/', '/about', '/services', '/pricing', '/help-center', '/login', '/register']
+  // Redirect if already logged in
+  useEffect(() => {
+    if (loading) return
 
-  //   // If user not logged in AND tries to access a protected route
-  //   if (!token && !publicRoutes.includes(pathname)) {
-  //     router.push('/login')
-  //   }
-
-  //   // If user is logged in AND tries to access login/register, redirect to home
-  //   if (token && ['/login', '/register'].includes(pathname)) {
-  //     router.push('/')
-  //   }
-  // }, [token, pathname, router])
+    // If user is already logged in, don't show login page.
+    if (token) {
+      router.replace(isRedirect || '/')
+    }
+  }, [isRedirect, loading, router, token])
 
   const initialValues: AuthFormValues = { phone: '' }
 

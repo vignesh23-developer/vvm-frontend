@@ -147,12 +147,10 @@ const page = () => {
   const t = useTranslations()
   const router = useRouter()
   const { user } = useAuth()
-  console.log('User in Property Details page:', user)
   const userRoles = getUserRoles(user)
   // Simplified flag: true if user is ADMIN or AGENT
   const isAdmin = hasRole(userRoles, [Roles.ADMIN])
   const isAgent = hasRole(userRoles, [Roles.AGENT])
-  console.log('User Roles:', userRoles, 'isAdmin:', isAdmin, 'isAgent:', isAgent)
   const params = useParams<{ id: string | string[] }>()
   const propertyIdParam = params?.id
   const propertyId = Array.isArray(propertyIdParam) ? propertyIdParam[0] : propertyIdParam
@@ -543,8 +541,8 @@ const page = () => {
       Array.isArray(similarProperties) && similarProperties.length > 0
         ? similarProperties
         : Array.isArray(popularSimilarProperties)
-          ? popularSimilarProperties
-          : []
+        ? popularSimilarProperties
+        : []
 
     if (base.length === 0) return []
 
@@ -593,7 +591,6 @@ const page = () => {
     return null
   }, [primaryVideoMedia])
 
-
   // Tabs configuration
   const tabs: { id: TabType; label: string; icon?: LucideIcon }[] = [
     { id: 'overview', label: 'Overview' },
@@ -613,8 +610,6 @@ const page = () => {
       phone: values.phone,
       message: values.message,
     }
-
-    console.log('Report Payload:', payload)
 
     try {
       let response = (await postMethod(appEndpoints.createPropertyEnquiry, payload)) as ResponseDTO
@@ -1273,8 +1268,9 @@ const page = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.08 }}
                       whileHover={{ y: -3, boxShadow: '0 18px 40px rgba(0,0,0,0.07)' }}
-                      className={`relative flex flex-col justify-between rounded-2xl bg-gradient-to-br from-yellow-50/50 to-white px-5 py-4 border border-yellow-100 ${isPrivileged ? 'cursor-pointer hover:shadow-md' : ''
-                        }`}
+                      className={`relative flex flex-col justify-between rounded-2xl bg-gradient-to-br from-yellow-50/50 to-white px-5 py-4 border border-yellow-100 ${
+                        isPrivileged ? 'cursor-pointer hover:shadow-md' : ''
+                      }`}
                       role={isPrivileged ? 'button' : undefined}
                       tabIndex={isPrivileged ? 0 : undefined}
                       onClick={() => {
@@ -1391,11 +1387,14 @@ const page = () => {
                 </div>
               </div>
             </div>
-            <div className="relative w-full pb-[56.25%] bg-black group cursor-pointer overflow-hidden rounded-b-2xl" onClick={() => !isPlayingTour && setIsPlayingTour(true)}>
+            <div
+              className="relative w-full pb-[56.25%] bg-black group cursor-pointer overflow-hidden rounded-b-2xl"
+              onClick={() => !isPlayingTour && setIsPlayingTour(true)}
+            >
               {!isPlayingTour ? (
                 <>
                   <Image
-                    src={videoThumbnailUrl || "/images/placeholder-property.jpg"}
+                    src={videoThumbnailUrl || '/images/placeholder-property.jpg'}
                     alt="Video thumbnail"
                     fill
                     className="object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-300"
@@ -1619,8 +1618,8 @@ const page = () => {
                           typeof totalFromApi === 'number'
                             ? totalFromApi
                             : Array.isArray((res?.data as any)?.data)
-                              ? (res.data as any).data.length
-                              : 0
+                            ? (res.data as any).data.length
+                            : 0
 
                         setQuizResultCount(count)
                         setShowQuizResult(true)

@@ -7,7 +7,7 @@ const page = () => {
   const params = useParams() as string | any
 
   const name = Array.isArray(params.name) ? params.name[0] : params.name
-  console.log('Params in Agency Details Page:', name)
+  // console.log('Params in Agency Details Page:', name)
   return (
     <div>
       <AgencyDetails name={name} />

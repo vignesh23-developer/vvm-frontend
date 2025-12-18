@@ -331,7 +331,7 @@ export default function HeroSection() {
                     )}
 
                     {showSuggestions && locationSuggestions.length > 0 && (
-                      <div className="absolute left-0 right-0 top-full z-30 mt-2 max-h-60 overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-xl">
+                      <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-xl">
                         {locationSuggestions.map(name => (
                           <button
                             type="button"
@@ -376,7 +376,7 @@ export default function HeroSection() {
 
                     {/* Dropdown */}
                     {showType && (
-                      <div className="absolute top-full left-0 mt-2 w-full bg-white rounded-lg shadow-md z-20 p-2">
+                      <div className="absolute top-full left-0 mt-2 w-full bg-white rounded-lg shadow-md z-50 p-2">
                         {categories?.map(item => (
                           <div
                             key={item.id}
@@ -414,7 +414,7 @@ export default function HeroSection() {
 
                     {/* Range Input Dropdown */}
                     {showBudget && (
-                      <div className="absolute top-full left-0 mt-2 w-full bg-white rounded-lg shadow-md z-20 p-4" onClick={e => e.stopPropagation()}>
+                      <div className="absolute top-full left-0 mt-2 w-full bg-white rounded-lg shadow-md z-50 p-4" onClick={e => e.stopPropagation()}>
                         <div className="space-y-4">
                           <div className="flex items-center justify-between text-xs text-gray-600 mb-2">
                             <span>₹{(budgetRange[0] / 100000).toFixed(0)} Lakhs</span>
@@ -548,7 +548,7 @@ export default function HeroSection() {
                     )}
 
                     {showSuggestions && locationSuggestions.length > 0 && (
-                      <div className="absolute left-0 right-0 top-full z-30 mt-2 max-h-60 overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-xl">
+                      <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-xl">
                         {locationSuggestions.map(name => (
                           <button
                             type="button"
@@ -585,7 +585,7 @@ export default function HeroSection() {
                     <ChevronDown className="w-4 h-4 text-gray-500" />
 
                     {showType && (
-                      <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-md z-20 p-2">
+                      <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-md z-100 p-2">
                         {categories?.map(item => (
                           <div
                             key={item.id}
@@ -619,7 +619,7 @@ export default function HeroSection() {
                     <ChevronDown className="w-4 h-4 text-gray-500" />
 
                     {showBudget && (
-                      <div className="absolute top-full left-0 mt-2 w-80 bg-white rounded-lg shadow-md z-20 p-4" onClick={e => e.stopPropagation()}>
+                      <div className="absolute top-full left-0 mt-2 w-80 bg-white rounded-lg shadow-md z-50 p-4" onClick={e => e.stopPropagation()}>
                         <div className="space-y-4">
                           <div className="flex items-center justify-between text-xs text-gray-600 mb-2">
                             <span>₹{(budgetRange[0] / 100000).toFixed(0)} Lakhs</span>
