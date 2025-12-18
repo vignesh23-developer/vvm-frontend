@@ -18,7 +18,7 @@ export class SimpleIconLoader {
 
   // Guaranteed real estate icons that definitely exist in Lucide
   private guaranteedIcons: string[] = [
-    // Basic UI
+    // Basic UI (14)
     'Home',
     'Building',
     'MapPin',
@@ -34,7 +34,7 @@ export class SimpleIconLoader {
     'ArrowLeft',
     'ArrowRight',
 
-    // Property Features
+    // Property Features (13)
     'Bed',
     'Wifi',
     'Shield',
@@ -49,7 +49,7 @@ export class SimpleIconLoader {
     'User',
     'Users',
 
-    // Real Estate Specific Features
+    // Real Estate Specific Features (13)
     'Bath',
     'Shower',
     'Warehouse',
@@ -64,7 +64,7 @@ export class SimpleIconLoader {
     'PlugZap',
     'Lightbulb',
 
-    // Sports & Recreation
+    // Sports & Recreation (10)
     'Dumbbell',
     'SwimFins',
     'Footprints',
@@ -77,7 +77,7 @@ export class SimpleIconLoader {
     'MountainSnow',
     'SunDim',
 
-    // Amenities & Facilities
+    // Amenities & Facilities (12)
     'Sun',
     'Moon',
     'Cloud',
@@ -91,7 +91,7 @@ export class SimpleIconLoader {
     'Award',
     'Flag',
 
-    // Additional Amenities
+    // Additional Amenities (12)
     'ShoppingBag',
     'Store',
     'Utensils',
@@ -105,7 +105,7 @@ export class SimpleIconLoader {
     'Network',
     'Router',
 
-    // Transportation
+    // Transportation (11)
     'Plane',
     'Train',
     'Bike',
@@ -118,7 +118,7 @@ export class SimpleIconLoader {
     'Ship',
     'Anchor',
 
-    // Security & Safety
+    // Security & Safety (11)
     'ShieldCheck',
     'ShieldAlert',
     'LockKeyhole',
@@ -131,7 +131,7 @@ export class SimpleIconLoader {
     'BellPlus',
     'Siren',
 
-    // Utilities & Services
+    // Utilities & Services (9)
     'Fan',
     'Smartphone',
     'WashingMachine',
@@ -142,7 +142,7 @@ export class SimpleIconLoader {
     'Wrench',
     'Tool',
 
-    // Payment & Finance
+    // Payment & Finance (11)
     'CreditCard',
     'Wallet',
     'DollarSign',
@@ -155,7 +155,7 @@ export class SimpleIconLoader {
     'BadgePercent',
     'BadgeDollarSign',
 
-    // Comfort
+    // Comfort (11)
     'Gift',
     'ShoppingCart',
     'Package',
@@ -168,7 +168,7 @@ export class SimpleIconLoader {
     'Download',
     'Upload',
 
-    // Weather & Climate Control
+    // Weather & Climate Control (7)
     'Snowflake',
     'CloudRain',
     'CloudSnow',
@@ -177,7 +177,7 @@ export class SimpleIconLoader {
     'ThermometerSnowflake',
     'ThermometerSun',
 
-    // Accessibility
+    // Accessibility (6)
     'Accessibility',
     'Elevator',
     'Stairs',
@@ -185,21 +185,22 @@ export class SimpleIconLoader {
     'ArrowDown',
     'Wheelchair',
 
-    // Communication
+    // Communication (3)
     'PhoneCall',
     'MessageSquare',
     'Share',
 
-    // Environment & Sustainability
+    // Environment & Sustainability (3) - Removed: FlowerPot, Plant, SolarPanel, WaterWave
     'Leaf',
     'Sprout',
+    'Waves',
     'FlowerPot',
     'Plant',
     'SolarPanel',
-    'WaterWave',
+    'WaterWave'
   ]
 
-  private constructor() {}
+  private constructor() { }
 
   static getInstance(): SimpleIconLoader {
     if (!SimpleIconLoader.instance) {
