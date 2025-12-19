@@ -18,7 +18,7 @@ const Team = () => {
   const t = useTranslations()
   const title = t('OurTeam.title') || 'Team'
   const content = t('OurTeam.content') || ''
-  const tocLabel = t('OurTeam.on_this_page') || t('Footer.on_this_page') || 'On this page'
+  const tocLabel = t('OurTeam.title') || t('Footer.on_this_page') || 'On this page'
   const toc = useMemo(() => {
     if (!content) return [] as { id: string; text: string; level: number }[]
     const lines = content.split('\n')

@@ -18,7 +18,7 @@ const Careers = () => {
   const t = useTranslations()
   const title = t('Careers.title') || 'Careers'
   const content = t('Careers.content') || ''
-  const tocLabel = t('Careers.on_this_page') || t('Footer.on_this_page') || 'On this page'
+  const tocLabel = t('Careers.title') || t('Footer.on_this_page') || 'On this page'
 
   const toc = useMemo(() => {
     if (!content) return [] as { id: string; text: string; level: number }[]

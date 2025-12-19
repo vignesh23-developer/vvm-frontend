@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { MapPin, BedSingle, Ruler, IndianRupee, Sparkles, ChevronLeft, ChevronRight, ChartBarStacked, Captions } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { PopularPropertyDto } from './dto/popularPropertiesDto'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { motion, Variants } from 'framer-motion'
 import Button from '@/components/ui/CustomComponent/Button/Button'
@@ -55,6 +55,7 @@ interface PopularPropertiesProps {
 
 export default function PopularProperties({ district, packageType }: PopularPropertiesProps = {}) {
   const t = useTranslations()
+  const locale = useLocale()
   const { token } = useAuth()
   const router = useRouter()
   const { items, isLoading } = usePopularProperties({ limit: 9, district, packageType })
@@ -202,7 +203,10 @@ export default function PopularProperties({ district, packageType }: PopularProp
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 mb-2 tracking-tight"
+            className={cn(
+              'font-extrabold text-gray-900 mb-2 tracking-tight leading-tight',
+              locale === 'ta' ? 'text-xl sm:text-2xl md:text-3xl lg:text-4xl' : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl',
+            )}
           >
             <span className="text-[#2a1407]">{t('PopularProperties.title') || 'Popular properties curated for you'}</span>
           </motion.h2>
@@ -212,7 +216,10 @@ export default function PopularProperties({ district, packageType }: PopularProp
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed font-light"
+            className={cn(
+              'text-gray-600 max-w-2xl mx-auto font-light',
+              locale === 'ta' ? 'text-sm sm:text-base md:text-lg leading-snug' : 'text-base sm:text-lg md:text-xl leading-relaxed',
+            )}
           >
             {t('PopularProperties.description')}
           </motion.p>

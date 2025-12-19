@@ -18,7 +18,7 @@ const OurStory = () => {
   const t = useTranslations()
   const title = t('OurStory.title') || 'Our Story'
   const content = t('OurStory.content') || ''
-  const tocLabel = t('OurStory.on_this_page') || t('Footer.on_this_page') || 'On this page'
+  const tocLabel = t('OurStory.title') || t('Footer.on_this_page') || 'On this page'
 
   const toc = useMemo(() => {
     if (!content) return [] as { id: string; text: string; level: number }[]

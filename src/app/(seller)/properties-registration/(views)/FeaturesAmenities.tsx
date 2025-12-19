@@ -152,7 +152,7 @@ export default function Step4FeaturesAmenities({
       const rawValue = featureEntries.find(f => f.feature_category_id === feature_category_id)?.value_boolean
       const checked = typeof rawValue === 'string' ? rawValue === 'true' : !!rawValue
       return (
-        <label key={feature_category_id} className="flex items-center space-x-2 cursor-pointer mb-4">
+        <label key={feature_category_id} className="flex items-center space-x-4 cursor-pointer mb-4">
           <input
             type="checkbox"
             checked={checked}

@@ -18,7 +18,7 @@ export default function TermsPage() {
   const t = useTranslations()
   const title = t('Terms.title')
   const content = t('Terms.content')
-  const onthispage = t('Terms.on_this_page')
+  const onthispage = t('Terms.title') || t('Footer.on_this_page') || 'On this page'
   // const effective = t('Terms.effectiveDate') || ''
 
   // Build a table of contents from markdown headings (#, ##, ###)

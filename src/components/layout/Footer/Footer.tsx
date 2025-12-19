@@ -56,17 +56,17 @@ export default function Footer() {
     <footer className="bg-gradient-to-br from-[#2a1407] to-[#1a0a04] text-white px-4 sm:px-6 lg:px-10 py-12 font-sans border-t border-yellow-900/30">
       <div className="max-w-7xl mx-auto">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-10 mb-12">
-
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 lg:gap-8 mb-12">
           {/* Column 1: Brand, Description & Social */}
           <div className="lg:col-span-1 sm:col-span-2">
-            <Link href={'/'} className="inline-block mb-5">
+            <Link href={'/'} className="inline-flex items-center mb-5" aria-label="Vaazhga Valamudan Home">
               <Image
                 src="/footer_logo_new.PNG"
                 alt="Vaazhga Valamudan Logo"
-                width={180}
-                height={90}
-                className="w-[160px] h-auto object-contain hover:brightness-110 transition duration-300"
+                width={220}
+                height={110}
+                quality={100}
+                className="w-[180px] sm:w-[200px] h-auto object-contain drop-shadow-lg brightness-110 contrast-125"
               />
             </Link>
             <p className="text-sm text-gray-300 leading-relaxed mb-6">
@@ -108,18 +108,21 @@ export default function Footer() {
           {/* Column 5: Contact Info */}
           <div>
             <h3 className="font-semibold text-lg mb-5 text-yellow-500">Contact Us</h3>
+
             <div className="space-y-4">
+              {/* Address */}
               <div className="flex items-start gap-3 group">
                 <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0 group-hover:bg-yellow-500/20 transition-colors">
                   <MapPin size={16} className="text-yellow-400" />
                 </div>
-                <div className="pt-1">
-                  <p className="text-sm text-gray-300 leading-snug group-hover:text-white transition-colors">
-                    Trichy & Chennai,<br />Tamil Nadu
-                  </p>
-                </div>
+                <p className="text-sm text-gray-300 leading-snug group-hover:text-white transition-colors">
+                  Trichy & Chennai,
+                  <br />
+                  Tamil Nadu
+                </p>
               </div>
 
+              {/* Phone */}
               <div className="flex items-center gap-3 group">
                 <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0 group-hover:bg-yellow-500/20 transition-colors">
                   <Phone size={16} className="text-yellow-400" />
@@ -129,12 +132,13 @@ export default function Footer() {
                 </a>
               </div>
 
+              {/* Email */}
               <div className="flex items-center gap-3 group">
                 <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0 group-hover:bg-yellow-500/20 transition-colors">
                   <Mail size={16} className="text-yellow-400" />
                 </div>
-                <a href="mailto:Admin@vaazhgavalamudan.com" className="text-sm text-gray-300 hover:text-yellow-400 transition-colors break-all">
-                  Admin@vaazhgavalamudan.com
+                <a href="mailto:admin@vaazhgavalamudan.com" className="text-sm text-gray-300 hover:text-yellow-400 transition-colors break-words">
+                  admin@vaazhgavalamudan.com
                 </a>
               </div>
             </div>
@@ -146,7 +150,6 @@ export default function Footer() {
 
         {/* Bottom Section: Newsletter & App */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 mb-10">
-
           {/* Newsletter */}
           <div>
             <h3 className="font-semibold text-lg mb-2">Detailed Newsletter</h3>
@@ -157,7 +160,7 @@ export default function Footer() {
               <input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 placeholder="Enter your email"
                 className="w-full pl-5 pr-14 py-3 rounded-full bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all"
                 required
@@ -175,9 +178,7 @@ export default function Footer() {
           {/* App Download */}
           <div className="lg:text-right flex flex-col items-start lg:items-end">
             <h3 className="font-semibold text-lg mb-2">Download Our App</h3>
-            <p className="text-sm text-gray-400 mb-5">
-              Experience the best real estate platform on mobile.
-            </p>
+            <p className="text-sm text-gray-400 mb-5">Experience the best real estate platform on mobile.</p>
             <div className="flex flex-wrap gap-4 justify-start lg:justify-end">
               <Link href="#" className="hover:-translate-y-1 transition-transform duration-300">
                 <Image
@@ -202,12 +203,15 @@ export default function Footer() {
         </div>
 
         {/* Footer Bottom: Copyright */}
-        <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500">
-          <p>
-            © {new Date().getFullYear()} Vaazhga Valamudan. All Rights Reserved.
+        <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row md:flex-wrap justify-center items-center gap-2 md:gap-3 text-xm text-gray-500 text-center">
+          <p className="leading-relaxed text-gray-300">
+            © {new Date().getFullYear()} Vaazhga Valamudan - Bhuvaneswari Koothachi. All Rights Reserved.
           </p>
-          <p>
-            Designed by{' '}
+
+          <span className="hidden md:inline-block text-gray-600">•</span>
+
+          <p className="leading-relaxed">
+            <span className="text-gray-400">Designed by </span>
             <Link
               href="https://www.bizdevinfotech.com/"
               target="_blank"

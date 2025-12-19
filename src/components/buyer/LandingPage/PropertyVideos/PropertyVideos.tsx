@@ -3,13 +3,15 @@ import React from 'react'
 
 import { motion, AnimatePresence } from 'framer-motion'
 import SwiperWrapper from '../../../ui/CustomComponent/Slider/SwipperSlider'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { Sparkles, MapPin, Home, Clock, Play, ArrowRight, X } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { useRouter } from 'next/navigation'
 
 export default function PropertyVideos() {
   const t = useTranslations()
+  const locale = useLocale()
   const router = useRouter()
   const [selectedVideo, setSelectedVideo] = React.useState<any>(null)
 
@@ -150,7 +152,10 @@ export default function PropertyVideos() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 mb-6 tracking-tight"
+            className={cn(
+              'font-extrabold text-gray-900 mb-2 tracking-tight leading-tight',
+              locale === 'ta' ? 'text-xl sm:text-2xl md:text-3xl lg:text-4xl' : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl',
+            )}
           >
             <span className="bg-[#2a1407] bg-clip-text text-transparent">{t('ExploreVideo.title') || 'Virtual Property Tours'}</span>
           </motion.h2>
@@ -160,7 +165,10 @@ export default function PropertyVideos() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
             viewport={{ once: true }}
-            className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed font-light"
+            className={cn(
+              'text-gray-600 max-w-2xl mx-auto font-light',
+              locale === 'ta' ? 'text-sm sm:text-base md:text-lg leading-snug' : 'text-base sm:text-lg md:text-xl leading-relaxed',
+            )}
           >
             {t('ExploreVideo.description') || 'Discover stunning properties through immersive video tours'}
           </motion.p>

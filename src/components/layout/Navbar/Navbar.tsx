@@ -79,7 +79,6 @@ const DEFAULT_LINKS = [
   { label: 'agents', href: '/agents-list', icon: CircleUserRound },
   // { label: 'services', href: '/services', icon: Wrench },
   { label: 'about_us', href: '/about', icon: Info },
-  { label: 'help_center', href: '/help-center', icon: HelpCircle },
   { label: 'pricing', href: '/pricing', icon: Tag },
 ]
 
@@ -157,7 +156,7 @@ const DASHBOARD_SECTIONS: NavItem[] = [
 const PROFILE_SECTIONS = (userId: string, companyId: string): NavItem[] => [
   {
     label: 'profile',
-    href: '/profile/settings',
+    href: `/profile/${userId}`,
     icon: <CircleUserRound size={16} />,
     subMenu: [
       { label: 'profile', href: `/profile/${userId}`, icon: <User size={16} /> },
@@ -461,7 +460,7 @@ export default function Navbar({
                       onClick={() => setIsMoreMenuOpen(false)}
                       className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition whitespace-nowrap"
                     >
-                      {links.icon && <links.icon size={16} className="text-yellow-600" />}
+                      {links.icon && <links.icon size={16} className="text-yellow-600 shrink-0" />}
                       {t(`Navbar.${links.label}`)}
                     </Link>
                   ))}
@@ -504,7 +503,7 @@ export default function Navbar({
 
                 {/* Main Dropdown */}
                 {isOpen && (
-                  <div className="absolute right-0 mt-2 bg-gradient-to-br from-white to-yellow-50 text-[#2a1407] rounded-lg shadow-lg border border-yellow-200 w-70 py-2 z-50 max-h-[70vh] overflow-y-auto">
+                  <div className="absolute right-0 mt-2 bg-gradient-to-br from-white to-yellow-50 text-[#2a1407] rounded-lg shadow-lg border border-yellow-200 w-72 py-2 z-50 max-h-[70vh] overflow-y-auto">
                     <Link href="/admin/dashboard" className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition">
                       <Home size={16} /> {t('Navbar.Dashboard')}
                     </Link>
@@ -563,36 +562,36 @@ export default function Navbar({
                 </Button>
 
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 bg-gradient-to-br from-white to-yellow-50 text-[#2a1407] rounded-lg shadow-lg border border-yellow-200 w-44 py-2 z-50">
+                  <div className="absolute right-0 mt-2 bg-gradient-to-br from-white to-yellow-50 text-[#2a1407] rounded-lg shadow-lg border border-yellow-200 w-72 py-2 z-50">
                     <div className="px-4 py-2 border-b border-yellow-200">
                       <span className="font-semibold text-sm truncate block text-[#2a1407]">
                         {formatName(user?.firstName)} {formatName(user?.lastName)}
                       </span>
                     </div>
                     <Link href={`/profile/${user?.id}`} className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition">
-                      <User size={16} /> {t('Navbar.profile')}
+                      <User size={16} className="shrink-0" /> {t('Navbar.profile')}
                     </Link>
 
                     <Link
                       href={!!companyProfileId ? `/company-profile/${companyProfileId}` : `/company-profile`}
                       className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition"
                     >
-                      <Building2 size={16} /> {t('Navbar.company profile')}
+                      <Building2 size={16} className="shrink-0" /> {t('Navbar.company profile')}
                     </Link>
                     <Link href="/view-subscriptions" className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition">
-                      <Crown size={16} /> {t('Navbar.view subscriptions')}
+                      <Crown size={16} className="shrink-0" /> {t('Navbar.view subscriptions')}
                     </Link>
                     <Link href="/view-transactions" className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition">
-                      <BadgeIndianRupee size={16} /> {t('Navbar.view transactions')}
+                      <BadgeIndianRupee size={16} className="shrink-0" /> {t('Navbar.view transactions')}
                     </Link>
                     <Link href="/feedback" className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition">
-                      <Info size={16} /> {t('Navbar.feedback')}
+                      <Info size={16} className="shrink-0" /> {t('Navbar.feedback')}
                     </Link>
                     <Button
                       onClick={handleLogout}
                       className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-yellow-50 text-sm transition"
                     >
-                      <LogOut size={16} /> {t('Navbar.logout')}
+                      <LogOut size={16} className="shrink-0" /> {t('Navbar.logout')}
                     </Button>
                   </div>
                 )}
@@ -705,7 +704,7 @@ export default function Navbar({
                   {/* Header */}
                   {openSections.has(section.label) && (
                     <>
-                      <div className="px-4 py-3 border-b border-gray-200 text-center">
+                      <div className="px-4 py-3 mb-2 border-b border-gray-200 text-center">
                         <span className="font-semibold text-sm block truncate">
                           {formatName(user?.firstName)} {formatName(user?.lastName)}
                         </span>
@@ -729,10 +728,9 @@ export default function Navbar({
                             )
                           }
 
-                          const requiresAuth =
-                            typeof sub?.href === 'string' && (sub.href === '/company-profile' || sub.href.startsWith('/company-profile/'))
-                          const isVerifiedUser = Boolean(requiresAuth && token)
-                          const targetHref = !isVerifiedUser ? '/login' : sub.href
+                          // Avoid sending logged-in users to /login (middleware will bounce to /).
+                          // In this menu we already know `user` exists, so just use the target route.
+                          const targetHref = sub.href
 
                           return (
                             <Link

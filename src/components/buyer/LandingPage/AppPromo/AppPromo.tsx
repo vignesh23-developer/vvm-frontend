@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import Button from '@/components/ui/CustomComponent/Button/Button'
@@ -37,6 +37,7 @@ const AppPromoSkeleton = () => {
 
 export default function AppPromo() {
   const t = useTranslations()
+  const locale = useLocale()
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -73,7 +74,7 @@ export default function AppPromo() {
 
               {/* smooth color transition using CSS variables provided by MaskContainer */}
               <h2
-                className="text-2xl lg:text-4xl font-extrabold leading-tight"
+                className={`${locale === 'ta' ? 'text-xl sm:text-2xl lg:text-3xl' : 'text-2xl sm:text-3xl lg:text-4xl'} font-extrabold leading-tight`}
                 style={{
                   color: 'var(--title-color, #2a1407)',
                   transition: 'color 350ms cubic-bezier(.2,.9,.2,1)',
@@ -83,7 +84,7 @@ export default function AppPromo() {
               </h2>
 
               <p
-                className="max-w-xl mb-6"
+                className={`${locale === 'ta' ? 'text-sm sm:text-base leading-snug' : 'text-base sm:text-lg leading-relaxed'} max-w-xl mb-6`}
                 style={{
                   color: 'var(--body-color, #4b5563)',
                   transition: 'color 350ms cubic-bezier(.2,.9,.2,1)',

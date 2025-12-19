@@ -18,7 +18,7 @@ const Agents = () => {
   const t = useTranslations()
   const title = t('Agents.title') || 'Agents'
   const content = t('Agents.content') || ''
-  const tocLabel = t('Agents.on_this_page') || t('Footer.on_this_page') || 'On this page'
+  const tocLabel = t('Agents.title') || t('Footer.on_this_page') || 'On this page'
   const toc = useMemo(() => {
     if (!content) return [] as { id: string; text: string; level: number }[]
     const lines = content.split('\n')

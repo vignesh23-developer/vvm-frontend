@@ -20,7 +20,7 @@ const FrequentlyAskedQuestions = () => {
   // Prefer existing keys; fall back to common variations
   const title = t('FAQ.title') || t('FAQ.title') || 'FAQ'
   const content = t('FAQ.content') || t('FAQ.content') || ''
-  const tocLabel = t('FAQ.on_this_page') || t('FAQ.on_this_page') || t('Footer.on_this_page') || 'On this page'
+  const tocLabel = t('FAQ.title') || t('FAQ.on_this_page') || t('Footer.on_this_page') || 'On this page'
 
   const toc = useMemo(() => {
     if (!content) return [] as { id: string; text: string; level: number }[]

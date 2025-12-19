@@ -18,7 +18,7 @@ const Resources = () => {
   const t = useTranslations()
   const title = t('Resources.title') || 'Resources'
   const content = t('Resources.content') || ''
-  const tocLabel = t('Resources.on_this_page') || t('Footer.on_this_page') || 'On this page'
+  const tocLabel = t('Resources.title') || t('Footer.on_this_page') || 'On this page'
   const toc = useMemo(() => {
     if (!content) return [] as { id: string; text: string; level: number }[]
     const lines = content.split('\n')

@@ -2,7 +2,7 @@
 
 import { motion, Variants } from 'framer-motion'
 import { Sparkles } from 'lucide-react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { useState, useEffect } from 'react'
 import { AnimatedTestimonials } from '../../../ui/animated-testimonial'
 
@@ -48,6 +48,7 @@ const TestimonialsSkeleton = () => {
 
 export default function Testimonials() {
   const t = useTranslations()
+  const locale = useLocale()
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -178,7 +179,9 @@ export default function Testimonials() {
 
           {/* Heading */}
           <motion.h2
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 mb-3 tracking-tight"
+            className={`${
+              locale === 'ta' ? 'text-xl sm:text-2xl md:text-3xl lg:text-4xl' : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl'
+            } font-extrabold text-gray-900 mb-3 tracking-tight leading-tight`}
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
@@ -188,7 +191,9 @@ export default function Testimonials() {
           </motion.h2>
 
           <motion.p
-            className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed font-light"
+            className={`${
+              locale === 'ta' ? 'text-sm sm:text-base md:text-lg leading-snug' : 'text-base sm:text-lg md:text-xl leading-relaxed'
+            } text-gray-600 max-w-2xl mx-auto font-light`}
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"

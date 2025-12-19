@@ -1,7 +1,7 @@
 'use client'
 
 import { motion, Variants } from 'framer-motion'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import HeroSection from '@/components/buyer/LandingPage/HeroSection/HeroSection'
 import PopularProperties from '@/components/buyer/LandingPage/PopularProperties/PopularProperties'
 import Testimonials from '@/components/buyer/LandingPage/Testimonials/Testimonials'
@@ -25,6 +25,7 @@ const sectionVariants: Variants = {
 export default function SitePage() {
   const searchParams = useSearchParams()
   const district = searchParams?.get('district')
+  const router = useRouter()
 
   return (
     <main className="flex flex-col gap-0">
@@ -96,7 +97,7 @@ export default function SitePage() {
           >
             <Button
               type="button"
-              onClick={() => (window.location.href = '/properties-list')}
+              onClick={() => router.push('/properties-list')}
               className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#2a1407] px-8 py-4 rounded-lg font-bold text-lg hover:from-yellow-500 hover:to-yellow-600 transition shadow-xl hover:shadow-2xl"
             >
               Start Searching →

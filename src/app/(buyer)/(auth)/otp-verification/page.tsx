@@ -35,11 +35,12 @@ export default function OtpVerification() {
     }
 
     // If user isn't logged in and no phone is present, OTP flow is invalid.
-    if (!globalValue?.phoneNumber) {
-      router.replace('/login')
-      return
-    }
-  }, [globalValue?.phoneNumber, loading, router, token])
+    // if (!globalValue?.phoneNumber) {
+    //   router.replace('/login')
+    //   return
+    // }
+    // globalValue?.phoneNumber,
+  }, [loading, router, token])
 
   type OtpValues = {
     otp: string[]

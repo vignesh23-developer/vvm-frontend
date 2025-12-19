@@ -19,7 +19,7 @@ const PrivacyPolicy = () => {
   const title = t('privacyPolicy.title')
   // const effective = t('privacyPolicy.effectiveDate')
   const content = t('privacyPolicy.content')
-  const tocLabel = t('privacyPolicy.on_this_page')
+  const tocLabel = t('privacyPolicy.title') || t('Footer.on_this_page') || 'On this page'
 
   const toc = useMemo(() => {
     if (!content) return [] as { id: string; text: string; level: number }[]

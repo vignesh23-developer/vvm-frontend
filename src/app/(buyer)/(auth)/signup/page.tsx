@@ -48,10 +48,11 @@ export default function SignupPage() {
     }
 
     // Signup OTP flow depends on phoneNumber coming from the login step.
-    if (!globalValue?.phoneNumber) {
-      router.replace('/login')
-    }
-  }, [globalValue?.phoneNumber, loading, nextUrl, router, token])
+    // if (!globalValue?.phoneNumber) {
+    //   router.replace('/login')
+    // }
+    // globalValue?.phoneNumber,
+  }, [loading, nextUrl, router, token])
 
   const [buttonType, setButtonType] = useState<'sms' | 'whatsapp'>('sms')
 

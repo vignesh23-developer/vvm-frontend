@@ -18,7 +18,7 @@ const RefundPolicy = () => {
   const t = useTranslations()
   const title = t('RefundPolicy.title') || 'Refund Policy'
   const content = t('RefundPolicy.content') || ''
-  const tocLabel = t('RefundPolicy.on_this_page') || t('Footer.on_this_page') || 'On this page'
+  const tocLabel = t('RefundPolicy.title') || t('Footer.on_this_page') || 'On this page'
   const toc = useMemo(() => {
     if (!content) return [] as { id: string; text: string; level: number }[]
     const lines = content.split('\n')

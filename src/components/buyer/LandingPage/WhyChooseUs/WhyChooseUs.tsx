@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence, Variants } from 'framer-motion'
 import { Shield, Users, CheckCircle2, Zap, Award, Sparkles } from 'lucide-react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { useState } from 'react'
 
 const fadeUp: Variants = {
@@ -16,6 +16,7 @@ const fadeUp: Variants = {
 
 export default function WhyChooseUs() {
   const t = useTranslations()
+  const locale = useLocale()
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
   const features = [
@@ -97,26 +98,28 @@ export default function WhyChooseUs() {
 
           {/* Heading */}
           <motion.h2
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 mb-3 tracking-tight"
+            className={`${
+              locale === 'ta' ? 'text-xl sm:text-2xl md:text-3xl lg:text-4xl' : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl'
+            } font-extrabold text-gray-900 mb-3 tracking-tight leading-tight`}
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
           >
-            <span className="bg-[#2a1407] bg-clip-text text-transparent">
-              Why Choose Us?
-            </span>
+            <span className="bg-[#2a1407] bg-clip-text text-transparent">{t('WhyChooseUs.title')}?</span>
           </motion.h2>
 
           <motion.p
-            className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed font-light"
+            className={`${
+              locale === 'ta' ? 'text-sm sm:text-base md:text-lg leading-snug' : 'text-base sm:text-lg md:text-xl leading-relaxed'
+            } text-gray-600 max-w-2xl mx-auto font-light`}
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
           >
-            Your trusted partner for all real estate needs in Tamil Nadu
+            {t('WhyChooseUs.description')}
           </motion.p>
         </motion.div>
 
@@ -179,7 +182,7 @@ export default function WhyChooseUs() {
                       style={{
                         backfaceVisibility: 'hidden',
                         WebkitBackfaceVisibility: 'hidden',
-                        transform: 'rotateY(180deg)'
+                        transform: 'rotateY(180deg)',
                       }}
                     >
                       <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center mb-4">
@@ -198,4 +201,3 @@ export default function WhyChooseUs() {
     </motion.section>
   )
 }
-

@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { motion, Variants } from 'framer-motion'
 import { Sparkles } from 'lucide-react'
 import ExploreCard from './ExploreCard'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { useRouter } from 'next/navigation'
 import { useExploreProperties } from './hooks/useExploreProperties'
@@ -33,6 +33,7 @@ const cardVariants: Variants = {
 
 export default function ExploreProperties() {
   const t = useTranslations()
+  const locale = useLocale()
   const router = useRouter()
   const [limit, setLimit] = useState(4)
   const [page, setPage] = useState(1)
@@ -100,7 +101,9 @@ export default function ExploreProperties() {
           </motion.div>
 
           <motion.h2
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 mb-2 tracking-tight"
+            className={`${
+              locale === 'ta' ? 'text-xl sm:text-2xl md:text-3xl lg:text-4xl' : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl'
+            } font-extrabold text-gray-900 mb-2 tracking-tight leading-tight`}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -112,7 +115,9 @@ export default function ExploreProperties() {
           </motion.h2>
 
           <motion.p
-            className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed font-light mb-4"
+            className={`${
+              locale === 'ta' ? 'text-sm sm:text-base md:text-lg leading-snug' : 'text-base sm:text-lg md:text-xl leading-relaxed'
+            } text-gray-600 max-w-2xl mx-auto font-light mb-4`}
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}

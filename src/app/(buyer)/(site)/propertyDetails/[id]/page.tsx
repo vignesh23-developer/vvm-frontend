@@ -517,9 +517,9 @@ const page = () => {
   const propertyInsights = useMemo(
     () => [
       {
-        label: 'Number of Favourites',
-        value: propertyDetailsData?.favorite_count || 0,
-        icon: Heart,
+        label: 'Page Views',
+        value: propertyDetailsData?.view_count || 0,
+        icon: Eye,
       },
       {
         label: 'Total Enquiries',
@@ -527,13 +527,15 @@ const page = () => {
         icon: MessageSquare,
       },
       {
-        label: 'Page Views',
-        value: propertyDetailsData?.view_count || 0,
-        icon: Eye,
+        label: 'Number of Favourites',
+        value: propertyDetailsData?.favorite_count || 0,
+        icon: Heart,
       },
     ],
     [propertyDetailsData],
   )
+
+  console.log('Property details:', propertyDetailsData)
 
   // Filter similar properties (exclude current property; if empty, fall back to all)
   const filteredSimilarProperties = useMemo(() => {
@@ -1209,6 +1211,89 @@ const page = () => {
                 {/* (Floor Plans and About Project mock sections removed) */}
               </div>
             </motion.div>
+            {(isAdmin || isAgent) && (propertyDetailsData?.reports?.length ?? 0) > 0 && (
+              <motion.div variants={fadeInUp}>
+                <div className="bg-white rounded-xl border border-yellow-200 shadow-sm overflow-hidden">
+                  <div className="px-6 py-4 border-b border-yellow-200 flex items-center justify-between">
+                    <div>
+                      <h2 className="text-lg font-bold text-[#2a1407]">Property Reports</h2>
+                      <p className="text-xs text-gray-500">Admin / Agent only</p>
+                    </div>
+                    <span className="text-xs font-semibold bg-yellow-50 border border-yellow-200 rounded-full px-3 py-1">
+                      {propertyDetailsData?.reports.length} Reports
+                    </span>
+                  </div>
+
+                  <div className="relative px-6 py-6 space-y-6">
+                    {/* Vertical timeline line */}
+                    <div className="absolute left-8 top-0 bottom-0 w-px bg-yellow-200" />
+
+                    {(propertyDetailsData?.reports ?? []).map((report: any, idx: number) => {
+                      const rawType = report?.report_type ?? report?.type ?? 'N/A'
+                      const reportType = String(rawType)
+                        .replace(/_/g, ' ')
+                        .toLowerCase()
+                        .replace(/\b\w/g, c => c.toUpperCase())
+
+                      const status = report?.status ?? report?.approval_status ?? 'N/A'
+                      const created = report?.created_at ?? report?.createdAt
+                      const dateLabel = created ? new Date(created).toLocaleDateString() : '—'
+
+                      const statusTone =
+                        status === 'PENDING' || status === 'UNDER_REVIEW'
+                          ? 'bg-yellow-100 text-yellow-700'
+                          : status === 'RESOLVED' || status === 'APPROVED'
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-gray-100 text-gray-700'
+
+                      return (
+                        <details key={report?.id ?? idx} className="group relative pl-14">
+                          {/* Timeline dot */}
+                          <span className="absolute left-[22px] top-4 h-3 w-3 rounded-full bg-yellow-400 border-2 border-white shadow" />
+
+                          {/* Header */}
+                          <summary className="cursor-pointer list-none rounded-lg border border-yellow-200 bg-yellow-50/40 px-4 py-3 hover:bg-yellow-50 transition">
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="font-semibold text-sm text-[#2a1407] truncate">{reportType}</p>
+                                <p className="text-xs text-gray-500">{dateLabel}</p>
+                              </div>
+
+                              <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold ${statusTone}`}>{status}</span>
+                            </div>
+                          </summary>
+
+                          {/* Body */}
+                          <div className="mt-3 rounded-lg border border-yellow-100 bg-white p-4 space-y-3">
+                            <p className="text-sm text-gray-800 whitespace-pre-line">{report?.description ?? '—'}</p>
+
+                            <div className="flex flex-wrap gap-2">
+                              {report?.severity != null && (
+                                <span className="rounded-full bg-yellow-50 border border-yellow-200 px-2.5 py-1 text-[11px] font-semibold">
+                                  Severity: {Number(report.severity)}
+                                </span>
+                              )}
+
+                              {(report?.evidence?.links ?? report?.evidence_links ?? []).map((link: string, i: number) => (
+                                <a
+                                  key={i}
+                                  href={link}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="rounded-full bg-yellow-50 border border-yellow-200 px-2.5 py-1 text-[11px] font-semibold hover:bg-yellow-100"
+                                >
+                                  Evidence
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        </details>
+                      )
+                    })}
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </div>
 
           {/* Right Sidebar */}
