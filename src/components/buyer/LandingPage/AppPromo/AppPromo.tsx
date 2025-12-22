@@ -60,89 +60,89 @@ export default function AppPromo() {
       <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-12 items-center gap-12">
         {/* Left: wrapped in MaskContainer to reveal primary color on hover */}
         <div className="lg:col-span-5">
-          <MaskContainer revealBg="#2a1407" revealSize={320} className="group rounded-2xl">
-            <motion.div
-              initial={{ opacity: 0, x: -60 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.7 }}
-              viewport={{ once: true }}
-              className="space-y-8 relative z-10 px-4 py-6"
+          {/* <MaskContainer revealBg="#2a1407" revealSize={320} className="group rounded-2xl"> */}
+          <motion.div
+            initial={{ opacity: 0, x: -60 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7 }}
+            viewport={{ once: true }}
+            className="space-y-8 relative z-10 px-4 py-6"
+          >
+            <h3 className="text-sm font-semibold text-yellow-700 uppercase inline-block px-3 py-1 rounded-full bg-yellow-50 border border-yellow-100">
+              Get Benefit
+            </h3>
+
+            {/* smooth color transition using CSS variables provided by MaskContainer */}
+            <h2
+              className={`${locale === 'ta' ? 'text-xl sm:text-2xl lg:text-3xl' : 'text-2xl sm:text-3xl lg:text-4xl'} font-extrabold leading-tight`}
+              style={{
+                color: 'var(--title-color, #2a1407)',
+                transition: 'color 350ms cubic-bezier(.2,.9,.2,1)',
+              }}
             >
-              <h3 className="text-sm font-semibold text-yellow-700 uppercase inline-block px-3 py-1 rounded-full bg-yellow-50 border border-yellow-100">
-                Get Benefit
-              </h3>
+              {t('AppPromo.title') || 'Experience tours like never before'}
+            </h2>
 
-              {/* smooth color transition using CSS variables provided by MaskContainer */}
-              <h2
-                className={`${locale === 'ta' ? 'text-xl sm:text-2xl lg:text-3xl' : 'text-2xl sm:text-3xl lg:text-4xl'} font-extrabold leading-tight`}
-                style={{
-                  color: 'var(--title-color, #2a1407)',
-                  transition: 'color 350ms cubic-bezier(.2,.9,.2,1)',
-                }}
-              >
-                {t('AppPromo.title') || 'Experience tours like never before'}
-              </h2>
+            <p
+              className={`${locale === 'ta' ? 'text-sm sm:text-base leading-snug' : 'text-base sm:text-lg leading-relaxed'} max-w-xl mb-6`}
+              style={{
+                color: 'var(--body-color, #4b5563)',
+                transition: 'color 350ms cubic-bezier(.2,.9,.2,1)',
+              }}
+            >
+              {t('AppPromo.description') || 'Find your dream home on the go with our mobile app'}
+            </p>
 
-              <p
-                className={`${locale === 'ta' ? 'text-sm sm:text-base leading-snug' : 'text-base sm:text-lg leading-relaxed'} max-w-xl mb-6`}
-                style={{
-                  color: 'var(--body-color, #4b5563)',
-                  transition: 'color 350ms cubic-bezier(.2,.9,.2,1)',
-                }}
-              >
-                {t('AppPromo.description') || 'Find your dream home on the go with our mobile app'}
-              </p>
+            {/* Benefits List */}
+            <ul className="space-y-3 mb-6">
+              {['Get real-time property alerts', 'Save your favorite listings', 'Chat with verified agents', 'Faster browsing & videos'].map(
+                (benefit, idx) => (
+                  <motion.li
+                    key={idx}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: idx * 0.1 }}
+                    className="flex items-center gap-2 text-sm"
+                    style={{
+                      color: 'var(--body-color, #4b5563)',
+                      transition: 'color 350ms cubic-bezier(.2,.9,.2,1)',
+                    }}
+                  >
+                    <span className="text-yellow-600 font-bold">✔</span>
+                    <span>{benefit}</span>
+                  </motion.li>
+                ),
+              )}
+            </ul>
 
-              {/* Benefits List */}
-              <ul className="space-y-3 mb-6">
-                {['Get real-time property alerts', 'Save your favorite listings', 'Chat with verified agents', 'Faster browsing & videos'].map(
-                  (benefit, idx) => (
-                    <motion.li
-                      key={idx}
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: idx * 0.1 }}
-                      className="flex items-center gap-2 text-sm"
-                      style={{
-                        color: 'var(--body-color, #4b5563)',
-                        transition: 'color 350ms cubic-bezier(.2,.9,.2,1)',
-                      }}
-                    >
-                      <span className="text-yellow-600 font-bold">✔</span>
-                      <span>{benefit}</span>
-                    </motion.li>
-                  ),
-                )}
-              </ul>
+            <div className="flex flex-wrap gap-4">
+              <Image src="/googleplay.png" alt="Get it on Google Play" width={160} height={48} className="cursor-pointer drop-shadow-sm" />
+              <Image src="/appstore.png" alt="Download on the App Store" width={160} height={48} className="cursor-pointer drop-shadow-sm" />
+            </div>
 
-              <div className="flex flex-wrap gap-4">
-                <Image src="/googleplay.png" alt="Get it on Google Play" width={160} height={48} className="cursor-pointer drop-shadow-sm" />
-                <Image src="/appstore.png" alt="Download on the App Store" width={160} height={48} className="cursor-pointer drop-shadow-sm" />
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-xs text-gray-500">Get property alerts, offers & market insights. No spam.</p>
-                <form className="flex max-w-md rounded-lg overflow-hidden border-2 border-yellow-200 focus-within:ring-2 focus-within:ring-yellow-500 focus-within:border-yellow-400 shadow-md">
-                  <input
-                    type="email"
-                    placeholder={t('AppPromo.placeholder') || 'Your email'}
-                    className="w-full px-4 py-3 text-gray-700 focus:outline-none bg-white"
-                  />
-                  <div>
-                    <Button
-                      type="submit"
-                      variant="primary"
-                      size="medium"
-                      className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
-                    >
-                      {t('AppPromo.subscribe') || 'Subscribe'}
-                    </Button>
-                  </div>
-                </form>
-              </div>
-            </motion.div>
-          </MaskContainer>
+            <div className="space-y-2">
+              <p className="text-xs text-gray-500">Get property alerts, offers & market insights. No spam.</p>
+              <form className="flex max-w-md rounded-lg overflow-hidden border-2 border-yellow-200 focus-within:ring-2 focus-within:ring-yellow-500 focus-within:border-yellow-400 shadow-md">
+                <input
+                  type="email"
+                  placeholder={t('AppPromo.placeholder') || 'Your email'}
+                  className="w-full px-4 py-3 text-gray-700 focus:outline-none bg-white"
+                />
+                <div>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    size="medium"
+                    className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
+                  >
+                    {t('AppPromo.subscribe') || 'Subscribe'}
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </motion.div>
+          {/* </MaskContainer> */}
         </div>
 
         {/* Right: larger / integrated with BackgroundLines */}

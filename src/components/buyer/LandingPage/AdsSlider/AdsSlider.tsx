@@ -13,6 +13,14 @@ interface Slide {
   title: string
 }
 
+interface AdsSliderProps {
+  featuredAds: any[]
+  featuredAdsTotal: number
+  error: any
+  isLoading: boolean
+  mutate: () => void
+}
+
 // Skeleton Loader for ADs Slider (unchanged)
 const AdsSliderSkeleton = () => {
   return (
@@ -37,10 +45,9 @@ const AdsSliderSkeleton = () => {
   )
 }
 
-export default function AdsSlider() {
+export default function AdsSlider({ featuredAds, featuredAdsTotal, error: adsError, isLoading: adsLoading, mutate: adsMutate }: AdsSliderProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [imagesLoaded, setImagesLoaded] = useState(0)
-  const { items: Ads, isLoading: adsLoading } = useAdsSlider({ ads_limit: 6 })
 
   useEffect(() => {
     // Simulate loading delay
@@ -54,7 +61,7 @@ export default function AdsSlider() {
   const handleImageLoad = () => {
     setImagesLoaded(prev => {
       const newCount = prev + 1
-      if (newCount >= Ads.length) {
+      if (newCount >= featuredAds.length) {
         setIsLoading(false)
       }
       return newCount
@@ -96,7 +103,7 @@ export default function AdsSlider() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SwiperWrapper
-          data={Ads}
+          data={featuredAds}
           showPagination
           autoplay
           breakpoints={{

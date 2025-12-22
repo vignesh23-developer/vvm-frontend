@@ -75,10 +75,11 @@ interface NavItem {
 
 const DEFAULT_LINKS = [
   { label: 'home', href: '/', icon: Home },
-  { label: 'ads', href: '/ads-list', icon: Megaphone },
-  { label: 'agents', href: '/agents-list', icon: CircleUserRound },
-  // { label: 'services', href: '/services', icon: Wrench },
   { label: 'about_us', href: '/about', icon: Info },
+  { label: 'properties', href: '/properties-list', icon: Building },
+  { label: 'agents', href: '/agents-list', icon: CircleUserRound },
+  { label: 'services', href: '/ads-list', icon: Megaphone },
+  // { label: 'services', href: '/services', icon: Wrench },
   { label: 'pricing', href: '/pricing', icon: Tag },
 ]
 

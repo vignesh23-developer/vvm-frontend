@@ -26,6 +26,7 @@ import Button from '@/components/ui/CustomComponent/Button/Button'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { useKycStatus } from '@/components/kyc/hooks/useKycStatus'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
+import Step5UploadImages from './(views)/UploadImages'
 // import Step5UploadImages from './(views)/UploadImages'
 
 const mapFeatureValuesToPayload = (featureValues: any[] | undefined, mappings: FeatureMappingDTO[] | null): FeaturePayloadDTO[] => {
@@ -766,7 +767,14 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
                   hasInitialFeatureValues={Boolean(valueData?.feature_values?.length)}
                 />
               )}
-              {currentStep === 5 && <Step5PhotosContact formik={formik} uploadPending={UPPIsPending} />}
+              {/* {currentStep === 5 && <Step5PhotosContact formik={formik} uploadPending={UPPIsPending} />} */}
+              {currentStep === 5 && (
+                <Step5UploadImages
+                  propertyId={propertiesId as string}
+                  onUploaded={() => setUploadCompleted(true)}
+                  mode={isEdit ? 'edit' : 'create'}
+                />
+              )}
               {currentStep === 6 && <Step6ReviewSubmit propertyCategoryData={propertyCategoryData} formik={formik} />}
 
               <div className="flex flex-col sm:flex-row justify-between gap-3 mt-8 pt-6 border-t border-gray-100 max-w-4xl mx-auto">

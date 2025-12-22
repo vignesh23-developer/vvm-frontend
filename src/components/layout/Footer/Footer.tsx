@@ -39,6 +39,7 @@ const socialLinks = [
   { label: 'facebook', icon: Facebook, href: 'https://www.facebook.com/share/1Cp5XJwHHC/' },
   { label: 'twitter_(𝕏)', icon: Twitter, href: 'https://x.com/VaazhgaValam?t=Iu-WpKa3cvAT-h3BHUBdYg&s=09' },
   { label: 'linked_in', icon: Linkedin, href: 'https://www.linkedin.com/in/vaazhga-valamudan-tn' },
+  { label: 'telegram', icon: Send, href: 'https://t.me/boost/vaazhgavalamudanvvdrs' },
 ]
 
 export default function Footer() {
@@ -152,7 +153,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 mb-10">
           {/* Newsletter */}
           <div>
-            <h3 className="font-semibold text-lg mb-2">Detailed Newsletter</h3>
+            <h3 className="font-semibold text-lg mb-2 text-yellow-500">Detailed Newsletter</h3>
             <p className="text-sm text-gray-400 mb-5 max-w-sm">
               Subscribe to get the latest property updates and market insights directly to your inbox.
             </p>
@@ -177,7 +178,7 @@ export default function Footer() {
 
           {/* App Download */}
           <div className="lg:text-right flex flex-col items-start lg:items-end">
-            <h3 className="font-semibold text-lg mb-2">Download Our App</h3>
+            <h3 className="font-semibold text-lg mb-2 text-yellow-500">Download Our App</h3>
             <p className="text-sm text-gray-400 mb-5">Experience the best real estate platform on mobile.</p>
             <div className="flex flex-wrap gap-4 justify-start lg:justify-end">
               <Link href="#" className="hover:-translate-y-1 transition-transform duration-300">

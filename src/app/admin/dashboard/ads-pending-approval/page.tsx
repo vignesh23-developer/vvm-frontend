@@ -201,6 +201,7 @@ const AdsPendingApprovalPage = () => {
               handleFavorite={() => handleFavoriteToggle(ad.id)}
               handleShare={handleShare}
               isUserFavorited={Boolean(ad.is_user_favorite)}
+              isPropertyOrAds="ads"
             />
           ))}
         </div>

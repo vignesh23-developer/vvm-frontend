@@ -186,7 +186,7 @@ export default function Step2LocationPrice({ formik }: Step2LocationPriceProps) 
                 className="rounded-r-md border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               >
                 <option value="Sqft">Sqft</option>
-                <option value="Sqm">Sqm</option>
+                <option value="Sqm">Cent</option>
                 <option value="Acre">Acre</option>
               </select>
             </div>

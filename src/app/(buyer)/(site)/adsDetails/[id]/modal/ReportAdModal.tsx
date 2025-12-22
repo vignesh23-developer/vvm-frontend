@@ -17,6 +17,7 @@ interface ReportAdModalProps {
   open: boolean
   onClose: () => void
   adId: string
+  adDetailsRefresh: () => void
 }
 
 const REPORT_OPTIONS = [
@@ -24,7 +25,7 @@ const REPORT_OPTIONS = [
   { value: 'INAPPROPRIATE_CONTENT', label: 'Inappropriate Content' },
 ]
 
-export default function ReportAdModal({ open, onClose, adId }: ReportAdModalProps) {
+export default function ReportAdModal({ open, onClose, adId, adDetailsRefresh }: ReportAdModalProps) {
   const initialValues = {
     report_type: 'FAKE_LISTING',
     description: '',
@@ -48,6 +49,7 @@ export default function ReportAdModal({ open, onClose, adId }: ReportAdModalProp
         return
       }
       toast.success('Report submitted successfully')
+      adDetailsRefresh()
       resetForm()
       onClose()
     } catch (err) {

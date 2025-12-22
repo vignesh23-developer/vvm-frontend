@@ -4,7 +4,7 @@ import { type ReactNode } from 'react'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { hasRole, Roles, getUserRoles } from '@/utils/roles/roles'
 import { motion, type Variants } from 'framer-motion'
-import { Heart, Share, Ruler, Building2, Home, ChevronDown, MapPin, Eye } from 'lucide-react'
+import { Heart, Share, Ruler, Building2, Home, ChevronDown, BadgeIndianRupee, LandPlot, MapPin, Eye } from 'lucide-react'
 import Image from 'next/image'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import FavoriteButton from '@/components/ui/CustomComponent/FavoriteButton/FavoriteButton'
@@ -45,6 +45,7 @@ interface PropertiesCardProps {
   status: string
   listing_type?: string
   address_line: string
+  district?: string
   city: string
   state: string
   postal_code: string
@@ -65,6 +66,7 @@ interface PropertiesCardProps {
   handleFavorite: (propertyId: string) => void
   handleShare?: () => void
   isUserFavorited?: boolean
+  isPropertyOrAds?: 'property' | 'ads'
   primaryActionLabel?: string
   secondaryActionLabel?: string
   thirdActionLabel?: string
@@ -95,9 +97,11 @@ export default function PropertyOrAdsApproveRejectCard(props: PropertiesCardProp
     address_line,
     listing_type,
     price,
+    district,
     approval_status,
     favorite_count,
     isUserFavorited = false,
+    isPropertyOrAds,
     agent = 'N/A',
     operatingSince = 'N/A',
     property_category_name = 'N/A',
@@ -121,7 +125,9 @@ export default function PropertyOrAdsApproveRejectCard(props: PropertiesCardProp
     since: t(language, 'PropertiesListCard.operating_since', 'Operating since'),
     status: t(language, 'PropertiesListCard.status', 'Status'),
     property_size_unit: t(language, 'PropertiesListCard.property_size', 'Property size'),
+    price: t(language, 'PropertiesListCard.price', 'Price'),
     listing_type: t(language, 'PropertiesListCard.listing_type', 'Listing type'),
+    district: t(language, 'PropertiesListCard.district', 'District'),
   }
 
   const buttons = {
@@ -211,12 +217,15 @@ export default function PropertyOrAdsApproveRejectCard(props: PropertiesCardProp
             status={status}
             address_line={address_line}
             property_size={property_size}
+            price={price}
+            district={district}
             property_size_unit={property_size_unit}
             labels={labels}
             listing_type={listing_type}
             handleFavorite={handleFavorite}
             handleShare={handleShare}
             isUserFavorited={isUserFavorited}
+            isPropertyOrAds={isPropertyOrAds}
             favorite_count={favorite_count}
           />
         </div>
@@ -293,6 +302,8 @@ const InfoSection = ({
   status,
   transaction,
   address_line,
+  price,
+  district,
   property_size,
   property_size_unit,
   labels,
@@ -300,6 +311,7 @@ const InfoSection = ({
   handleFavorite,
   handleShare,
   isUserFavorited,
+  isPropertyOrAds,
   favorite_count,
 }: any) => (
   <div className="flex flex-1 flex-col justify-between">
@@ -331,14 +343,28 @@ const InfoSection = ({
     </div>
 
     <div className="mt-3 flex w-full flex-col divide-y divide-gray-200 rounded-xl bg-gray-50 text-sm sm:flex-row sm:divide-y-0 sm:divide-x">
-      <PropertyTag icon={<Building2 size={18} />} label={labels.status} value={status} />
-      <PropertyTag
-        icon={<Ruler size={18} />}
-        label={labels.property_size_unit}
-        value={property_size ? property_size.toString() : 'N/A'}
-        suffix={property_size_unit ? <span className="text-gray-500">sqft</span> : null}
-      />
-      <PropertyTag icon={<Home size={18} />} label={labels.listing_type} value={listing_type} />
+      {isPropertyOrAds === 'ads' ? (
+        <>
+          <PropertyTag icon={<Building2 size={18} />} label={labels.status} value={status} />
+
+          <PropertyTag icon={<BadgeIndianRupee size={18} />} label={labels.price} value={formatPrice(price) ?? 'N/A'} />
+
+          <PropertyTag icon={<LandPlot size={18} />} label={labels.district} value={district ?? 'N/A'} />
+        </>
+      ) : (
+        <>
+          <PropertyTag icon={<Building2 size={18} />} label={labels.status} value={status} />
+
+          <PropertyTag
+            icon={<Ruler size={18} />}
+            label={labels.property_size_unit}
+            value={property_size ? property_size.toString() : 'N/A'}
+            suffix={property_size_unit ? <span className="text-gray-500">sqft</span> : null}
+          />
+
+          <PropertyTag icon={<Home size={18} />} label={labels.listing_type} value={listing_type} />
+        </>
+      )}
     </div>
 
     <p className="mt-3 flex items-center text-xs sm:text-sm text-gray-700">

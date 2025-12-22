@@ -8,11 +8,17 @@ import { MapPin, Home, ChevronDown, IndianRupee, Search } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { motion, Variants } from 'framer-motion'
 import Button from '@/components/ui/CustomComponent/Button/Button'
-import { usePropertyCategories } from '@/app/admin/dashboard/(master)/property-category/(hooks)/usePropertyCategories'
 import LucideIconRenderer from '@/components/ui/CustomComponent/LucideIconRenderer/LucideIconRenderer'
 import { useExploreProperties } from '../ExploreProperties/hooks/useExploreProperties'
 
-export default function HeroSection() {
+interface HeroSectionProps {
+  propertyCategories: Array<any>
+  error: any
+  isLoading: boolean
+  mutate: () => void
+}
+
+export default function HeroSection({ propertyCategories, error: categoriesError, isLoading: categoriesLoading, mutate }: HeroSectionProps) {
   const t = useTranslations()
   const router = useRouter()
   const MIN_LOCATION_QUERY_LENGTH = 3
@@ -37,7 +43,6 @@ export default function HeroSection() {
   }
 
   const [selectedType, setSelectedType] = useState<Category | null>(null)
-  const { categories, error, isLoading, mutateCategories } = usePropertyCategories()
   const { items } = useExploreProperties({ limit: 1, page: 60 })
   const tabKeys: string[] = ['sale', 'rent', 'lease']
 
@@ -360,15 +365,17 @@ export default function HeroSection() {
                     }}
                   >
                     <div className="flex items-center gap-2">
-                      {categories && values.type && (
+                      {propertyCategories && values.type && (
                         <LucideIconRenderer
-                          iconName={categories.find(c => String(c.id) === String(values.type))?.icon as any}
+                          iconName={propertyCategories.find(c => String(c.id) === String(values.type))?.icon as any}
                           className="w-5 h-5 text-gray-700"
                         />
                       )}
 
                       <span className="font-medium">
-                        {categories && values.type ? categories.find(c => String(c.id) === String(values.type))?.name : t('Hero.HeroMenu.flat')}
+                        {propertyCategories && values.type
+                          ? propertyCategories.find(c => String(c.id) === String(values.type))?.name
+                          : t('Hero.HeroMenu.flat')}
                       </span>
                     </div>
 
@@ -377,7 +384,7 @@ export default function HeroSection() {
                     {/* Dropdown */}
                     {showType && (
                       <div className="absolute top-full left-0 mt-2 w-full bg-white rounded-lg shadow-md z-50 p-2">
-                        {categories?.map(item => (
+                        {propertyCategories?.map(item => (
                           <div
                             key={item.id}
                             className="p-2 hover:bg-gray-100 cursor-pointer rounded-md text-sm"
@@ -576,17 +583,19 @@ export default function HeroSection() {
                     }}
                   >
                     <span className="font-medium flex items-center gap-2">
-                      {categories && values.type && (
-                        <LucideIconRenderer iconName={categories.find(c => String(c.id) === String(values.type))?.icon as any} />
+                      {propertyCategories && values.type && (
+                        <LucideIconRenderer iconName={propertyCategories.find(c => String(c.id) === String(values.type))?.icon as any} />
                       )}
-                      {categories && values.type ? categories.find(c => String(c.id) === String(values.type))?.name : t('Hero.HeroMenu.flat')}
+                      {propertyCategories && values.type
+                        ? propertyCategories.find(c => String(c.id) === String(values.type))?.name
+                        : t('Hero.HeroMenu.flat')}
                     </span>
 
                     <ChevronDown className="w-4 h-4 text-gray-500" />
 
                     {showType && (
                       <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-md z-100 p-2">
-                        {categories?.map(item => (
+                        {propertyCategories?.map(item => (
                           <div
                             key={item.id}
                             className="p-2 hover:bg-gray-100 cursor-pointer rounded-md text-sm"

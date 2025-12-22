@@ -1,10 +1,17 @@
 'use client'
 
 import { motion, Variants } from 'framer-motion'
-import { Sparkles } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Sparkles, Star } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useState, useEffect } from 'react'
-import { AnimatedTestimonials } from '../../../ui/animated-testimonial'
+import Image from 'next/image'
+
+const chunkArray = <T,>(arr: T[], size: number): T[][] => {
+  if (size <= 0) return [arr]
+  const out: T[][] = []
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size))
+  return out
+}
 
 // Skeleton Loader for Testimonials
 const TestimonialsSkeleton = () => {
@@ -20,33 +27,42 @@ const TestimonialsSkeleton = () => {
         </div>
 
         {/* Testimonials Skeleton */}
-        <div className="flex justify-center items-center h-96 animate-pulse">
-          <div className="w-full max-w-4xl bg-white rounded-2xl p-8 shadow-lg">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-16 h-16 bg-gray-200 rounded-full" />
-              <div className="flex-1 space-y-2">
-                <div className="h-5 w-32 bg-gray-200 rounded" />
-                <div className="h-4 w-24 bg-gray-200 rounded" />
+        <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-pulse">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="bg-white rounded-2xl border-2 border-yellow-200 shadow-sm p-6 min-h-[320px] flex flex-col">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-gray-200 rounded-full" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-32 bg-gray-200 rounded" />
+                  <div className="h-3 w-24 bg-gray-200 rounded" />
+                </div>
+              </div>
+              <div className="space-y-2 flex-1">
+                <div className="h-3 w-full bg-gray-200 rounded" />
+                <div className="h-3 w-11/12 bg-gray-200 rounded" />
+                <div className="h-3 w-9/12 bg-gray-200 rounded" />
+              </div>
+              <div className="flex gap-1 mt-4">
+                {[1, 2, 3, 4, 5].map(s => (
+                  <div key={s} className="w-4 h-4 bg-gray-200 rounded" />
+                ))}
               </div>
             </div>
-            <div className="space-y-3">
-              <div className="h-4 w-full bg-gray-200 rounded" />
-              <div className="h-4 w-5/6 bg-gray-200 rounded" />
-              <div className="h-4 w-4/6 bg-gray-200 rounded" />
-            </div>
-            <div className="flex gap-1 mt-4">
-              {[1, 2, 3, 4, 5].map(i => (
-                <div key={i} className="w-4 h-4 bg-gray-200 rounded" />
-              ))}
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>
   )
 }
 
-export default function Testimonials() {
+interface TestimonialsProps {
+  testimonialsData: any
+  error?: any
+  isLoading?: boolean
+  mutate?: () => void
+}
+
+export default function Testimonials({ testimonialsData, error, isLoading: testimonialLoading, mutate }: TestimonialsProps) {
   const t = useTranslations()
   const locale = useLocale()
   const [isLoading, setIsLoading] = useState(true)
@@ -74,7 +90,7 @@ export default function Testimonials() {
       designation: 'Land Investor',
       quote:
         'This dedication to research and knowledge-building sets them apart from the competition. I found exactly what I was looking for with their help. Great investment opportunities in Tamil Nadu!',
-      rating: 5,
+      rating: 4,
       src: '/images/t3.png',
     },
     {
@@ -92,7 +108,7 @@ export default function Testimonials() {
       designation: 'Property Developer',
       quote:
         'Exceptional service and deep market knowledge. They helped us find the perfect investment properties with great returns. The platform connects us with genuine buyers.',
-      rating: 5,
+      rating: 3,
       src: '/images/t5.png',
     },
     {
@@ -110,10 +126,17 @@ export default function Testimonials() {
       designation: 'Commercial Space Buyer',
       quote:
         'Found the perfect commercial space in Trichy through this platform. The verification process and agent support made the entire transaction smooth and transparent.',
-      rating: 5,
+      rating: 4,
       src: '/images/t6.png',
     },
   ]
+
+  // 4-card carousel slides
+  const slides = chunkArray(feedback, 4)
+  const [activeSlide, setActiveSlide] = useState(0)
+
+  const goPrev = () => setActiveSlide(prev => (prev - 1 + slides.length) % slides.length)
+  const goNext = () => setActiveSlide(prev => (prev + 1) % slides.length)
 
   // Animation variants for reusable motion effects
   const fadeUp: Variants = {
@@ -204,14 +227,98 @@ export default function Testimonials() {
           </motion.p>
         </motion.div>
 
-        {/* Animated Testimonials Component */}
+        {/* Testimonials Carousel (4 cards per slide) */}
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.2, duration: 0.6 }}
+          transition={{ delay: 0.15, duration: 0.6 }}
+          className="mt-10"
         >
-          <AnimatedTestimonials testimonials={feedback} autoplay={true} />
+          <div className="relative">
+            {/* Slide */}
+            <div className="overflow-hidden rounded-3xl">
+              <motion.div
+                key={activeSlide}
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -30 }}
+                transition={{ duration: 0.35, ease: 'easeInOut' }}
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch"
+              >
+                {(slides[activeSlide] ?? []).map(item => (
+                  <div
+                    key={item.id}
+                    className="bg-white/95 backdrop-blur-sm rounded-2xl border-2 border-yellow-200 shadow-sm p-6 hover:shadow-md transition-shadow min-h-[320px] h-full flex flex-col"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="relative w-12 h-12 rounded-full border border-yellow-200 overflow-hidden bg-yellow-50 flex items-center justify-center flex-shrink-0">
+                        {item.src ? (
+                          <Image src={item.src} alt={item.name} fill className="object-cover" sizes="48px" />
+                        ) : (
+                          <span className="text-sm font-bold text-[#2a1407]">
+                            {String(item.name ?? '?')
+                              .charAt(0)
+                              .toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-[#2a1407] truncate">{item.name}</p>
+                        <p className="text-xs text-gray-600 truncate">{item.designation}</p>
+                      </div>
+                    </div>
+
+                    <p className="mt-4 text-sm text-gray-700 leading-relaxed line-clamp-5 flex-1">{item.quote}</p>
+
+                    <div className="mt-4 flex items-center justify-between">
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: 5 }).map((_, idx) => (
+                          <Star key={idx} size={16} className={idx < (item.rating ?? 0) ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'} />
+                        ))}
+                      </div>
+                      <span className="text-xs font-semibold text-yellow-700">{(item.rating ?? 0).toFixed(1)}</span>
+                    </div>
+                  </div>
+                ))}
+              </motion.div>
+            </div>
+
+            {/* Controls */}
+            {slides.length > 1 && (
+              <div className="mt-6 flex items-center gap-4">
+                <div className="flex gap-2 flex-1">
+                  {slides.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveSlide(idx)}
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        idx === activeSlide ? 'w-8 bg-gradient-to-r from-yellow-500 to-yellow-600' : 'w-2 bg-gray-300 hover:bg-yellow-400'
+                      }`}
+                      aria-label={`Go to testimonial slide ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={goPrev}
+                    className="group/button flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-yellow-50 to-yellow-100 border-2 border-yellow-200 shadow-lg hover:shadow-xl hover:from-yellow-100 hover:to-yellow-200 transition-all duration-300"
+                    aria-label="Previous testimonials"
+                  >
+                    <ChevronLeft className="h-6 w-6 text-yellow-700 transition-transform duration-300 group-hover/button:-translate-x-1" />
+                  </button>
+                  <button
+                    onClick={goNext}
+                    className="group/button flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 shadow-lg hover:shadow-xl hover:from-yellow-600 hover:to-yellow-700 transition-all duration-300"
+                    aria-label="Next testimonials"
+                  >
+                    <ChevronRight className="h-6 w-6 text-white transition-transform duration-300 group-hover/button:translate-x-1" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </motion.div>
       </div>
     </motion.section>

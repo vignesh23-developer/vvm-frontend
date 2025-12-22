@@ -71,7 +71,7 @@ export default function AdsListPage() {
       title: 'Category',
       sortable: true,
       filterable: true,
-      render: (value: unknown) => {
+      render: (value: any) => {
         const categoryId = value as string
         return categoryMap[categoryId] || 'Unknown'
       },

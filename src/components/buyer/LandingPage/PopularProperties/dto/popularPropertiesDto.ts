@@ -3,6 +3,11 @@ export interface PopularPropertyDto {
   title: string
   listing_type: string
   address_line: string
+  district: string
+  city: string
+  state: string
+  zip_code: string
+  is_published: boolean
   rooms: number
   area: string
   property_size: string | number

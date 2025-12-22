@@ -22,7 +22,7 @@ export default function FooterColumn({ title, links }: FooterColumnProps) {
   // console.log('FooterColumn links:', links)
   return (
     <div>
-      <h3 className="font-semibold text-lg mb-4">{title}</h3>
+      <h3 className="font-semibold text-lg mb-4 text-yellow-500">{title}</h3>
       <ul className="space-y-2 text-gray-300">
         {links.map(({ label, href }) => {
           const requiresAuth = href === '/properties-registration'

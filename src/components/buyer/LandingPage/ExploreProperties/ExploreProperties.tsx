@@ -8,7 +8,6 @@ import ExploreCard from './ExploreCard'
 import { useLocale, useTranslations } from 'next-intl'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { useRouter } from 'next/navigation'
-import { useExploreProperties } from './hooks/useExploreProperties'
 import { ExplorePropertyDto } from './dto/explorePropertiesDto'
 import ExplorePropertiesSkeleton from './ExplorePropertiesSkeleton'
 
@@ -31,15 +30,20 @@ const cardVariants: Variants = {
   hover: { scale: 1.05, boxShadow: '0 8px 25px rgba(0,0,0,0.1)' },
 }
 
-export default function ExploreProperties() {
+interface ExplorePropertiesProps {
+  districtSummaryData?: string
+  error?: any
+  isLoading?: boolean
+  mutate?: () => void
+}
+
+export default function ExploreProperties({ districtSummaryData, error: districtError, isLoading: districtLoading, mutate }: ExplorePropertiesProps) {
   const t = useTranslations()
   const locale = useLocale()
   const router = useRouter()
   const [limit, setLimit] = useState(4)
-  const [page, setPage] = useState(1)
-  const { items, total, isLoading, error, handleSeeMore } = useExploreProperties({ limit, page })
 
-  const safeItems = Array.isArray(items) ? items : []
+  const safeItems = Array.isArray(districtSummaryData) ? districtSummaryData : []
   const filteredItems = safeItems?.filter((item: ExplorePropertyDto) => item.district)
 
   const display_value = filteredItems.slice(0, limit)
@@ -145,7 +149,7 @@ export default function ExploreProperties() {
         </motion.div>
 
         {/* Grid */}
-        {isLoading ? (
+        {districtLoading ? (
           <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map(i => (
               <ExplorePropertiesSkeleton key={i} />

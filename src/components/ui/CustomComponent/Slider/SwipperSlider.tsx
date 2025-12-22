@@ -61,9 +61,7 @@ export default function SwiperWrapper<T>({
         slidesPerView={slidesPerView}
         loop
         spaceBetween={spaceBetween}
-        autoplay={
-          autoplay ? { delay: 3000, disableOnInteraction: false } : false
-        }
+        autoplay={autoplay ? { delay: 3000, disableOnInteraction: false } : false}
         breakpoints={breakpoints}
         className="pb-12"
       >
@@ -79,16 +77,16 @@ export default function SwiperWrapper<T>({
         <>
           <button
             onClick={goPrev}
-            className="absolute top-1/2 left-1 sm:left-2 md:left-4 lg:-left-8 z-10 -translate-y-1/2
-                      text-gray-800 p-2 sm:p-3 md:p-4 rounded-full shadow-lg hover:bg-gray-100 transition cursor-pointer"
+            className="absolute top-1/2 left-1 sm:left-2 md:left-4 lg:-left-8 z-10 -translate-y-1/2 bg-yellow-400 
+                      text-gray-800 p-2 sm:p-3 md:p-4 rounded-full shadow-lg hover:bg-[#2a1407] text-white/80 hover:text-yellow-400 transition cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
           </button>
 
           <button
             onClick={goNext}
-            className="absolute top-1/2 right-1 sm:right-2 md:right-4 lg:-right-8 z-10 -translate-y-1/2
-                       text-gray-800 p-2 sm:p-3 md:p-4 rounded-full shadow-lg hover:bg-gray-100 transition cursor-pointer"
+            className="absolute top-1/2 right-1 sm:right-2 md:right-4 lg:-right-8 z-10 -translate-y-1/2 bg-yellow-400 
+                       text-gray-800 p-2 sm:p-3 md:p-4 rounded-full shadow-lg hover:bg-[#2a1407] text-white/80 hover:text-yellow-400 transition cursor-pointer"
           >
             <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
           </button>
@@ -103,11 +101,7 @@ export default function SwiperWrapper<T>({
               key={idx}
               onClick={() => goToSlide(idx)}
               className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full transition-all duration-300
-                ${
-                  activeIndex === idx
-                    ? 'bg-yellow-500 scale-110 shadow-[0_0_10px_rgba(250,204,21,0.8)]'
-                    : 'bg-yellow-200 hover:bg-yellow-300'
-                }`}
+                ${activeIndex === idx ? 'bg-yellow-500 scale-110 shadow-[0_0_10px_rgba(250,204,21,0.8)]' : 'bg-yellow-200 hover:bg-yellow-300'}`}
             />
           ))}
         </div>

@@ -292,40 +292,6 @@ const AdsDetailsPage = () => {
     }
   }, [adDetails, approveAction, reviewerId, handleAdApprovalAction, approvalComment, rejectReason, closeApproveModal])
 
-  const handleEnquiryAds = async (values: any, { resetForm }: any) => {
-    try {
-      const payload = {
-        entity_type: values.entity_type,
-        entity_id: values.entity_id,
-        name: values.name,
-        email: values.email,
-        phone: values.phone,
-        message: values.message,
-      }
-
-      const response = await postMethod(appEndpoints.createEnquiry, payload)
-
-      if (Number(response.status) === 201) {
-        toast.success('Enquiry sent successfully')
-        adDetailsRefresh()
-      } else {
-        toast.error(response.message || 'Failed to submit enquiry')
-      }
-    } catch (err) {
-      console.error('Failed to send enquiry', err)
-      toast.error('Unable to send enquiry right now')
-    }
-  }
-
-  const enquiryPrefillValues = useMemo(
-    () => ({
-      name: (user?.firstName || '') + ' ' + (user?.lastName || ''),
-      email: user?.email || '',
-      phone: user?.phoneNumber || '',
-    }),
-    [user],
-  )
-
   if (adDetailsLoading) {
     return <CustomLoader text="Loading ad details..." />
   }
@@ -666,19 +632,19 @@ const AdsDetailsPage = () => {
                         <Button
                           type="button"
                           onClick={() => setReportModalOpen(true)}
-                          className="flex-1 bg-white border border-yellow-200 rounded-full py-2.5 px-4 text-sm text-gray-700 hover:bg-yellow-50 flex items-center justify-center gap-1 transition-all"
+                          className="flex-1 bg-yellow-100 border border-yellow-200 rounded-full py-2.5 px-4 text-sm text-[#2a1407] hover:bg-yellow-50 flex items-center justify-center gap-1 transition-all"
                         >
                           <Flag size={16} />
                           <span>Report</span>
                         </Button>
-                        {/* <Button
+                        <Button
                           type="button"
                           onClick={() => setEnquiryModalOpen(true)}
                           className="flex-1 bg-[#2a1407] text-white rounded-full py-2.5 px-4 text-sm hover:bg-[#2a1407] flex items-center justify-center gap-1 transition-all"
                         >
                           <MessageSquare size={16} />
                           <span>Enquire</span>
-                        </Button> */}
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -865,7 +831,7 @@ const AdsDetailsPage = () => {
             </motion.div>
 
             {/* Why Search Alone */}
-            <EnquiryFormCard Id={adDetails.id} entityType="ad" handleSubmit={handleEnquiryAds} defaultValues={enquiryPrefillValues} />
+            {/* <EnquiryFormCard Id={adDetails.id} entityType="ad" handleSubmit={handleEnquiryAds} defaultValues={enquiryPrefillValues} /> */}
           </motion.aside>
         </div>
       </div>
@@ -1024,8 +990,8 @@ const AdsDetailsPage = () => {
         </motion.section>
       )}
 
-      <ReportAdModal open={reportModalOpen} onClose={() => setReportModalOpen(false)} adId={adDetails.id} />
-      <EnquiryAdModal open={enquiryModalOpen} onClose={() => setEnquiryModalOpen(false)} adId={adDetails.id} />
+      <ReportAdModal open={reportModalOpen} onClose={() => setReportModalOpen(false)} adId={adDetails.id} adDetailsRefresh={adDetailsRefresh} />
+      <EnquiryAdModal open={enquiryModalOpen} onClose={() => setEnquiryModalOpen(false)} adId={adDetails.id} adDetailsRefresh={adDetailsRefresh} />
 
       <ModalComponent
         open={approveModalOpen}

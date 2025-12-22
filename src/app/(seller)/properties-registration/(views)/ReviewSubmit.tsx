@@ -84,7 +84,7 @@ export default function Step6ReviewSubmit({ listingData, onSubmit, formik, prope
 
   return (
     <>
-      <div className="max-w-4xl mx-auto p-6 bg-white">
+      <div className="max-w-5xl mx-auto p-6 bg-white">
         <h1 className="text-2xl font-bold text-gray-900 mb-8">Review Your Property</h1>
 
         <div className="space-y-4">
@@ -103,6 +103,7 @@ export default function Step6ReviewSubmit({ listingData, onSubmit, formik, prope
                 media={propertyDetailsData?.media?.map(m => ({ ...m, thumbnail_url: m.thumbnail_url ?? undefined }))}
                 property_size_unit={propertyDetailsData?.property_size_unit ?? undefined}
                 propertyPreviewMode={true}
+                isPropertyOrAds="property"
               />
             )}
           </div>

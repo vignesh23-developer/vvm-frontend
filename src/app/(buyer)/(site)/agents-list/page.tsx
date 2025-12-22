@@ -478,7 +478,7 @@ const AgentListPage = () => {
             </div>
 
             {agentCompanyProfileFetchLoader ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-6">
                 {Array.from({ length: limit }).map((_, index) => (
                   <motion.div
                     key={`agency-skeleton-${index}`}
@@ -508,7 +508,7 @@ const AgentListPage = () => {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {pagedAgencies?.map((agentProperty: any, index: number) => (
                   <motion.div
                     key={agentProperty.id ?? index}
@@ -577,7 +577,7 @@ const AgentListPage = () => {
                             <circle cx="12" cy="10" r="3" />
                           </svg>
                           <p className="text-sm line-clamp-2 leading-relaxed">
-                            {[agentProperty.city, agentProperty.district, agentProperty.state].filter(Boolean).join(', ') || 'Location N/A'}
+                            {[agentProperty.district, agentProperty.city].filter(Boolean).join(', ') || 'Location N/A'}
                           </p>
                         </div>
                       </div>

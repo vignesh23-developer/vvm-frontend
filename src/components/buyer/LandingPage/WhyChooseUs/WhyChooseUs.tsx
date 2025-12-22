@@ -1,7 +1,7 @@
 'use client'
 
 import { motion, AnimatePresence, Variants } from 'framer-motion'
-import { Shield, Users, CheckCircle2, Zap, Award, Sparkles } from 'lucide-react'
+import { Shield, Users, CheckCircle2, Zap, Award, Sparkles, BadgeCheck } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useState } from 'react'
 
@@ -38,12 +38,17 @@ export default function WhyChooseUs() {
     {
       icon: Zap,
       title: 'Fast Support',
-      description: 'Get quick responses and support when you need it',
+      description: 'Get quick responses & support when you need it',
     },
     {
       icon: Award,
       title: "Tamil Nadu's Trusted Platform",
       description: 'The most trusted real estate platform in Tamil Nadu',
+    },
+    {
+      icon: BadgeCheck,
+      title: 'Verified Service Providers',
+      description: 'Only trusted and verified real estate services',
     },
   ]
 
@@ -166,7 +171,7 @@ export default function WhyChooseUs() {
                   >
                     {/* Front Face */}
                     <div
-                      className="absolute inset-0 w-full h-full bg-white rounded-2xl p-6 sm:p-8 border border-yellow-200/50 shadow-sm flex flex-col items-center justify-center text-center backface-hidden"
+                      className="absolute inset-0 w-full h-full bg-white rounded-2xl p-4 sm:p-8 border border-yellow-200/50 shadow-sm flex flex-col items-center justify-center text-center backface-hidden"
                       style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                     >
                       <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-50 to-yellow-100 border border-yellow-200 flex items-center justify-center mb-4">
@@ -178,7 +183,7 @@ export default function WhyChooseUs() {
 
                     {/* Back Face */}
                     <div
-                      className="absolute inset-0 w-full h-full bg-[#2a1407] rounded-2xl p-6 sm:p-8 border border-[#2a1407] shadow-xl flex flex-col items-center justify-center text-center backface-hidden rotate-y-180"
+                      className="absolute inset-0 w-full h-full bg-[#2a1407] rounded-2xl p-4 sm:p-8 border border-[#2a1407] shadow-xl flex flex-col items-center justify-center text-center backface-hidden rotate-y-180"
                       style={{
                         backfaceVisibility: 'hidden',
                         WebkitBackfaceVisibility: 'hidden',

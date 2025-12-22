@@ -279,78 +279,10 @@ const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({
                   <FormikTextField label="Street Name" name="street_name" placeholder="Enter street name" />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <FormikTextField
-                    label="City"
-                    name="city"
-                    placeholder="Enter city"
-                    readOnly
-                    className="
-    w-full 
-    p-2 
-    border border-gray-300 
-    rounded-md 
-    bg-gray-100 
-    cursor-not-allowed
-    text-gray-700
-    focus:outline-none 
-    focus:ring-0 
-    focus:border-gray-300
-  "
-                  />
-                  <FormikTextField
-                    label="District"
-                    name="district"
-                    placeholder="Enter district"
-                    readOnly
-                    className="
-    w-full 
-    p-2 
-    border border-gray-300 
-    rounded-md 
-    bg-gray-100 
-    cursor-not-allowed
-    text-gray-700
-    focus:outline-none 
-    focus:ring-0 
-    focus:border-gray-300
-  "
-                  />
-                  <FormikTextField
-                    label="State"
-                    name="state"
-                    placeholder="Enter state"
-                    readOnly
-                    className="
-    w-full 
-    p-2 
-    border border-gray-300 
-    rounded-md 
-    bg-gray-100 
-    cursor-not-allowed
-    text-gray-700
-    focus:outline-none 
-    focus:ring-0 
-    focus:border-gray-300
-  "
-                  />
-                  <FormikTextField
-                    label="Country"
-                    name="country"
-                    placeholder="Enter country"
-                    readOnly
-                    className="
-    w-full 
-    p-2 
-    border border-gray-300 
-    rounded-md 
-    bg-gray-100 
-    cursor-not-allowed
-    text-gray-700
-    focus:outline-none 
-    focus:ring-0 
-    focus:border-gray-300
-  "
-                  />
+                  <FormikTextField label="City" name="city" placeholder="Enter city" />
+                  <FormikTextField label="District" name="district" placeholder="Enter district" />
+                  <FormikTextField label="State" name="state" placeholder="Enter state" />
+                  <FormikTextField label="Country" name="country" placeholder="Enter country" />
                   <FormikTextField label="Postal Code" name="postal_code" placeholder="Enter postal code" />
                 </div>
               </section>

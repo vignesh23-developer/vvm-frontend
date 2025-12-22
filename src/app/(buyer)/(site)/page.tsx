@@ -2,6 +2,7 @@
 
 import { motion, Variants } from 'framer-motion'
 import { useSearchParams, useRouter } from 'next/navigation'
+import { useLandingPageData } from '@/app/(buyer)/(site)/(hooks)/useLandingPageDataHook'
 import HeroSection from '@/components/buyer/LandingPage/HeroSection/HeroSection'
 import PopularProperties from '@/components/buyer/LandingPage/PopularProperties/PopularProperties'
 import Testimonials from '@/components/buyer/LandingPage/Testimonials/Testimonials'
@@ -26,27 +27,56 @@ export default function SitePage() {
   const searchParams = useSearchParams()
   const district = searchParams?.get('district')
   const router = useRouter()
+  const {
+    data,
+    featuredAds,
+    featuredAdsTotal,
+    propertiesData,
+    propertiesTotal,
+    propertyCategories,
+    testimonialsData,
+    districtSummaryData,
+    error,
+    isLoading,
+    mutate,
+  } = useLandingPageData({
+    ads_limit: 6,
+    properties_limit: 12,
+    reviews_limit: 5,
+    districts_limit: 4,
+    enabled: true,
+  })
+
+  console.log('Landing Page Data:', data)
 
   return (
     <main className="flex flex-col gap-0">
       <motion.div variants={sectionVariants} initial="hidden" animate="visible">
-        <HeroSection />
+        <HeroSection propertyCategories={propertyCategories} error={error} isLoading={isLoading} mutate={mutate} />
       </motion.div>
 
       <motion.div variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
-        <AdsSlider />
+        <AdsSlider featuredAds={featuredAds} featuredAdsTotal={featuredAdsTotal} error={error} isLoading={isLoading} mutate={mutate} />
       </motion.div>
 
       <motion.div variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
-        <PopularProperties district={district || undefined} packageType={district ? 'PLATINUM' : undefined} />
+        <PopularProperties
+          district={district || undefined}
+          packageType={district ? 'PLATINUM' : undefined}
+          propertiesData={propertiesData}
+          propertiesTotal={propertiesTotal}
+          error={error}
+          isLoading={isLoading}
+          mutate={mutate}
+        />
       </motion.div>
 
       <motion.div variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
-        <ExploreProperties />
+        <ExploreProperties districtSummaryData={districtSummaryData} error={error} isLoading={isLoading} mutate={mutate} />
       </motion.div>
 
       <motion.div variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
-        <Testimonials />
+        <Testimonials testimonialsData={testimonialsData} error={error} isLoading={isLoading} mutate={mutate} />
       </motion.div>
 
       <motion.div variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>

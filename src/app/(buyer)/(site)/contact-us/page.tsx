@@ -1,13 +1,14 @@
 import React from 'react'
 import Link from 'next/link'
 import MapView from '@/components/ui/map/MapView'
-import { Instagram, Facebook, Twitter, Linkedin, Mail, Phone, MapPin, Clock4, ArrowUpRight } from 'lucide-react'
+import { Instagram, Facebook, Twitter, Linkedin, Send, Mail, Phone, MapPin, Clock4, ArrowUpRight } from 'lucide-react'
 
 const socialLinks = [
   { label: 'Instagram', icon: Instagram, href: 'https://www.instagram.com/vaazhga._.valamudan?igsh=MXA1OGp5cnY5ZHR6YQ==' },
   { label: 'Facebook', icon: Facebook, href: 'https://www.facebook.com/share/1Cp5XJwHHC/' },
   { label: 'Twitter (𝕏)', icon: Twitter, href: 'https://x.com/VaazhgaValam?t=Iu-WpKa3cvAT-h3BHUBdYg&s=09' },
   { label: 'LinkedIn', icon: Linkedin, href: 'https://www.linkedin.com/in/vaazhga-valamudan-tn' },
+  { label: 'Telegram', icon: Send, href: 'https://t.me/boost/vaazhgavalamudanvvdrs' },
 ]
 
 const contactMethods = [
@@ -28,7 +29,7 @@ const contactMethods = [
   {
     label: 'Studio',
     value: 'Thillai Nagar, Tiruchirappalli',
-    href: 'https://maps.app.goo.gl/1hF9Y8pCj7rQhF4d7',
+    href: 'https://maps.app.goo.gl/ikrW6JjRpGYCK9t67',
     helper: 'See directions on Google Maps',
     icon: MapPin,
   },
@@ -74,7 +75,7 @@ export default function ContactUs() {
         </div>
 
         <div className="mt-12 grid gap-8 lg:grid-cols-2">
-          <section className="rounded-[32px] border border-white/10 bg-stone-950/70 p-8 shadow-2xl ring-1 ring-white/5">
+          <section className="rounded-[32px] border border-white/10 bg-[linear-gradient(120deg,rgba(255,255,255,0.08),transparent)] p-8 shadow-2xl ring-1 ring-white/5">
             <header className="space-y-3">
               <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs uppercase tracking-widest text-amber-200">
                 <Clock4 size={14} /> Always human
@@ -147,7 +148,7 @@ export default function ContactUs() {
               </div>
 
               <div className="mt-8 h-80 w-full rounded-[26px] border border-stone-200 bg-stone-100 shadow-inner">
-                <MapView center={{ lat: 10.8239, lng: 78.6912 }} zoom={12} markers={[{ lat: 10.8239, lng: 78.6912 }]} />
+                <MapView center={{ lat: 10.8214566, lng: 78.6811822 }} zoom={25} markers={[{ lat: 10.8214566, lng: 78.6811822 }]} />
               </div>
             </div>
           </section>

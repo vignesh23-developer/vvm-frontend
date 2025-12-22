@@ -627,15 +627,6 @@ const page = () => {
     }
   }
 
-  const enquiryPrefillValues = useMemo(
-    () => ({
-      name: (user?.firstName || '') + ' ' + (user?.lastName || ''),
-      email: user?.email || '',
-      phone: user?.phoneNumber || '',
-    }),
-    [user],
-  )
-
   if (propertyDetailsFetchErr) {
     return (
       <main className="flex min-h-[50vh] items-center justify-center bg-gray-50">
@@ -990,10 +981,19 @@ const page = () => {
                         <Button
                           type="button"
                           onClick={() => setReportModalOpen(true)}
-                          className="flex-1 bg-white border border-yellow-200 rounded-full py-2.5 px-4 text-sm text-gray-700 hover:bg-yellow-50 flex items-center justify-center gap-1 transition-all"
+                          className="flex-1 bg-yellow-100 border border-yellow-200 rounded-full py-2.5 px-4 text-sm text-[#2a1407] hover:bg-yellow-50 flex items-center justify-center gap-1 transition-all"
                         >
                           <Flag size={16} />
                           <span>Report</span>
+                        </Button>
+
+                        <Button
+                          type="button"
+                          onClick={() => setEnquiryModalOpen(true)}
+                          className="flex-1 bg-[#2b1b12] border border-yellow-200 rounded-full py-2.5 px-4 text-sm text-white hover:bg-yellow-700 flex items-center justify-center gap-1 transition-all"
+                        >
+                          <MessageSquare size={16} />
+                          <span>Enquire</span>
                         </Button>
                       </div>
                     </div>
@@ -1394,9 +1394,8 @@ const page = () => {
               </div>
             </motion.div>
 
-            {/* Contact Form Card */}
             {/* Enquiry Form Card */}
-            <EnquiryFormCard Id={propertyId || ''} entityType="property" handleSubmit={handleEnquirySubmit} defaultValues={enquiryPrefillValues} />
+            {/* <EnquiryFormCard Id={propertyId || ''} entityType="property" handleSubmit={handleEnquirySubmit} defaultValues={enquiryPrefillValues} /> */}
           </motion.aside>
         </div>
       </div>
@@ -1899,7 +1898,9 @@ const page = () => {
                         <h3 className="font-bold text-[#2a1407] mb-1 line-clamp-1">{property.title || 'Property'}</h3>
                         <p className="text-sm text-gray-600 line-clamp-1 flex items-center gap-1">
                           <MapPin size={14} className="text-yellow-600 flex-shrink-0" />
-                          {property.address_line || 'Location not available'}
+                          {property.district}
+                          {property.district && property.city && ', '}
+                          {property.city}
                         </p>
                       </div>
 

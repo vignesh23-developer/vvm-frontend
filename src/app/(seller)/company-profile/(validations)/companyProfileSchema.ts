@@ -16,4 +16,9 @@ export const companyProfileSchema = Yup.object().shape({
     .matches(/^\+?[1-9]\d{1,14}$/, 'Please enter a valid phone number'),
   contact_email: Yup.string().trim().email('Please enter a valid email address').required('Contact email is required'),
   address_line: Yup.string().trim().required('Address line is required'),
+  district: Yup.string().trim().required('District is required'),
+  city: Yup.string().trim().required('City is required'),
+  state: Yup.string().trim().required('State is required'),
+  postal_code: Yup.string().trim().required('Postal code is required'),
+  country: Yup.string().trim().required('Country is required'),
 })

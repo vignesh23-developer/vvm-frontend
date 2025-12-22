@@ -83,7 +83,7 @@ const PropertiesListPage = () => {
   const t = useTranslations()
   const router = useRouter()
   const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState(10)
+  const [limit, setLimit] = useState(12)
   const searchParams = useSearchParams()
   const params = {
     location: decodeURIComponent(searchParams.get('location') || ''),
@@ -199,7 +199,7 @@ const PropertiesListPage = () => {
   const shouldUseBackendAutocomplete = debouncedSearch.length >= 3
 
   const { data: autocompleteResponse } = useSWR(
-    shouldUseBackendAutocomplete ? `${appEndpoints.publicSearchProperties}?q=${encodeURIComponent(debouncedSearch)}&limit=10` : null,
+    shouldUseBackendAutocomplete ? `${appEndpoints.publicSearchProperties}?q=${encodeURIComponent(debouncedSearch)}&limit=12` : null,
     (url: string) => getMethod<any[]>(url),
   )
 
@@ -540,7 +540,7 @@ const PropertiesListPage = () => {
 
             <>
               {isLoadingList ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {Array.from({ length: limit }).map((_, index) => (
                     <motion.div
                       key={`property-skeleton-${index}`}
@@ -571,7 +571,7 @@ const PropertiesListPage = () => {
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {displayedProperties.map((property: any, index: number) => (
                     <motion.div
                       key={property.id ?? index}

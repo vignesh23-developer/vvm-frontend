@@ -14,13 +14,7 @@ interface AdsCardProps {
   primaryActionLabel?: string
 }
 
-export default function AdsCard({
-  ad,
-  onPrimaryAction,
-  onFavorite,
-  onShare,
-}: AdsCardProps) {
-
+export default function AdsCard({ ad, onPrimaryAction, onFavorite, onShare }: AdsCardProps) {
   const getImageUrl = (ad: AdsListDto) => {
     const primaryMedia = ad.media?.find(item => item?.is_primary && item.url)
     const firstMedia = ad.media?.find(item => item?.url)
@@ -41,7 +35,7 @@ export default function AdsCard({
     return ad.price?.toString() ?? 'Price on request'
   }
 
-  const locationLabel = [ad.address_line, ad.city].filter(Boolean).join(', ') || 'Location not available'
+  const locationLabel = [ad.district, ad.city].filter(Boolean).join(', ') || 'Location not available'
   const finalPrice = resolvePriceLabel(ad)
   const imageUrl = getImageUrl(ad)
 
@@ -63,12 +57,7 @@ export default function AdsCard({
     >
       {/* Image Section */}
       <div className="relative h-56 w-full overflow-hidden bg-gray-100">
-        <Image
-          src={imageUrl}
-          alt={ad.title || 'Ad Image'}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-110"
-        />
+        <Image src={imageUrl} alt={ad.title || 'Ad Image'} fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
 
         {/* Badges/Overlays could go here if needed (e.g. Featured) */}
         {ad.is_boosted && (
@@ -125,4 +114,3 @@ export default function AdsCard({
     </div>
   )
 }
-

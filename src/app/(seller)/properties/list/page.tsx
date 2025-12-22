@@ -57,6 +57,7 @@ export default function PropertiesPage() {
 
   // console.log('PropertiesPage: userRoles', userRoles)
   const onlyAdmin = hasRole(userRoles, [Roles.ADMIN])
+  const onlyAgent = hasRole(userRoles, [Roles.AGENT])
   const canChangeStatus = hasRole(userRoles, [Roles.ADMIN])
   const { properties, handleView, handleEdit, handleDelete, total, error, isLoadingProperties, mutateProperties, handlePropertyAction } =
     useProperties({
@@ -221,7 +222,7 @@ export default function PropertiesPage() {
       },
     ]
 
-    if (onlyAdmin) {
+    if (onlyAdmin || onlyAgent) {
       // place change-status action at the front
       base.unshift({
         icon: RefreshCcw,

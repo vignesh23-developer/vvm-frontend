@@ -48,6 +48,7 @@ interface PropertiesCardProps {
   status: string
   listing_type?: string
   address_line: string
+  district: string
   city: string
   state: string
   postal_code: string
@@ -93,6 +94,9 @@ export default function PropertyCard(props: PropertiesCardProps) {
     property_size,
     property_size_unit,
     address_line,
+    district,
+    city,
+    state,
     price,
     approval_status,
     favorite_count,
@@ -224,7 +228,11 @@ export default function PropertyCard(props: PropertiesCardProps) {
           <h3 className="text-lg font-bold text-gray-900 line-clamp-1 mb-2 group-hover:text-yellow-700 transition-colors">{title}</h3>
           <div className="flex items-start gap-1.5 text-gray-500">
             <MapPin size={16} className="mt-0.5 flex-shrink-0 text-yellow-600" />
-            <p className="text-sm line-clamp-2 leading-relaxed">{address_line}</p>
+            <p className="text-sm line-clamp-2 leading-relaxed">
+              {district}
+              {district && city && ', '}
+              {city}
+            </p>
           </div>
         </div>
 
@@ -243,7 +251,7 @@ export default function PropertyCard(props: PropertiesCardProps) {
           {/* Price */}
           <div className="flex flex-col">
             <span className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-1">Price</span>
-            <span className="text-lg sm:text-xl font-bold text-[#2a1407]">₹ {formatPrice(Number(price))}</span>
+            <span className="text-md sm:text-md font-bold text-[#2a1407]">₹ {formatPrice(Number(price))}</span>
           </div>
           {/* Size */}
           <div className="flex flex-col items-end">
@@ -253,7 +261,7 @@ export default function PropertyCard(props: PropertiesCardProps) {
             </span>
 
             <div className="flex items-center gap-1">
-              <span className="text-lg sm:text-xl font-bold text-gray-700">{property_size || '--'}</span>
+              <span className="text-md sm:text-xm font-bold text-gray-700">{property_size || '--'}</span>
               <span className="text-xs text-gray-500 font-medium translate-y-1">{property_size_unit || 'sqft'}</span>
             </div>
           </div>

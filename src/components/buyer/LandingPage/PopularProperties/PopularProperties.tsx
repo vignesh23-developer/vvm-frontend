@@ -49,22 +49,34 @@ const PopularPropertiesSkeleton = () => {
 }
 
 interface PopularPropertiesProps {
+  propertiesData?: PopularPropertyDto[]
+  propertiesTotal?: number
+  error: any
+  isLoading: boolean
+  mutate: () => void
   district?: string
   packageType?: string
 }
 
-export default function PopularProperties({ district, packageType }: PopularPropertiesProps = {}) {
+export default function PopularProperties({
+  propertiesData,
+  propertiesTotal,
+  error: PropertiesError,
+  isLoading: PropertiesLoading,
+  mutate: PropertiesMutate,
+  district,
+  packageType,
+}: PopularPropertiesProps) {
   const t = useTranslations()
   const locale = useLocale()
   const { token } = useAuth()
   const router = useRouter()
-  const { items, isLoading } = usePopularProperties({ limit: 9, district, packageType })
   const [hovered, setHovered] = useState<number | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 6 // 3 cards per row × 2 rows = 6 cards per page
 
   // Filter published properties from API data
-  const publishedItems = (items || []).filter(i => {
+  const publishedItems = (propertiesData || []).filter(i => {
     if (i == null) return false
     if (typeof (i as any).is_published === 'boolean') return (i as any).is_published === true
     if (typeof (i as any).is_pulished === 'boolean') return (i as any).is_pulished === true
@@ -137,7 +149,7 @@ export default function PopularProperties({ district, packageType }: PopularProp
     },
   }
 
-  if (isLoading) {
+  if (PropertiesLoading) {
     return <PopularPropertiesSkeleton />
   }
 
@@ -337,7 +349,11 @@ export default function PopularProperties({ district, packageType }: PopularProp
                   <div className="mb-2">
                     <h3 className="flex items-start gap-2 text-xs sm:text-sm font-semibold text-gray-900 leading-tight line-clamp-2">
                       <MapPin size={14} className="text-yellow-600 shrink-0 mt-0.5" />
-                      <span className="flex-1">{item.address_line || 'Address not available'}</span>
+                      <span className="flex-1">
+                        {item?.district}
+                        {item?.district && item?.city && ', '}
+                        {item?.city}
+                      </span>
                     </h3>
                   </div>
 

@@ -116,7 +116,7 @@ const UploadProfileImageModal = ({
               <Button
                 type="submit"
                 disabled={isSubmitting || !values.file || Boolean(errors.file)}
-                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 disabled:opacity-50 transition"
+                className="bg-[#2b1b12] text-white px-4 py-2 rounded-md hover:bg-[#3a261a] disabled:opacity-50 transition"
               >
                 {isSubmitting ? 'Uploading...' : buttonText || 'Upload Logo'}
               </Button>

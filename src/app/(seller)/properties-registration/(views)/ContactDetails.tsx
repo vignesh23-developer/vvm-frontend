@@ -30,9 +30,66 @@ export default function Step3ContactDetails({ formik }: Step3ContactDetailsProps
       </div>
 
       <div className="space-y-6">
-        <FormikTextField isrequired type="text" placeholder="Enter your name" label="Contact Name" name="contactName" />
-        <FormikTextField isrequired type="tel" placeholder="Enter your contact number" label="Contact Number" name="contactNumber" />
-        <FormikTextField isrequired type="email" placeholder="Enter your email address" label="Contact Email" name="contactEmail" />
+        <FormikTextField
+          isrequired
+          type="text"
+          placeholder="Enter your name"
+          label="Contact Name"
+          name="contactName"
+          readOnly
+          className="
+    w-full 
+    p-2 
+    border border-gray-300 
+    rounded-md 
+    bg-gray-100 
+    cursor-not-allowed
+    text-gray-700
+    focus:outline-none 
+    focus:ring-0 
+    focus:border-gray-300
+  "
+        />
+        <FormikTextField
+          isrequired
+          type="tel"
+          placeholder="Enter your contact number"
+          label="Contact Number"
+          name="contactNumber"
+          readOnly
+          className="
+    w-full 
+    p-2 
+    border border-gray-300 
+    rounded-md 
+    bg-gray-100 
+    cursor-not-allowed
+    text-gray-700
+    focus:outline-none 
+    focus:ring-0 
+    focus:border-gray-300
+  "
+        />
+        <FormikTextField
+          isrequired
+          type="email"
+          placeholder="Enter your email address"
+          label="Contact Email"
+          name="contactEmail"
+          readOnly
+          className="
+    w-full 
+    p-2 
+    border border-gray-300 
+    rounded-md 
+    bg-gray-100 
+    cursor-not-allowed
+    text-gray-700
+    focus:outline-none 
+    focus:ring-0 
+    focus:border-gray-300
+  "
+        />
       </div>
     </div>
   )
