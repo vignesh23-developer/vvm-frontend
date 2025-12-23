@@ -9,8 +9,6 @@ import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 import toast from 'react-hot-toast'
 import { useSearchParams } from 'next/navigation'
 
-type PropertyEnquiryTableRow = PropertyEnquiry & Record<string, unknown>
-
 export default function PropertyEnquiryPage() {
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
@@ -22,6 +20,34 @@ export default function PropertyEnquiryPage() {
 
   const columns = useMemo(
     () => [
+      {
+        field: 'title',
+        title: 'Property Title',
+        sortable: true,
+        filterable: true,
+        render: (_value: unknown, item: PropertyEnquiry) => item.property?.title || item.title || 'N/A',
+      },
+      {
+        field: 'district',
+        title: 'District',
+        sortable: true,
+        filterable: true,
+        render: (_value: unknown, item: PropertyEnquiry) => item.property?.district || item.district || 'N/A',
+      },
+      {
+        field: 'city',
+        title: 'City',
+        sortable: true,
+        filterable: true,
+        render: (_value: unknown, item: PropertyEnquiry) => item.property?.city || item.city || 'N/A',
+      },
+      {
+        field: 'listing_type',
+        title: 'Listing Type',
+        sortable: true,
+        filterable: true,
+        render: (_value: unknown, item: PropertyEnquiry) => item.property?.listing_type || item.listing_type || 'N/A',
+      },
       {
         field: 'name',
         title: 'Name',
@@ -45,7 +71,7 @@ export default function PropertyEnquiryPage() {
   )
 
   const fetchEnquiries = useCallback(async () => {
-    const latestEnquiries = (enquiries ?? []) as PropertyEnquiryTableRow[]
+    const latestEnquiries = (enquiries ?? []) as PropertyEnquiry[]
     return {
       data: latestEnquiries,
       totalItems: latestEnquiries.length,
@@ -76,7 +102,7 @@ export default function PropertyEnquiryPage() {
 
       {/* Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-        <DataTable<PropertyEnquiryTableRow>
+        <DataTable<PropertyEnquiry>
           columns={columns}
           fetchData={fetchEnquiries}
           loading={isLoading}

@@ -73,7 +73,7 @@ export function useSearchProperties(options: UsePropertiesOptions = {}) {
 
   const queryParams = new URLSearchParams()
   if (location) {
-    queryParams.set('q', location)
+    queryParams.set('district', location)
   }
   if (listingType) {
     queryParams.set('listing_type', listingType)

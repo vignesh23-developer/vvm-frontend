@@ -28,6 +28,7 @@ interface UpdatePropertyImagePayload {
 interface Step5UploadImagesProps {
   propertyId: string
   onUploaded?: () => void
+  onUploadingChange?: (isUploading: boolean) => void
   mode?: 'create' | 'edit'
 }
 
@@ -39,7 +40,7 @@ type UploadItem = {
   id: string // Add id to the UploadItem type
 }
 
-export default function Step5UploadImages({ propertyId, onUploaded, mode = 'create' }: Step5UploadImagesProps) {
+export default function Step5UploadImages({ propertyId, onUploaded, onUploadingChange, mode = 'create' }: Step5UploadImagesProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [items, setItems] = useState<UploadItem[]>([])
   const [existingImages, setExistingImages] = useState<UpdatePropertyImagePayload[]>([])
@@ -84,9 +85,17 @@ export default function Step5UploadImages({ propertyId, onUploaded, mode = 'crea
       console.log('Fetched property images response:', response, response.data, response.data.data)
       if (response?.data) {
         console.log('Fetched existing images response data:', response.data.data, response.data.media)
-        const images = Array.isArray(response.data.media) ? response.data.media : []
+        const images =
+          (Array.isArray(response.data?.data) ? response.data.data : null) ??
+          (Array.isArray(response.data?.media) ? response.data.media : null) ??
+          (Array.isArray(response.data) ? response.data : [])
         console.log('Fetched existing images:', images)
         setExistingImages(images)
+
+        // If images already exist, allow proceeding to the next step.
+        if (images.length > 0) {
+          onUploaded?.()
+        }
 
         // Set primary index if any image is marked as primary
         const primaryIdx = images.findIndex((img: UpdatePropertyImagePayload) => img.is_primary)
@@ -102,7 +111,7 @@ export default function Step5UploadImages({ propertyId, onUploaded, mode = 'crea
     } finally {
       setIsLoading(false)
     }
-  }, [propertyId]) // Removed currentSlide from dependencies
+  }, [propertyId, onUploaded]) // Removed currentSlide from dependencies
 
   // Handle initial fetch
   useEffect(() => {
@@ -188,6 +197,7 @@ export default function Step5UploadImages({ propertyId, onUploaded, mode = 'crea
     }
     if (items.length === 0) return
     setIsUploading(true)
+    onUploadingChange?.(true)
 
     try {
       // Create a single FormData object for all files
@@ -260,6 +270,7 @@ export default function Step5UploadImages({ propertyId, onUploaded, mode = 'crea
       toast.error(e instanceof Error ? e.message : 'Error while uploading images')
     } finally {
       setIsUploading(false)
+      onUploadingChange?.(false)
     }
   }
 
@@ -472,7 +483,7 @@ export default function Step5UploadImages({ propertyId, onUploaded, mode = 'crea
                       <img src={image.url} alt={image.title || `Ad Image ${index + 1}`} className="w-full h-48 object-cover" />
                     </div>
                     <div className="p-3">
-                      <h4 className="text-sm font-medium text-gray-900 truncate">{image.filename || 'Untitled'}</h4>
+                      <h4 className="text-sm font-medium text-gray-900 truncate">{image.title || 'Untitled'}</h4>
                       <p className="text-xs text-gray-500 mt-1">{image.file_size ? `${(image.file_size / 1024).toFixed(1)} KB` : ''}</p>
                     </div>
                     <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">

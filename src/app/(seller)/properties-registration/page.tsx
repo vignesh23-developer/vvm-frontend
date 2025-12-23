@@ -176,6 +176,8 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
 
   const { globalValue, setGlobalValue } = useGlobalContext()
 
+  const effectivePropertyId = propertiesId ?? (globalValue != null ? String(globalValue) : '')
+
   const { user } = useAuth()
   const router = useRouter()
   const [valueData, setValueData] = useState<any>(null)
@@ -211,6 +213,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
 
   const [isEdit, setIsEdit] = useState<boolean>(false)
   const [uploadCompleted, setUploadCompleted] = useState<boolean>(false)
+  const [isUploadingImages, setIsUploadingImages] = useState<boolean>(false)
 
   const initialValues: PropertyCreationFormValues = {
     contactName: '',
@@ -398,25 +401,23 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
     }
   }, [LRActionState])
 
-  const [UPPActionState, UPPAction, UPPIsPending] = useActionState<
-    ResponseDTO<any>,
-    { id: any; payload: any; uploadType: 'chooseFromDevice' | 'addViaLink' }
-  >(onAddPropertyMedia, UPPActionInitState)
+  // const [UPPActionState, UPPAction, UPPIsPending] = useActionState<
+  //   ResponseDTO<any>,
+  //   { id: any; payload: any; uploadType: 'chooseFromDevice' | 'addViaLink' }
+  // >(onAddPropertyMedia, UPPActionInitState)
 
-  useEffect(() => {
-    if (UPPActionState?.error) {
-      toast.error('Faild to create Property')
-      console.log('UPPActionState error:', UPPActionState?.message)
-    }
-    if (UPPActionState?.success) {
-      toast.success('Property Media Added Successfully')
-      // mark upload as completed so the Next button can be enabled
-      setUploadCompleted(true)
-      setIsEdit(true)
-    }
-  }, [UPPActionState])
-
-  useEffect(() => {}, [])
+  // useEffect(() => {
+  //   if (UPPActionState?.error) {
+  //     toast.error('Faild to create Property')
+  //     console.log('UPPActionState error:', UPPActionState?.message)
+  //   }
+  //   if (UPPActionState?.success) {
+  //     toast.success('Property Media Added Successfully')
+  //     // mark upload as completed so the Next button can be enabled
+  //     setUploadCompleted(true)
+  //     setIsEdit(true)
+  //   }
+  // }, [UPPActionState])
 
   const handleSubmit = async (values: PropertyCreationFormValues, actions: FormikHelpers<PropertyCreationFormValues>) => {
     try {
@@ -512,80 +513,80 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
           return
         }
 
-        if (currentStep === 5) {
-          const contextPropertyId = globalValue
-          console.log(contextPropertyId, 'local')
-          const propertyId = propertiesId ? propertiesId : contextPropertyId
-          console.log('Step 5 submit - propertyId:', propertyId, propertiesId, contextPropertyId, 'uploadType:', values?.uploadType)
+        // if (currentStep === 5) {
+        //   const contextPropertyId = globalValue
+        //   console.log(contextPropertyId, 'local')
+        //   const propertyId = propertiesId ? propertiesId : contextPropertyId
+        //   console.log('Step 5 submit - propertyId:', propertyId, propertiesId, contextPropertyId, 'uploadType:', values?.uploadType)
 
-          if (!propertyId || !values?.uploadType) {
-            toast.error('Missing propertyId or uploadType')
-            console.error('Missing propertyId or uploadType')
-            actions.setSubmitting(false)
-            return
-          }
+        //   if (!propertyId || !values?.uploadType) {
+        //     toast.error('Missing propertyId or uploadType')
+        //     console.error('Missing propertyId or uploadType')
+        //     actions.setSubmitting(false)
+        //     return
+        //   }
 
-          if (values?.uploadType === 'chooseFromDevice' && values?.localpropertyPhoto?.payload) {
-            const localFiles = values?.localpropertyPhoto?.files || []
-            const payload = values?.localpropertyPhoto?.payload || []
+        //   if (values?.uploadType === 'chooseFromDevice' && values?.localpropertyPhoto?.payload) {
+        //     const localFiles = values?.localpropertyPhoto?.files || []
+        //     const payload = values?.localpropertyPhoto?.payload || []
 
-            if (localFiles.length === 0) {
-              console.warn('No files selected for upload')
-              actions.setSubmitting(false)
-              return
-            }
+        //     if (localFiles.length === 0) {
+        //       console.warn('No files selected for upload')
+        //       actions.setSubmitting(false)
+        //       return
+        //     }
 
-            setUploadCompleted(false)
-            actions.setSubmitting(true)
+        //     setUploadCompleted(false)
+        //     actions.setSubmitting(true)
 
-            try {
-              const formData = new FormData()
+        //     try {
+        //       const formData = new FormData()
 
-              localFiles.forEach((file, index) => {
-                const meta = payload[index] || {}
+        //       localFiles.forEach((file, index) => {
+        //         const meta = payload[index] || {}
 
-                formData.append('files', file)
-                formData.append('media_type', meta.media_type ?? '')
-                formData.append('title', meta.title ?? '')
-                formData.append('is_primary', String(meta.is_primary ?? false))
-                formData.append('media_category', meta.media_category ?? '')
-                formData.append('sort_order', String(meta.sort_order ?? index))
-              })
+        //         formData.append('files', file)
+        //         formData.append('media_type', meta.media_type ?? '')
+        //         formData.append('title', meta.title ?? '')
+        //         formData.append('is_primary', String(meta.is_primary ?? false))
+        //         formData.append('media_category', meta.media_category ?? '')
+        //         formData.append('sort_order', String(meta.sort_order ?? index))
+        //       })
 
-              console.log('Uploading all files together...', propertyId)
+        //       console.log('Uploading all files together...', propertyId)
 
-              startTransition(() => {
-                UPPAction({
-                  id: propertyId,
-                  payload: formData,
-                  uploadType: 'chooseFromDevice',
-                })
-              })
+        //       startTransition(() => {
+        //         UPPAction({
+        //           id: propertyId,
+        //           payload: formData,
+        //           uploadType: 'chooseFromDevice',
+        //         })
+        //       })
 
-              console.log('All files uploaded successfully!')
-            } catch (error) {
-              console.error('Error uploading files:', error)
-            } finally {
-              actions.setSubmitting(false)
-            }
-          } else if (values?.uploadType === 'addViaLink' && values?.propertyPhoto) {
-            const linkPayload = values.propertyPhoto
-            console.log('Uploading via addViaLink:', linkPayload)
+        //       console.log('All files uploaded successfully!')
+        //     } catch (error) {
+        //       console.error('Error uploading files:', error)
+        //     } finally {
+        //       actions.setSubmitting(false)
+        //     }
+        //   } else if (values?.uploadType === 'addViaLink' && values?.propertyPhoto) {
+        //     const linkPayload = values.propertyPhoto
+        //     console.log('Uploading via addViaLink:', linkPayload)
 
-            actions.setSubmitting(true)
-            try {
-              startTransition(() => {
-                UPPAction({ id: propertyId, payload: linkPayload, uploadType: 'addViaLink' })
-              })
-            } catch (error) {
-              console.error('Error uploading via link:', error)
-            } finally {
-              actions.setSubmitting(false)
-            }
-          }
+        //     actions.setSubmitting(true)
+        //     try {
+        //       startTransition(() => {
+        //         UPPAction({ id: propertyId, payload: linkPayload, uploadType: 'addViaLink' })
+        //       })
+        //     } catch (error) {
+        //       console.error('Error uploading via link:', error)
+        //     } finally {
+        //       actions.setSubmitting(false)
+        //     }
+        //   }
 
-          return
-        }
+        //   return
+        // }
 
         // advance to next step
         setCurrentStep(step => step + 1)
@@ -767,11 +768,12 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
                   hasInitialFeatureValues={Boolean(valueData?.feature_values?.length)}
                 />
               )}
-              {/* {currentStep === 5 && <Step5PhotosContact formik={formik} uploadPending={UPPIsPending} />} */}
+              {/* Step 5 uses Step5UploadImages */}
               {currentStep === 5 && (
                 <Step5UploadImages
-                  propertyId={propertiesId as string}
+                  propertyId={effectivePropertyId}
                   onUploaded={() => setUploadCompleted(true)}
+                  onUploadingChange={setIsUploadingImages}
                   mode={isEdit ? 'edit' : 'create'}
                 />
               )}
@@ -790,7 +792,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
                   <>
                     {currentStep !== 5
                       ? (() => {
-                          const isLoading = formik.isSubmitting || UPPIsPending || LRIsPending || ULRIsPending
+                          const isLoading = formik.isSubmitting || LRIsPending || ULRIsPending
                           return (
                             <Button
                               type="submit"
@@ -812,7 +814,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
                           )
                         })()
                       : (() => {
-                          const isLoading = UPPIsPending
+                          const isLoading = isUploadingImages
                           return (
                             <Button
                               type="button"
@@ -828,8 +830,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
                             >
                               {!isLoading ? (
                                 <>
-                                  {uploadCompleted ? 'Next Step' : 'Upload files to enable'}
-                                  <ArrowRight size={20} />
+                                  {uploadCompleted ? 'Next Step' : 'Upload Photos to Continue'} <ArrowRight size={20} />
                                 </>
                               ) : (
                                 <span>Uploading...</span>

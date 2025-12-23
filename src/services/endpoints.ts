@@ -121,7 +121,7 @@ export const appEndpoints = {
   // Property Images
   addPropertyImages: (propertyId: string) => `/property-media/${propertyId}/upload`,
   getPropertyImages: (propertyId: string) => `/property-media/${propertyId}`,
-  getPropertyMediaByID: (propertyId: string) => `/properties/${propertyId}`,
+  getPropertyMediaByID: (propertyId: string) => `/property-media/${propertyId}`,
   updatePropertyImage: (propertyId: string, imageId: string) => `/property-media/${propertyId}/${imageId}`,
   deletePropertyImage: (propertyId: string, imageId: string) => `/property-media/${propertyId}/${imageId}`,
 

@@ -175,6 +175,7 @@ const PropertiesPage = () => {
                   handleFavorite={handleFavorite}
                   handleShare={handleShare}
                   isUserFavorited={property.is_user_favorite}
+                  isPropertyOrAds="property"
                 />
               ),
             )}
