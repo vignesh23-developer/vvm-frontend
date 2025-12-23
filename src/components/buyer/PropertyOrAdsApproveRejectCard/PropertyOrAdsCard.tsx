@@ -57,6 +57,7 @@ interface PropertiesCardProps {
   agent?: string
   operatingSince?: string
   subtitle?: string
+  category_name?: string
   property_category_name?: string
   language?: (key: string) => string
   pricePerSqft?: string
@@ -104,6 +105,7 @@ export default function PropertyOrAdsApproveRejectCard(props: PropertiesCardProp
     isPropertyOrAds,
     agent = 'N/A',
     operatingSince = 'N/A',
+    category_name = 'N/A',
     property_category_name = 'N/A',
     handleFavorite,
     handleShare,
@@ -212,6 +214,7 @@ export default function PropertyOrAdsApproveRejectCard(props: PropertiesCardProp
             id={id}
             title={title}
             property_category_name={property_category_name}
+            category_name={category_name}
             subtitle={subtitle}
             description={description}
             status={status}
@@ -297,6 +300,7 @@ const InfoSection = ({
   id,
   title,
   property_category_name,
+  category_name,
   subtitle,
   description,
   status,
@@ -318,8 +322,10 @@ const InfoSection = ({
     <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-start">
       <div className="space-y-1">
         <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-        {(property_category_name || subtitle) && (
-          <p className="text-xs sm:text-sm font-medium text-yellow-700">{property_category_name || subtitle}</p>
+        {(property_category_name || category_name || subtitle) && (
+          <p className="text-xs sm:text-sm font-medium text-yellow-700">
+            {isPropertyOrAds === 'ads' ? category_name : property_category_name || subtitle}
+          </p>
         )}
       </div>
 

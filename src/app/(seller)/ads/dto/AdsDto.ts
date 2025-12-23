@@ -39,4 +39,5 @@ export interface AdsDto {
   reports_count?: number
   enquiry_count?: number
   is_user_favorite?: boolean
+  category_name?: string
 }
