@@ -47,6 +47,8 @@ export default function EnquiryAdModal({ open, onClose, adId, adDetailsRefresh }
 
       if (Number(response.status) === 201) {
         toast.success('Enquiry sent successfully')
+        onClose()
+        resetForm()
         adDetailsRefresh()
       } else {
         toast.error(response.message || 'Failed to submit enquiry')

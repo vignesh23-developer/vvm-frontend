@@ -58,6 +58,7 @@ export interface PropertyDetailsResponseDto {
   media: PropertyMedia[]
   approvals: any[]
   reports: any[]
+  enquiries: any[]
   is_user_favorite: boolean
 }
 

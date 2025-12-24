@@ -74,14 +74,14 @@ export default function AdsForm({ mode, initialData, adId }: AdsFormProps) {
   const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
 
   useEffect(() => {
-    if (isKycLoading) return
-    if (kycError) return
+    if (isKycLoading || kycError) return
 
-    // Block ad creation/edit until KYC is verified.
-    if (kycStatus && !kycStatus.isVerified) {
+    // Block ad creation/edit until KYC is verified
+    if (kycStatus?.isVerified === false) {
+      toast.error('Please complete KYC verification to create your ads')
       router.replace('/kyc-pending')
     }
-  }, [isKycLoading, kycError, kycStatus, router])
+  }, [isKycLoading, kycError, kycStatus?.isVerified, router])
 
   // Handle action state changes
   useEffect(() => {

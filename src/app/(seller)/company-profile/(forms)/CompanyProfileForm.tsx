@@ -68,13 +68,14 @@ const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({
   const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
 
   useEffect(() => {
-    if (isKycLoading) return
-    if (kycError) return
+    if (isKycLoading || kycError) return
 
-    if (kycStatus && !kycStatus.isVerified) {
+    // Block ad creation/edit until KYC is verified
+    if (kycStatus?.isVerified === false) {
+      toast.error('Please complete KYC verification to create your company profile.')
       router.replace('/kyc-pending')
     }
-  }, [isKycLoading, kycError, kycStatus, router])
+  }, [isKycLoading, kycError, kycStatus?.isVerified, router])
 
   // Normalize Formik initial values
   const normalizedInitialValues: CompanyFormValues = {

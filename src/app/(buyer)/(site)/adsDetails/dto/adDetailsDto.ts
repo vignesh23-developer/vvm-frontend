@@ -20,6 +20,7 @@ export interface AdDetailsDto {
   media?: { url: string }[]
   reports_count?: number
   enquiry_count?: number
+  enquiries?: any[]
   view_count?: number
   created_at?: string
 }

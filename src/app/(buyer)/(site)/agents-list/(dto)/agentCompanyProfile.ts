@@ -5,6 +5,7 @@ export interface UserDto {
   firstName: string
   lastName: string
   phoneNumber: string
+  isKycVerified: boolean
   isActive: boolean
   referralCode: string
   referredBy: string | null

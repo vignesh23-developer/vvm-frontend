@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import useSWR from 'swr'
 import { useParams, useRouter } from 'next/navigation'
 import { Roles, getUserRoles, hasRole, type UserRole } from '@/utils/roles/roles'
+import { maskName, maskPhone } from '@/utils/converter/maskedFirstTwoChar'
 import Link from 'next/link'
 import {
   Heart,
@@ -35,6 +36,7 @@ import {
   ChevronLeft,
   Camera,
   Play,
+  Lock,
 } from 'lucide-react'
 import FavoriteButton from '@/components/ui/CustomComponent/FavoriteButton/FavoriteButton'
 import type { LucideIcon } from 'lucide-react'
@@ -151,6 +153,7 @@ const page = () => {
   // Simplified flag: true if user is ADMIN or AGENT
   const isAdmin = hasRole(userRoles, [Roles.ADMIN])
   const isAgent = hasRole(userRoles, [Roles.AGENT])
+
   const params = useParams<{ id: string | string[] }>()
   const propertyIdParam = params?.id
   const propertyId = Array.isArray(propertyIdParam) ? propertyIdParam[0] : propertyIdParam
@@ -268,9 +271,20 @@ const page = () => {
     return cities
   }, [quickMatchFilters, propertyDetailsData])
 
-  // Show full owner contact only when user is available; otherwise mask with 'xxx'
-  const ownerNameDisplay = user ? propertyDetailsData?.contact_name ?? 'Unknown' : 'xxxxx'
-  const ownerPhoneDisplay = user ? propertyDetailsData?.contact_phone ?? 'Unknown' : 'xxxxx'
+  // Buyer restriction logic
+  const onlyAdminOrAgentCanViewContactDetails = isAgent || isAdmin
+  const hasEnquiry = onlyAdminOrAgentCanViewContactDetails || (propertyDetailsData?.enquiries && propertyDetailsData.enquiries.length > 0)
+
+  // Address
+  const propertyFullAddress = hasEnquiry
+    ? propertyDetailsData?.address_line
+    : [propertyDetailsData?.district, propertyDetailsData?.city].filter(Boolean).join(', ') || 'xxxxx'
+
+  // Name
+  const ownerNameDisplay = hasEnquiry ? propertyDetailsData?.contact_name : maskName(propertyDetailsData?.contact_name) || ''
+
+  // Phone
+  const ownerPhoneDisplay = hasEnquiry ? propertyDetailsData?.contact_phone : maskPhone(propertyDetailsData?.contact_phone) || ''
 
   const handleFavorite = useCallback(
     async (propertyId: string) => {
@@ -959,7 +973,7 @@ const page = () => {
                     <h1 className="text-3xl md:text-4xl font-bold text-[#2a1407] mb-2">{propertyDetailsData?.title || 'Property Title'}</h1>
                     <p className="flex items-center gap-2 text-gray-600 text-sm md:text-base">
                       <MapPin size={18} className="text-yellow-600 flex-shrink-0" />
-                      <span>{propertyDetailsData?.address_line || 'Location not provided'}</span>
+                      <span>{propertyFullAddress || 'Location not provided'}</span>
                     </p>
                   </div>
 
@@ -989,8 +1003,16 @@ const page = () => {
 
                         <Button
                           type="button"
-                          onClick={() => setEnquiryModalOpen(true)}
-                          className="flex-1 bg-[#2b1b12] border border-yellow-200 rounded-full py-2.5 px-4 text-sm text-white hover:bg-yellow-700 flex items-center justify-center gap-1 transition-all"
+                          disabled={onlyAdminOrAgentCanViewContactDetails}
+                          onClick={() => {
+                            if (onlyAdminOrAgentCanViewContactDetails) return
+                            setEnquiryModalOpen(true)
+                          }}
+                          title={onlyAdminOrAgentCanViewContactDetails ? 'Only buyers can send enquiries' : ''}
+                          className={cn(
+                            'flex-1 bg-[#2b1b12] border border-yellow-200 rounded-full py-2.5 px-4 text-sm text-white flex items-center justify-center gap-1 transition-all',
+                            !onlyAdminOrAgentCanViewContactDetails ? 'hover:bg-yellow-700' : 'opacity-60 cursor-not-allowed',
+                          )}
                         >
                           <MessageSquare size={16} />
                           <span>Enquire</span>
@@ -1410,34 +1432,49 @@ const page = () => {
       >
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="rounded-3xl border border-gray-200 bg-white shadow-md overflow-hidden">
-            <div className="h-[400px] w-full">
-              {/* Location (text only, map moved to full-width section below) */}
-              <motion.div
-                key="location"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-2 p-8"
-              >
-                <h3 className="text-xl font-bold text-[#2a1407]">Location</h3>
-                <p className="text-sm text-gray-600">
-                  {propertyDetailsData?.address_line ||
-                    'Located in a well-connected neighbourhood with easy access to schools, hospitals, shopping and public transport.'}
-                </p>
-              </motion.div>
-              <MapView
-                center={{
-                  lat: Number(propertyDetailsData?.latitude) || 12.9177477,
-                  lng: Number(propertyDetailsData?.longitude) || 80.2209669,
-                }}
-                zoom={14}
-                markers={[
-                  {
-                    lat: Number(propertyDetailsData?.latitude) || 12.9177477,
-                    lng: Number(propertyDetailsData?.longitude) || 80.2209669,
-                  },
-                ]}
-              />
+            {/* Location */}
+            <motion.div
+              key="location"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-2 p-8"
+            >
+              <h3 className="text-xl font-bold text-[#2a1407]">Location</h3>
+              <p className="text-sm text-gray-600">
+                {propertyFullAddress ||
+                  'Located in a well-connected neighbourhood with easy access to schools, hospitals, shopping and public transport.'}
+              </p>
+            </motion.div>
+
+            {/* Map */}
+            <div className="relative h-[320px] w-full">
+              {!hasEnquiry ? (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                  <div className="group flex items-center gap-3 rounded-2xl border border-yellow-200 bg-gradient-to-br from-white via-yellow-50 to-white px-6 py-3 text-sm font-semibold text-gray-800 shadow-xl transition-all duration-300 hover:scale-105">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-yellow-100 text-yellow-600 group-hover:bg-yellow-200">
+                      <Lock size={16} />
+                    </div>
+                    <span>Submit an enquiry to unlock the location</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="h-full w-full">
+                  <MapView
+                    center={{
+                      lat: Number(propertyDetailsData?.latitude) || 12.9177477,
+                      lng: Number(propertyDetailsData?.longitude) || 80.2209669,
+                    }}
+                    zoom={14}
+                    markers={[
+                      {
+                        lat: Number(propertyDetailsData?.latitude) || 12.9177477,
+                        lng: Number(propertyDetailsData?.longitude) || 80.2209669,
+                      },
+                    ]}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -1471,305 +1508,328 @@ const page = () => {
                 </div>
               </div>
             </div>
-            <div
-              className="relative w-full pb-[56.25%] bg-black group cursor-pointer overflow-hidden rounded-b-2xl"
-              onClick={() => !isPlayingTour && setIsPlayingTour(true)}
-            >
-              {!isPlayingTour ? (
-                <>
-                  <Image
-                    src={videoThumbnailUrl || '/images/placeholder-property.jpg'}
-                    alt="Video thumbnail"
-                    fill
-                    className="object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-300"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-xl">
-                      <Play className="w-6 h-6 text-white fill-white ml-1" />
+            <div className="relative">
+              <div
+                className={cn(
+                  'relative w-full pb-[56.25%] bg-black group overflow-hidden rounded-b-2xl',
+                  !hasEnquiry ? 'blur-sm pointer-events-none select-none' : 'cursor-pointer',
+                )}
+                onClick={() => {
+                  if (!hasEnquiry) return
+                  if (!isPlayingTour) setIsPlayingTour(true)
+                }}
+              >
+                {!isPlayingTour ? (
+                  <>
+                    <Image
+                      src={videoThumbnailUrl || '/images/placeholder-property.jpg'}
+                      alt="Video thumbnail"
+                      fill
+                      className="object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-300"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-xl">
+                        <Play className="w-6 h-6 text-white fill-white ml-1" />
+                      </div>
                     </div>
+                    {/* Overlay gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                  </>
+                ) : (
+                  <iframe
+                    src={`${videoEmbedUrl}${videoEmbedUrl.includes('?') ? '&' : '?'}autoplay=1`}
+                    title={propertyDetailsData?.title || 'Project walkthrough video'}
+                    className="absolute inset-0 h-full w-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
+                )}
+              </div>
+
+              {!hasEnquiry && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                  <div className="group flex items-center gap-3 rounded-2xl border border-yellow-200 bg-gradient-to-br from-white via-yellow-50 to-white px-6 py-3 text-sm font-semibold text-gray-800 shadow-xl transition-all duration-300 hover:scale-105">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-yellow-100 text-yellow-600 group-hover:bg-yellow-200">
+                      <Lock size={16} />
+                    </div>
+                    <span>Submit an enquiry to unlock the video</span>
                   </div>
-                  {/* Overlay gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                </>
-              ) : (
-                <iframe
-                  src={`${videoEmbedUrl}${videoEmbedUrl.includes('?') ? '&' : '?'}autoplay=1`}
-                  title={propertyDetailsData?.title || 'Project walkthrough video'}
-                  className="absolute inset-0 h-full w-full"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                />
+                </div>
               )}
             </div>
           </motion.div>
 
-          {/* Interactive Ads / Promotions Column */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: 0.1 }}
-            className="space-y-4"
-          >
-            {/* Interactive Fun Facts Card */}
+          {/* Interactive Ads / Promotions Column (Buyer only) */}
+          {!onlyAdminOrAgentCanViewContactDetails && (
             <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="rounded-2xl bg-gradient-to-br from-yellow-50 via-white to-yellow-100 border border-yellow-200/70 p-5 shadow-sm relative overflow-hidden"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+              className="space-y-4"
             >
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <p className="text-xs font-semibold text-yellow-700 uppercase tracking-wide">✨ Discover</p>
-                  <h3 className="text-lg font-bold text-[#2a1407] mt-1">Scratch to Reveal Fun Facts</h3>
+              {/* Interactive Fun Facts Card */}
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                className="rounded-2xl bg-gradient-to-br from-yellow-50 via-white to-yellow-100 border border-yellow-200/70 p-5 shadow-sm relative overflow-hidden"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <p className="text-xs font-semibold text-yellow-700 uppercase tracking-wide">✨ Discover</p>
+                    <h3 className="text-lg font-bold text-[#2a1407] mt-1">Scratch to Reveal Fun Facts</h3>
+                  </div>
+                  <span className="px-2 py-1 rounded-full bg-yellow-500 text-[10px] font-semibold text-white uppercase tracking-wide">
+                    Interactive
+                  </span>
                 </div>
-                <span className="px-2 py-1 rounded-full bg-yellow-500 text-[10px] font-semibold text-white uppercase tracking-wide">Interactive</span>
-              </div>
 
-              {!funFactRevealed ? (
-                <div className="relative">
-                  <div
-                    className="relative h-32 bg-gradient-to-r from-gray-300 to-gray-400 rounded-lg cursor-grab active:cursor-grabbing overflow-hidden"
-                    onMouseDown={e => {
-                      const rect = e.currentTarget.getBoundingClientRect()
-                      const x = e.clientX - rect.left
-                      const y = e.clientY - rect.top
-                      const overlay = e.currentTarget.querySelector('.scratch-overlay') as HTMLElement
-                      if (overlay) {
-                        overlay.style.clipPath = `circle(35px at ${x}px ${y}px)`
-                      }
-                    }}
-                    onMouseMove={e => {
-                      if (e.buttons === 1) {
+                {!funFactRevealed ? (
+                  <div className="relative">
+                    <div
+                      className="relative h-32 bg-gradient-to-r from-gray-300 to-gray-400 rounded-lg cursor-grab active:cursor-grabbing overflow-hidden"
+                      onMouseDown={e => {
                         const rect = e.currentTarget.getBoundingClientRect()
                         const x = e.clientX - rect.left
                         const y = e.clientY - rect.top
                         const overlay = e.currentTarget.querySelector('.scratch-overlay') as HTMLElement
                         if (overlay) {
-                          const currentClip = overlay.style.clipPath
-                          if (currentClip && currentClip.includes('circle')) {
-                            overlay.style.clipPath = `circle(45px at ${x}px ${y}px)`
+                          overlay.style.clipPath = `circle(35px at ${x}px ${y}px)`
+                        }
+                      }}
+                      onMouseMove={e => {
+                        if (e.buttons === 1) {
+                          const rect = e.currentTarget.getBoundingClientRect()
+                          const x = e.clientX - rect.left
+                          const y = e.clientY - rect.top
+                          const overlay = e.currentTarget.querySelector('.scratch-overlay') as HTMLElement
+                          if (overlay) {
+                            const currentClip = overlay.style.clipPath
+                            if (currentClip && currentClip.includes('circle')) {
+                              overlay.style.clipPath = `circle(45px at ${x}px ${y}px)`
+                            }
+                          }
+                          // Check if enough is revealed
+                          const revealed = overlay?.style.clipPath || ''
+                          if (revealed.includes('circle') && !revealed.includes('100%')) {
+                            const match = revealed.match(/circle\((\d+)px/)
+                            if (match && parseInt(match[1]) > 80) {
+                              setFunFactRevealed(true)
+                              const randomFact = propertyFunFacts[Math.floor(Math.random() * propertyFunFacts.length)]
+                              setRevealedFacts([randomFact])
+                            }
                           }
                         }
-                        // Check if enough is revealed
-                        const revealed = overlay?.style.clipPath || ''
-                        if (revealed.includes('circle') && !revealed.includes('100%')) {
-                          const match = revealed.match(/circle\((\d+)px/)
-                          if (match && parseInt(match[1]) > 80) {
+                      }}
+                      onTouchMove={e => {
+                        const touch = e.touches[0]
+                        const rect = e.currentTarget.getBoundingClientRect()
+                        const x = touch.clientX - rect.left
+                        const y = touch.clientY - rect.top
+                        const overlay = e.currentTarget.querySelector('.scratch-overlay') as HTMLElement
+                        if (overlay) {
+                          overlay.style.clipPath = `circle(50px at ${x}px ${y}px)`
+                          setTimeout(() => {
                             setFunFactRevealed(true)
                             const randomFact = propertyFunFacts[Math.floor(Math.random() * propertyFunFacts.length)]
                             setRevealedFacts([randomFact])
+                          }, 500)
+                        }
+                      }}
+                    >
+                      <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+                        <p className="text-xl font-bold text-yellow-600 mb-2">🎯 Property Highlights</p>
+                        <p className="text-sm text-gray-700 text-center">Scratch to discover interesting facts about this property!</p>
+                      </div>
+                      <div
+                        className="scratch-overlay absolute inset-0 bg-gradient-to-br from-gray-600 to-gray-800"
+                        style={{ clipPath: 'circle(100% at 50% 50%)' }}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-600 mt-2 text-center">👆 Drag your mouse or finger to scratch!</p>
+                  </div>
+                ) : (
+                  <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="space-y-3">
+                    {revealedFacts.map((fact, idx) => (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.1 }}
+                        className="bg-gradient-to-r from-yellow-100 to-yellow-50 rounded-lg p-4 border border-yellow-200"
+                      >
+                        <p className="text-sm font-semibold text-gray-800">{fact}</p>
+                      </motion.div>
+                    ))}
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        if (revealedFacts.length < 3) {
+                          const remainingFacts = propertyFunFacts.filter(f => !revealedFacts.includes(f))
+                          if (remainingFacts.length > 0) {
+                            const randomFact = remainingFacts[Math.floor(Math.random() * remainingFacts.length)]
+                            setRevealedFacts([...revealedFacts, randomFact])
+                            toast.success('Another fun fact revealed!')
+                          } else {
+                            toast('All facts revealed!', { icon: '✨' })
                           }
                         }
-                      }
-                    }}
-                    onTouchMove={e => {
-                      const touch = e.touches[0]
-                      const rect = e.currentTarget.getBoundingClientRect()
-                      const x = touch.clientX - rect.left
-                      const y = touch.clientY - rect.top
-                      const overlay = e.currentTarget.querySelector('.scratch-overlay') as HTMLElement
-                      if (overlay) {
-                        overlay.style.clipPath = `circle(50px at ${x}px ${y}px)`
-                        setTimeout(() => {
-                          setFunFactRevealed(true)
-                          const randomFact = propertyFunFacts[Math.floor(Math.random() * propertyFunFacts.length)]
-                          setRevealedFacts([randomFact])
-                        }, 500)
-                      }
-                    }}
-                  >
-                    <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
-                      <p className="text-xl font-bold text-yellow-600 mb-2">🎯 Property Highlights</p>
-                      <p className="text-sm text-gray-700 text-center">Scratch to discover interesting facts about this property!</p>
-                    </div>
-                    <div
-                      className="scratch-overlay absolute inset-0 bg-gradient-to-br from-gray-600 to-gray-800"
-                      style={{ clipPath: 'circle(100% at 50% 50%)' }}
-                    />
-                  </div>
-                  <p className="text-xs text-gray-600 mt-2 text-center">👆 Drag your mouse or finger to scratch!</p>
-                </div>
-              ) : (
-                <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="space-y-3">
-                  {revealedFacts.map((fact, idx) => (
-                    <motion.div
-                      key={idx}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.1 }}
-                      className="bg-gradient-to-r from-yellow-100 to-yellow-50 rounded-lg p-4 border border-yellow-200"
+                      }}
+                      className="w-full bg-yellow-500 text-white hover:bg-yellow-600 py-2 rounded-lg text-xs font-semibold transition-all"
                     >
-                      <p className="text-sm font-semibold text-gray-800">{fact}</p>
-                    </motion.div>
-                  ))}
-                  <Button
-                    type="button"
-                    onClick={() => {
-                      if (revealedFacts.length < 3) {
-                        const remainingFacts = propertyFunFacts.filter(f => !revealedFacts.includes(f))
-                        if (remainingFacts.length > 0) {
-                          const randomFact = remainingFacts[Math.floor(Math.random() * remainingFacts.length)]
-                          setRevealedFacts([...revealedFacts, randomFact])
-                          toast.success('Another fun fact revealed!')
-                        } else {
-                          toast('All facts revealed!', { icon: '✨' })
-                        }
-                      }
-                    }}
-                    className="w-full bg-yellow-500 text-white hover:bg-yellow-600 py-2 rounded-lg text-xs font-semibold transition-all"
-                  >
-                    {revealedFacts.length < 3 ? '🎲 Reveal Another Fact' : '✨ All Facts Revealed!'}
-                  </Button>
-                </motion.div>
-              )}
-            </motion.div>
+                      {revealedFacts.length < 3 ? '🎲 Reveal Another Fact' : '✨ All Facts Revealed!'}
+                    </Button>
+                  </motion.div>
+                )}
+              </motion.div>
 
-            {/* Interactive Quiz for Recommendations */}
-            <motion.div
-              whileHover={{ scale: 1.01 }}
-              className="rounded-2xl bg-gradient-to-br from-white to-yellow-50/20 border border-yellow-200 p-5 shadow-sm"
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-yellow-50 to-yellow-100/50 border border-yellow-200 flex items-center justify-center shadow-sm">
-                  <Home size={18} className="text-yellow-600" />
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-yellow-700 uppercase tracking-wide">🎯 Quick Match</p>
-                  <p className="text-sm font-semibold text-[#2a1407]">Find Your Perfect Home</p>
-                </div>
-              </div>
-
-              {!showQuizResult ? (
-                <div className="space-y-3">
+              {/* Interactive Quiz for Recommendations */}
+              <motion.div
+                whileHover={{ scale: 1.01 }}
+                className="rounded-2xl bg-gradient-to-br from-white to-yellow-50/20 border border-yellow-200 p-5 shadow-sm"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-yellow-50 to-yellow-100/50 border border-yellow-200 flex items-center justify-center shadow-sm">
+                    <Home size={18} className="text-yellow-600" />
+                  </div>
                   <div>
-                    <label className="text-xs font-medium text-gray-700 mb-1 block">Your Budget Range</label>
-                    <select
-                      value={quizAnswers.budget}
-                      onChange={e => setQuizAnswers({ ...quizAnswers, budget: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                    >
-                      <option value="">Select budget</option>
-                      {quickBudgetOptions.map(option => (
-                        <option key={option.id} value={option.id}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
+                    <p className="text-xs font-semibold text-yellow-700 uppercase tracking-wide">🎯 Quick Match</p>
+                    <p className="text-sm font-semibold text-[#2a1407]">Find Your Perfect Home</p>
                   </div>
-
-                  <div>
-                    <label className="text-xs font-medium text-gray-700 mb-1 block">Preferred Location</label>
-                    <select
-                      value={quizAnswers.location}
-                      onChange={e => setQuizAnswers({ ...quizAnswers, location: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                    >
-                      <option value="">Select location</option>
-                      {quickLocationOptions.map(city => (
-                        <option key={city.value} value={city.value}>
-                          {city.label} {city.count ? `(${city.count})` : ''}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <Button
-                    type="button"
-                    disabled={isQuizLoading}
-                    onClick={async () => {
-                      if (!quizAnswers.budget || !quizAnswers.location) {
-                        toast.error('Please fill all fields')
-                        return
-                      }
-
-                      setIsQuizLoading(true)
-                      setQuizResultCount(null)
-                      try {
-                        const selectedBudget = quickBudgetOptions.find(b => b.id === quizAnswers.budget)
-                        const price_min = selectedBudget?.min
-                        const price_max = selectedBudget?.max
-
-                        const params: Record<string, any> = {
-                          page: 1,
-                          limit: 1,
-                          city: quizAnswers.location,
-                        }
-                        if (price_min != null) params.price_min = price_min
-                        if (price_max != null) params.price_max = price_max
-
-                        const res = await getMethod<any>(appEndpoints.publicSearchProperties, params)
-                        const totalFromApi = (res?.data as any)?.total
-                        const count =
-                          typeof totalFromApi === 'number'
-                            ? totalFromApi
-                            : Array.isArray((res?.data as any)?.data)
-                            ? (res.data as any).data.length
-                            : 0
-
-                        setQuizResultCount(count)
-                        setShowQuizResult(true)
-                        toast.success('Matches updated from backend')
-                      } catch (err) {
-                        console.error('Quick match search failed', err)
-                        toast.error('Failed to fetch matches')
-                      } finally {
-                        setIsQuizLoading(false)
-                      }
-                    }}
-                    className="w-full bg-[#2a1407] text-white hover:from-[#2a1407] hover:to-[#2a1407] disabled:opacity-60 py-2.5 rounded-lg text-xs font-semibold transition-all"
-                  >
-                    {isQuizLoading ? 'Searching…' : '🎯 Get My Matches'}
-                  </Button>
                 </div>
-              ) : (
-                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center space-y-3">
-                  <div className="p-4 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg border border-yellow-200">
-                    <p className="text-lg font-bold text-[#2a1407] mb-2">✨ Perfect Matches Found!</p>
-                    <p className="text-sm text-gray-700 mb-3">
-                      {quizResultCount === null && isQuizLoading && <>Calculating the best matches for you…</>}
-                      {quizResultCount !== null && !isQuizLoading && (
-                        <>
-                          We found{' '}
-                          <span className="font-bold text-yellow-600">
-                            {quizResultCount} propert{quizResultCount === 1 ? 'y' : 'ies'}
-                          </span>{' '}
-                          matching your preferences
-                        </>
-                      )}
-                      {quizResultCount === null && !isQuizLoading && <>We found some properties matching your preferences.</>}
-                    </p>
-                    <div className="flex gap-2 justify-center">
-                      <span className="px-2 py-1 bg-yellow-200 text-yellow-800 text-xs rounded-full font-semibold">
-                        {quizAnswers.budget.replace('-', ' - ').replace('under-', 'Under ').replace('above-', 'Above ')}
-                      </span>
-                      <span className="px-2 py-1 bg-yellow-200 text-yellow-800 text-xs rounded-full font-semibold capitalize">
-                        {quizAnswers.location}
-                      </span>
+
+                {!showQuizResult ? (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-xs font-medium text-gray-700 mb-1 block">Your Budget Range</label>
+                      <select
+                        value={quizAnswers.budget}
+                        onChange={e => setQuizAnswers({ ...quizAnswers, budget: e.target.value })}
+                        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                      >
+                        <option value="">Select budget</option>
+                        {quickBudgetOptions.map(option => (
+                          <option key={option.id} value={option.id}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
                     </div>
+
+                    <div>
+                      <label className="text-xs font-medium text-gray-700 mb-1 block">Preferred Location</label>
+                      <select
+                        value={quizAnswers.location}
+                        onChange={e => setQuizAnswers({ ...quizAnswers, location: e.target.value })}
+                        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                      >
+                        <option value="">Select location</option>
+                        {quickLocationOptions.map(city => (
+                          <option key={city.value} value={city.value}>
+                            {city.label} {city.count ? `(${city.count})` : ''}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <Button
+                      type="button"
+                      disabled={isQuizLoading}
+                      onClick={async () => {
+                        if (!quizAnswers.budget || !quizAnswers.location) {
+                          toast.error('Please fill all fields')
+                          return
+                        }
+
+                        setIsQuizLoading(true)
+                        setQuizResultCount(null)
+                        try {
+                          const selectedBudget = quickBudgetOptions.find(b => b.id === quizAnswers.budget)
+                          const price_min = selectedBudget?.min
+                          const price_max = selectedBudget?.max
+
+                          const params: Record<string, any> = {
+                            page: 1,
+                            limit: 1,
+                            city: quizAnswers.location,
+                          }
+                          if (price_min != null) params.price_min = price_min
+                          if (price_max != null) params.price_max = price_max
+
+                          const res = await getMethod<any>(appEndpoints.publicSearchProperties, params)
+                          const totalFromApi = (res?.data as any)?.total
+                          const count =
+                            typeof totalFromApi === 'number'
+                              ? totalFromApi
+                              : Array.isArray((res?.data as any)?.data)
+                              ? (res.data as any).data.length
+                              : 0
+
+                          setQuizResultCount(count)
+                          setShowQuizResult(true)
+                          toast.success('Matches updated from backend')
+                        } catch (err) {
+                          console.error('Quick match search failed', err)
+                          toast.error('Failed to fetch matches')
+                        } finally {
+                          setIsQuizLoading(false)
+                        }
+                      }}
+                      className="w-full bg-[#2a1407] text-white hover:from-[#2a1407] hover:to-[#2a1407] disabled:opacity-60 py-2.5 rounded-lg text-xs font-semibold transition-all"
+                    >
+                      {isQuizLoading ? 'Searching…' : '🎯 Get My Matches'}
+                    </Button>
                   </div>
-                  <Button
-                    type="button"
-                    onClick={() => {
-                      toast.success('Redirecting to property listings...')
-                      router.push('/properties')
-                    }}
-                    className="w-full bg-[#2a1407] text-white hover:from-[#2a1407] hover:to-[#2a1407] py-2.5 rounded-lg text-xs font-semibold transition-all"
-                  >
-                    View Matched Properties →
-                  </Button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowQuizResult(false)
-                      setQuizAnswers({ budget: '', location: '' })
-                    }}
-                    className="text-xs text-gray-500 hover:text-gray-700 underline"
-                  >
-                    Try Again
-                  </button>
-                </motion.div>
-              )}
+                ) : (
+                  <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center space-y-3">
+                    <div className="p-4 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg border border-yellow-200">
+                      <p className="text-lg font-bold text-[#2a1407] mb-2">✨ Perfect Matches Found!</p>
+                      <p className="text-sm text-gray-700 mb-3">
+                        {quizResultCount === null && isQuizLoading && <>Calculating the best matches for you…</>}
+                        {quizResultCount !== null && !isQuizLoading && (
+                          <>
+                            We found{' '}
+                            <span className="font-bold text-yellow-600">
+                              {quizResultCount} propert{quizResultCount === 1 ? 'y' : 'ies'}
+                            </span>{' '}
+                            matching your preferences
+                          </>
+                        )}
+                        {quizResultCount === null && !isQuizLoading && <>We found some properties matching your preferences.</>}
+                      </p>
+                      <div className="flex gap-2 justify-center">
+                        <span className="px-2 py-1 bg-yellow-200 text-yellow-800 text-xs rounded-full font-semibold">
+                          {quizAnswers.budget.replace('-', ' - ').replace('under-', 'Under ').replace('above-', 'Above ')}
+                        </span>
+                        <span className="px-2 py-1 bg-yellow-200 text-yellow-800 text-xs rounded-full font-semibold capitalize">
+                          {quizAnswers.location}
+                        </span>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        toast.success('Redirecting to property listings...')
+                        router.push('/properties')
+                      }}
+                      className="w-full bg-[#2a1407] text-white hover:from-[#2a1407] hover:to-[#2a1407] py-2.5 rounded-lg text-xs font-semibold transition-all"
+                    >
+                      View Matched Properties →
+                    </Button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowQuizResult(false)
+                        setQuizAnswers({ budget: '', location: '' })
+                      }}
+                      className="text-xs text-gray-500 hover:text-gray-700 underline"
+                    >
+                      Try Again
+                    </button>
+                  </motion.div>
+                )}
+              </motion.div>
             </motion.div>
-          </motion.div>
+          )}
         </div>
       </motion.section>
 

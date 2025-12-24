@@ -56,6 +56,7 @@ const EnquiryPropertyModal = ({ EnquiryModalOpen, setEnquiryModalOpen, propertyI
       if (Number(response.status) === 201) {
         toast.success('Enquiry submitted successfully!')
         propertyDetailsRefresh()
+        setEnquiryModalOpen(false)
       } else {
         toast.error(response.message || 'Failed to submit enquiry')
       }

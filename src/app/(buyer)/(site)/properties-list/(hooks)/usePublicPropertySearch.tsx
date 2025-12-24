@@ -65,6 +65,7 @@ export function usePublicPropertySearch<T = any>({
   const trimmedSearch = searchTerm.trim()
   const shouldFetch = enabled
 
+  // console.log('Filters in usePublicPropertySearch:', filters)
   const params: Record<string, any> = {
     page,
     limit,

@@ -26,6 +26,7 @@ import {
   ChevronRight,
   Play,
   X,
+  Lock,
 } from 'lucide-react'
 import Image from 'next/image'
 import toast from 'react-hot-toast'
@@ -46,6 +47,7 @@ import ReportAdModal from './modal/ReportAdModal'
 import EnquiryAdModal from './modal/EnquiryAdModal'
 import { getUserRoles, hasRole, Roles } from '@/utils/roles/roles'
 import EnquiryFormCard from '@/components/enquiry/forms/EnquiryFormCard'
+import { maskName, maskPhone } from '@/utils/converter/maskedFirstTwoChar'
 
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 40 },
@@ -136,10 +138,10 @@ const AdsDetailsPage = () => {
     return url
   }, [])
 
-  const formattedAddress = useMemo(
-    () => [adDetails?.address_line, adDetails?.city, adDetails?.state].filter(Boolean).join(', '),
-    [adDetails?.address_line, adDetails?.city, adDetails?.state],
-  )
+  // const formattedAddress = useMemo(
+  //   () => [adDetails?.address_line, adDetails?.city, adDetails?.state].filter(Boolean).join(', '),
+  //   [adDetails?.address_line, adDetails?.city, adDetails?.state],
+  // )
 
   useEffect(() => {
     if (!adId) {
@@ -220,6 +222,19 @@ const AdsDetailsPage = () => {
     ],
     [adDetails],
   )
+
+  // Buyer restriction logic
+  const onlyAdminOrAgentCanViewContactDetails = isAgent || isAdmin
+  const hasEnquiry = onlyAdminOrAgentCanViewContactDetails || (adDetails?.enquiries && adDetails.enquiries.length > 0)
+
+  // Address
+  const adsFullAddress = hasEnquiry ? adDetails?.address_line : [adDetails?.district, adDetails?.city].filter(Boolean).join(', ') || 'xxxxx'
+
+  // Name
+  const ownerNameDisplay = hasEnquiry ? adDetails?.contact_name : maskName(adDetails?.contact_name) || ''
+
+  // Phone
+  const ownerPhoneDisplay = hasEnquiry ? adDetails?.contact_phone : maskPhone(adDetails?.contact_phone) || ''
 
   const handleFavorite = useCallback(
     async (adId: string) => {
@@ -610,7 +625,7 @@ const AdsDetailsPage = () => {
                     <h1 className="text-3xl md:text-4xl font-bold text-[#2a1407] mb-2">{adDetails.title || 'Ad Title'}</h1>
                     <p className="flex items-center gap-2 text-gray-600 text-sm md:text-base">
                       <MapPin size={18} className="text-yellow-600 flex-shrink-0" />
-                      <span>{formattedAddress || 'Location not provided'}</span>
+                      <span>{adsFullAddress || 'Location not provided'}</span>
                     </p>
                   </div>
 
@@ -621,8 +636,8 @@ const AdsDetailsPage = () => {
                         <Building2 size={20} className="text-yellow-600" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-gray-900">{adDetails.contact_name || 'N/A'}</p>
-                        <p className="text-xs text-gray-500">{adDetails.contact_phone || 'N/A'}</p>
+                        <p className="text-sm font-semibold text-gray-900">{ownerNameDisplay || 'N/A'}</p>
+                        <p className="text-xs text-gray-500">{ownerPhoneDisplay || 'N/A'}</p>
                       </div>
                     </div>
 
@@ -709,24 +724,33 @@ const AdsDetailsPage = () => {
                 transition={{ duration: 0.6 }}
                 className="rounded-3xl border border-gray-200 bg-white shadow-md overflow-hidden"
               >
-                <div className="h-[400px] w-full">
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="space-y-2 p-8">
-                    <h3 className="text-xl font-bold text-[#2a1407]">Location</h3>
-                    <p className="text-sm text-gray-600">{formattedAddress || 'Location not provided'}</p>
-                  </motion.div>
-                  <MapView
-                    center={{
-                      lat: Number(adDetails.latitude) || 12.9177477,
-                      lng: Number(adDetails.longitude) || 80.2209669,
-                    }}
-                    zoom={14}
-                    markers={[
-                      {
-                        lat: Number(adDetails.latitude) || 12.9177477,
-                        lng: Number(adDetails.longitude) || 80.2209669,
-                      },
-                    ]}
-                  />
+                <div className="relative h-[320px] w-full">
+                  {!hasEnquiry ? (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                      <div className="group flex items-center gap-3 rounded-2xl border border-yellow-200 bg-gradient-to-br from-white via-yellow-50 to-white px-6 py-3 text-sm font-semibold text-gray-800 shadow-xl transition-all duration-300 hover:scale-105">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-yellow-100 text-yellow-600 group-hover:bg-yellow-200">
+                          <Lock size={16} />
+                        </div>
+                        <span>Submit an enquiry to unlock the video</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className={cn('h-full w-full')}>
+                      <MapView
+                        center={{
+                          lat: Number(adDetails?.latitude) || 12.9177477,
+                          lng: Number(adDetails?.longitude) || 80.2209669,
+                        }}
+                        zoom={14}
+                        markers={[
+                          {
+                            lat: Number(adDetails?.latitude) || 12.9177477,
+                            lng: Number(adDetails?.longitude) || 80.2209669,
+                          },
+                        ]}
+                      />
+                    </div>
+                  )}
                 </div>
               </motion.div>
             )}

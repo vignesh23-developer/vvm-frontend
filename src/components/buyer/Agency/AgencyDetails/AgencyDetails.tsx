@@ -44,6 +44,9 @@ import { PopularPropertyDto } from '@/components/buyer/LandingPage/PopularProper
 import MapView from '@/components/ui/map/MapView'
 import { useSimilarProperties } from '@/app/(buyer)/(site)/propertyDetails/(hooks)/useSimilarProperties'
 import { usePopularProperties } from '@/components/buyer/LandingPage/PopularProperties/hooks/usePopularProperties'
+import { getUserRoles, hasRole, Roles } from '@/utils/roles/roles'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { maskName, maskPhone, maskEmail } from '@/utils/converter/maskedFirstTwoChar'
 
 interface InfoItemProps {
   label: string
@@ -118,6 +121,11 @@ const cardVariants: Variants = {
 export default function AgencyDetails({ name }: { name: string }) {
   const t = useTranslations()
   const router = useRouter()
+  const { user } = useAuth()
+  const userRoles = getUserRoles(user)
+  // Simplified flag: true if user is ADMIN or AGENT
+  const isAdmin = hasRole(userRoles, [Roles.ADMIN])
+  const isAgent = hasRole(userRoles, [Roles.AGENT])
   const [selectedTab, setSelectedTab] = useState<string>()
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isSharing, setIsSharing] = useState<boolean>(false)
@@ -289,30 +297,47 @@ export default function AgencyDetails({ name }: { name: string }) {
     [establishedYear],
   )
 
-  const fullAddress = useMemo(() => {
-    const parts = [
-      agencyData?.address_line,
-      agencyData?.city,
-      agencyData?.district,
-      agencyData?.state,
-      agencyData?.postal_code,
-      agencyData?.country,
-    ].filter(Boolean)
+  // buyer can't see contact details unless admin or agent
+  const onlyAdminOrAgentCanViewContactDetails = isAgent || isAdmin
 
-    return parts.length ? parts.join(', ') : ''
-  }, [agencyData?.address_line, agencyData?.city, agencyData?.district, agencyData?.state, agencyData?.postal_code, agencyData?.country])
+  const fullAddress = useMemo(() => {
+    // Agent & Admin → full address
+    if (isAgent || isAdmin) {
+      const parts = [agencyData?.address_line].filter(Boolean)
+
+      return parts.join(', ')
+    }
+
+    // Others → only district & city
+    return [agencyData?.district, agencyData?.city].filter(Boolean).join(', ')
+  }, [
+    isAgent,
+    isAdmin,
+    agencyData?.address_line,
+    agencyData?.city,
+    agencyData?.district,
+    agencyData?.state,
+    agencyData?.postal_code,
+    agencyData?.country,
+  ])
 
   const serviceRegions = useMemo(() => {
     const regions = [agencyData?.district, agencyData?.state, agencyData?.country].filter(Boolean)
     return regions.length ? regions.join(', ') : '—'
   }, [agencyData?.district, agencyData?.state, agencyData?.country])
 
-  const contactPhone = agencyData?.contact_phone || agencyData?.user?.phoneNumber || ''
-  const contactEmail = agencyData?.contact_email || agencyData?.user?.email || ''
+  const contactPhone = onlyAdminOrAgentCanViewContactDetails
+    ? agencyData?.contact_phone || agencyData?.user?.phoneNumber || ''
+    : maskPhone(agencyData?.contact_phone || agencyData?.user?.phoneNumber || '')
+  const contactEmail = onlyAdminOrAgentCanViewContactDetails
+    ? agencyData?.contact_email || agencyData?.user?.email || ''
+    : maskEmail(agencyData?.contact_email || agencyData?.user?.email || '')
   const profileTitle = agencyData?.profileName || agencyData?.companyName || name
-  const contactName = agencyData?.contact_name || agencyData?.user?.firstName || ''
+  const contactName = onlyAdminOrAgentCanViewContactDetails
+    ? agencyData?.contact_name || agencyData?.user?.firstName || ''
+    : maskName(agencyData?.contact_name || agencyData?.user?.firstName || '')
   const companyLogo = agencyData?.companyLogo || '/agency.png'
-  const isVerified = Boolean(agencyData?.isVerified)
+  const isVerified = Boolean(agencyData?.user?.isKycVerified)
 
   // Agency Insights Data - Property Insights style
   const agencyInsights = useMemo(

@@ -186,14 +186,14 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
   const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
 
   useEffect(() => {
-    if (isKycLoading) return
-    if (kycError) return
+    if (isKycLoading || kycError) return
 
-    // If KYC is not verified, block property registration/editing.
-    if (kycStatus && !kycStatus.isVerified) {
+    // Block ad creation/edit until KYC is verified
+    if (kycStatus?.isVerified === false) {
+      toast.error('Please complete KYC verification to register your properties.')
       router.replace('/kyc-pending')
     }
-  }, [isKycLoading, kycError, kycStatus, router])
+  }, [isKycLoading, kycError, kycStatus?.isVerified, router])
 
   const fectchPropertiesById = async (id: string | undefined) => {
     if (id) {

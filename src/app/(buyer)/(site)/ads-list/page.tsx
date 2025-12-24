@@ -160,7 +160,7 @@ const AdsListPage = () => {
   const { adsListData, adsListTotal, adsListFetchErr, adsListFetchLoader, adsListRefresh } = useAdsListHook({
     page,
     limit,
-    // approval_status: 'approval',
+    // approval_status: 'approved',
   })
 
   const shouldUseAdvancedResults = trimmedSearch.length > 0 || hasActiveAdsFilters
