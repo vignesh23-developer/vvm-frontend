@@ -1,747 +1,635 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
-import { Upload, Trash2, GripVertical, CheckCircle, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react'
-import Button from '@/components/ui/CustomComponent/Button/Button'
+import React, { useState, useRef, useEffect, useTransition } from 'react'
+import { Upload, Trash2, CheckCircle, Image as ImageIcon, Film, Star, Link as LinkIcon, AlertCircle, Info, Play, X, FileVideo } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { onAddPropertyImages, getPropertyImages, updatePropertyImage, deletePropertyImage } from '../(action)/properties_registration_action'
-
-interface UpdatePropertyImagePayload {
-  id: string
-  url: string
-  filename: string
-  title?: string
-  description?: string
-  is_primary: boolean
-  sort_order: number
-  created_at: string
-  updated_at: string
-  file_size?: number
-  mime_type?: string
-  thumbnail_url?: string
-  key?: string
-  width?: number | null
-  height?: number | null
-  alt_text?: string | null
-}
+import Button from '@/components/ui/CustomComponent/Button/Button'
+import { onAddPropertyMedia } from '../(action)/properties_registration_action'
+import { ResponseDTO } from '@/components/dto/response_dto'
 
 interface Step5UploadImagesProps {
   propertyId: string
-  onUploaded?: () => void
-  onUploadingChange?: (isUploading: boolean) => void
-  mode?: 'create' | 'edit'
+  onUploaded: () => void
+  onUploadingChange: (isUploading: boolean) => void
+  mode: 'create' | 'edit'
 }
 
-type UploadItem = {
-  file: File
-  preview: string
+type MediaItem = {
+  id: string
+  file?: File
+  url?: string
   title: string
-  description: string
-  id: string // Add id to the UploadItem type
+  type: 'IMAGE' | 'VIDEO'
+  isPrimary: boolean
+  preview: string
 }
 
-export default function Step5UploadImages({ propertyId, onUploaded, onUploadingChange, mode = 'create' }: Step5UploadImagesProps) {
+export default function Step5UploadImages({ propertyId, onUploaded, onUploadingChange, mode }: Step5UploadImagesProps) {
+  const [activeTab, setActiveTab] = useState<'media' | 'youtube'>('media')
+  const [items, setItems] = useState<MediaItem[]>([])
+  const [ispending, startTransition] = useTransition()
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [items, setItems] = useState<UploadItem[]>([])
-  const [existingImages, setExistingImages] = useState<UpdatePropertyImagePayload[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [primaryIndex, setPrimaryIndex] = useState<number | null>(null)
-  const [isDraggingOverArea, setIsDraggingOverArea] = useState(false)
-  const [isUploading, setIsUploading] = useState(false)
-  const [currentSlide, setCurrentSlide] = useState(0)
-  const sliderRef = useRef<HTMLDivElement>(null)
 
-  // Auto-scroll to current slide
+  // YouTube Link State
+  const [videoLink, setVideoLink] = useState('')
+  const [videoTitle, setVideoTitle] = useState('')
+  const [previewVideoUrl, setPreviewVideoUrl] = useState<string | null>(null)
+
+  // Report uploading state to parent
   useEffect(() => {
-    if (sliderRef.current && existingImages.length > 0) {
-      const container = sliderRef.current
-      const slide = container.children[currentSlide] as HTMLElement
-      if (slide) {
-        container.scrollTo({
-          left: slide.offsetLeft - 16, // 16px for padding
-          behavior: 'smooth',
-        })
-      }
-    }
-  }, [currentSlide, existingImages.length])
+    onUploadingChange(ispending)
+  }, [ispending, onUploadingChange])
 
-  const nextSlide = useCallback(() => {
-    setCurrentSlide(prev => (prev === existingImages.length - 1 ? 0 : prev + 1))
-  }, [existingImages.length])
-
-  const prevSlide = useCallback(() => {
-    setCurrentSlide(prev => (prev === 0 ? existingImages.length - 1 : prev - 1))
-  }, [existingImages.length])
-
-  // Track initial mount to prevent duplicate API calls
-  const isInitialMount = useRef(true)
-
-  // Fetch existing images when component mounts or adId changes
-  const fetchImages = useCallback(async () => {
-    if (!propertyId) return
-    try {
-      setIsLoading(true)
-      const response = await getPropertyImages(propertyId)
-      console.log('Fetched property images response:', response, response.data, response.data.data)
-      if (response?.data) {
-        console.log('Fetched existing images response data:', response.data.data, response.data.media)
-        const images =
-          (Array.isArray(response.data?.data) ? response.data.data : null) ??
-          (Array.isArray(response.data?.media) ? response.data.media : null) ??
-          (Array.isArray(response.data) ? response.data : [])
-        console.log('Fetched existing images:', images)
-        setExistingImages(images)
-
-        // If images already exist, allow proceeding to the next step.
-        if (images.length > 0) {
-          onUploaded?.()
-        }
-
-        // Set primary index if any image is marked as primary
-        const primaryIdx = images.findIndex((img: UpdatePropertyImagePayload) => img.is_primary)
-        if (primaryIdx !== -1) {
-          setPrimaryIndex(primaryIdx)
-          // Update current slide to show the primary image
-          setCurrentSlide(primaryIdx)
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching ad images:', error)
-      toast.error('Failed to load existing images')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [propertyId, onUploaded]) // Removed currentSlide from dependencies
-
-  // Handle initial fetch
+  // Cleanup previews
   useEffect(() => {
-    const controller = new AbortController()
-
-    if (isInitialMount.current) {
-      isInitialMount.current = false
-      fetchImages()
-    }
-
     return () => {
-      controller.abort()
+      items.forEach(item => {
+        if (item.preview && item.preview.startsWith('blob:')) {
+          URL.revokeObjectURL(item.preview)
+        }
+      })
     }
-  }, [fetchImages])
+  }, [])
 
-  useEffect(() => {
-    return () => items.forEach(releasePreview)
-  }, [items])
+  // ----------------------------------------------------------------------
+  // MEDIA LOGIC (Images & Videos)
+  // ----------------------------------------------------------------------
 
-  const handleFilesAdded = (incoming: File[]) => {
-    const valid = incoming.filter(f => f.type.startsWith('image/'))
-    if (!valid.length) {
-      toast.error('Please select image files')
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      processFiles(Array.from(e.target.files))
+    }
+    e.target.value = '' // reset input
+  }
+
+  const processFiles = (files: File[]) => {
+    const newImages = files.filter(f => f.type.startsWith('image/'))
+    const newVideos = files.filter(f => f.type.startsWith('video/'))
+
+    const currentImages = items.filter(i => i.type === 'IMAGE' && i.file) // Local images
+    const currentVideos = items.filter(i => i.type === 'VIDEO' && i.file) // Local videos
+
+    // Limits
+    const MAX_IMAGES = 5
+    const MAX_VIDEOS = 1
+    const MAX_VIDEO_SIZE_MB = 15 // Reasonable limit for video uploads
+
+    // Check Video Limits
+    if (newVideos.length > 0) {
+      if (currentVideos.length >= MAX_VIDEOS) {
+        toast.error('You can only upload 1 video file.')
+        return
+      }
+
+      const video = newVideos[0] // Take only the first video if multiple selected
+      if (video.size > MAX_VIDEO_SIZE_MB * 1024 * 1024) {
+        toast.error(`Video must be less than ${MAX_VIDEO_SIZE_MB}MB.`)
+        return
+      }
+
+      setItems(prev => [
+        ...prev,
+        {
+          id: Math.random().toString(36).substr(2, 9),
+          file: video,
+          title: video.name.split('.')[0],
+          type: 'VIDEO',
+          isPrimary: false,
+          preview: URL.createObjectURL(video)
+        }
+      ])
+      toast.success('Video added')
+    }
+
+    // Check Image Limits
+    if (newImages.length > 0) {
+      const remainingSlots = MAX_IMAGES - currentImages.length
+      if (remainingSlots <= 0) {
+        toast.error(`You can only upload up to ${MAX_IMAGES} images.`)
+        return
+      }
+
+      const imagesToAdd = newImages.slice(0, remainingSlots)
+      if (newImages.length > remainingSlots) {
+        toast('Only ' + remainingSlots + ' images were added (limit 5).', { icon: '⚠️' })
+      }
+
+      const newMediaItems: MediaItem[] = imagesToAdd.map(file => ({
+        id: Math.random().toString(36).substr(2, 9),
+        file,
+        title: file.name.split('.')[0],
+        type: 'IMAGE',
+        isPrimary: items.length === 0 && currentImages.length === 0 && !items.some(i => i.isPrimary),
+        preview: URL.createObjectURL(file)
+      }))
+
+      setItems(prev => {
+        const hasPrimary = prev.some(i => i.isPrimary)
+        if (!hasPrimary && newMediaItems.length > 0) {
+          newMediaItems[0].isPrimary = true
+        }
+        return [...prev, ...newMediaItems]
+      })
+    }
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processFiles(Array.from(e.dataTransfer.files))
+    }
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  // ----------------------------------------------------------------------
+  // YOUTUBE LOGIC
+  // ----------------------------------------------------------------------
+
+  const extractYoutubeId = (url: string) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
+    const match = url.match(regExp)
+    return (match && match[2].length === 11) ? match[2] : null
+  }
+
+  const handleAddYoutube = () => {
+    if (!videoLink) return
+
+    // Limit Check: Only 1 YouTube link allowed
+    const currentYoutube = items.filter(i => i.type === 'VIDEO' && i.url)
+    if (currentYoutube.length >= 1) {
+      toast.error('You can only add 1 YouTube video link.')
       return
     }
-    const next = valid.map(createItem)
-    setItems(prev => {
-      const combined = [...prev, ...next]
-      if (primaryIndex === null && combined.length) setPrimaryIndex(0)
-      return combined
-    })
-  }
 
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
-    if (!files?.length) return
-    handleFilesAdded(Array.from(files))
-    e.target.value = ''
-  }
-
-  const handleRemove = (index: number) => {
-    setItems(prev => {
-      const next = prev.filter((_, i) => i !== index)
-      setPrimaryIndex(p => {
-        if (p == null) return p
-        if (p === index) return next.length ? 0 : null
-        if (p > index) return p - 1
-        return p
-      })
-      return next
-    })
-  }
-
-  const handleReorder = (fromIndex: number, toIndex: number) => {
-    setItems(prev => {
-      const newItems = [...prev]
-      const [movedItem] = newItems.splice(fromIndex, 1)
-      newItems.splice(toIndex, 0, movedItem)
-      return newItems
-    })
-    setPrimaryIndex(p => {
-      if (p == null) return p
-      if (p === fromIndex) return toIndex
-      if (p > fromIndex && p <= toIndex) return p - 1
-      if (p < fromIndex && p >= toIndex) return p + 1
-      return p
-    })
-  }
-
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.readAsDataURL(file)
-      reader.onload = () => resolve(reader.result as string)
-      reader.onerror = error => reject(error)
-    })
-  }
-
-  const uploadAll = async () => {
-    if (!propertyId) {
-      toast.error('Property not ready yet')
+    const videoId = extractYoutubeId(videoLink)
+    if (!videoId) {
+      toast.error('Invalid YouTube URL. Please use a valid link.')
       return
     }
-    if (items.length === 0) return
-    setIsUploading(true)
-    onUploadingChange?.(true)
 
-    try {
-      // Create a single FormData object for all files
-      const formData = new FormData()
-      const totalFiles = items.length
+    const newItem: MediaItem = {
+      id: Math.random().toString(36).substr(2, 9),
+      url: videoLink,
+      title: videoTitle || 'YouTube Video',
+      type: 'VIDEO',
+      isPrimary: false,
+      preview: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
+    }
 
-      // Add all files and their metadata to FormData
-      items.forEach((item, index) => {
-        formData.append('files', item.file)
-        formData.append('title', item.title || toTitle(item.file)) // Changed from 'titles' to 'title'
-        formData.append('description', item.description || '') // Changed from 'descriptions' to 'description'
-        formData.append('is_primary', String((primaryIndex ?? 0) === index))
-        formData.append('sort_order', String(index + 1)) // Changed from 'sort_orders' to 'sort_order'
-      })
+    setItems(prev => [...prev, newItem])
+    setVideoLink('')
+    setVideoTitle('')
+    toast.success('YouTube video added')
+  }
 
-      // Add total count
-      formData.append('total', totalFiles.toString())
+  // ----------------------------------------------------------------------
+  // COMMON ACTIONS
+  // ----------------------------------------------------------------------
 
-      let res
+  const handleRemove = (id: string) => {
+    setItems(prev => {
+      const remaining = prev.filter(i => i.id !== id)
+      // If we removed the primary, assign new primary to the first item (if exists)
+      const wasPrimary = prev.find(i => i.id === id)?.isPrimary
+      if (wasPrimary && remaining.length > 0) {
+        remaining[0].isPrimary = true
+      }
+      return remaining
+    })
+  }
 
-      if (mode === 'edit') {
-        // In edit mode, we need to handle each file individually
-        // since the API expects a single file per request
-        for (let i = 0; i < items.length; i++) {
-          const item = items[i]
-          const fileFormData = new FormData()
-          fileFormData.append('files', item.file)
-          fileFormData.append('title', item.title || toTitle(item.file)) // Changed from 'titles' to 'title'
-          fileFormData.append('description', item.description || '') // Changed from 'descriptions' to 'description'
-          fileFormData.append('is_primary', String((primaryIndex ?? 0) === i))
-          fileFormData.append('sort_order', String(i + 1)) // Changed from 'sort_orders' to 'sort_order'
+  const handleSetPrimary = (id: string) => {
+    setItems(prev => prev.map(item => ({
+      ...item,
+      isPrimary: item.id === id
+    })))
+  }
 
-          res = await onAddPropertyImages(null, {
-            propertyId,
-            formData: fileFormData,
-            current: i,
-            total: items.length,
+  const handleUploadAll = () => {
+    if (items.length === 0) {
+      toast.error('Please add at least one media item.')
+      return
+    }
+
+    startTransition(async () => {
+      try {
+        if (!propertyId) {
+          throw new Error('Property ID is missing. Please save basic details first.')
+        }
+
+        // Dummy prevState to satisfy TS if strict
+        const dummyState: ResponseDTO = { success: false, error: false, message: '', data: null, status: '' }
+
+        // 1. Upload Local Files (Images & Videos)
+        const fileItems = items.filter(i => i.file)
+        if (fileItems.length > 0) {
+          const formData = new FormData()
+          // Append files
+          fileItems.forEach((item) => {
+            if (item.file) formData.append('files', item.file)
           })
 
-          if (res?.error) {
-            throw new Error(res.message || `Failed to upload image ${i + 1}`)
+          // Append metadata
+          fileItems.forEach((item, index) => {
+            formData.append('media_type', item.type)
+            formData.append('title', item.title)
+            formData.append('is_primary', String(item.isPrimary))
+            formData.append('media_category', item.file?.type || (item.type === 'VIDEO' ? 'video/mp4' : 'image/jpeg'))
+            formData.append('sort_order', String(index))
+          })
+
+          let res
+          try {
+            res = await onAddPropertyMedia(dummyState, {
+              id: propertyId,
+              payload: formData as any,
+              uploadType: 'chooseFromDevice'
+            })
+          } catch (e: any) {
+            console.error("Upload error:", e);
+            throw new Error(e.message || "Server Communication Error")
+          }
+
+          if (res && res.error) {
+            throw new Error(res.message || 'Failed to upload files')
+          } else if (res === undefined) {
+            // In case void is returned but no error thrown
+            console.warn("API returned undefined, assuming success or handled error")
           }
         }
-      } else {
-        // In create mode, upload all files at once
-        res = await onAddPropertyImages(null, {
-          propertyId,
-          formData,
-          current: 0,
-          total: totalFiles,
-        })
 
-        if (res?.error) {
-          throw new Error(res.message || 'Failed to upload images')
+        // 2. Upload Links (YouTube)
+        const linkItems = items.filter(i => i.url)
+        if (linkItems.length > 0) {
+          const payload = linkItems.map((item, index) => ({
+            media_type: 'VIDEO',
+            url: item.url,
+            title: item.title,
+            is_primary: item.isPrimary,
+            sort_order: index + 1
+          }))
+
+          const res = await onAddPropertyMedia(dummyState, {
+            id: propertyId,
+            payload: payload,
+            uploadType: 'addViaLink'
+          })
+
+          if (res?.error) throw new Error(res?.message || 'Failed to upload video link')
         }
+
+        toast.success('Media uploaded successfully!')
+        onUploaded()
+
+      } catch (err: any) {
+        console.error(err)
+        toast.error(err.message || 'Failed to upload media')
       }
-
-      // Clear the selected files
-      setItems([])
-
-      // Refresh the images list
-      await fetchImages()
-
-      // Notify parent component
-      onUploaded?.()
-
-      toast.success(`Successfully uploaded ${totalFiles} ${totalFiles === 1 ? 'image' : 'images'}`)
-    } catch (e) {
-      console.error('Upload error:', e)
-      toast.error(e instanceof Error ? e.message : 'Error while uploading images')
-    } finally {
-      setIsUploading(false)
-      onUploadingChange?.(false)
-    }
+    })
   }
 
-  // Function to create a preview URL for uploaded files
-  const createItem = (file: File): UploadItem => {
-    const preview = URL.createObjectURL(file)
-    return {
-      file,
-      preview,
-      title: file.name.replace(/\.[^/.]+$/, ''), // Remove file extension
-      description: '', // Initialize with empty description
-      id: `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // Generate a temporary ID
-    }
-  }
+  // ----------------------------------------------------------------------
+  // RENDER
+  // ----------------------------------------------------------------------
 
-  // Function to release object URLs to prevent memory leaks
-  const releasePreview = (item: UploadItem) => {
-    URL.revokeObjectURL(item.preview)
-  }
-
-  // Function to convert file name to title
-  const toTitle = (file: File) => {
-    return file.name
-      .replace(/\.[^/.]+$/, '') // Remove file extension
-      .replace(/[-_]/g, ' ') // Replace underscores and hyphens with spaces
-      .replace(/\b\w/g, l => l.toUpperCase()) // Capitalize first letter of each word
-  }
-
-  // Track drag index for reordering
-  let dragIndex: number | null = null
-
-  // Function to update image title
-  const handleUpdateTitle = async (imageId: string, newTitle: string) => {
-    try {
-      const image = existingImages.find(img => img.id === imageId)
-      if (!image) return false
-
-      // First update the title in the local state
-      setExistingImages(prev => prev.map(img => (img.id === imageId ? { ...img, title: newTitle } : img)))
-
-      // Then make the API call
-      const response = await updatePropertyImage(propertyId, imageId, {
-        is_primary: image.is_primary,
-        sort_order: image.sort_order,
-      })
-
-      // If the API call fails, revert the local state
-      if (response.error) {
-        setExistingImages(prev => prev.map(img => (img.id === imageId ? { ...img, title: image.title } : img)))
-        throw new Error(response.message || 'Failed to update image title')
-      }
-
-      if (response.error) {
-        throw new Error(response.message || 'Failed to update image title')
-      }
-
-      // Update local state
-      setExistingImages(prev => prev.map(img => (img.id === imageId ? { ...img, title: newTitle } : img)))
-
-      return true
-    } catch (error) {
-      console.error('Error updating image title:', error)
-      toast.error('Failed to update image title')
-      return false
-    }
-  }
-
-  // Function to update image description
-  const handleUpdateDescription = async (imageId: string, newDescription: string) => {
-    try {
-      const image = existingImages.find(img => img.id === imageId)
-      if (!image) return false
-
-      // First update the description in the local state
-      setExistingImages(prev => prev.map(img => (img.id === imageId ? { ...img, description: newDescription } : img)))
-
-      // Then make the API call
-      const response = await updatePropertyImage(propertyId, imageId, {
-        is_primary: image.is_primary,
-        sort_order: image.sort_order,
-      })
-
-      // If the API call fails, revert the local state
-      if (response.error) {
-        setExistingImages(prev => prev.map(img => (img.id === imageId ? { ...img, description: image.description || '' } : img)))
-        throw new Error(response.message || 'Failed to update image description')
-      }
-
-      if (response.error) {
-        throw new Error(response.message || 'Failed to update image description')
-      }
-
-      // Update local state
-      setExistingImages(prev => prev.map(img => (img.id === imageId ? { ...img, description: newDescription } : img)))
-
-      return true
-    } catch (error) {
-      console.error('Error updating image description:', error)
-      toast.error('Failed to update image description')
-      return false
-    }
-  }
-
-  // Function to handle setting an image as primary
-  const handleSetPrimary = async (imageId: string) => {
-    try {
-      // Update the primary image via API
-      const response = await updatePropertyImage(propertyId, imageId, { is_primary: true })
-
-      if (response.error) {
-        throw new Error(response.message || 'Failed to update primary image')
-      }
-
-      // Update local state
-      const updatedImages = existingImages.map(img => ({
-        ...img,
-        is_primary: img.id === imageId,
-      }))
-      setExistingImages(updatedImages)
-
-      // Find the index of the new primary image
-      const primaryIdx = updatedImages.findIndex(img => img.is_primary)
-      setPrimaryIndex(primaryIdx)
-
-      toast.success('Primary image updated')
-    } catch (error) {
-      console.error('Error setting primary image:', error)
-      toast.error('Failed to update primary image')
-    }
-  }
-
-  // Function to handle image deletion
-  const handleDeleteImage = async (imageId: string) => {
-    if (!window.confirm('Are you sure you want to delete this image?')) return
-
-    try {
-      // Call the API to delete the image
-      const response = await deletePropertyImage(propertyId, imageId)
-
-      if (response.error) {
-        throw new Error(response.message || 'Failed to delete image')
-      }
-
-      // Update local state
-      setExistingImages(prev => prev.filter(img => img.id !== imageId))
-
-      // If the deleted image was the primary, update the primary index
-      const deletedImage = existingImages.find(img => img.id === imageId)
-      if (deletedImage?.is_primary && existingImages.length > 1) {
-        // Set the first image as primary if the deleted one was primary
-        const newPrimaryImage = existingImages.find(img => img.id !== imageId)
-        if (newPrimaryImage) {
-          await updatePropertyImage(propertyId, newPrimaryImage.id, { is_primary: true })
-        }
-      }
-
-      // Refresh the images to ensure consistency
-      await fetchImages()
-
-      toast.success('Image deleted successfully')
-    } catch (error) {
-      console.error('Error deleting image:', error)
-      toast.error('Failed to delete image')
-    }
-  }
+  const imageItems = items.filter(i => i.type === 'IMAGE' && i.file)
+  const localVideoItems = items.filter(i => i.type === 'VIDEO' && i.file)
+  const youtubeItems = items.filter(i => i.type === 'VIDEO' && i.url)
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-white">
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Property Images</h2>
-          <p className="mt-1 text-sm text-gray-500">Manage your property images. The primary image will be used as the main display image.</p>
-        </div>
+    <div className="w-full max-w-5xl mx-auto bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100 min-h-[500px]">
 
-        {/* Existing Images Slider */}
-        {isLoading ? (
-          <div className="flex justify-center items-center h-40">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-          </div>
-        ) : existingImages.length > 0 ? (
-          <div className="relative">
-            <div
-              ref={sliderRef}
-              className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
-              {existingImages.length > 0 && (
-                <button
-                  onClick={prevSlide}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-2 bg-white rounded-full shadow-md text-gray-600 hover:bg-gray-100"
-                  aria-label="Previous image"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-              )}
-              {existingImages.map((image, index) => (
+      {/* Introduction */}
+      <div className="mb-8 border-b border-gray-100 pb-6">
+        <h2 className="text-2xl font-bold text-gray-900">Property Media</h2>
+        <p className="text-gray-500 mt-2 text-sm flex items-center gap-2">
+          <Info size={16} /> Showcase your property with high-quality images and video.
+        </p>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex items-center gap-1 bg-gray-100 p-1.5 rounded-xl w-fit mb-8">
+        <button
+          onClick={() => setActiveTab('media')}
+          className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${activeTab === 'media'
+            ? 'bg-white text-[#2a1407] shadow-sm ring-1 ring-black/5'
+            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
+            }`}
+        >
+          <ImageIcon size={18} />
+          Upload Media
+          <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded-md text-gray-600 border border-gray-200">
+            {imageItems.length + localVideoItems.length}/6
+          </span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('youtube')}
+          className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${activeTab === 'youtube'
+            ? 'bg-white text-[#2a1407] shadow-sm ring-1 ring-black/5'
+            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
+            }`}
+        >
+          <LinkIcon size={18} />
+          YouTube Link
+          <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded-md text-gray-600 border border-gray-200">
+            {youtubeItems.length}/1
+          </span>
+        </button>
+      </div>
+
+      {/* Content Area */}
+      <div className="min-h-[300px]">
+
+        {/* MEDIA TAB (Images + Local Video) */}
+        {activeTab === 'media' && (
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+
+            {/* Dropzone */}
+            {(imageItems.length < 5 || localVideoItems.length < 1) ? (
+              <div
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+                onClick={() => fileInputRef.current?.click()}
+                className="group border-2 border-dashed border-gray-300 rounded-2xl bg-gray-50 hover:bg-[#2a1407]/5 hover:border-[#2a1407]/30 transition-all cursor-pointer p-12 flex flex-col items-center justify-center text-center"
+              >
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  multiple
+                  accept="image/png, image/jpeg, image/jpg, video/mp4, video/quicktime"
+                  onChange={handleFileSelect}
+                />
+                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <div className="bg-[#2a1407]/10 p-3 rounded-xl">
+                    <Upload className="text-[#2a1407]" size={24} />
+                  </div>
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 group-hover:text-[#2a1407] transition-colors">Click or Drag media here</h3>
+                <p className="text-sm text-gray-500 mt-2 max-w-sm mx-auto">
+                  Upload Images (max 5) and Video (max 1).<br />
+                  <span className="text-xs opacity-75">Images max 3MB, Video max 15MB.</span>
+                </p>
+              </div>
+            ) : (
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+                <AlertCircle size={20} className="text-amber-800 shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-semibold text-amber-900 text-sm">Media Limit Reached</h4>
+                  <p className="text-sm text-amber-800 mt-0.5">
+                    You have uploaded the maximum number of items (5 Images, 1 Video). Please remove some to add new ones.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
+              {/* Images */}
+              {imageItems.map((item) => (
                 <div
-                  key={image.id}
-                  className={`flex-shrink-0 w-64 snap-center ${
-                    index === currentSlide ? 'opacity-100' : 'opacity-90 hover:opacity-100'
-                  } transition-opacity`}
-                  onClick={() => setCurrentSlide(index)}
+                  key={item.id}
+                  className={`relative group rounded-2xl overflow-hidden shadow-sm bg-white transition-all duration-300 ${item.isPrimary
+                    ? 'ring-2 ring-[#2a1407] ring-offset-2 scale-[1.02] shadow-xl z-10'
+                    : 'border border-gray-200 hover:shadow-xl hover:border-gray-300'
+                    }`}
                 >
-                  <div
-                    className={`relative group rounded-lg overflow-hidden border ${
-                      image.is_primary ? 'ring-2 ring-blue-500' : 'border-gray-200'
-                    } h-full`}
-                  >
-                    <div className="aspect-w-16 aspect-h-9 bg-gray-100">
-                      <img src={image.url} alt={image.title || `Ad Image ${index + 1}`} className="w-full h-48 object-cover" />
-                    </div>
-                    <div className="p-3">
-                      <h4 className="text-sm font-medium text-gray-900 truncate">{image.title || 'Untitled'}</h4>
-                      <p className="text-xs text-gray-500 mt-1">{image.file_size ? `${(image.file_size / 1024).toFixed(1)} KB` : ''}</p>
-                    </div>
-                    <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      {!image.is_primary && (
+                  <div className="aspect-[4/3] bg-gray-100 relative">
+                    <img src={item.preview} alt={item.title} className="w-full h-full object-cover" />
+
+                    {/* Overlay Actions */}
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3 p-4">
+                      {!item.isPrimary && (
                         <button
-                          onClick={e => {
-                            e.stopPropagation()
-                            handleSetPrimary(image.id)
-                          }}
-                          className="p-1.5 bg-white rounded-full shadow-md text-blue-600 hover:bg-blue-50"
-                          title="Set as primary"
+                          onClick={() => handleSetPrimary(item.id)}
+                          className="bg-white text-[#2a1407] px-4 py-2 rounded-lg text-xs font-bold hover:bg-gray-100 w-full transform hover:scale-105 transition-all shadow-lg"
                         >
-                          <CheckCircle className="w-4 h-4" />
+                          Set Main
                         </button>
                       )}
                       <button
-                        onClick={e => {
-                          e.stopPropagation()
-                          handleDeleteImage(image.id)
-                        }}
-                        className="p-1.5 bg-white rounded-full shadow-md text-red-600 hover:bg-red-50"
-                        title="Delete image"
+                        onClick={() => handleRemove(item.id)}
+                        className="bg-red-500/90 text-white p-2 rounded-lg hover:bg-red-600 transition-colors"
+                        title="Remove"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 size={18} />
                       </button>
                     </div>
-                    {image.is_primary && <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-md">Primary</div>}
+
+                    {/* Primary Badge */}
+                    {item.isPrimary && (
+                      <div className="absolute top-3 left-3 bg-[#2a1407] text-white text-[10px] uppercase font-bold px-2.5 py-1 rounded-md shadow-lg flex items-center gap-1.5 tracking-wider border border-white/20">
+                        <Star size={10} fill="currentColor" />
+                        Main
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer Info */}
+                  <div className="p-3 bg-white">
+                    <p className="text-sm font-bold text-gray-900 truncate">{item.title}</p>
+                    <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-wide font-medium flex items-center gap-1">
+                      <ImageIcon size={10} />
+                      {(item.file?.size ? (item.file.size / 1024 / 1024).toFixed(1) : 0) + ' MB'}
+                    </p>
                   </div>
                 </div>
               ))}
-              {existingImages.length > 0 && (
-                <button
-                  onClick={nextSlide}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 z-10 p-2 bg-white rounded-full shadow-md text-gray-600 hover:bg-gray-100"
-                  aria-label="Next image"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              )}
-            </div>
 
-            {/* Dots indicator */}
-            {existingImages.length > 1 && (
-              <div className="flex justify-center space-x-2 mt-4">
-                {existingImages.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentSlide(index)}
-                    className={`w-2 h-2 rounded-full transition-colors ${index === currentSlide ? 'bg-blue-500 w-4' : 'bg-gray-300'}`}
-                    aria-label={`Go to slide ${index + 1}`}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-lg">
-            <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No images</h3>
-            <p className="mt-1 text-sm text-gray-500">Upload some images to get started.</p>
-          </div>
-        )}
-
-        {/* Upload Section */}
-        <div className="mt-8">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Upload New Images</h3>
-          <div
-            className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
-              isDraggingOverArea ? 'border-[#2a1407] bg-[#FEF2F2]' : 'border-gray-300 hover:border-[#2a1407] hover:bg-[#FEF2F2]'
-            }`}
-            onDragOver={e => {
-              e.preventDefault()
-              e.stopPropagation()
-            }}
-            onDragEnter={e => {
-              e.preventDefault()
-              e.stopPropagation()
-              setIsDraggingOverArea(true)
-            }}
-            onDragLeave={e => {
-              e.preventDefault()
-              e.stopPropagation()
-              setIsDraggingOverArea(false)
-            }}
-            onDrop={e => {
-              e.preventDefault()
-              e.stopPropagation()
-              setIsDraggingOverArea(false)
-              if (e.dataTransfer?.files?.length) handleFilesAdded(Array.from(e.dataTransfer.files))
-            }}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <input ref={fileInputRef} type="file" multiple accept=".jpg,.jpeg,.png" onChange={handleFileInput} className="hidden" />
-            <div className="mx-auto w-16 h-16 bg-[#FEE2E2] rounded-full flex items-center justify-center mb-3">
-              <Upload size={28} className="text-[#2a1407]" />
-            </div>
-            <p className="text-gray-700 font-medium">Click to upload or drag and drop</p>
-            <p className="text-gray-500 text-sm mt-1">JPG or PNG files (max 5MB)</p>
-          </div>
-        </div>
-
-        {items.length > 0 && (
-          <div className="border rounded-lg p-4 space-y-4 mt-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg font-medium">Selected Files</h2>
-              <div className="flex items-center space-x-4">
-                <p className="text-sm text-gray-500">
-                  {items.length} {items.length === 1 ? 'file' : 'files'} selected
-                </p>
-                <button type="button" onClick={() => setItems([])} className="text-sm text-red-600 hover:text-red-800">
-                  Clear All
-                </button>
-              </div>
-            </div>
-            <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
-              {items.map((item, index) => {
-                const isPrimary = primaryIndex === index
-                const size = `${(item.file.size / 1024).toFixed(1)} KB`
-                return (
-                  <div
-                    key={item.preview}
-                    className={`flex items-center justify-between p-3 border rounded-lg transition-colors duration-150 ${
-                      isPrimary ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'
+              {localVideoItems.map((item) => (
+                <div
+                  key={item.id}
+                  className={`relative group rounded-2xl overflow-hidden shadow-sm bg-white transition-all duration-300 col-span-2 md:col-span-2 lg:col-span-2 aspect-video ${item.isPrimary
+                      ? 'ring-2 ring-[#2a1407] ring-offset-2 scale-[1.01] shadow-xl z-10'
+                      : 'border border-gray-200 hover:shadow-xl hover:border-gray-300'
                     }`}
-                    draggable
-                    onDragStart={() => (dragIndex = index)}
-                    onDragOver={e => {
-                      e.preventDefault()
-                      if (dragIndex === null || dragIndex === index) return
-                      handleReorder(dragIndex, index)
-                      dragIndex = index
-                    }}
-                    onDragEnd={() => (dragIndex = null)}
-                  >
-                    <div className="flex items-center space-x-3 flex-1 min-w-0">
-                      <GripVertical className="text-gray-400 cursor-move flex-shrink-0" size={20} />
+                >
+                  <div className="w-full h-full bg-black relative group">
+                    <video src={item.preview} className="w-full h-full object-cover" controls />
 
-                      {/* Image Thumbnail */}
-                      <div className="flex-shrink-0 w-12 h-12 rounded-md overflow-hidden bg-gray-100">
-                        <img
-                          src={item.preview}
-                          alt={item.title || 'Preview'}
-                          className="w-full h-full object-cover"
-                          onLoad={() => URL.revokeObjectURL(item.preview)}
-                        />
+                    {/* Top Actions Bar (Visible on Hover) */}
+                    <div className="absolute top-0 left-0 right-0 p-3 flex justify-between items-start opacity-0 group-hover:opacity-100 transition-opacity z-20 bg-gradient-to-b from-black/60 to-transparent pointer-events-none">
+                      {/* Left: Set Primary */}
+                      <div className="pointer-events-auto">
+                        {!item.isPrimary ? (
+                          <button
+                            onClick={() => handleSetPrimary(item.id)}
+                            className="bg-white/90 hover:bg-white text-[#2a1407] px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg backdrop-blur-sm transition-all flex items-center gap-1"
+                          >
+                            <Star size={12} /> Set Main
+                          </button>
+                        ) : (
+                          <div className="bg-[#2a1407] text-white text-xs uppercase font-bold px-3 py-1.5 rounded-lg shadow-lg flex items-center gap-1.5 tracking-wider border border-white/20">
+                            <Star size={12} fill="currentColor" />
+                            Main
+                          </div>
+                        )}
                       </div>
 
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center space-x-2">
-                          <input
-                            type="text"
-                            value={item.title}
-                            onChange={e => {
-                              const newTitle = e.target.value
-                              setItems(prev => prev.map((it, i) => (i === index ? { ...it, title: newTitle } : it)))
-                            }}
-                            onBlur={async () => {
-                              if (item.title.trim()) {
-                                await handleUpdateTitle(item.id, item.title)
-                              }
-                            }}
-                            onKeyDown={async e => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault()
-                                if (item.title.trim()) {
-                                  await handleUpdateTitle(item.id, item.title)
-                                  ;(e.target as HTMLInputElement).blur()
-                                }
-                              }
-                            }}
-                            className="text-sm font-medium border-b border-gray-300 focus:border-blue-500 focus:outline-none w-full bg-transparent"
-                            placeholder="Enter a title..."
-                          />
-                        </div>
-                        <input
-                          type="text"
-                          value={item.description}
-                          onChange={e => {
-                            const newDescription = e.target.value
-                            setItems(prev => prev.map((it, i) => (i === index ? { ...it, description: newDescription } : it)))
-                          }}
-                          onBlur={async () => {
-                            // Save description if needed
-                            await handleUpdateDescription(item.id, item.description)
-                          }}
-                          onKeyDown={async e => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault()
-                              await handleUpdateDescription(item.id, item.description)
-                              ;(e.target as HTMLInputElement).blur()
-                            }
-                          }}
-                          className="text-xs text-gray-600 border-b border-transparent focus:border-gray-300 focus:outline-none w-full bg-transparent mt-1"
-                          placeholder="Add a description..."
-                        />
-                        <p className="text-xs text-gray-400 mt-1 truncate">
-                          {item.title || item.file.name} • {size}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-3 ml-4">
-                      {isPrimary ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          Primary
-                        </span>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => setPrimaryIndex(index)}
-                          className="text-xs text-blue-600 hover:text-blue-800 whitespace-nowrap"
-                        >
-                          Set as Primary
-                        </button>
-                      )}
+                      {/* Right: Remove */}
                       <button
-                        type="button"
-                        onClick={() => handleRemove(index)}
-                        className="text-gray-400 hover:text-red-500 p-1 rounded-full hover:bg-gray-100"
-                        title="Remove image"
+                        onClick={() => handleRemove(item.id)}
+                        className="bg-red-500/80 hover:bg-red-600 text-white p-2 rounded-lg transition-colors shadow-lg backdrop-blur-sm pointer-events-auto"
+                        title="Remove Video"
                       >
                         <Trash2 size={16} />
                       </button>
                     </div>
                   </div>
-                )
-              })}
-
-              <div className="flex justify-end space-x-3 pt-2 border-t border-gray-100 mt-4">
-                <Button
-                  type="button"
-                  variant="primary"
-                  onClick={uploadAll}
-                  disabled={isUploading || items.length === 0}
-                  className={`px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-yellow-500 to-yellow-600  rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors ${
-                    isUploading || items.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
-                >
-                  {isUploading ? (
-                    <span className="flex items-center">
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
-                      Uploading...
-                    </span>
-                  ) : (
-                    `Upload ${items.length} ${items.length === 1 ? 'Image' : 'Images'}`
-                  )}
-                </Button>
-              </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
+
+        {/* YOUTUBE TAB */}
+        {activeTab === 'youtube' && (
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+
+            {/* Limit Warning/Info */}
+            {youtubeItems.length >= 1 ? (
+              <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-center gap-3 text-blue-800">
+                <Info size={20} />
+                <span className="text-sm font-medium">You have reached the YouTube video limit (1 max). Remove the current video to add a different one.</span>
+              </div>
+            ) : (
+              /* Add Video Form */
+              <div className="bg-gray-50 p-8 rounded-2xl border border-dashed border-gray-300">
+                <div className="max-w-xl mx-auto space-y-4">
+                  <div className="text-center mb-6">
+                    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mx-auto mb-3 text-[#2a1407]">
+                      <LinkIcon size={24} />
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-900">Add YouTube Link</h3>
+                    <p className="text-sm text-gray-500">Paste a YouTube link to showcase your property.</p>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="https://youtu.be/..."
+                      className="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#2a1407] focus:border-transparent outline-none transition-all shadow-sm"
+                      value={videoLink}
+                      onChange={(e) => setVideoLink(e.target.value)}
+                    />
+                    <button
+                      onClick={handleAddYoutube}
+                      className="bg-[#2a1407] text-white px-6 rounded-xl font-bold hover:bg-[#3d1e0b] transition-colors shadow-lg shadow-[#2a1407]/20"
+                    >
+                      Add
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Video List */}
+            {youtubeItems.length > 0 && (
+              <div className="flex justify-center">
+                {youtubeItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="relative group rounded-2xl overflow-hidden shadow-xl bg-white border border-gray-100 w-full max-w-2xl transform transition-all hover:scale-[1.01]"
+                  >
+                    <div className="aspect-video bg-black relative">
+                      <img src={item.preview} alt={item.title} className="w-full h-full object-cover opacity-90" />
+
+                      {/* Play Icon - Opens Modal */}
+                      <div className="absolute inset-0 flex items-center justify-center cursor-pointer" onClick={() => {
+                        const videoId = extractYoutubeId(item.url || '')
+                        if (videoId) setPreviewVideoUrl(videoId)
+                      }}>
+                        <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center group-hover:scale-110 group-hover:bg-[#2a1407]/90 transition-all duration-300 shadow-2xl border border-white/30">
+                          <Play className="text-white fill-white ml-1" size={24} />
+                        </div>
+                      </div>
+
+                      <div className="absolute top-4 right-4 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-full backdrop-blur-md">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleRemove(item.id)
+                          }}
+                          className="text-white p-2 hover:text-red-400 transition-colors"
+                          title="Remove Video"
+                        >
+                          <Trash2 size={20} />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-lg font-bold text-gray-900 truncate">{item.title}</h3>
+                          <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
+                            <LinkIcon size={14} />
+                            <span className="truncate max-w-xs">{item.url}</span>
+                          </div>
+                        </div>
+                        <div className=" hidden sm:flex items-center gap-2 text-xs font-semibold text-[#2a1407] bg-[#2a1407]/5 px-3 py-1 rounded-full border border-[#2a1407]/10">
+                          <Film size={14} /> Video Preview
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
       </div>
-    </div>
+
+      {/* Action Bar */}
+      <div className="mt-10 pt-6 border-t border-gray-100 flex justify-end">
+        <Button
+          type="button"
+          onClick={handleUploadAll}
+          disabled={ispending || items.length === 0}
+          className="bg-[#2a1407] hover:bg-[#3d1e0b] text-white px-8 py-3.5 rounded-xl text-md font-bold shadow-xl shadow-[#2a1407]/20 flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-[1.02] active:scale-[0.98]"
+        >
+          {ispending ? (
+            <span className="flex items-center gap-2">
+              <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Saving...
+            </span>
+          ) : (
+            <>Save & Continue <CheckCircle size={20} /></>
+          )}
+        </Button>
+      </div>
+
+      {/* Video Modal */}
+      {
+        previewVideoUrl && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            <div className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
+              <button
+                onClick={() => setPreviewVideoUrl(null)}
+                className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-white/10 text-white rounded-full transition-colors"
+              >
+                <X size={24} />
+              </button>
+              <div className="aspect-video w-full">
+                <iframe
+                  src={`https://www.youtube.com/embed/${previewVideoUrl}?autoplay=1`}
+                  className="w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+    </div >
   )
 }
