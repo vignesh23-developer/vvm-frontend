@@ -70,46 +70,73 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
     const currentVideos = items.filter(i => i.type === 'VIDEO' && i.file) // Local videos
 
     // Limits
-    const MAX_IMAGES = 5
+    // Limits
+    const MAX_TOTAL_MEDIA = 5
     const MAX_VIDEOS = 1
     const MAX_VIDEO_SIZE_MB = 15 // Reasonable limit for video uploads
+
+    const totalMediaCount = currentImages.length + currentVideos.length
+
+    // Check if we already reached limit
+    if (totalMediaCount >= MAX_TOTAL_MEDIA) {
+      toast.error(`You have reached the limit of ${MAX_TOTAL_MEDIA} media items.`)
+      return
+    }
 
     // Check Video Limits
     if (newVideos.length > 0) {
       if (currentVideos.length >= MAX_VIDEOS) {
         toast.error('You can only upload 1 video file.')
-        return
-      }
-
-      const video = newVideos[0] // Take only the first video if multiple selected
-      if (video.size > MAX_VIDEO_SIZE_MB * 1024 * 1024) {
-        toast.error(`Video must be less than ${MAX_VIDEO_SIZE_MB}MB.`)
-        return
-      }
-
-      setItems(prev => [
-        ...prev,
-        {
-          id: Math.random().toString(36).substr(2, 9),
-          file: video,
-          title: video.name.split('.')[0],
-          type: 'VIDEO',
-          isPrimary: false,
-          preview: URL.createObjectURL(video)
+      } else if (totalMediaCount >= MAX_TOTAL_MEDIA) {
+        toast.error(`Maximum ${MAX_TOTAL_MEDIA} items allowed. Remove an image to add a video.`)
+      } else {
+        const video = newVideos[0] // Take only the first video if multiple selected
+        if (video.size > MAX_VIDEO_SIZE_MB * 1024 * 1024) {
+          toast.error(`Video must be less than ${MAX_VIDEO_SIZE_MB}MB.`)
+        } else {
+          setItems(prev => [
+            ...prev,
+            {
+              id: Math.random().toString(36).substr(2, 9),
+              file: video,
+              title: video.name.split('.')[0],
+              type: 'VIDEO',
+              isPrimary: false,
+              preview: URL.createObjectURL(video)
+            }
+          ])
+          toast.success('Video added')
         }
-      ])
-      toast.success('Video added')
+      }
     }
 
     // Check Image Limits
+    // Recalculate usage in case a video was just added (though setItems is async, we use local check)
+    // Actually, setItems is async, so we should be careful. 
+    // Ideally we process one batch. For simplicity, if video was added, we subtract 1 more slot.
+    // However, usually users drag either images OR videos. If mixed, we need to be careful.
+
+    // Let's simplified assumption: if newVideos.length > 0 was successfully processed we reduce slots?
+    // React state updates don't reflect immediately. 
+    // But currentImages and currentVideos are based on 'items' state which hasn't changed yet.
+    // So if we are processing both, we must account for what we just decided to add.
+
+    let effectiveTotal = totalMediaCount + (newVideos.length > 0 && currentVideos.length === 0 && newVideos[0].size <= MAX_VIDEO_SIZE_MB * 1024 * 1024 ? 1 : 0)
+
     if (newImages.length > 0) {
-      const remainingSlots = MAX_IMAGES - currentImages.length
-      if (remainingSlots <= 0) {
-        toast.error(`You can only upload up to ${MAX_IMAGES} images.`)
+      if (effectiveTotal >= MAX_TOTAL_MEDIA) {
+        if (newVideos.length > 0) {
+          // We added a video, but no space for images
+          toast('Video added, but max limit reached for images.', { icon: '⚠️' })
+        } else {
+          toast.error(`You can only upload up to ${MAX_TOTAL_MEDIA} items.`)
+        }
         return
       }
 
+      const remainingSlots = MAX_TOTAL_MEDIA - effectiveTotal
       const imagesToAdd = newImages.slice(0, remainingSlots)
+
       if (newImages.length > remainingSlots) {
         toast('Only ' + remainingSlots + ' images were added (limit 5).', { icon: '⚠️' })
       }
@@ -239,7 +266,7 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
             formData.append('media_type', item.type)
             formData.append('title', item.title)
             formData.append('is_primary', String(item.isPrimary))
-            formData.append('media_category', item.file?.type || (item.type === 'VIDEO' ? 'video/mp4' : 'image/jpeg'))
+            formData.append('media_category', 'General')
             formData.append('sort_order', String(index))
           })
 
@@ -324,7 +351,7 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
           <ImageIcon size={18} />
           Upload Media
           <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded-md text-gray-600 border border-gray-200">
-            {imageItems.length + localVideoItems.length}/6
+            {imageItems.length + localVideoItems.length}/5
           </span>
         </button>
 
@@ -351,7 +378,7 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
 
             {/* Dropzone */}
-            {(imageItems.length < 5 || localVideoItems.length < 1) ? (
+            {(imageItems.length + localVideoItems.length < 5) ? (
               <div
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
@@ -373,7 +400,7 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 group-hover:text-[#2a1407] transition-colors">Click or Drag media here</h3>
                 <p className="text-sm text-gray-500 mt-2 max-w-sm mx-auto">
-                  Upload Images (max 5) and Video (max 1).<br />
+                  Upload up to 5 items total (max 1 Video).<br />
                   <span className="text-xs opacity-75">Images max 3MB, Video max 15MB.</span>
                 </p>
               </div>
@@ -383,7 +410,7 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
                 <div>
                   <h4 className="font-semibold text-amber-900 text-sm">Media Limit Reached</h4>
                   <p className="text-sm text-amber-800 mt-0.5">
-                    You have uploaded the maximum number of items (5 Images, 1 Video). Please remove some to add new ones.
+                    You have uploaded the maximum number of items (5 Total). Please remove some to add new ones.
                   </p>
                 </div>
               </div>
@@ -447,8 +474,8 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
                 <div
                   key={item.id}
                   className={`relative group rounded-2xl overflow-hidden shadow-sm bg-white transition-all duration-300 col-span-2 md:col-span-2 lg:col-span-2 aspect-video ${item.isPrimary
-                      ? 'ring-2 ring-[#2a1407] ring-offset-2 scale-[1.01] shadow-xl z-10'
-                      : 'border border-gray-200 hover:shadow-xl hover:border-gray-300'
+                    ? 'ring-2 ring-[#2a1407] ring-offset-2 scale-[1.01] shadow-xl z-10'
+                    : 'border border-gray-200 hover:shadow-xl hover:border-gray-300'
                     }`}
                 >
                   <div className="w-full h-full bg-black relative group">
