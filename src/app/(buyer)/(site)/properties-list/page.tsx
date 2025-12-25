@@ -94,7 +94,9 @@ const PropertiesListPage = () => {
 
   const [isFiltersOpen, setIsFiltersOpen] = useState(false) // Closed by default, user can open
   const [searchTerm, setSearchTerm] = useState('') // Advanced search term
+  const [isHydratedFromUrl, setIsHydratedFromUrl] = useState(false)
   const [debouncedSearch, setDebouncedSearch] = useState('')
+  const [debouncedUrlSearch, setDebouncedUrlSearch] = useState('')
   const [filters, setFilters] = useState<FilterState>({
     priceRange: [0, 100000000],
     propertyType: [],
@@ -126,6 +128,70 @@ const PropertiesListPage = () => {
   })
 
   const trimmedSearch = searchTerm.trim()
+
+  const selectedDistrict = filters.district?.[0] ?? ''
+
+  // District dropdown options
+  const { data: districtSummaryResponse } = useSWR(['property-district-summary', 500] as const, ([, limit]) =>
+    getMethod<any>(appEndpoints.getAllPropertyDistrictSummary, { limit }),
+  )
+
+  const districts = useMemo(() => {
+    const raw = (districtSummaryResponse as any)?.data
+    const list = Array.isArray(raw) ? raw : []
+
+    const names = list
+      .map((item: any) => (typeof item === 'string' ? item : item?.district))
+      .filter((v: unknown): v is string => typeof v === 'string' && v.trim().length > 0)
+
+    return Array.from(new Set(names)).sort((a, b) => a.localeCompare(b))
+  }, [districtSummaryResponse])
+
+  // One-time hydration from URL params (supports deep links)
+  useEffect(() => {
+    if (isHydratedFromUrl) return
+
+    const initialQ = searchParams.get('q') || ''
+    const initialDistrict = searchParams.get('district') || ''
+
+    if (initialQ) setSearchTerm(initialQ)
+    if (initialDistrict) {
+      setFilters(prev => ({ ...prev, district: [initialDistrict] }))
+    }
+
+    setIsHydratedFromUrl(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isHydratedFromUrl])
+
+  // Debounce URL updates for q to avoid excessive router.replace while typing
+  useEffect(() => {
+    const handle = setTimeout(() => setDebouncedUrlSearch(trimmedSearch), 300)
+    return () => clearTimeout(handle)
+  }, [trimmedSearch])
+
+  // Keep URL in sync: searchTerm -> q, selectedDistrict -> district
+  useEffect(() => {
+    if (!isHydratedFromUrl) return
+
+    const currentQ = searchParams.get('q') || ''
+    const currentDistrict = searchParams.get('district') || ''
+
+    const nextQ = debouncedUrlSearch
+    const nextDistrict = selectedDistrict
+
+    if (currentQ === nextQ && currentDistrict === nextDistrict) return
+
+    const nextParams = new URLSearchParams(searchParams.toString())
+
+    if (nextQ) nextParams.set('q', nextQ)
+    else nextParams.delete('q')
+
+    if (nextDistrict) nextParams.set('district', nextDistrict)
+    else nextParams.delete('district')
+
+    const qs = nextParams.toString()
+    router.replace(qs ? `/properties-list?${qs}` : '/properties-list', { scroll: false })
+  }, [debouncedUrlSearch, isHydratedFromUrl, router, searchParams, selectedDistrict])
 
   // Debounce autocomplete: only trigger after 3+ characters and a short pause.
   useEffect(() => {
@@ -347,6 +413,29 @@ const PropertiesListPage = () => {
             {/* Full Width Search & Filter Bar */}
             <div className="w-full">
               <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center bg-white p-2 rounded-2xl shadow-lg border border-yellow-100/50">
+                {/* District Dropdown */}
+                <div className="w-full md:w-64 px-2 md:px-0">
+                  <select
+                    value={selectedDistrict}
+                    onChange={e => {
+                      const v = e.target.value
+                      setPage(1)
+                      setFilters(prev => ({ ...prev, district: v ? [v] : [] }))
+                    }}
+                    className="block w-full px-4 py-3 bg-transparent border-none rounded-xl text-gray-900 focus:ring-0 sm:text-base"
+                  >
+                    <option value="">All Districts</option>
+                    {districts.map(d => (
+                      <option key={d} value={d}>
+                        {d}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Divider (Hidden on mobile) */}
+                <div className="hidden md:block w-px bg-gray-200 my-2"></div>
+
                 {/* Search Input Area */}
                 <div className="relative flex-1">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -354,10 +443,14 @@ const PropertiesListPage = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M11 5a6 6 0 100 12 6 6 0 000-12z" />
                     </svg>
                   </div>
+
                   <input
                     type="text"
                     value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
+                    onChange={e => {
+                      setPage(1)
+                      setSearchTerm(e.target.value)
+                    }}
                     placeholder="Search by title, city, area or address..."
                     className="block w-full pl-11 pr-4 py-3 bg-transparent border-none rounded-xl text-gray-900 placeholder-gray-400 focus:ring-0 sm:text-base"
                   />

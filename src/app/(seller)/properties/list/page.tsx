@@ -7,7 +7,7 @@ import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, Resp
 import { redirect, useRouter } from 'next/navigation'
 import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
 import Button from '@/components/ui/CustomComponent/Button/Button'
-import { ArrowRight, Edit3, Trash2, Eye, RefreshCcw, Heart, Phone } from 'lucide-react'
+import { ArrowRight, Edit3, Trash2, Eye, RefreshCcw, Hourglass, Heart, Phone } from 'lucide-react'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
@@ -225,7 +225,7 @@ export default function PropertiesPage() {
     if (onlyAdmin || onlyAgent) {
       // place change-status action at the front
       base.unshift({
-        icon: RefreshCcw,
+        icon: Hourglass, // correct for status change
         onClick: (row: PropertiesTableRow) => {
           void handleStatusChange(row.id)
         },

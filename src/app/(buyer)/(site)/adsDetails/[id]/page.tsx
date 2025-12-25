@@ -731,7 +731,7 @@ const AdsDetailsPage = () => {
                         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-yellow-100 text-yellow-600 group-hover:bg-yellow-200">
                           <Lock size={16} />
                         </div>
-                        <span>Submit an enquiry to unlock the video</span>
+                        <span>Submit an enquiry to unlock the location</span>
                       </div>
                     </div>
                   ) : (

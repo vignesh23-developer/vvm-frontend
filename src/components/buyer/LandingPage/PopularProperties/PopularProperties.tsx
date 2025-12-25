@@ -75,12 +75,12 @@ export default function PopularProperties({
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 6 // 3 cards per row × 2 rows = 6 cards per page
 
-  const { items, total } = usePopularProperties({
-    page: 1,
-    limit: 12, // Fetch a larger number to allow pagination client-side
-  })
+  // const { items, total } = usePopularProperties({
+  //   page: 1,
+  //   limit: 12, // Fetch a larger number to allow pagination client-side
+  // })
 
-  console.log('Popular Properties Items:', items)
+  // console.log('Popular Properties Items:', items)
 
   // Filter published properties from API data
   const publishedItems = (propertiesData || []).filter(i => {
