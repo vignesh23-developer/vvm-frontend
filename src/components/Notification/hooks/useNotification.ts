@@ -1,37 +1,38 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { getMethod, patchMethod, postMethod, deleteMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
+import { getSSEService } from '@/services/sse.service'
 import { Notification, NotificationListResponse, NotificationFilterParams, UnreadCountResponse } from '../types'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 
 interface UseNotificationOptions {
-  autoPoll?: boolean
-  pollInterval?: number
   initialPage?: number
   initialLimit?: number
+  enableSSE?: boolean // Enable SSE for real-time notifications
 }
 
 /**
- * Custom hook to fetch and manage user notifications with polling
+ * Custom hook to fetch and manage user notifications with SSE support
+ * - Fetches notifications only when explicitly called (no auto-polling)
+ * - Uses SSE to receive new notifications in real-time
+ * - Only connects SSE when user is logged in
  */
 export function useNotification(options: UseNotificationOptions = {}) {
-  const {
-    autoPoll = true,
-    pollInterval = 30000, // 30 seconds
-    initialPage = 1,
-    initialLimit = 20,
-  } = options
+  const { initialPage = 1, initialLimit = 20, enableSSE = true } = options
+  const { user, token } = useAuth()
 
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(initialPage)
   const [total, setTotal] = useState(0)
-  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const sseSubscriptionRef = useRef<string | null>(null)
 
   const fetchNotifications = useCallback(
     async (filterParams: NotificationFilterParams = {}) => {
       try {
+        setLoading(true)
         setError(null)
         const params = {
           page: filterParams.page || page,
@@ -163,48 +164,58 @@ export function useNotification(options: UseNotificationOptions = {}) {
     fetchUnreadCount()
   }, [fetchNotifications, fetchUnreadCount])
 
-  // Store latest functions in refs for polling
-  const fetchNotificationsRef = useRef(fetchNotifications)
-  const fetchUnreadCountRef = useRef(fetchUnreadCount)
-
+  // SSE Setup - Listen for real-time notifications
+  // Only connect when user is logged in and has a token
   useEffect(() => {
-    fetchNotificationsRef.current = fetchNotifications
-    fetchUnreadCountRef.current = fetchUnreadCount
-  }, [fetchNotifications, fetchUnreadCount])
+    if (!enableSSE || !user || !token) {
+      // Disconnect if user logs out
+      if (sseSubscriptionRef.current) {
+        const sseService = getSSEService()
+        sseService.unsubscribe(sseSubscriptionRef.current)
+        sseSubscriptionRef.current = null
+      }
+      return
+    }
 
-  // Initial fetch
-  useEffect(() => {
-    setLoading(true)
-    fetchNotifications()
-    fetchUnreadCount()
-  }, [])
+    const sseService = getSSEService()
 
-  // Polling setup - only recreate interval when autoPoll or pollInterval changes
-  // useEffect(() => {
-  //   if (autoPoll) {
-  //     intervalRef.current = setInterval(() => {
-  //       fetchNotificationsRef.current()
-  //       fetchUnreadCountRef.current()
-  //     }, pollInterval)
+    // Subscribe to notification events with token
+    const subscriptionId = sseService.subscribe(
+      (message) => {
+        if (message.event === 'notification' && message.data) {
+          const newNotification = message.data as Notification
 
-  //     return () => {
-  //       if (intervalRef.current) {
-  //         clearInterval(intervalRef.current)
-  //       }
-  //     }
-  //   }
-  // }, [autoPoll, pollInterval])
+          // Add new notification to the list (prepend)
+          setNotifications(prev => {
+            // Check if notification already exists (avoid duplicates)
+            const exists = prev.some(n => n.id === newNotification.id)
+            if (exists) {
+              // Update existing notification
+              return prev.map(n => (n.id === newNotification.id ? newNotification : n))
+            }
+            // Add new notification at the beginning
+            return [newNotification, ...prev]
+          })
 
-  // Refetch on window focus
-  // useEffect(() => {
-  //   const handleFocus = () => {
-  //     fetchNotifications()
-  //     fetchUnreadCount()
-  //   }
+          // Update unread count if notification is unread
+          if (!newNotification.is_read) {
+            setUnreadCount(prev => prev + 1)
+          }
+        }
+      },
+      'notification',
+      token, // Pass token to subscribe
+    )
 
-  //   window.addEventListener('focus', handleFocus)
-  //   return () => window.removeEventListener('focus', handleFocus)
-  // }, [fetchNotifications, fetchUnreadCount])
+    sseSubscriptionRef.current = subscriptionId
+
+    // Cleanup on unmount or when user/token changes
+    return () => {
+      if (subscriptionId) {
+        sseService.unsubscribe(subscriptionId)
+      }
+    }
+  }, [enableSSE, user, token]) // Depend on user and token
 
   return {
     notifications,

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { CheckSquare, Square, Filter } from 'lucide-react'
 import { useNotification } from './hooks/useNotification'
 import NotificationList from './NotificationList'
@@ -26,11 +26,16 @@ export default function BuyerNotification() {
     markAllAsRead,
     markSelectedAsRead,
   } = useNotification({
-    autoPoll: true,
-    pollInterval: 30000,
+    enableSSE: true, // Enable SSE for real-time notifications
     initialPage: page,
     initialLimit: 25,
   })
+
+  // Fetch notifications when component mounts
+  useEffect(() => {
+    fetchNotifications({ page: 1, limit: 25 })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Only run once on mount
 
   const handleLoadMore = useCallback(() => {
     const nextPage = page + 1
@@ -241,4 +246,3 @@ export default function BuyerNotification() {
     </div>
   )
 }
-

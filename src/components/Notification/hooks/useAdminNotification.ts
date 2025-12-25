@@ -1,38 +1,38 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { getMethod, patchMethod, postMethod, deleteMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
+import { getSSEService } from '@/services/sse.service'
 import { Notification, NotificationListResponse, NotificationFilterParams, UnreadCountResponse } from '../types'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 
 interface UseAdminNotificationOptions {
-  autoPoll?: boolean
-  pollInterval?: number
   initialPage?: number
   initialLimit?: number
+  enableSSE?: boolean // Enable SSE for real-time notifications
 }
 
 /**
- * Custom hook to fetch and manage admin notifications with polling
- * Uses the same endpoints as regular notifications but can be extended for admin-specific features
+ * Custom hook to fetch and manage admin notifications with SSE support
+ * - Fetches notifications only when explicitly called (no auto-polling)
+ * - Uses SSE to receive new notifications in real-time
+ * - Only connects SSE when user is logged in
  */
 export function useAdminNotification(options: UseAdminNotificationOptions = {}) {
-  const {
-    autoPoll = true,
-    pollInterval = 30000, // 30 seconds
-    initialPage = 1,
-    initialLimit = 20,
-  } = options
+  const { initialPage = 1, initialLimit = 20, enableSSE = true } = options
+  const { user, token } = useAuth()
 
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(initialPage)
   const [total, setTotal] = useState(0)
-  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const sseSubscriptionRef = useRef<string | null>(null)
 
   const fetchNotifications = useCallback(
     async (filterParams: NotificationFilterParams = {}) => {
       try {
+        setLoading(true)
         setError(null)
         const params = {
           page: filterParams.page || page,
@@ -158,50 +158,64 @@ export function useAdminNotification(options: UseAdminNotificationOptions = {}) 
     [notifications],
   )
 
-  // Store latest functions in refs for polling
-  const fetchNotificationsRef = useRef(fetchNotifications)
-  const fetchUnreadCountRef = useRef(fetchUnreadCount)
-
-  useEffect(() => {
-    fetchNotificationsRef.current = fetchNotifications
-    fetchUnreadCountRef.current = fetchUnreadCount
-  }, [fetchNotifications, fetchUnreadCount])
-
-  // Initial fetch
-  useEffect(() => {
+  const refetch = useCallback(() => {
     setLoading(true)
     fetchNotifications()
     fetchUnreadCount()
-  }, [])
+  }, [fetchNotifications, fetchUnreadCount])
 
-  // Polling setup - only recreate interval when autoPoll or pollInterval changes
-  // useEffect(() => {
-  //   if (autoPoll) {
-  //     intervalRef.current = setInterval(() => {
-  //       fetchNotificationsRef.current()
-  //       fetchUnreadCountRef.current()
-  //     }, pollInterval)
+  // SSE Setup - Listen for real-time notifications
+  // Only connect when user is logged in and has a token
+  useEffect(() => {
+    if (!enableSSE || !user || !token) {
+      // Disconnect if user logs out
+      if (sseSubscriptionRef.current) {
+        const sseService = getSSEService()
+        sseService.unsubscribe(sseSubscriptionRef.current)
+        sseSubscriptionRef.current = null
+      }
+      return
+    }
 
-  //     return () => {
-  //       if (intervalRef.current) {
-  //         clearInterval(intervalRef.current)
-  //       }
-  //     }
-  //   }
-  // }, [autoPoll, pollInterval])
+    const sseService = getSSEService()
 
-  // Refetch on window focus
-  // useEffect(() => {
-  //   const handleFocus = () => {
-  //     fetchNotifications()
-  //     fetchUnreadCount()
-  //   }
+    // Subscribe to notification events with token
+    const subscriptionId = sseService.subscribe(
+      (message) => {
+        if (message.event === 'notification' && message.data) {
+          const newNotification = message.data as Notification
 
-  //   window.addEventListener('focus', handleFocus)
-  //   return () => window.removeEventListener('focus', handleFocus)
-  //   // Only run once on mount, functions are stable
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [])
+          // Add new notification to the list (prepend)
+          setNotifications(prev => {
+            // Check if notification already exists (avoid duplicates)
+            const exists = prev.some(n => n.id === newNotification.id)
+            if (exists) {
+              // Update existing notification
+              return prev.map(n => (n.id === newNotification.id ? newNotification : n))
+            }
+            // Add new notification at the beginning
+            return [newNotification, ...prev]
+          })
+
+          // Update unread count if notification is unread
+          if (!newNotification.is_read) {
+            setUnreadCount(prev => prev + 1)
+          }
+        }
+      },
+      'notification',
+      token, // Pass token to subscribe
+    )
+
+    sseSubscriptionRef.current = subscriptionId
+
+    // Cleanup on unmount or when user/token changes
+    return () => {
+      if (subscriptionId) {
+        sseService.unsubscribe(subscriptionId)
+      }
+    }
+  }, [enableSSE, user, token]) // Depend on user and token
 
   return {
     notifications,
@@ -210,7 +224,7 @@ export function useAdminNotification(options: UseAdminNotificationOptions = {}) 
     error,
     total,
     page,
-    // refetch,
+    refetch,
     fetchNotifications,
     fetchUnreadCount,
     markAsRead,

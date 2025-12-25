@@ -17,22 +17,18 @@ interface NotificationPopupProps {
 export default function NotificationPopup({ isOpen, onClose }: NotificationPopupProps) {
   const { user } = useAuth()
   const popupRef = useRef<HTMLDivElement>(null)
-  const { notifications, unreadCount, loading, markAsRead, refetch } = useNotification({
-    autoPoll: false, // We'll handle polling manually based on isOpen
-    pollInterval: 30000,
+  const { notifications, unreadCount, loading, markAsRead, fetchNotifications } = useNotification({
+    enableSSE: true, // Enable SSE for real-time notifications
     initialLimit: 10,
   })
 
-  // Poll when popup is open
+  // Fetch notifications when popup opens
   useEffect(() => {
     if (isOpen) {
-      refetch()
-      // const interval = setInterval(() => {
-      //   refetch()
-      // }, 30000)
-      // return () => clearInterval(interval)
+      fetchNotifications({ page: 1, limit: 10 })
     }
-  }, [isOpen, refetch])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]) // Only depend on isOpen, fetchNotifications is stable
 
   // Get first 10 notifications for popup
   const displayNotifications = notifications.slice(0, 10)
