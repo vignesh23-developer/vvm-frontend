@@ -63,10 +63,19 @@ export class SSEService {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: 'text/event-stream',
-          Cache: 'no-cache',
+          'Cache-Control': 'no-cache',
         },
         signal: this.abortController.signal,
       })
+
+      // Handle 401 Unauthorized - DON'T reconnect for auth failures
+      if (response.status === 401) {
+        console.warn('SSE: Unauthorized (401) - token invalid or expired')
+        this.isConnecting = false
+        this.isConnected = false
+        // Don't attempt reconnect for auth failures - user needs to re-login
+        return false
+      }
 
       if (!response.ok) {
         throw new Error(`SSE connection failed: ${response.statusText}`)
@@ -150,8 +159,7 @@ export class SSEService {
       } catch (readError: any) {
         // Handle read errors (including AbortError)
         if (readError.name === 'AbortError') {
-          console.log('SSE: Stream aborted (disconnect requested)')
-          // Don't reconnect if aborted
+          // Don't log AbortError - it's expected during disconnect
           this.isConnected = false
           this.reader = null
           return false
@@ -165,7 +173,10 @@ export class SSEService {
       this.handleReconnect()
       return true
     } catch (error: any) {
-      console.error('SSE: Connection error', error)
+      // Don't log AbortError - it's expected during disconnect
+      if (error.name !== 'AbortError') {
+        console.error('SSE: Connection error', error.message || error)
+      }
       this.isConnecting = false
       this.isConnected = false
       this.reader = null
@@ -241,8 +252,9 @@ export class SSEService {
   unsubscribe(subscriptionId: string): void {
     this.subscribers.delete(subscriptionId)
 
-    // Disconnect if no subscribers
+    // Disconnect if no subscribers - also clear any pending reconnect
     if (this.subscribers.size === 0) {
+      this.clearReconnectTimer() // Clear pending reconnect first
       this.disconnect()
     }
   }
@@ -273,6 +285,12 @@ export class SSEService {
    * Handle reconnection logic
    */
   private handleReconnect(): void {
+    // Don't reconnect if no subscribers (user logged out)
+    if (this.subscribers.size === 0) {
+      console.log('SSE: No subscribers, skipping reconnect')
+      return
+    }
+
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
       console.error('SSE: Max reconnection attempts reached')
       this.notifySubscribers('error', {
@@ -291,12 +309,18 @@ export class SSEService {
       `SSE: Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`,
     )
 
-    // Note: Reconnection will need token, but we'll get it from cookies
-    // This is a fallback - ideally reconnection should be handled by re-subscribing
     this.reconnectTimer = setTimeout(async () => {
+      // Double-check subscribers still exist before reconnecting
+      if (this.subscribers.size === 0) {
+        console.log('SSE: No subscribers during reconnect, aborting')
+        return
+      }
+
       const tokenResult = await onGetCookies('authToken')
       if (!tokenResult.isError && tokenResult.cookies) {
         this.connect(tokenResult.cookies as string)
+      } else {
+        console.warn('SSE: No valid token for reconnection')
       }
     }, delay)
   }
@@ -324,4 +348,3 @@ export function getSSEService(): SSEService {
   }
   return sseServiceInstance
 }
-
