@@ -17,7 +17,7 @@ export default function NotFound() {
           <div className="mb-6 rounded-2xl border border-[#d5b48c]/40 bg-yellow-900 p-6 shadow-inner">
             <Link href="/">
               <Image
-                src={`/footer_logo_new.${locale}.PNG`}
+                src={`/footer_logo_new_${locale}.png`}
                 alt="404 Not Found Vaazhga-valamudan"
                 width={200}
                 height={200}

@@ -151,7 +151,7 @@ const LoadingAnimation: React.FC = () => {
             <div className="milH3 milMaroon milThin minWebHeader">
               {/* use logo from public folder */}
               <Image
-                src="/footer_logo_new.en.PNG"
+                src="/footer_logo_new_en.png"
                 alt="Vaazhga Valamudan Logo"
                 width={300}
                 height={150}

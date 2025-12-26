@@ -138,7 +138,7 @@ export default function SignupPage() {
       >
         <Link href="/">
           <motion.div className="max-w-xs hover:cursor-pointer" whileHover={{ scale: 1.05 }}>
-            <Image src={`/footer_logo_new.${locale}.PNG`} alt="Vaazhga Valamudan Logo" width={400} height={300} className="mt-6" />
+            <Image src={`/footer_logo_new_${locale}.png`} alt="Vaazhga Valamudan Logo" width={400} height={300} className="mt-6" />
           </motion.div>
         </Link>
       </motion.div>

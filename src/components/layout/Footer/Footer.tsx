@@ -63,7 +63,7 @@ export default function Footer() {
           <div className="lg:col-span-1 sm:col-span-2">
             <Link href={'/'} className="inline-flex items-center mb-5" aria-label="Vaazhga Valamudan Home">
               <Image
-                src={`/footer_logo_new.${locale}.PNG`}
+                src={`/footer_logo_new_${locale}.png`}
                 alt="Vaazhga Valamudan Logo"
                 width={220}
                 height={110}
