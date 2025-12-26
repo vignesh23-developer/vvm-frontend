@@ -80,6 +80,43 @@ function InfoItem({ label, value, icon, href }: InfoItemProps) {
 const PROPERTIES_PER_PAGE = 6
 const DEFAULT_TABS = ['All']
 
+const extractYouTubeVideoId = (rawUrl: string): string | null => {
+  try {
+    const url = new URL(rawUrl)
+    const host = url.hostname.toLowerCase()
+
+    if (host === 'youtu.be') {
+      const id = url.pathname.split('/').filter(Boolean)[0]
+      return id ? id : null
+    }
+
+    if (host.endsWith('youtube.com')) {
+      if (url.pathname === '/watch') {
+        return url.searchParams.get('v')
+      }
+
+      const parts = url.pathname.split('/').filter(Boolean)
+      if (parts[0] === 'embed' && parts[1]) return parts[1]
+      if (parts[0] === 'shorts' && parts[1]) return parts[1]
+    }
+  } catch {
+    // ignore invalid URLs
+  }
+
+  return null
+}
+
+const getMediaPreviewImageSrc = (rawUrl?: string | null): string => {
+  if (!rawUrl) return '/villa.png'
+
+  const youTubeId = extractYouTubeVideoId(rawUrl)
+  if (youTubeId) {
+    return `https://i.ytimg.com/vi/${youTubeId}/hqdefault.jpg`
+  }
+
+  return rawUrl
+}
+
 const getPropertyCategoryName = (property: any): string => {
   const rawName = property?.property_category?.name ?? ''
 
@@ -298,11 +335,13 @@ export default function AgencyDetails({ name }: { name: string }) {
   )
 
   // buyer can't see contact details unless admin or agent
-  const onlyAdminOrAgentCanViewContactDetails = isAgent || isAdmin
+  const isCheckPropertiesOwner = user && agencyData && user.id === agencyData.userId
+  const onlyAdminOrAgentCanViewContactDetails = isCheckPropertiesOwner || isAdmin
+  // const onlyAdminOrAgentCanViewContactDetails = isAgent || isAdmin
 
   const fullAddress = useMemo(() => {
     // Agent & Admin → full address
-    if (isAgent || isAdmin) {
+    if (onlyAdminOrAgentCanViewContactDetails) {
       const parts = [agencyData?.address_line].filter(Boolean)
 
       return parts.join(', ')
@@ -658,7 +697,7 @@ export default function AgencyDetails({ name }: { name: string }) {
                           >
                             {item?.media && item.media.length > 0 ? (
                               <Image
-                                src={item.media[0].url || '/villa.png'}
+                                src={getMediaPreviewImageSrc(item.media?.[0]?.url)}
                                 alt={item.title || 'Property'}
                                 fill
                                 className="object-cover"

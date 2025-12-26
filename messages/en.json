@@ -1,6 +1,6 @@
 {
   "Hero": {
-    "title": "Welcome back! Choose Premium House",
+    "title": "Welcome back! Choose Premium Properties",
     "HeroMenu": {
       "buy": "Buy",
       "sale": "Sale",
@@ -140,7 +140,7 @@
     "description": "Your trusted partner for all real estate needs in Tamil Nadu"
   },
   "ExploreVideo": {
-    "title": "Explore Our Property Videos",
+    "title": "Explore Our Service Videos",
     "description": "Virtual tours, market insights, and expert tips – all in one place.",
     "watchVideo": "Watch Video"
   },

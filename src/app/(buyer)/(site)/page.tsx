@@ -83,9 +83,9 @@ export default function SitePage() {
         <WhyChooseUs />
       </motion.div>
 
-      <motion.div variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
+      {/* <motion.div variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
         <PropertyVideos />
-      </motion.div>
+      </motion.div> */}
 
       <motion.div variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
         <AppPromo />

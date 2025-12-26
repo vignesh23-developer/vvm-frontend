@@ -308,6 +308,20 @@ const AdsListPage = () => {
     }
   }
 
+  const handleShare = async (url?: string) => {
+    const shareUrl = url || (typeof window !== 'undefined' ? window.location.href : '')
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ url: shareUrl })
+      } else {
+        await navigator.clipboard.writeText(shareUrl)
+        toast.success('Link copied to clipboard')
+      }
+    } catch (err) {
+      console.error('Share failed', err)
+    }
+  }
   return (
     <motion.div
       className="min-h-screen bg-gradient-to-b from-[#FFF7EA] via-[#FFFDF8] to-[#F5F5F5]"
@@ -554,7 +568,7 @@ const AdsListPage = () => {
                       ad={ad}
                       onPrimaryAction={() => router.push(`/adsDetails/${ad.id}`)}
                       onFavorite={handleFavoriteToggle}
-                      onShare={id => console.log('Share', id)}
+                      onShare={() => handleShare(`/adsDetails/${ad.id}`)}
                       primaryActionLabel="View Details"
                     />
                   </motion.div>

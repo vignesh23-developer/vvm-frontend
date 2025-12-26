@@ -1,6 +1,6 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -44,6 +44,7 @@ const socialLinks = [
 
 export default function Footer() {
   const t = useTranslations()
+  const locale = useLocale()
   const [email, setEmail] = useState('')
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
@@ -62,7 +63,7 @@ export default function Footer() {
           <div className="lg:col-span-1 sm:col-span-2">
             <Link href={'/'} className="inline-flex items-center mb-5" aria-label="Vaazhga Valamudan Home">
               <Image
-                src="/footer_logo_new.PNG"
+                src={`/footer_logo_new.${locale}.PNG`}
                 alt="Vaazhga Valamudan Logo"
                 width={220}
                 height={110}

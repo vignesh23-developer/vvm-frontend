@@ -78,7 +78,10 @@ export default function AdsForm({ mode, initialData, adId }: AdsFormProps) {
 
     // Block ad creation/edit until KYC is verified
     if (kycStatus?.isVerified === false) {
-      toast.error('Please complete KYC verification to create your ads')
+      toast('Please complete KYC verification to create your ads', {
+        icon: '⚠️',
+        style: { borderRadius: '8px', background: '#fff3cd', color: '#856404' },
+      })
       router.replace('/kyc-pending')
     }
   }, [isKycLoading, kycError, kycStatus?.isVerified, router])

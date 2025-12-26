@@ -176,9 +176,11 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
 
   const { globalValue, setGlobalValue } = useGlobalContext()
 
+  console.log('global value from context:', globalValue)
+
   const effectivePropertyId = propertiesId ?? (globalValue != null ? String(globalValue) : '')
 
-  const { user } = useAuth()
+  const { user, setUser } = useAuth()
   const router = useRouter()
   const [valueData, setValueData] = useState<any>(null)
 
@@ -190,7 +192,10 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
 
     // Block ad creation/edit until KYC is verified
     if (kycStatus?.isVerified === false) {
-      toast.error('Please complete KYC verification to register your properties.')
+      toast('Please complete KYC verification to register your properties.', {
+        icon: '⚠️',
+        style: { borderRadius: '8px', background: '#fff3cd', color: '#856404' },
+      })
       router.replace('/kyc-pending')
     }
   }, [isKycLoading, kycError, kycStatus?.isVerified, router])
@@ -379,7 +384,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
     if (ULRActionState?.success) {
       toast.success('Property Updated Successfully')
       console.log('property id:', ULRActionState?.data?.id)
-      setGlobalValue(ULRActionState?.data?.id)
+      // setGlobalValue(ULRActionState?.data?.id)
       // setLocalStorageItem(LOCAL_STORAGE_NAME.propertyId, ULRActionState?.data?.id)
       setCurrentStep(step => step + 1)
       setIsEdit(true)
@@ -393,7 +398,14 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
     }
     if (LRActionState?.success) {
       toast.success('Property Created Successfully')
-      console.log('property id:', LRActionState?.data?.id)
+
+      // console.log('property id:', LRActionState?.data?.id, user)
+
+      // byuer to agent manual setting
+      if (user?.roles && user?.roles.length <= 1) {
+        user.roles = [...user.roles, 'AGENT']
+        setUser({ ...user })
+      }
       setGlobalValue(LRActionState?.data?.id)
       // setLocalStorageItem(LOCAL_STORAGE_NAME.propertyId, LRActionState?.data?.id)
       setCurrentStep(step => step + 1)

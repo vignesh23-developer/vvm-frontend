@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import PropertyCard from '@/components/buyer/PropertyCard/PropertyCard'
 import Pagination from '@/components/ui/CustomComponent/Paginations/Pagination'
 import AdvancedFilters from '@/components/ui/AdvancedFilter/AdvancedFilters'
+import { toast } from 'react-hot-toast'
 
 // Enhanced Property Card Skeleton
 // Enhanced Property Card Skeleton - Vertical for Grid
@@ -301,13 +302,20 @@ const PropertiesListPage = () => {
     }
   }
 
-  const handleShare = useCallback(() => {
-    // if (typeof window !== 'undefined') {
-    //   navigator?.clipboard?.writeText(window.location.href)
-    //   toast.success('Link copied to clipboard')
-    // }
-    console.log('Share clicked')
-  }, [])
+  const handleShare = async (url?: string) => {
+    const shareUrl = url || (typeof window !== 'undefined' ? window.location.href : '')
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ url: shareUrl })
+      } else {
+        await navigator.clipboard.writeText(shareUrl)
+        toast.success('Link copied to clipboard')
+      }
+    } catch (err) {
+      console.error('Share failed', err)
+    }
+  }
 
   console.log('PropertiesListPage render:', { properties, total, isLoadingProperties, error })
 
@@ -685,7 +693,7 @@ const PropertiesListPage = () => {
                         primaryActionLabel="View Details"
                         onPrimaryAction={() => router.push(`/propertyDetails/${property.id}`)}
                         handleFavorite={handleFavorite}
-                        handleShare={() => console.log('Share', property.id)}
+                        handleShare={() => handleShare(`/propertyDetails/${property.id}`)}
                         isUserFavorited={property.is_user_favorite}
                         isVerified={property.approval_status === 'APPROVED'}
                       />

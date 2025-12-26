@@ -8,7 +8,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { AuthSchema } from '@/utils/validations/auth/AuthValidationSchema'
 import LanguageSwitch from '@/components/ui/CustomComponent/languageSwitch/languageSwitch'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 
 interface AuthFormValues {
   phone: string
@@ -16,6 +16,7 @@ interface AuthFormValues {
 
 const ForgotPassword = () => {
   const t = useTranslations()
+  const locale = useLocale()
   const initialValues: AuthFormValues = {
     phone: '',
   }
@@ -48,7 +49,7 @@ const ForgotPassword = () => {
       >
         <Link href="/">
           <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }} className="max-w-xs hover:cursor-pointer">
-            <Image src="/footer_logo_new.PNG" alt="Vaazhga Valamudan Logo" width={400} height={300} className="mt-6" priority />
+            <Image src={`/footer_logo_new.${locale}.PNG`} alt="Vaazhga Valamudan Logo" width={400} height={300} className="mt-6" priority />
           </motion.div>
         </Link>
       </motion.div>
