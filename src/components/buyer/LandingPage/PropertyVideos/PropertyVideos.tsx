@@ -4,78 +4,129 @@ import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import SwiperWrapper from '../../../ui/CustomComponent/Slider/SwipperSlider'
 import { useLocale, useTranslations } from 'next-intl'
-import { Sparkles, MapPin, Home, Clock, Play, ArrowRight, X } from 'lucide-react'
+import { Sparkles, MapPin, Clock, Play, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import Button from '@/components/ui/CustomComponent/Button/Button'
-import { useRouter } from 'next/navigation'
+
+type VideoItem = {
+  id: number
+  url: string
+  title: string
+  gradient: string
+  category?: string
+  location?: string
+  type?: string
+  bedrooms?: string
+  duration?: string
+}
 
 export default function PropertyVideos() {
   const t = useTranslations()
   const locale = useLocale()
-  const router = useRouter()
-  const [selectedVideo, setSelectedVideo] = React.useState<any>(null)
+  const [selectedVideo, setSelectedVideo] = React.useState<VideoItem | null>(null)
 
-  const getYouTubeId = (url: string) => {
+  const getYouTubeId = (url: string): string | null => {
     if (!url) return null
-    const m = url.match(/embed\/([^?&/]+)/)
-    return m ? m[1] : null
+
+    try {
+      const u = new URL(url)
+      const host = u.hostname.replace(/^www\./, '')
+
+      // youtu.be/<id>
+      if (host === 'youtu.be') {
+        const id = u.pathname.split('/').filter(Boolean)[0]
+        return id || null
+      }
+
+      // youtube.com/watch?v=<id>
+      const v = u.searchParams.get('v')
+      if (v) return v
+
+      // youtube.com/shorts/<id>
+      const shortsMatch = u.pathname.match(/^\/shorts\/([^/?#]+)/)
+      if (shortsMatch?.[1]) return shortsMatch[1]
+
+      // youtube.com/embed/<id>
+      const embedMatch = u.pathname.match(/^\/embed\/([^/?#]+)/)
+      if (embedMatch?.[1]) return embedMatch[1]
+
+      return null
+    } catch {
+      const watchMatch = url.match(/[?&]v=([^?&/]+)/)
+      if (watchMatch?.[1]) return watchMatch[1]
+
+      const shortsMatch = url.match(/\/shorts\/([^?&/]+)/)
+      if (shortsMatch?.[1]) return shortsMatch[1]
+
+      const embedMatch = url.match(/\/embed\/([^?&/]+)/)
+      if (embedMatch?.[1]) return embedMatch[1]
+
+      const youtuBeMatch = url.match(/youtu\.be\/([^?&/]+)/)
+      if (youtuBeMatch?.[1]) return youtuBeMatch[1]
+
+      return null
+    }
   }
 
-  const videos = [
+  const getYouTubeEmbedUrl = (url: string): string | null => {
+    const id = getYouTubeId(url)
+    return id ? `https://www.youtube.com/embed/${id}` : null
+  }
+
+  const videos: VideoItem[] = [
     {
       id: 1,
-      url: 'https://www.youtube.com/embed/ZCu_Uh8vO5k?si=SZouocr_ZB647Bw6',
-      title: 'Luxury Modern Estate',
-      category: 'Premium Property',
+      url: 'https://youtube.com/shorts/aJS4OkN5eDY?feature=shared',
+      title: 'The Countdown Begins | Coming Soon',
+      // category: 'Premium Property',
       gradient: 'from-yellow-600 to-yellow-500',
-      location: 'Coimbatore',
-      type: 'Villa',
-      bedrooms: '4BHK',
-      duration: '4 min virtual tour',
+      // location: 'Coimbatore',
+      // type: 'Villa',
+      // bedrooms: '4BHK',
+      // duration: '4 min virtual tour',
     },
     {
       id: 2,
-      url: 'https://www.youtube.com/embed/ZCu_Uh8vO5k?si=SZouocr_ZB647Bw6',
-      title: 'Urban Living Space',
-      category: 'City Property',
+      url: 'https://youtube.com/shorts/a5SBClLl2w0?feature=shared',
+      title: 'Vaazhga Valamudan Digital Realty Solutions',
+      // category: 'City Property',
       gradient: 'from-yellow-600 to-yellow-500',
-      location: 'Chennai',
-      type: 'Apartment',
-      bedrooms: '3BHK',
-      duration: '3 min walkthrough',
+      // location: 'Chennai',
+      // type: 'Apartment',
+      // bedrooms: '3BHK',
+      // duration: '3 min walkthrough',
     },
     {
       id: 3,
-      url: 'https://www.youtube.com/embed/ZCu_Uh8vO5k?si=SZouocr_ZB647Bw6',
-      title: 'Waterfront Paradise',
-      category: 'Beachfront',
+      url: 'https://youtube.com/shorts/CHu0SAazTz4?feature=shared',
+      title: 'All-in-One Real Estate Platform | Vaazhga Valamudan',
+      // category: 'Beachfront',
       gradient: 'from-yellow-600 to-yellow-500',
-      location: 'Pondicherry',
-      type: 'Villa',
-      bedrooms: '5BHK',
-      duration: '5 min virtual tour',
+      // location: 'Pondicherry',
+      // type: 'Villa',
+      //  bedrooms: '5BHK',
+      // duration: '5 min virtual tour',
     },
     {
       id: 4,
-      url: 'https://www.youtube.com/embed/ZCu_Uh8vO5k?si=SZouocr_ZB647Bw6',
-      title: 'Garden Sanctuary',
-      category: 'Residential',
+      url: 'https://youtube.com/shorts/FvZEDRR7Cdk?feature=shared',
+      title: 'Start your journey with exclusive launch benefits!',
+      // category: 'Residential',
       gradient: 'from-yellow-600 to-yellow-500',
-      location: 'Madurai',
-      type: 'Individual House',
-      bedrooms: '3BHK',
-      duration: '3 min walkthrough',
+      // location: 'Madurai',
+      // type: 'Individual House',
+      // bedrooms: '3BHK',
+      // duration: '3 min walkthrough',
     },
     {
       id: 5,
-      url: 'https://www.youtube.com/embed/ZCu_Uh8vO5k?si=SZouocr_ZB647Bw6',
-      title: 'Downtown Penthouse',
-      category: 'Luxury',
+      url: 'https://youtube.com/shorts/NfOMHMHyB-A?feature=shared',
+      title: 'Vaazhga Valamudan Digital Realty Solution',
+      // category: 'Luxury',
       gradient: 'from-yellow-600 to-yellow-500',
-      location: 'Trichy',
-      type: 'Apartment',
-      bedrooms: '4BHK',
-      duration: '4 min virtual tour',
+      // location: 'Trichy',
+      // type: 'Apartment',
+      // bedrooms: '4BHK',
+      // duration: '4 min virtual tour',
     },
   ]
 
@@ -188,7 +239,7 @@ export default function PropertyVideos() {
               1024: { slidesPerView: 2.5, spaceBetween: 28 },
               1280: { slidesPerView: 3, spaceBetween: 32 },
             }}
-            renderItem={item => (
+            renderItem={(item: VideoItem) => (
               <motion.div key={item.id} variants={itemVariants} whileHover={{ y: -15, transition: { duration: 0.3 } }} className="group h-full">
                 {/* Premium Card Container */}
                 <div className="relative h-full rounded-3xl overflow-hidden bg-white shadow-lg hover:shadow-2xl transition-all duration-500 border border-yellow-100/60 hover:border-yellow-200">
@@ -196,16 +247,18 @@ export default function PropertyVideos() {
                   <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-2xl"></div>
 
                   {/* Top Badge */}
-                  <div className="absolute top-4 left-4 z-20">
-                    <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.3 }}
-                      className={`inline-block px-4 py-2 bg-gradient-to-r ${item.gradient} text-white rounded-full text-xs font-bold shadow-lg`}
-                    >
-                      {item.category}
-                    </motion.div>
-                  </div>
+                  {item.category ? (
+                    <div className="absolute top-4 left-4 z-20">
+                      <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className={`inline-block px-4 py-2 bg-gradient-to-r ${item.gradient} text-white rounded-full text-xs font-bold shadow-lg`}
+                      >
+                        {item.category}
+                      </motion.div>
+                    </div>
+                  ) : null}
 
                   {/* Video Container */}
                   <div className="relative aspect-video w-full overflow-hidden bg-gray-900">
@@ -261,24 +314,37 @@ export default function PropertyVideos() {
                     </motion.h3>
 
                     {/* Location, Type, Duration */}
-                    <div className="space-y-2 mb-4">
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <MapPin size={14} className="text-yellow-600" />
-                        <span>
-                          {item.location} • {item.type} • {item.bedrooms}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <Clock size={14} className="text-yellow-600" />
-                        <span>{item.duration}</span>
-                      </div>
-                    </div>
+                    {(() => {
+                      const metaParts = [item.location, item.type, item.bedrooms].filter(Boolean)
+                      const showMeta = metaParts.length > 0
+                      const showDuration = Boolean(item.duration)
+
+                      if (!showMeta && !showDuration) return null
+
+                      return (
+                        <div className="space-y-2 mb-4">
+                          {showMeta ? (
+                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                              <MapPin size={14} className="text-yellow-600" />
+                              <span>{metaParts.join(' • ')}</span>
+                            </div>
+                          ) : null}
+
+                          {showDuration ? (
+                            <div className="flex items-center gap-2 text-sm text-gray-500">
+                              <Clock size={14} className="text-yellow-600" />
+                              <span>{item.duration}</span>
+                            </div>
+                          ) : null}
+                        </div>
+                      )
+                    })()}
 
                     {/* View Button */}
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="w-full py-3 px-4 bg-[#2a1407] text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-300 group-hover:from-yellow-700 group-hover:to-amber-700 flex items-center justify-center gap-2"
+                      className="w-full py-3 px-4 bg-[#2a1407] text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
                       onClick={() => setSelectedVideo(item)}
                     >
                       <Play size={18} />
@@ -380,9 +446,13 @@ export default function PropertyVideos() {
 
               {/* Video Player */}
               <iframe
-                src={`${selectedVideo.url}${
-                  String(selectedVideo.url || '').includes('?') ? '&' : '?'
-                }autoplay=1&rel=0&enablejsapi=1&modestbranding=1`}
+                src={(() => {
+                  const url = String(selectedVideo?.url || '')
+                  const embedBase = getYouTubeEmbedUrl(url)
+                  const base = embedBase ?? url
+                  if (!base) return ''
+                  return `${base}${base.includes('?') ? '&' : '?'}autoplay=1&rel=0&enablejsapi=1&modestbranding=1`
+                })()}
                 title={selectedVideo.title}
                 className="w-full h-full"
                 frameBorder="0"

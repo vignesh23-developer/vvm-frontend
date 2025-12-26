@@ -104,12 +104,12 @@ export default function Footer() {
 
           {/* Column 4: Explore */}
           <div>
-            <FooterColumn title="Explore" links={exploreLinks} />
+            <FooterColumn title={t('Footer.Headers.explore') || 'Explore'} links={exploreLinks} />
           </div>
 
           {/* Column 5: Contact Info */}
           <div>
-            <h3 className="font-semibold text-lg mb-5 text-yellow-500">Contact Us</h3>
+            <h3 className="font-semibold text-lg mb-5 text-yellow-500">{t('Footer.Headers.contact') || 'Contact Us'}</h3>
 
             <div className="space-y-4">
               {/* Address */}
@@ -154,7 +154,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 mb-10">
           {/* Newsletter */}
           <div>
-            <h3 className="font-semibold text-lg mb-2 text-yellow-500">Detailed Newsletter</h3>
+            <h3 className="font-semibold text-lg mb-2 text-yellow-500">{t('Footer.Headers.detailed_newsletter') || 'Detailed Newsletter'}</h3>
             <p className="text-sm text-gray-400 mb-5 max-w-sm">
               Subscribe to get the latest property updates and market insights directly to your inbox.
             </p>
@@ -179,7 +179,7 @@ export default function Footer() {
 
           {/* App Download */}
           <div className="lg:text-right flex flex-col items-start lg:items-end">
-            <h3 className="font-semibold text-lg mb-2 text-yellow-500">Download Our App</h3>
+            <h3 className="font-semibold text-lg mb-2 text-yellow-500">{t('Footer.Headers.download_our_app') || 'Download Our App'}</h3>
             <p className="text-sm text-gray-400 mb-5">Experience the best real estate platform on mobile.</p>
             <div className="flex flex-wrap gap-4 justify-start lg:justify-end">
               <Link href="#" className="hover:-translate-y-1 transition-transform duration-300">
