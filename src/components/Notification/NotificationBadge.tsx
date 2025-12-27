@@ -17,7 +17,7 @@ import { useNotification } from './hooks/useNotification'
 export default function NotificationBadge() {
   const { user } = useAuth()
   const { unreadCount, fetchUnreadCount } = useNotification({
-    enableSSE: true, // Enable SSE to receive real-time updates
+    enableSSE: true, // Subscribe to SSE to trigger refetch when notifications arrive
     initialLimit: 1, // We only need the count, but API requires at least 1
   })
 
@@ -28,6 +28,22 @@ export default function NotificationBadge() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]) // Only depend on user, fetchUnreadCount is stable
+
+  // Listen for when all notifications are marked as read (e.g., when popup opens)
+  useEffect(() => {
+    if (!user) return
+
+    const handleMarkAllRead = () => {
+      // Refetch count when all notifications are marked as read
+      fetchUnreadCount()
+    }
+
+    window.addEventListener('notifications-marked-all-read', handleMarkAllRead)
+
+    return () => {
+      window.removeEventListener('notifications-marked-all-read', handleMarkAllRead)
+    }
+  }, [user, fetchUnreadCount])
 
   // Don't show badge if:
   // 1. User is not logged in

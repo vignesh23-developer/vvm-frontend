@@ -104,6 +104,10 @@ export function useNotification(options: UseNotificationOptions = {}) {
         // Optimistic update
         setNotifications(prev => prev.map(notif => ({ ...notif, is_read: true, read_at: new Date().toISOString() })))
         setUnreadCount(0)
+        // Refetch unread count from backend to ensure all components are in sync
+        await fetchUnreadCount()
+        // Dispatch custom event to notify other components (like NotificationBadge) to refetch
+        window.dispatchEvent(new CustomEvent('notifications-marked-all-read'))
         return response.data.markedCount || 0
       }
       return 0
@@ -111,7 +115,7 @@ export function useNotification(options: UseNotificationOptions = {}) {
       console.error('Error marking all notifications as read:', err)
       return 0
     }
-  }, [])
+  }, [fetchUnreadCount])
 
   const markSelectedAsRead = useCallback(async (notificationIds: string[]) => {
     try {
@@ -197,9 +201,10 @@ export function useNotification(options: UseNotificationOptions = {}) {
             return [newNotification, ...prev]
           })
 
-          // Update unread count if notification is unread
+          // Refetch unread count from backend instead of manually updating
+          // This ensures count is always accurate and synced with backend
           if (!newNotification.is_read) {
-            setUnreadCount(prev => prev + 1)
+            fetchUnreadCount()
           }
         }
       },
@@ -215,7 +220,7 @@ export function useNotification(options: UseNotificationOptions = {}) {
         sseService.unsubscribe(subscriptionId)
       }
     }
-  }, [enableSSE, user, token]) // Depend on user and token
+  }, [enableSSE, user, token, fetchUnreadCount]) // Include fetchUnreadCount in dependencies
 
   return {
     notifications,

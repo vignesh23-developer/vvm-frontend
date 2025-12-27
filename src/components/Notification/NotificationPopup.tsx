@@ -17,18 +17,20 @@ interface NotificationPopupProps {
 export default function NotificationPopup({ isOpen, onClose }: NotificationPopupProps) {
   const { user } = useAuth()
   const popupRef = useRef<HTMLDivElement>(null)
-  const { notifications, unreadCount, loading, markAsRead, fetchNotifications } = useNotification({
-    enableSSE: true, // Enable SSE for real-time notifications
+  const { notifications, unreadCount, loading, markAsRead, markAllAsRead, fetchNotifications } = useNotification({
+    enableSSE: false, // GlobalNotificationListener handles SSE globally
     initialLimit: 10,
   })
 
-  // Fetch notifications when popup opens
+  // Fetch notifications and mark all as read when popup opens
   useEffect(() => {
     if (isOpen) {
       fetchNotifications({ page: 1, limit: 10 })
+      // Automatically mark all unread notifications as read when popup opens
+      markAllAsRead()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen]) // Only depend on isOpen, fetchNotifications is stable
+  }, [isOpen]) // Only depend on isOpen, fetchNotifications and markAllAsRead are stable
 
   // Get first 10 notifications for popup
   const displayNotifications = notifications.slice(0, 10)

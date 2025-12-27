@@ -225,3 +225,8 @@ export const appEndpoints = {
   processScheduledNotifications: '/admin/notifications/process-scheduled',
   previewNotificationTemplate: '/admin/notifications/templates/preview',
 }
+
+
+export const testAppEndpoints = { 
+  testKycNotification: '/kyc/test/notification',
+}
