@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import TranslationProvider from '../hooks/Translation/TranslationProvider'
@@ -33,6 +34,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://vaazhgavalamudan.com',
   },
+  icons: {
+    icon: '/favicon.ico',
+  },
 }
 
 //Root Layout
@@ -46,6 +50,19 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="ta" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <head>
+        {/* Google Analytics */}
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-PZHXJQ4J6J" strategy="afterInteractive" />
+
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-PZHXJQ4J6J');
+          `}
+        </Script>
+      </head>
       <body
         suppressHydrationWarning
         className="font-sans antialiased bg-gradient-to-b from-yellow-50 via-white to-yellow-50 text-gray-900 min-h-screen"

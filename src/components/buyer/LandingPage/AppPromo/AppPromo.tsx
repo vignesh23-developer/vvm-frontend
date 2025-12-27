@@ -189,7 +189,14 @@ export default function AppPromo() {
                   transition={{ duration: 0.45 }}
                   className="absolute right-0 bottom-0 w-[260px] h-[420px] lg:w-[300px] lg:h-[480px] rounded-3xl bg-gradient-to-br from-white to-yellow-50 shadow-2xl border border-yellow-100 overflow-hidden transform translate-y-4"
                 >
-                  <div className="w-full h-full bg-[url('/Frame-546.png')] bg-center bg-cover" />
+                  {/* <div className="w-full h-full bg-[url('/app-promo.jpeg')] bg-contain bg-repeat-no-repeat bg-center" /> */}
+                  <Image
+                    src="/app-promo.jpeg"
+                    alt="App Promo"
+                    width={300}
+                    height={480}
+                    className="absolute top-0 left-0 w-full h-full bg-contain bg-repeat-no-repeat bg-center pointer-events-none"
+                  />
                 </motion.div>
               </div>
             </motion.div>

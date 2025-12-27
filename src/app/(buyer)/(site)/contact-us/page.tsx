@@ -1,13 +1,14 @@
 import React from 'react'
 import Link from 'next/link'
 import MapView from '@/components/ui/map/MapView'
-import { Instagram, Facebook, Twitter, Linkedin, Send, Mail, Phone, MapPin, Clock4, ArrowUpRight } from 'lucide-react'
+import { Instagram, Facebook, Twitter, Linkedin, Send, Mail, Phone, MapPin, Clock4, ArrowUpRight, Youtube } from 'lucide-react'
 
 const socialLinks = [
   { label: 'Instagram', icon: Instagram, href: 'https://www.instagram.com/vaazhga._.valamudan?igsh=MXA1OGp5cnY5ZHR6YQ==' },
   { label: 'Facebook', icon: Facebook, href: 'https://www.facebook.com/share/1Cp5XJwHHC/' },
   { label: 'Twitter (𝕏)', icon: Twitter, href: 'https://x.com/VaazhgaValam?t=Iu-WpKa3cvAT-h3BHUBdYg&s=09' },
   { label: 'LinkedIn', icon: Linkedin, href: 'https://www.linkedin.com/in/vaazhga-valamudan-tn' },
+  { label: 'YouTube', icon: Youtube, href: 'https://www.youtube.com/@VaazhgaValamudan-TN' },
   { label: 'Telegram', icon: Send, href: 'https://t.me/boost/vaazhgavalamudanvvdrs' },
 ]
 

@@ -146,7 +146,7 @@
   },
   "AppPromo": {
     "title": "Check out our app too, don’t miss it!",
-    "description": "Find your dream home on the go with our mobile app.",
+    "description": "Find your dream property on the go with our mobile app.",
     "message": "Don’t lose it when it comes out!",
     "download": "Download Now",
     "placeholder": "Your email",
@@ -169,6 +169,7 @@
     "facebook": "Facebook",
     "twitter_(𝕏)": "Twitter (𝕏)",
     "linked_in": "Linkedin",
+    "youtube": "YouTube",
     "telegram": "Telegram",
     "properties": "Properties",
     "post_property": "Post Your Property",

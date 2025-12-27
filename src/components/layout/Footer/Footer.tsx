@@ -4,7 +4,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Facebook, Instagram, Twitter, Linkedin, MapPin, Phone, Mail, Send } from 'lucide-react'
+import { Facebook, Instagram, Twitter, Linkedin, Youtube, MapPin, Phone, Mail, Send } from 'lucide-react'
 import FooterColumn from './FooterColumn'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 
@@ -39,6 +39,7 @@ const socialLinks = [
   { label: 'facebook', icon: Facebook, href: 'https://www.facebook.com/share/1Cp5XJwHHC/' },
   { label: 'twitter_(𝕏)', icon: Twitter, href: 'https://x.com/VaazhgaValam?t=Iu-WpKa3cvAT-h3BHUBdYg&s=09' },
   { label: 'linked_in', icon: Linkedin, href: 'https://www.linkedin.com/in/vaazhga-valamudan-tn' },
+  { label: 'youtube', icon: Youtube, href: 'https://www.youtube.com/@VaazhgaValamudan-TN' },
   { label: 'telegram', icon: Send, href: 'https://t.me/boost/vaazhgavalamudanvvdrs' },
 ]
 
@@ -206,23 +207,7 @@ export default function Footer() {
 
         {/* Footer Bottom: Copyright */}
         <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row md:flex-wrap justify-center items-center gap-2 md:gap-3 text-xm text-gray-500 text-center">
-          <p className="leading-relaxed text-gray-300">
-            © {new Date().getFullYear()} Vaazhga Valamudan - Bhuvaneswari Koothachi. All Rights Reserved.
-          </p>
-
-          <span className="hidden md:inline-block text-gray-600">•</span>
-
-          <p className="leading-relaxed">
-            <span className="text-gray-400">Designed by </span>
-            <Link
-              href="https://www.bizdevinfotech.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-yellow-500/80 hover:text-yellow-400 transition-colors"
-            >
-              Bizdev Information Technology
-            </Link>
-          </p>
+          <p className="leading-relaxed text-gray-300">© {new Date().getFullYear()} Vaazhga Valamudan. All Rights Reserved.</p>
         </div>
       </div>
     </footer>

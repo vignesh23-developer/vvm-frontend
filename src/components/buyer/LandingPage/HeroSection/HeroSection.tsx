@@ -87,7 +87,7 @@ export default function HeroSection({ propertyCategories, error: categoriesError
   // Background carousel images (external URLs)
   const heroImages = [
     // Your existing 3 working images
-    'https://www.roofandfloor.com/project/7124/gallery/Coco_Enclave_1.jpg',
+    '/banners/banner1.jpeg',
     'https://drahomes.in/images/dra-polaris.jpg',
     'https://images.homify.com/v1511876426/p/photo/image/2339212/vijay-_15-_mycut.jpg',
 

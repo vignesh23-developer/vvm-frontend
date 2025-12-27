@@ -1,7 +1,7 @@
 'use client'
 
 import { FormikProps } from 'formik'
-import { Dispatch, SetStateAction } from 'react'
+import { Dispatch, SetStateAction, useCallback, useState } from 'react'
 import { FeatureMappingDTO, FeaturePayloadDTO } from '../(dto)/properties_registration_dto'
 import { PropertyCreationFormValues } from '../page'
 import LucideIconRenderer from '@/components/ui/CustomComponent/LucideIconRenderer/LucideIconRenderer'
@@ -22,6 +22,17 @@ export default function Step4FeaturesAmenities({
   inputFeatureData,
   hasInitialFeatureValues,
 }: Step4FeaturesAmenitiesProps) {
+  const [touchedCategoryIds, setTouchedCategoryIds] = useState<Set<string>>(() => new Set())
+
+  const markCategoryTouched = useCallback((categoryId: string | undefined) => {
+    if (!categoryId) return
+    setTouchedCategoryIds(prev => {
+      const next = new Set(prev)
+      next.add(categoryId)
+      return next
+    })
+  }, [])
+
   const baseEntries = (inputFeatureData ?? []) as FeaturePayloadDTO[]
   // console.log('Feature Entries:', inputFeatureData, amenities)
   const featureEntries = hasInitialFeatureValues ? ((formik.values.features ?? []) as FeaturePayloadDTO[]) : baseEntries
@@ -115,32 +126,45 @@ export default function Step4FeaturesAmenities({
             const existing = featureEntries.find(f => f.feature_category_id === feature_category_id)
             const valueProp = input_type.includes('text') ? existing?.value_text ?? '' : existing?.value_number ?? ''
 
+            const isTouched = !!feature_category_id && touchedCategoryIds.has(feature_category_id)
+            const isEmpty = input_type.includes('text')
+              ? String(valueProp ?? '').trim() === ''
+              : valueProp === '' || valueProp === undefined || valueProp === null
+            const showRequiredError = !!is_mandatory && isTouched && isEmpty
+
             return (
-              <input
-                type={input_type.includes('text') ? 'text' : 'number'}
-                placeholder={`Enter ${feature_category_name}`}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                value={valueProp as any}
-                onChange={e => {
-                  const value = e.currentTarget.value
-                  if (input_type.includes('text')) {
-                    updateFeatureData(
-                      feature_category_id ?? undefined,
-                      feature_group_id ?? undefined,
-                      { value_text: value, is_mandator: is_mandatory },
-                      'text',
-                    )
-                  } else {
-                    const n = e.currentTarget.value === '' ? undefined : Number(value)
-                    updateFeatureData(
-                      feature_category_id ?? undefined,
-                      feature_group_id ?? undefined,
-                      { value_number: n, is_mandator: is_mandatory },
-                      'numeric',
-                    )
-                  }
-                }}
-              />
+              <>
+                <input
+                  type={input_type.includes('text') ? 'text' : 'number'}
+                  placeholder={`Enter ${feature_category_name}`}
+                  className={`w-full p-2 border rounded-md focus:ring-2 focus:outline-none ${
+                    showRequiredError ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                  }`}
+                  value={valueProp as any}
+                  onChange={e => {
+                    markCategoryTouched(feature_category_id)
+                    const value = e.currentTarget.value
+                    if (input_type.includes('text')) {
+                      updateFeatureData(
+                        feature_category_id ?? undefined,
+                        feature_group_id ?? undefined,
+                        { value_text: value, is_mandator: is_mandatory },
+                        'text',
+                      )
+                    } else {
+                      const n = e.currentTarget.value === '' ? '' : Number(value)
+                      updateFeatureData(
+                        feature_category_id ?? undefined,
+                        feature_group_id ?? undefined,
+                        { value_number: n, is_mandator: is_mandatory },
+                        'numeric',
+                      )
+                    }
+                  }}
+                  onBlur={() => markCategoryTouched(feature_category_id)}
+                />
+                {showRequiredError && <p className="mt-1 text-xs text-red-600">This field is required.</p>}
+              </>
             )
           })()}
         </div>
@@ -151,27 +175,37 @@ export default function Step4FeaturesAmenities({
     if (input_type?.includes('boolean')) {
       const rawValue = featureEntries.find(f => f.feature_category_id === feature_category_id)?.value_boolean
       const checked = typeof rawValue === 'string' ? rawValue === 'true' : !!rawValue
+
+      const isTouched = !!feature_category_id && touchedCategoryIds.has(feature_category_id)
+      const isEmpty = rawValue === undefined
+      const showRequiredError = !!is_mandatory && isTouched && isEmpty
+
       return (
-        <label key={feature_category_id} className="flex items-center space-x-4 cursor-pointer mb-4">
-          <input
-            type="checkbox"
-            checked={checked}
-            className="sr-only peer"
-            onChange={e => {
-              updateFeatureData(
-                feature_category_id ?? undefined,
-                feature_group_id ?? undefined,
-                {
-                  value_boolean: String(e.currentTarget.checked),
-                  is_mandator: is_mandatory,
-                },
-                'boolean',
-              )
-            }}
-          />
-          <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r from-yellow-500 to-yellow-600 "></div>
-          {feature_category_name} {is_mandatory && <span className="text-red-500">*</span>}
-        </label>
+        <div key={feature_category_id} className="mb-4">
+          <label className="flex items-center space-x-4 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={checked}
+              className="sr-only peer"
+              onChange={e => {
+                markCategoryTouched(feature_category_id)
+                updateFeatureData(
+                  feature_category_id ?? undefined,
+                  feature_group_id ?? undefined,
+                  {
+                    value_boolean: String(e.currentTarget.checked),
+                    is_mandator: is_mandatory,
+                  },
+                  'boolean',
+                )
+              }}
+              onBlur={() => markCategoryTouched(feature_category_id)}
+            />
+            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r from-yellow-500 to-yellow-600 "></div>
+            {feature_category_name} {is_mandatory && <span className="text-red-500">*</span>}
+          </label>
+          {showRequiredError && <p className="mt-1 text-xs text-red-600">This field is required.</p>}
+        </div>
       )
     }
 
@@ -181,6 +215,10 @@ export default function Step4FeaturesAmenities({
 
       // safely get selected option IDs for this category
       const selectedOptions = featureEntries.find(f => f.feature_category_id === feature_category_id)?.option_ids ?? []
+
+      const isTouched = !!feature_category_id && touchedCategoryIds.has(feature_category_id)
+      const isEmpty = selectedOptions.length === 0
+      const showRequiredError = !!is_mandatory && isTouched && isEmpty
 
       return (
         <div key={feature_category_id} className="mb-4">
@@ -197,6 +235,7 @@ export default function Step4FeaturesAmenities({
                   key={opt.id}
                   type="button"
                   onClick={() => {
+                    markCategoryTouched(feature_category_id)
                     let newOptionIds: string[] = []
 
                     if (isMulti) {
@@ -235,6 +274,8 @@ export default function Step4FeaturesAmenities({
               )
             })}
           </div>
+
+          {showRequiredError && <p className="mt-2 text-xs text-red-600">Please select at least one option.</p>}
         </div>
       )
     }

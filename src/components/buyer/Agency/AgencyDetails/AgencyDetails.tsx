@@ -518,19 +518,25 @@ export default function AgencyDetails({ name }: { name: string }) {
                   <div className="relative aspect-square overflow-hidden rounded-2xl border border-stone-200 bg-stone-100">
                     <Image src={companyLogo} alt={`${profileTitle} logo`} fill className="object-contain" sizes="256px" priority />
                   </div>
-
-                  {isVerified && (
-                    <span className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700">
-                      <ShieldCheck size={14} /> {t('AgencyDetails.verified')}
-                    </span>
-                  )}
                 </div>
 
                 <div className="flex-1 space-y-6">
                   <div className="space-y-3">
-                    <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-wide text-amber-700">
-                      <span className="rounded-full bg-amber-100/80 px-3 py-1 text-amber-700">{t('PropertiesListCard.agent')}</span>
-                      {!isVerified && <span className="rounded-full bg-stone-200 px-3 py-1 text-stone-600">{t('AgencyDetails.not_verified')}</span>}
+                    <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-wide">
+                      <span className="inline-flex items-center rounded-full bg-amber-100/80 px-3 py-1 text-amber-700">
+                        {t('PropertiesListCard.agent')}
+                      </span>
+
+                      {!isVerified ? (
+                        <span className="inline-flex items-center rounded-full bg-stone-200 px-3 py-1 text-stone-600">
+                          {t('AgencyDetails.not_verified')}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-emerald-700">
+                          <ShieldCheck size={14} />
+                          {t('AgencyDetails.verified')}
+                        </span>
+                      )}
                     </div>
 
                     <h1 className="text-3xl font-bold text-stone-900 sm:text-4xl">{agencyData?.companyName}</h1>
