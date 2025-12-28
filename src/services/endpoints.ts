@@ -54,6 +54,7 @@ export const appEndpoints = {
   publicSearchPropertyFilters: '/search/properties-filters',
   publicSearchAgents: '/search/agents',
   publicSearchAds: '/search/ads',
+  publicSearchAdsFilters: '/search/ads/filters',
   publicSearchAgentsAutocomplete: '/search/agents/autocomplete',
   publicSearchAgentsFilters: '/search/agents/filters',
   getPropertiesByID: (propertyId: string) => `/properties/${propertyId}`,
@@ -232,6 +233,6 @@ export const appEndpoints = {
 
 
 
-export const testAppEndpoints = { 
+export const testAppEndpoints = {
   testKycNotification: '/kyc/test/notification',
 }
