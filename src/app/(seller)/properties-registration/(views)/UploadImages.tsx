@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect, useTransition } from 'react'
-import { Upload, Trash2, CheckCircle, Image as ImageIcon, Film, Star, Link as LinkIcon, AlertCircle, Info, Play, X, FileVideo } from 'lucide-react'
+import { Upload, Trash2, CheckCircle, Image as ImageIcon, Film, Star, Link as LinkIcon, AlertCircle, Info, Play, X, FileVideo, GripVertical } from 'lucide-react'
 import toast from 'react-hot-toast'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { onAddPropertyMedia } from '../(action)/properties_registration_action'
@@ -34,6 +34,10 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
   const [videoLink, setVideoLink] = useState('')
   const [videoTitle, setVideoTitle] = useState('')
   const [previewVideoUrl, setPreviewVideoUrl] = useState<string | null>(null)
+
+  // Drag and drop refs
+  const dragItem = useRef<number | null>(null)
+  const dragOverItem = useRef<number | null>(null)
 
   // Report uploading state to parent
   useEffect(() => {
@@ -171,6 +175,76 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
+  }
+
+  // ----------------------------------------------------------------------
+  // REORDER LOGIC
+  // ----------------------------------------------------------------------
+
+  const handleDragStart = (e: React.DragEvent, position: number) => {
+    dragItem.current = position
+    // e.dataTransfer.effectAllowed = 'move' // Optional: visual cue
+  }
+
+  const handleDragEnter = (e: React.DragEvent, position: number) => {
+    e.preventDefault()
+    dragOverItem.current = position
+
+    // Auto-sort if different
+    if (dragItem.current !== null && dragItem.current !== dragOverItem.current) {
+      handleSort()
+    }
+  }
+
+  const handleSort = () => {
+    if (dragItem.current === null || dragOverItem.current === null) return
+
+    // Clone items
+    const _items = [...items]
+
+    // Isolate the ones we are reordering (local files). 
+    // Since we are reordering the WHOLE list based on the visual index...
+    // But wait, the visual list filters only local files. 
+    // If 'items' contains youtube links mixed in, using visual index to splice 'items' directly might be wrong.
+    // However, the current code pushes youtube links to the end usually?
+    // Let's assume we dealing with the 'localMediaItems' subset for reordering indices.
+
+    // We need to reorder the ACTUAL 'items' array. 
+    // Strategy: Get the list of local files from 'items'. Reorder that list. 
+    // Then reconstruct 'items' by keeping non-local files in their relative places or just appending them?
+    // The safest is to map the visual indices back to the real indices.
+
+    // Construction of displayed list:
+    const localMediaItems = items.filter(i => i.file)  // This matches the unified render loop we will use
+
+    if (dragItem.current >= localMediaItems.length || dragOverItem.current >= localMediaItems.length) return;
+
+    // We are swapping index 'dragItem.current' and 'dragOverItem.current' WITHIN 'localMediaItems'.
+
+    const draggedItemContent = localMediaItems[dragItem.current]
+    // Remove from old position in strictly local list
+    const newLocalList = [...localMediaItems]
+    newLocalList.splice(dragItem.current, 1)
+    newLocalList.splice(dragOverItem.current, 0, draggedItemContent)
+
+
+    const youtubeItemsOnly = items.filter(i => !i.file)
+
+    setItems([...newLocalList, ...youtubeItemsOnly])
+
+    // Update ref to follow the item
+    dragItem.current = dragOverItem.current
+  }
+
+  const handleDragEnd = () => {
+    dragItem.current = null
+    dragOverItem.current = null
+  }
+
+  const handleTitleChange = (id: string, newTitle: string) => {
+    setItems(prev => prev.map(item =>
+      item.id === id ? { ...item, title: newTitle } : item
+    ))
   }
 
   // ----------------------------------------------------------------------
@@ -324,6 +398,7 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
   // RENDER
   // ----------------------------------------------------------------------
 
+
   const imageItems = items.filter(i => i.type === 'IMAGE' && i.file)
   const localVideoItems = items.filter(i => i.type === 'VIDEO' && i.file)
   const youtubeItems = items.filter(i => i.type === 'VIDEO' && i.url)
@@ -416,23 +491,53 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
               </div>
             )}
 
+
             {/* Grid */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
-              {/* Images */}
-              {imageItems.map((item) => (
+              {/* Unified Render Loop for Local Media (Allow mixing images and videos) */}
+              {items.filter(i => i.file).map((item, index) => (
                 <div
                   key={item.id}
-                  className={`relative group rounded-2xl overflow-hidden shadow-sm bg-white transition-all duration-300 ${item.isPrimary
-                    ? 'ring-2 ring-[#2a1407] ring-offset-2 scale-[1.02] shadow-xl z-10'
-                    : 'border border-gray-200 hover:shadow-xl hover:border-gray-300'
-                    }`}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, index)}
+                  onDragEnter={(e) => handleDragEnter(e, index)}
+                  onDragEnd={handleDragEnd}
+                  onDragOver={(e) => e.preventDefault()} // Allow drop
+                  className={`relative group rounded-2xl overflow-hidden shadow-sm bg-white transition-all duration-300 h-full
+                    ${item.isPrimary
+                      ? 'ring-2 ring-[#2a1407] ring-offset-2 z-10'
+                      : 'border border-gray-200 hover:border-gray-300'
+                    } cursor-move flex flex-col`}
                 >
-                  <div className="aspect-[4/3] bg-gray-100 relative">
-                    <img src={item.preview} alt={item.title} className="w-full h-full object-cover" />
+                  <div className="w-full bg-gray-100 relative h-48 shrink-0">
+                    {item.type === 'IMAGE' ? (
+                      <img src={item.preview} alt={item.title} className="w-full h-full object-contain bg-gray-50 pointer-events-none select-none" />
+                    ) : (
+                      <video src={item.preview} className="w-full h-full object-contain bg-black pointer-events-none select-none" />
+                    )}
+
+                    {/* Drag Handle Icon */}
+                    <div className="absolute top-2 right-2 p-1.5 bg-black/40 hover:bg-black/60 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-20 cursor-grab active:cursor-grabbing backdrop-blur-sm">
+                      <GripVertical size={18} />
+                    </div>
 
                     {/* Overlay Actions */}
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3 p-4">
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3 p-4 z-10">
+
+                      {/* Play Button for Video */}
+                      {item.type === 'VIDEO' && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setPreviewVideoUrl(item.preview)
+                          }}
+                          className="bg-white/20 hover:bg-white/40 text-white p-3 rounded-full backdrop-blur-md transition-all transform hover:scale-110 mb-2"
+                        >
+                          <Play size={32} fill="currentColor" />
+                        </button>
+                      )}
+
                       {!item.isPrimary && (
                         <button
                           onClick={() => handleSetPrimary(item.id)}
@@ -441,6 +546,7 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
                           Set Main
                         </button>
                       )}
+
                       <button
                         onClick={() => handleRemove(item.id)}
                         className="bg-red-500/90 text-white p-2 rounded-lg hover:bg-red-600 transition-colors"
@@ -452,63 +558,44 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
 
                     {/* Primary Badge */}
                     {item.isPrimary && (
-                      <div className="absolute top-3 left-3 bg-[#2a1407] text-white text-[10px] uppercase font-bold px-2.5 py-1 rounded-md shadow-lg flex items-center gap-1.5 tracking-wider border border-white/20">
+                      <div className="absolute top-3 left-3 bg-[#2a1407] text-white text-[10px] uppercase font-bold px-2.5 py-1 rounded-md shadow-lg flex items-center gap-1.5 tracking-wider border border-white/20 z-20">
                         <Star size={10} fill="currentColor" />
                         Main
                       </div>
                     )}
-                  </div>
 
-                  {/* Footer Info */}
-                  <div className="p-3 bg-white">
-                    <p className="text-sm font-bold text-gray-900 truncate">{item.title}</p>
-                    <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-wide font-medium flex items-center gap-1">
-                      <ImageIcon size={10} />
-                      {(item.file?.size ? (item.file.size / 1024 / 1024).toFixed(1) : 0) + ' MB'}
-                    </p>
-                  </div>
-                </div>
-              ))}
-
-              {localVideoItems.map((item) => (
-                <div
-                  key={item.id}
-                  className={`relative group rounded-2xl overflow-hidden shadow-sm bg-white transition-all duration-300 col-span-2 md:col-span-2 lg:col-span-2 aspect-video ${item.isPrimary
-                    ? 'ring-2 ring-[#2a1407] ring-offset-2 scale-[1.01] shadow-xl z-10'
-                    : 'border border-gray-200 hover:shadow-xl hover:border-gray-300'
-                    }`}
-                >
-                  <div className="w-full h-full bg-black relative group">
-                    <video src={item.preview} className="w-full h-full object-cover" controls />
-
-                    {/* Top Actions Bar (Visible on Hover) */}
-                    <div className="absolute top-0 left-0 right-0 p-3 flex justify-between items-start opacity-0 group-hover:opacity-100 transition-opacity z-20 bg-gradient-to-b from-black/60 to-transparent pointer-events-none">
-                      {/* Left: Set Primary */}
-                      <div className="pointer-events-auto">
-                        {!item.isPrimary ? (
-                          <button
-                            onClick={() => handleSetPrimary(item.id)}
-                            className="bg-white/90 hover:bg-white text-[#2a1407] px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg backdrop-blur-sm transition-all flex items-center gap-1"
-                          >
-                            <Star size={12} /> Set Main
-                          </button>
-                        ) : (
-                          <div className="bg-[#2a1407] text-white text-xs uppercase font-bold px-3 py-1.5 rounded-lg shadow-lg flex items-center gap-1.5 tracking-wider border border-white/20">
-                            <Star size={12} fill="currentColor" />
-                            Main
-                          </div>
-                        )}
+                    {/* Video Info Badge */}
+                    {item.type === 'VIDEO' && (
+                      <div className="absolute bottom-3 right-3 bg-black/60 text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 z-10">
+                        <Film size={10} />
                       </div>
+                    )}
+                  </div>
 
-                      {/* Right: Remove */}
-                      <button
-                        onClick={() => handleRemove(item.id)}
-                        className="bg-red-500/80 hover:bg-red-600 text-white p-2 rounded-lg transition-colors shadow-lg backdrop-blur-sm pointer-events-auto"
-                        title="Remove Video"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                  {/* Footer Info & Description */}
+                  <div className="p-3 bg-white border-t border-gray-100 flex flex-col gap-2 flex-grow">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-bold text-gray-900 truncate max-w-[150px]" title={item.file?.name}>
+                        {item.file?.name}
+                      </span>
                     </div>
+
+                    <div className="flex items-center justify-between">
+                      <p className="text-[10px] text-gray-500 uppercase tracking-wide font-medium flex items-center gap-1">
+                        {item.type === 'IMAGE' ? <ImageIcon size={12} /> : <Film size={12} />}
+                        {(item.file?.size ? (item.file.size / 1024 / 1024).toFixed(1) : 0) + ' MB'}
+                      </p>
+                    </div>
+
+                    <input
+                      type="text"
+                      value={item.title === item.file?.name.split('.')[0] ? '' : item.title}
+                      onChange={(e) => handleTitleChange(item.id, e.target.value)}
+                      placeholder="Add a description..."
+                      className="w-full text-xs font-medium text-gray-700 border-b border-gray-200 py-1.5 focus:border-[#2a1407] focus:ring-0 outline-none transition-all placeholder:text-gray-400 bg-transparent mt-auto"
+                      onClick={(e) => e.stopPropagation()}
+                      onMouseDown={(e) => e.stopPropagation()}
+                    />
                   </div>
                 </div>
               ))}
@@ -645,12 +732,21 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
                 <X size={24} />
               </button>
               <div className="aspect-video w-full">
-                <iframe
-                  src={`https://www.youtube.com/embed/${previewVideoUrl}?autoplay=1`}
-                  className="w-full h-full"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                ></iframe>
+                {previewVideoUrl.startsWith('blob:') ? (
+                  <video
+                    src={previewVideoUrl}
+                    className="w-full h-full"
+                    controls
+                    autoPlay
+                  />
+                ) : (
+                  <iframe
+                    src={`https://www.youtube.com/embed/${previewVideoUrl}?autoplay=1`}
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                )}
               </div>
             </div>
           </div>
