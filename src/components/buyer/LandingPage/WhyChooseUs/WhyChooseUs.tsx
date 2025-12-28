@@ -31,9 +31,9 @@ export default function WhyChooseUs() {
       description: 'Work with trusted and verified real estate professionals',
     },
     {
-      icon: CheckCircle2,
-      title: 'Zero Brokerage Options',
-      description: 'Save money with direct owner listings and zero brokerage',
+      icon: BadgeCheck,
+      title: 'Verified Service Providers',
+      description: 'Only trusted and verified real estate services',
     },
     {
       icon: Zap,
@@ -46,9 +46,9 @@ export default function WhyChooseUs() {
       description: 'The most trusted real estate platform in Tamil Nadu',
     },
     {
-      icon: BadgeCheck,
-      title: 'Verified Service Providers',
-      description: 'Only trusted and verified real estate services',
+      icon: CheckCircle2,
+      title: 'Zero Brokerage Options',
+      description: 'Save money with direct owner listings and zero brokerage',
     },
   ]
 

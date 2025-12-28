@@ -1,10 +1,10 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Facebook, Instagram, Twitter, Linkedin, MapPin, Phone, Mail, Send } from 'lucide-react'
+import { Facebook, Instagram, Twitter, Linkedin, Youtube, MapPin, Phone, Mail, Send } from 'lucide-react'
 import FooterColumn from './FooterColumn'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 
@@ -39,11 +39,13 @@ const socialLinks = [
   { label: 'facebook', icon: Facebook, href: 'https://www.facebook.com/share/1Cp5XJwHHC/' },
   { label: 'twitter_(𝕏)', icon: Twitter, href: 'https://x.com/VaazhgaValam?t=Iu-WpKa3cvAT-h3BHUBdYg&s=09' },
   { label: 'linked_in', icon: Linkedin, href: 'https://www.linkedin.com/in/vaazhga-valamudan-tn' },
+  { label: 'youtube', icon: Youtube, href: 'https://www.youtube.com/@VaazhgaValamudan-TN' },
   { label: 'telegram', icon: Send, href: 'https://t.me/boost/vaazhgavalamudanvvdrs' },
 ]
 
 export default function Footer() {
   const t = useTranslations()
+  const locale = useLocale()
   const [email, setEmail] = useState('')
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
@@ -62,7 +64,7 @@ export default function Footer() {
           <div className="lg:col-span-1 sm:col-span-2">
             <Link href={'/'} className="inline-flex items-center mb-5" aria-label="Vaazhga Valamudan Home">
               <Image
-                src="/footer_logo_new.PNG"
+                src={`/footer_logo_new_${locale}.png`}
                 alt="Vaazhga Valamudan Logo"
                 width={220}
                 height={110}
@@ -103,12 +105,12 @@ export default function Footer() {
 
           {/* Column 4: Explore */}
           <div>
-            <FooterColumn title="Explore" links={exploreLinks} />
+            <FooterColumn title={t('Footer.Headers.explore') || 'Explore'} links={exploreLinks} />
           </div>
 
           {/* Column 5: Contact Info */}
           <div>
-            <h3 className="font-semibold text-lg mb-5 text-yellow-500">Contact Us</h3>
+            <h3 className="font-semibold text-lg mb-5 text-yellow-500">{t('Footer.Headers.contact') || 'Contact Us'}</h3>
 
             <div className="space-y-4">
               {/* Address */}
@@ -153,7 +155,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 mb-10">
           {/* Newsletter */}
           <div>
-            <h3 className="font-semibold text-lg mb-2 text-yellow-500">Detailed Newsletter</h3>
+            <h3 className="font-semibold text-lg mb-2 text-yellow-500">{t('Footer.Headers.detailed_newsletter') || 'Detailed Newsletter'}</h3>
             <p className="text-sm text-gray-400 mb-5 max-w-sm">
               Subscribe to get the latest property updates and market insights directly to your inbox.
             </p>
@@ -178,7 +180,7 @@ export default function Footer() {
 
           {/* App Download */}
           <div className="lg:text-right flex flex-col items-start lg:items-end">
-            <h3 className="font-semibold text-lg mb-2 text-yellow-500">Download Our App</h3>
+            <h3 className="font-semibold text-lg mb-2 text-yellow-500">{t('Footer.Headers.download_our_app') || 'Download Our App'}</h3>
             <p className="text-sm text-gray-400 mb-5">Experience the best real estate platform on mobile.</p>
             <div className="flex flex-wrap gap-4 justify-start lg:justify-end">
               <Link href="#" className="hover:-translate-y-1 transition-transform duration-300">
@@ -205,23 +207,7 @@ export default function Footer() {
 
         {/* Footer Bottom: Copyright */}
         <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row md:flex-wrap justify-center items-center gap-2 md:gap-3 text-xm text-gray-500 text-center">
-          <p className="leading-relaxed text-gray-300">
-            © {new Date().getFullYear()} Vaazhga Valamudan - Bhuvaneswari Koothachi. All Rights Reserved.
-          </p>
-
-          <span className="hidden md:inline-block text-gray-600">•</span>
-
-          <p className="leading-relaxed">
-            <span className="text-gray-400">Designed by </span>
-            <Link
-              href="https://www.bizdevinfotech.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-yellow-500/80 hover:text-yellow-400 transition-colors"
-            >
-              Bizdev Information Technology
-            </Link>
-          </p>
+          <p className="leading-relaxed text-gray-300">© {new Date().getFullYear()} Vaazhga Valamudan. All Rights Reserved.</p>
         </div>
       </div>
     </footer>

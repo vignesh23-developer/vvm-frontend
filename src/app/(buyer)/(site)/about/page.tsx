@@ -77,31 +77,50 @@ const About = () => {
       >
         {/* Left side - Image Grid */}
         <motion.div className="relative grid grid-cols-2 grid-rows-2 gap-4" variants={itemVariants}>
-          <div className="absolute -inset-6 rounded-3xl bg-gradient-to-br from-[#f7e8d9] via-transparent to-transparent blur-2xl" aria-hidden />
+          {/* Soft background glow */}
+          <div
+            className="pointer-events-none absolute -inset-6 rounded-3xl 
+               bg-gradient-to-br from-[#f7e8d9] via-transparent to-transparent 
+               blur-2xl"
+            aria-hidden
+          />
+
           {aboutImage.map((value, index) => (
             <motion.div
               key={index}
               variants={itemVariants}
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: 'spring', stiffness: 200, damping: 18 }}
-              className="relative overflow-hidden rounded-3xl border border-white/60 bg-white shadow-[0_25px_60px_rgba(42,32,21,0.08)]"
+              whileHover={{ scale: 1.04 }}
+              transition={{ type: 'spring', stiffness: 180, damping: 20 }}
+              className="relative overflow-hidden rounded-3xl 
+                 border border-white/60 bg-white 
+                 shadow-[0_20px_50px_rgba(42,32,21,0.08)]"
             >
               <Image src={value.src} alt={value.alt} width={value.width} height={value.height} className="h-full w-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" aria-hidden />
+
+              {/* Subtle image overlay */}
+              <div
+                className="pointer-events-none absolute inset-0 
+                   bg-gradient-to-t from-black/15 via-transparent to-transparent"
+                aria-hidden
+              />
             </motion.div>
           ))}
 
-          {/* Logo medallion */}
+          {/* Center logo medallion */}
           <motion.div
-            className="absolute left-1/2 top-1/2 flex h-28 w-28 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[#3e2a1c] shadow-[0_20px_45px_rgba(46,28,12,0.35)]"
+            className="pointer-events-none absolute left-1/2 top-1/2 z-10 
+               flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 
+               items-center justify-center rounded-full 
+               bg-[#fdf5eb] 
+               shadow-[0_18px_40px_rgba(46,28,12,0.3)]"
             initial={{ scale: 0, opacity: 0 }}
             whileInView={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
             animate={{
-              boxShadow: ['0 0 18px rgba(46,28,12,0.15)', '0 0 28px rgba(46,28,12,0.28)', '0 0 18px rgba(46,28,12,0.15)'],
+              boxShadow: ['0 0 16px rgba(46,28,12,0.15)', '0 0 26px rgba(46,28,12,0.28)', '0 0 16px rgba(46,28,12,0.15)'],
             }}
           >
-            <Image src="/logo-about.png" alt="Vaazhga Valamudan" width={300} height={300} className="object-contain w-full" />
+            <Image src="/logo-about.png" alt="Vaazhga Valamudan" width={250} height={250} className="h-25 w-25 object-contain" />
           </motion.div>
         </motion.div>
 
@@ -158,16 +177,16 @@ const About = () => {
             ))}
           </motion.div> */}
 
-          <motion.div variants={itemVariants} className="flex flex-col justify-center gap-3 sm:flex-row sm:items-center">
-            <motion.div variants={itemVariants} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-              <Button
+          {/* <motion.div variants={itemVariants} className="flex flex-col justify-center gap-3 sm:flex-row sm:items-center"> */}
+          {/* <motion.div variants={itemVariants} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}> */}
+          {/* <Button
                 type="button"
                 className="flex items-center gap-2 rounded-2xl bg-[#2b1b12] px-7 py-3 text-base font-semibold text-white shadow-lg shadow-[#2b1b12]/30"
               >
                 {t('About.explore_more')}
               </Button>
-            </motion.div>
-            {/* <motion.div variants={itemVariants} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+            </motion.div> */}
+          {/* <motion.div variants={itemVariants} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
               <Button
                 type="button"
                 className="flex items-center gap-2 rounded-2xl border border-[#2b1b12] px-7 py-3 text-base font-semibold text-[#2b1b12] shadow-sm"
@@ -176,9 +195,9 @@ const About = () => {
                 {t('About.schedule_consultation', { defaultValue: 'Schedule a consultation' })}
               </Button>
             </motion.div> */}
-          </motion.div>
         </motion.div>
       </motion.div>
+      {/* </motion.div> */}
     </section>
   )
 }

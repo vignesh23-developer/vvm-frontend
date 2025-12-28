@@ -44,9 +44,9 @@ export default function NotificationList({
 
   return (
     <div className="space-y-2">
-      {notifications.map((notification) => (
+      {notifications.map((notification, index) => (
         <NotificationCard
-          key={notification.id}
+          key={index}
           notification={notification}
           showCheckbox={showCheckboxes}
           isSelected={selectedIds.includes(notification.id)}

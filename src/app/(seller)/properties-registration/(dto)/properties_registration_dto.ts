@@ -210,7 +210,7 @@ export class FeaturePayloadDTO {
   feature_group_id: string | null
   option_ids: string[]
   value_text?: string
-  value_number?: number
+  value_number?: number | string
   value_boolean?: string
   is_mandator: boolean
 

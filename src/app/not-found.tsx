@@ -2,8 +2,10 @@ import Link from 'next/link'
 import Image from 'next/image'
 import Navbar from '@/components/layout/Navbar/Navbar'
 import Footer from '@/components/layout/Footer/Footer'
+import { useLocale } from 'next-intl'
 
 export default function NotFound() {
+  const locale = useLocale()
   return (
     <>
       <header className="shrink-0">
@@ -14,7 +16,13 @@ export default function NotFound() {
         <div className="mx-auto flex w-full max-w-2xl flex-col items-center rounded-[32px] border border-[#b48a5a]/20 bg-[#fff9f2] px-8 py-8 text-center shadow-[0_25px_90px_rgba(85,51,17,0.15)]">
           <div className="mb-6 rounded-2xl border border-[#d5b48c]/40 bg-yellow-900 p-6 shadow-inner">
             <Link href="/">
-              <Image src="/footer_logo_new.PNG" alt="404 Not Found Vaazhga-valamudan" width={200} height={200} className="mx-auto opacity-95" />
+              <Image
+                src={`/footer_logo_new_${locale}.png`}
+                alt="404 Not Found Vaazhga-valamudan"
+                width={200}
+                height={200}
+                className="mx-auto opacity-95"
+              />
             </Link>
           </div>
 

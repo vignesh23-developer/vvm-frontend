@@ -224,8 +224,10 @@ const AdsDetailsPage = () => {
   )
 
   // Buyer restriction logic
-  const onlyAdminOrAgentCanViewContactDetails = isAgent || isAdmin
-  const hasEnquiry = onlyAdminOrAgentCanViewContactDetails || (adDetails?.enquiries && adDetails.enquiries.length > 0)
+  const isCheckAdsOwner = user && adDetails && user.id === adDetails.owner_id
+  const isEnquiryAvailable = adDetails?.enquiries && adDetails.enquiries.length > 0
+  const onlyAdminOrAgentCanViewContactDetails = isCheckAdsOwner || isAdmin
+  const hasEnquiry = onlyAdminOrAgentCanViewContactDetails || isEnquiryAvailable || (!onlyAdminOrAgentCanViewContactDetails && isEnquiryAvailable)
 
   // Address
   const adsFullAddress = hasEnquiry ? adDetails?.address_line : [adDetails?.district, adDetails?.city].filter(Boolean).join(', ') || 'xxxxx'
@@ -654,8 +656,13 @@ const AdsDetailsPage = () => {
                         </Button>
                         <Button
                           type="button"
+                          disabled={onlyAdminOrAgentCanViewContactDetails}
                           onClick={() => setEnquiryModalOpen(true)}
-                          className="flex-1 bg-[#2a1407] text-white rounded-full py-2.5 px-4 text-sm hover:bg-[#2a1407] flex items-center justify-center gap-1 transition-all"
+                          title={onlyAdminOrAgentCanViewContactDetails ? 'Only agents and non-owners can submit enquiries.' : ''}
+                          className={cn(
+                            'flex-1 bg-[#2b1b12] border border-yellow-200 rounded-full py-2.5 px-4 text-sm text-white flex items-center justify-center gap-1 transition-all',
+                            !hasEnquiry ? 'hover:bg-yellow-700' : 'opacity-60 cursor-not-allowed',
+                          )}
                         >
                           <MessageSquare size={16} />
                           <span>Enquire</span>

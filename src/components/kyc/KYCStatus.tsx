@@ -11,6 +11,7 @@ import KYCPayment from '@/components/payment/KYCPayment'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { ShieldCheck, Loader2 } from 'lucide-react'
+import TestKYCStatus from './TestKYCStatus'
 
 export default function KYCStatus() {
   const { activeSubscription, loading: subscriptionLoading } = useUserSubscription()
@@ -166,11 +167,12 @@ export default function KYCStatus() {
               )}
             </button>
           ) : (
-            <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+            <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-10">
               <p className="text-sm text-gray-600 mb-4">
                 To proceed with verification, a nominal fee is required.
               </p>
               <KYCPayment />
+              {/* <TestKYCStatus /> */}
             </div>
           )}
         </div>

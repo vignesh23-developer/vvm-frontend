@@ -72,7 +72,10 @@ const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({
 
     // Block ad creation/edit until KYC is verified
     if (kycStatus?.isVerified === false) {
-      toast.error('Please complete KYC verification to create your company profile.')
+      toast('Please complete KYC verification to create your company profile.', {
+        icon: '⚠️',
+        style: { borderRadius: '8px', background: '#fff3cd', color: '#856404' },
+      })
       router.replace('/kyc-pending')
     }
   }, [isKycLoading, kycError, kycStatus?.isVerified, router])

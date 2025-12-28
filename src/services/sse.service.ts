@@ -37,18 +37,21 @@ export class SSEService {
 
   /**
    * Connect to SSE endpoint using fetch API with ReadableStream
-   * @param token - Authentication token (required)
+   * @param token - Authentication token (optional, will be fetched from cookies if not provided)
+   * Always reads token from cookies to ensure it's fresh (same as axios interceptor)
    */
   async connect(token?: string): Promise<boolean> {
     if (this.isConnecting || this.isConnected) {
       return true
     }
 
-    // Token is required
-    if (!token) {
-      console.error('SSE: No auth token provided')
+    // Always get token from cookies (same as axios interceptor) to ensure it's fresh
+    const tokenResult = await onGetCookies('authToken')
+    if (tokenResult.isError || !tokenResult.cookies) {
+      console.error('SSE: No auth token found in cookies')
       return false
     }
+    token = tokenResult.cookies as string
 
     try {
       this.isConnecting = true
@@ -158,12 +161,12 @@ export class SSEService {
         }
       } catch (readError: any) {
         // Handle read errors (including AbortError)
-        if (readError.name === 'AbortError') {
-          // Don't log AbortError - it's expected during disconnect
-          this.isConnected = false
-          this.reader = null
-          return false
-        }
+        // if (readError.name === 'AbortError') {
+        //   // Don't log AbortError - it's expected during disconnect
+        //   this.isConnected = false
+        //   this.reader = null
+        //   return false
+        // }
         throw readError // Re-throw other errors
       }
 
@@ -174,9 +177,9 @@ export class SSEService {
       return true
     } catch (error: any) {
       // Don't log AbortError - it's expected during disconnect
-      if (error.name !== 'AbortError') {
-        console.error('SSE: Connection error', error.message || error)
-      }
+      // if (error.name !== 'AbortError') {
+      //   console.error('SSE: Connection error', error.message || error)
+      // }
       this.isConnecting = false
       this.isConnected = false
       this.reader = null

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Formik, Form } from 'formik'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { ArrowLeft } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -30,6 +30,7 @@ interface SignupFormValues {
 
 export default function SignupPage() {
   const t = useTranslations()
+  const locale = useLocale()
   const { globalValue, reset } = useGlobalContext()
   const { setUser, setToken, token, loading } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
@@ -137,7 +138,7 @@ export default function SignupPage() {
       >
         <Link href="/">
           <motion.div className="max-w-xs hover:cursor-pointer" whileHover={{ scale: 1.05 }}>
-            <Image src="/footer_logo_new.PNG" alt="Vaazhga Valamudan Logo" width={400} height={300} className="mt-6" />
+            <Image src={`/footer_logo_new_${locale}.png`} alt="Vaazhga Valamudan Logo" width={400} height={300} className="mt-6" />
           </motion.div>
         </Link>
       </motion.div>

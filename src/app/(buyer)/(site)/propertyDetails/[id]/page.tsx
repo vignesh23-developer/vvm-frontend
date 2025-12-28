@@ -272,9 +272,12 @@ const page = () => {
   }, [quickMatchFilters, propertyDetailsData])
 
   // Buyer restriction logic
-  const onlyAdminOrAgentCanViewContactDetails = isAgent || isAdmin
-  const hasEnquiry = onlyAdminOrAgentCanViewContactDetails || (propertyDetailsData?.enquiries && propertyDetailsData.enquiries.length > 0)
+  const isCheckPropertiesOwner = user && propertyDetailsData && user.id === propertyDetailsData.owner_id
+  const isEnquiryAvailable = propertyDetailsData?.enquiries && propertyDetailsData.enquiries.length > 0
+  const onlyAdminOrAgentCanViewContactDetails = isCheckPropertiesOwner || isAdmin
 
+  const hasEnquiry = onlyAdminOrAgentCanViewContactDetails || isEnquiryAvailable || (!onlyAdminOrAgentCanViewContactDetails && isEnquiryAvailable)
+  console.log('user amd propepties', user, propertyDetailsData)
   // Address
   const propertyFullAddress = hasEnquiry
     ? propertyDetailsData?.address_line
@@ -606,6 +609,15 @@ const page = () => {
     if (vidId) return `https://img.youtube.com/vi/${vidId}/maxresdefault.jpg`
     return null
   }, [primaryVideoMedia])
+
+  // Video cover image (avoid passing empty string to <Image src>)
+  const videoCoverImageSrc = useMemo(() => {
+    const candidate = videoThumbnailUrl ?? galleryImages.find(img => img.type === 'image')?.url ?? null
+
+    if (!candidate) return null
+    const trimmed = String(candidate).trim()
+    return trimmed.length > 0 ? trimmed : null
+  }, [videoThumbnailUrl, galleryImages])
 
   // Tabs configuration
   const tabs: { id: TabType; label: string; icon?: LucideIcon }[] = [
@@ -1008,10 +1020,10 @@ const page = () => {
                             if (onlyAdminOrAgentCanViewContactDetails) return
                             setEnquiryModalOpen(true)
                           }}
-                          title={onlyAdminOrAgentCanViewContactDetails ? 'Only buyers can send enquiries' : ''}
+                          title={onlyAdminOrAgentCanViewContactDetails ? 'Only buyers and non-owners can submit enquiries.' : ''}
                           className={cn(
                             'flex-1 bg-[#2b1b12] border border-yellow-200 rounded-full py-2.5 px-4 text-sm text-white flex items-center justify-center gap-1 transition-all',
-                            !onlyAdminOrAgentCanViewContactDetails ? 'hover:bg-yellow-700' : 'opacity-60 cursor-not-allowed',
+                            !hasEnquiry ? 'hover:bg-yellow-700' : 'opacity-60 cursor-not-allowed',
                           )}
                         >
                           <MessageSquare size={16} />
@@ -1521,12 +1533,14 @@ const page = () => {
               >
                 {!isPlayingTour ? (
                   <>
-                    <Image
-                      src={videoThumbnailUrl || '/images/placeholder-property.jpg'}
-                      alt="Video thumbnail"
-                      fill
-                      className="object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-300"
-                    />
+                    {videoCoverImageSrc ? (
+                      <Image
+                        src={videoCoverImageSrc}
+                        alt="Video thumbnail"
+                        fill
+                        className="object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-300"
+                      />
+                    ) : null}
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-xl">
                         <Play className="w-6 h-6 text-white fill-white ml-1" />
@@ -1809,7 +1823,7 @@ const page = () => {
                       type="button"
                       onClick={() => {
                         toast.success('Redirecting to property listings...')
-                        router.push('/properties')
+                        router.push('/properties-list')
                       }}
                       className="w-full bg-[#2a1407] text-white hover:from-[#2a1407] hover:to-[#2a1407] py-2.5 rounded-lg text-xs font-semibold transition-all"
                     >
