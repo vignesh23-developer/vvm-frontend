@@ -25,9 +25,14 @@ export const appEndpoints = {
   getUserHistory: '/profile/login-history',
 
   // KYC enpoints
+  // kyc status
   getUserKycStatus: '/kyc/status',
+
+  // payment not done
   createKycOrder: '/kyc/initiate-order',
   verifyKycOrder: '/kyc/verify-order',
+
+  // payment done
   initiateKyc: '/kyc/initiate',
   completeKyc: '/kyc/complete',
 
@@ -49,7 +54,6 @@ export const appEndpoints = {
   publicSearchPropertyFilters: '/search/properties-filters',
   publicSearchAgents: '/search/agents',
   publicSearchAds: '/search/ads',
-  publicSearchAdsFilters: '/search/ads/filters',
   publicSearchAgentsAutocomplete: '/search/agents/autocomplete',
   publicSearchAgentsFilters: '/search/agents/filters',
   getPropertiesByID: (propertyId: string) => `/properties/${propertyId}`,
@@ -121,7 +125,6 @@ export const appEndpoints = {
   // Property Images
   addPropertyImages: (propertyId: string) => `/property-media/${propertyId}/upload`,
   getPropertyImages: (propertyId: string) => `/property-media/${propertyId}`,
-  getPropertyMediaByID: (propertyId: string) => `/property-media/${propertyId}`,
   updatePropertyImage: (propertyId: string, imageId: string) => `/property-media/${propertyId}/${imageId}`,
   deletePropertyImage: (propertyId: string, imageId: string) => `/property-media/${propertyId}/${imageId}`,
 
@@ -176,7 +179,7 @@ export const appEndpoints = {
   createUpgradeOrder: (userId: string, subscriptionId: number) => `/users/${userId}/subscription/${subscriptionId}/upgrade/order`,
   createDowngradeOrder: (userId: string, subscriptionId: number) => `/users/${userId}/subscription/${subscriptionId}/downgrade/order`,
   cancelSubscription: (userId: string, subscriptionId: number) => `/users/${userId}/subscription/${subscriptionId}/cancel`,
-  getAllSubscription: '/users/subscriptions/all',
+  getAllSubscription: "/users/subscriptions/all",
   getSubscriptionPlanAnalytics: '/users/subscriptions/analytics',
 
   // Addons
@@ -225,6 +228,8 @@ export const appEndpoints = {
   processScheduledNotifications: '/admin/notifications/process-scheduled',
   previewNotificationTemplate: '/admin/notifications/templates/preview',
 }
+
+
 
 
 export const testAppEndpoints = { 
