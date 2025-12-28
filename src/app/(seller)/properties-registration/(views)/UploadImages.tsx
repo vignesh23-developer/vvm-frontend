@@ -543,7 +543,7 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
                           onClick={() => handleSetPrimary(item.id)}
                           className="bg-white text-[#2a1407] px-4 py-2 rounded-lg text-xs font-bold hover:bg-gray-100 w-full transform hover:scale-105 transition-all shadow-lg"
                         >
-                          Set Main
+                          Set as Primary
                         </button>
                       )}
 
@@ -560,7 +560,7 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
                     {item.isPrimary && (
                       <div className="absolute top-3 left-3 bg-[#2a1407] text-white text-[10px] uppercase font-bold px-2.5 py-1 rounded-md shadow-lg flex items-center gap-1.5 tracking-wider border border-white/20 z-20">
                         <Star size={10} fill="currentColor" />
-                        Main
+                        Primary
                       </div>
                     )}
 
