@@ -28,6 +28,7 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
   const [activeTab, setActiveTab] = useState<'media' | 'youtube'>('media')
   const [items, setItems] = useState<MediaItem[]>([])
   const [ispending, startTransition] = useTransition()
+  const [isSubmitted, setIsSubmitted] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // YouTube Link State
@@ -155,8 +156,8 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
       }))
 
       setItems(prev => {
-        const hasPrimary = prev.some(i => i.isPrimary)
-        if (!hasPrimary && newMediaItems.length > 0) {
+        const currentPrimary = prev.find(i => i.isPrimary)
+        if (!currentPrimary && newMediaItems.length > 0) {
           newMediaItems[0].isPrimary = true
         }
         return [...prev, ...newMediaItems]
@@ -317,6 +318,10 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
       return
     }
 
+    if (isSubmitted) return
+
+    setIsSubmitted(true)
+
     startTransition(async () => {
       try {
         if (!propertyId) {
@@ -390,6 +395,7 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
       } catch (err: any) {
         console.error(err)
         toast.error(err.message || 'Failed to upload media')
+        setIsSubmitted(false)
       }
     })
   }
@@ -706,7 +712,7 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
         <Button
           type="button"
           onClick={handleUploadAll}
-          disabled={ispending || items.length === 0}
+          disabled={ispending || isSubmitted || items.length === 0}
           className="bg-[#2a1407] hover:bg-[#3d1e0b] text-white px-8 py-3.5 rounded-xl text-md font-bold shadow-xl shadow-[#2a1407]/20 flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-[1.02] active:scale-[0.98]"
         >
           {ispending ? (
