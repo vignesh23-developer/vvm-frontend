@@ -172,7 +172,7 @@ export default function KYCStatus() {
                 To proceed with verification, a nominal fee is required.
               </p>
               <KYCPayment />
-              <TestKYCStatus />
+              {/* <TestKYCStatus /> */}
             </div>
           )}
         </div>
