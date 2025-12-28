@@ -121,7 +121,7 @@ export async function onAddPropertyImages(
 
 export async function getPropertyImages(propertyId: string): Promise<any> {
   try {
-    const response = await getMethod(appEndpoints.getPropertyMediaByID(propertyId))
+    const response = await getMethod(appEndpoints.getPropertyImages(propertyId))
     return {
       success: !response.error,
       error: response.error,
