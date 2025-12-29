@@ -1,7 +1,7 @@
 'use client'
 
 import { motion, AnimatePresence, Variants } from 'framer-motion'
-import { Shield, Users, CheckCircle2, Zap, Award, Sparkles, BadgeCheck } from 'lucide-react'
+import { Shield, Users, CheckCircle2, Zap, Award, Sparkles, BadgeCheck, Scale, Landmark, FileText } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useState } from 'react'
 
@@ -22,33 +22,39 @@ export default function WhyChooseUs() {
   const features = [
     {
       icon: Shield,
-      title: 'Verified Properties',
-      description: 'All listings are verified for authenticity and accuracy',
+      key: 'verified_properties',
     },
     {
       icon: Users,
-      title: 'Verified Agents',
-      description: 'Work with trusted and verified real estate professionals',
+      key: 'verified_agents',
     },
     {
       icon: BadgeCheck,
-      title: 'Verified Service Providers',
-      description: 'Only trusted and verified real estate services',
+      key: 'verified_service_providers',
     },
     {
       icon: Zap,
-      title: 'Fast Support',
-      description: 'Get quick responses & support when you need it',
+      key: 'fast_support',
     },
     {
       icon: Award,
-      title: "Tamil Nadu's Trusted Platform",
-      description: 'The most trusted real estate platform in Tamil Nadu',
+      key: 'trusted_platform',
     },
     {
       icon: CheckCircle2,
-      title: 'Zero Brokerage Options',
-      description: 'Save money with direct owner listings and zero brokerage',
+      key: 'zero_brokerage',
+    },
+    {
+      icon: Scale,
+      key: 'legal_assistance',
+    },
+    {
+      icon: Landmark,
+      key: 'emi_loan_support',
+    },
+    {
+      icon: FileText,
+      key: 'transparent_pricing',
     },
   ]
 
@@ -98,14 +104,13 @@ export default function WhyChooseUs() {
             className="inline-flex items-center gap-2 px-4 py-1.5 mb-3 rounded-full bg-gradient-to-r from-yellow-50 to-yellow-100/50 border border-yellow-200/50 backdrop-blur-sm shadow-sm"
           >
             <Sparkles className="w-3.5 h-3.5 text-yellow-600" />
-            <span className="text-xs font-semibold text-yellow-700 tracking-wide uppercase">Why Choose Us</span>
+            <span className="text-xs font-semibold text-yellow-700 tracking-wide uppercase">{t('WhyChooseUs.badge') || 'Why Choose Us'}</span>
           </motion.div>
 
           {/* Heading */}
           <motion.h2
-            className={`${
-              locale === 'ta' ? 'text-xl sm:text-2xl md:text-3xl lg:text-4xl' : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl'
-            } font-extrabold text-gray-900 mb-3 tracking-tight leading-tight`}
+            className={`${locale === 'ta' ? 'text-xl sm:text-2xl md:text-3xl lg:text-4xl' : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl'
+              } font-extrabold text-gray-900 mb-3 tracking-tight leading-tight`}
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
@@ -115,9 +120,8 @@ export default function WhyChooseUs() {
           </motion.h2>
 
           <motion.p
-            className={`${
-              locale === 'ta' ? 'text-sm sm:text-base md:text-lg leading-snug' : 'text-base sm:text-lg md:text-xl leading-relaxed'
-            } text-gray-600 max-w-2xl mx-auto font-light`}
+            className={`${locale === 'ta' ? 'text-sm sm:text-base md:text-lg leading-snug' : 'text-base sm:text-lg md:text-xl leading-relaxed'
+              } text-gray-600 max-w-2xl mx-auto font-light`}
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
@@ -177,8 +181,8 @@ export default function WhyChooseUs() {
                       <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-50 to-yellow-100 border border-yellow-200 flex items-center justify-center mb-4">
                         <Icon size={28} className="text-yellow-600" />
                       </div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">{feature.title}</h3>
-                      <p className="text-sm text-gray-600 leading-relaxed">{feature.description}</p>
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">{t(`WhyChooseUs.features.${feature.key}.title`)}</h3>
+                      <p className="text-sm text-gray-600 leading-relaxed">{t(`WhyChooseUs.features.${feature.key}.description`)}</p>
                     </div>
 
                     {/* Back Face */}
@@ -193,8 +197,8 @@ export default function WhyChooseUs() {
                       <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center mb-4">
                         <Icon size={28} className="text-yellow-400" />
                       </div>
-                      <h3 className="text-xl font-bold text-white mb-2">{feature.title}</h3>
-                      <p className="text-sm text-gray-200 leading-relaxed">{feature.description}</p>
+                      <h3 className="text-xl font-bold text-white mb-2">{t(`WhyChooseUs.features.${feature.key}.title`)}</h3>
+                      <p className="text-sm text-gray-200 leading-relaxed">{t(`WhyChooseUs.features.${feature.key}.description`)}</p>
                     </div>
                   </div>
                 </motion.div>

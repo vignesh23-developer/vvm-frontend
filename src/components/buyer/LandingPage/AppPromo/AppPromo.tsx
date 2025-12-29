@@ -50,6 +50,8 @@ export default function AppPromo() {
     return <AppPromoSkeleton />
   }
 
+  const features = ['alerts', 'favorites', 'chat', 'browsing']
+
   return (
     <motion.section
       className="w-full py-12 overflow-hidden bg-gradient-to-r from-yellow-50/80 to-white"
@@ -69,7 +71,7 @@ export default function AppPromo() {
             className="space-y-8 relative z-10 px-4 py-6"
           >
             <h3 className="text-sm font-semibold text-yellow-700 uppercase inline-block px-3 py-1 rounded-full bg-yellow-50 border border-yellow-100">
-              Get Benefit
+              {t('AppPromo.badge') || 'Get Benefit'}
             </h3>
 
             {/* smooth color transition using CSS variables provided by MaskContainer */}
@@ -80,7 +82,7 @@ export default function AppPromo() {
                 transition: 'color 350ms cubic-bezier(.2,.9,.2,1)',
               }}
             >
-              {t('AppPromo.title') || 'Experience tours like never before'}
+              {t('AppPromo.title')}
             </h2>
 
             <p
@@ -90,30 +92,28 @@ export default function AppPromo() {
                 transition: 'color 350ms cubic-bezier(.2,.9,.2,1)',
               }}
             >
-              {t('AppPromo.description') || 'Find your dream home on the go with our mobile app'}
+              {t('AppPromo.description')}
             </p>
 
             {/* Benefits List */}
             <ul className="space-y-3 mb-6">
-              {['Get real-time property alerts', 'Save your favorite listings', 'Chat with verified agents', 'Faster browsing & videos'].map(
-                (benefit, idx) => (
-                  <motion.li
-                    key={idx}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: idx * 0.1 }}
-                    className="flex items-center gap-2 text-sm"
-                    style={{
-                      color: 'var(--body-color, #4b5563)',
-                      transition: 'color 350ms cubic-bezier(.2,.9,.2,1)',
-                    }}
-                  >
-                    <span className="text-yellow-600 font-bold">✔</span>
-                    <span>{benefit}</span>
-                  </motion.li>
-                ),
-              )}
+              {features.map((featureKey, idx) => (
+                <motion.li
+                  key={idx}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="flex items-center gap-2 text-sm"
+                  style={{
+                    color: 'var(--body-color, #4b5563)',
+                    transition: 'color 350ms cubic-bezier(.2,.9,.2,1)',
+                  }}
+                >
+                  <span className="text-yellow-600 font-bold">✔</span>
+                  <span>{t(`AppPromo.features.${featureKey}`)}</span>
+                </motion.li>
+              ))}
             </ul>
 
             <div className="flex flex-wrap gap-4">
@@ -126,7 +126,7 @@ export default function AppPromo() {
               <form className="flex max-w-md rounded-lg overflow-hidden border-2 border-yellow-200 focus-within:ring-2 focus-within:ring-yellow-500 focus-within:border-yellow-400 shadow-md">
                 <input
                   type="email"
-                  placeholder={t('AppPromo.placeholder') || 'Your email'}
+                  placeholder={t('AppPromo.placeholder')}
                   className="w-full px-4 py-3 text-gray-700 focus:outline-none bg-white"
                 />
                 <div>
@@ -136,7 +136,7 @@ export default function AppPromo() {
                     size="medium"
                     className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
                   >
-                    {t('AppPromo.subscribe') || 'Subscribe'}
+                    {t('AppPromo.subscribe')}
                   </Button>
                 </div>
               </form>

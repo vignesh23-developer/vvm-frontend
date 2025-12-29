@@ -73,7 +73,7 @@ export default function Footer() {
               />
             </Link>
             <p className="text-sm text-gray-300 leading-relaxed mb-6">
-              Tamil Nadu's trusted platform for buying, selling, and renting properties with verified listings.
+              {t('Footer.desc') || "Tamil Nadu's trusted platform for buying, selling, and renting properties with verified listings."}
             </p>
 
             {/* Social Media Icons */}
@@ -157,14 +157,14 @@ export default function Footer() {
           <div>
             <h3 className="font-semibold text-lg mb-2 text-yellow-500">{t('Footer.Headers.detailed_newsletter') || 'Detailed Newsletter'}</h3>
             <p className="text-sm text-gray-400 mb-5 max-w-sm">
-              Subscribe to get the latest property updates and market insights directly to your inbox.
+              {t('Footer.Headers.newsletter_desc')}
             </p>
             <form onSubmit={handleNewsletterSubmit} className="relative max-w-md">
               <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                placeholder="Enter your email"
+                placeholder={t('AppPromo.placeholder')}
                 className="w-full pl-5 pr-14 py-3 rounded-full bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all"
                 required
               />
@@ -181,7 +181,7 @@ export default function Footer() {
           {/* App Download */}
           <div className="lg:text-right flex flex-col items-start lg:items-end">
             <h3 className="font-semibold text-lg mb-2 text-yellow-500">{t('Footer.Headers.download_our_app') || 'Download Our App'}</h3>
-            <p className="text-sm text-gray-400 mb-5">Experience the best real estate platform on mobile.</p>
+            <p className="text-sm text-gray-400 mb-5">{t('Footer.Headers.app_desc')}</p>
             <div className="flex flex-wrap gap-4 justify-start lg:justify-end">
               <Link href="#" className="hover:-translate-y-1 transition-transform duration-300">
                 <Image

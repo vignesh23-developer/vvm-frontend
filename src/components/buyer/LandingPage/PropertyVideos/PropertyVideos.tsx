@@ -76,7 +76,7 @@ export default function PropertyVideos() {
     {
       id: 1,
       url: 'https://youtube.com/shorts/aJS4OkN5eDY?feature=shared',
-      title: 'The Countdown Begins | Coming Soon',
+      title: t('ExploreVideo.videos.1') || 'The Countdown Begins | Coming Soon',
       // category: 'Premium Property',
       gradient: 'from-yellow-600 to-yellow-500',
       // location: 'Coimbatore',
@@ -87,7 +87,7 @@ export default function PropertyVideos() {
     {
       id: 2,
       url: 'https://youtube.com/shorts/a5SBClLl2w0?feature=shared',
-      title: 'Vaazhga Valamudan Digital Realty Solutions',
+      title: t('ExploreVideo.videos.2') || 'Vaazhga Valamudan Digital Realty Solutions',
       // category: 'City Property',
       gradient: 'from-yellow-600 to-yellow-500',
       // location: 'Chennai',
@@ -98,7 +98,7 @@ export default function PropertyVideos() {
     {
       id: 3,
       url: 'https://youtube.com/shorts/CHu0SAazTz4?feature=shared',
-      title: 'All-in-One Real Estate Platform | Vaazhga Valamudan',
+      title: t('ExploreVideo.videos.3') || 'All-in-One Real Estate Platform | Vaazhga Valamudan',
       // category: 'Beachfront',
       gradient: 'from-yellow-600 to-yellow-500',
       // location: 'Pondicherry',
@@ -109,7 +109,7 @@ export default function PropertyVideos() {
     {
       id: 4,
       url: 'https://youtube.com/shorts/FvZEDRR7Cdk?feature=shared',
-      title: 'Start your journey with exclusive launch benefits!',
+      title: t('ExploreVideo.videos.4') || 'Start your journey with exclusive launch benefits!',
       // category: 'Residential',
       gradient: 'from-yellow-600 to-yellow-500',
       // location: 'Madurai',
@@ -120,7 +120,7 @@ export default function PropertyVideos() {
     {
       id: 5,
       url: 'https://youtube.com/shorts/NfOMHMHyB-A?feature=shared',
-      title: 'Vaazhga Valamudan Digital Realty Solution',
+      title: t('ExploreVideo.videos.5') || 'Vaazhga Valamudan Digital Realty Solution',
       // category: 'Luxury',
       gradient: 'from-yellow-600 to-yellow-500',
       // location: 'Trichy',
@@ -194,7 +194,7 @@ export default function PropertyVideos() {
             className="inline-flex items-center gap-2 px-4 py-1.5 mb-6 rounded-full bg-gradient-to-r from-yellow-50 to-yellow-100/50 border border-yellow-200/50 backdrop-blur-sm shadow-sm"
           >
             <Sparkles className="w-3.5 h-3.5 text-yellow-600" />
-            <span className="text-xs font-semibold text-yellow-700 tracking-wide uppercase">Explore Properties</span>
+            <span className="text-xs font-semibold text-yellow-700 tracking-wide uppercase">{t('ExploreVideo.badge') || 'Explore Properties'}</span>
           </motion.div>
 
           {/* Heading */}
@@ -348,7 +348,7 @@ export default function PropertyVideos() {
                       onClick={() => setSelectedVideo(item)}
                     >
                       <Play size={18} />
-                      <span>View Full Tour</span>
+                      <span>{t('ExploreVideo.view_full_tour') || 'View Full Tour'}</span>
                     </motion.button>
                   </div>
                 </div>

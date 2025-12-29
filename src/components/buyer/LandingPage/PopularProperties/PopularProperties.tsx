@@ -214,7 +214,7 @@ export default function PopularProperties({
             className="inline-flex items-center gap-2 px-4 py-1.5 mb-2 rounded-full bg-gradient-to-r from-yellow-50 to-yellow-100/50 border border-yellow-200/50 backdrop-blur-sm shadow-sm"
           >
             <Sparkles className="w-3.5 h-3.5 text-yellow-600" />
-            <span className="text-xs font-semibold text-yellow-700 tracking-wide uppercase">Popular Now</span>
+            <span className="text-xs font-semibold text-yellow-700 tracking-wide uppercase">{t('PopularProperties.badge') || 'Popular Now'}</span>
           </motion.div>
 
           <motion.h2

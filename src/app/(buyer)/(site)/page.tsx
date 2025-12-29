@@ -13,6 +13,7 @@ import AdsSlider from '@/components/buyer/LandingPage/AdsSlider/AdsSlider'
 import { WebsiteReview } from '@/components/Reviews'
 import WhyChooseUs from '@/components/buyer/LandingPage/WhyChooseUs/WhyChooseUs'
 import Button from '@/components/ui/CustomComponent/Button/Button'
+import { useTranslations } from 'next-intl'
 
 const sectionVariants: Variants = {
   hidden: { opacity: 0, y: 40 },
@@ -24,6 +25,7 @@ const sectionVariants: Variants = {
 }
 
 export default function SitePage() {
+  const t = useTranslations()
   const searchParams = useSearchParams()
   const district = searchParams?.get('district')
   const router = useRouter()
@@ -108,7 +110,7 @@ export default function SitePage() {
             transition={{ duration: 0.6 }}
             className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#2a1407] mb-4"
           >
-            Ready to Find Your Ideal Property?
+            {t('HeroCallToAction.title')}
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -117,7 +119,7 @@ export default function SitePage() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-lg sm:text-xl text-gray-600 mb-8"
           >
-            Start your property journey today with Tamil Nadu's most trusted real estate platform
+            {t('HeroCallToAction.description')}
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -130,7 +132,7 @@ export default function SitePage() {
               onClick={() => router.push('/properties-list')}
               className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#2a1407] px-8 py-4 rounded-lg font-bold text-lg hover:from-yellow-500 hover:to-yellow-600 transition shadow-xl hover:shadow-2xl"
             >
-              Start Searching →
+              {t('HeroCallToAction.button') || 'Start Searching →'}
             </Button>
           </motion.div>
         </div>

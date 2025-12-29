@@ -77,55 +77,49 @@ export default function Testimonials({ testimonialsData, error, isLoading: testi
   const feedback = [
     {
       id: 1,
-      name: 'Priya S.',
-      designation: 'First-time Home Buyer',
-      quote:
-        'One of the standout qualities of this platform is their commitment to understanding client needs. This dedication to service and attention to detail sets them apart in the real estate industry. Found my dream home in Coimbatore!',
+      name: t('Testimonials.stories.0.name') || 'Priya S.',
+      designation: t('Testimonials.stories.0.designation') || 'First-time Home Buyer',
+      quote: t('Testimonials.stories.0.quote') || 'One of the standout qualities of this platform is their commitment to understanding client needs. This dedication to service and attention to detail sets them apart in the real estate industry. Found my dream home in Coimbatore!',
       rating: 5,
       src: '/images/t1.png',
     },
     {
       id: 2,
-      name: 'Senthil Kumar',
-      designation: 'Land Investor',
-      quote:
-        'This dedication to research and knowledge-building sets them apart from the competition. I found exactly what I was looking for with their help. Great investment opportunities in Tamil Nadu!',
+      name: t('Testimonials.stories.1.name') || 'Senthil Kumar',
+      designation: t('Testimonials.stories.1.designation') || 'Land Investor',
+      quote: t('Testimonials.stories.1.quote') || 'This dedication to research and knowledge-building sets them apart from the competition. I found exactly what I was looking for with their help. Great investment opportunities in Tamil Nadu!',
       rating: 4,
       src: '/images/t3.png',
     },
     {
       id: 3,
-      name: 'Divya R.',
-      designation: 'Rental Customer',
-      quote:
-        'Their professionalism and eye for detail impressed us throughout the entire process. The team made finding a rental property in Chennai a breeze! Verified listings gave us peace of mind.',
+      name: t('Testimonials.stories.2.name') || 'Divya R.',
+      designation: t('Testimonials.stories.2.designation') || 'Rental Customer',
+      quote: t('Testimonials.stories.2.quote') || 'Their professionalism and eye for detail impressed us throughout the entire process. The team made finding a rental property in Chennai a breeze! Verified listings gave us peace of mind.',
       rating: 5,
       src: '/images/t2.png',
     },
     {
       id: 4,
-      name: 'Rajesh M.',
-      designation: 'Property Developer',
-      quote:
-        'Exceptional service and deep market knowledge. They helped us find the perfect investment properties with great returns. The platform connects us with genuine buyers.',
+      name: t('Testimonials.stories.3.name') || 'Rajesh M.',
+      designation: t('Testimonials.stories.3.designation') || 'Property Developer',
+      quote: t('Testimonials.stories.3.quote') || 'Exceptional service and deep market knowledge. They helped us find the perfect investment properties with great returns. The platform connects us with genuine buyers.',
       rating: 3,
       src: '/images/t5.png',
     },
     {
       id: 5,
-      name: 'Lakshmi K.',
-      designation: 'Home Seller',
-      quote:
-        'The platform made selling my property in Madurai so easy. Professional, efficient, and always available to answer questions. Highly recommended for all property transactions!',
+      name: t('Testimonials.stories.4.name') || 'Lakshmi K.',
+      designation: t('Testimonials.stories.4.designation') || 'Home Seller',
+      quote: t('Testimonials.stories.4.quote') || 'The platform made selling my property in Madurai so easy. Professional, efficient, and always available to answer questions. Highly recommended for all property transactions!',
       rating: 5,
       src: '/images/t4.png',
     },
     {
       id: 6,
-      name: 'Arun V.',
-      designation: 'Commercial Space Buyer',
-      quote:
-        'Found the perfect commercial space in Trichy through this platform. The verification process and agent support made the entire transaction smooth and transparent.',
+      name: t('Testimonials.stories.5.name') || 'Arun V.',
+      designation: t('Testimonials.stories.5.designation') || 'Commercial Space Buyer',
+      quote: t('Testimonials.stories.5.quote') || 'Found the perfect commercial space in Trichy through this platform. The verification process and agent support made the entire transaction smooth and transparent.',
       rating: 4,
       src: '/images/t6.png',
     },
@@ -197,14 +191,13 @@ export default function Testimonials({ testimonialsData, error, isLoading: testi
             className="inline-flex items-center gap-2 px-4 py-1.5 mb-3 rounded-full bg-gradient-to-r from-yellow-50 to-yellow-100/50 border border-yellow-200/50 backdrop-blur-sm shadow-sm"
           >
             <Sparkles className="w-3.5 h-3.5 text-yellow-600" />
-            <span className="text-xs font-semibold text-yellow-700 tracking-wide uppercase">Client Stories</span>
+            <span className="text-xs font-semibold text-yellow-700 tracking-wide uppercase">{t('Testimonials.badge') || 'Client Stories'}</span>
           </motion.div>
 
           {/* Heading */}
           <motion.h2
-            className={`${
-              locale === 'ta' ? 'text-xl sm:text-2xl md:text-3xl lg:text-4xl' : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl'
-            } font-extrabold text-gray-900 mb-3 tracking-tight leading-tight`}
+            className={`${locale === 'ta' ? 'text-xl sm:text-2xl md:text-3xl lg:text-4xl' : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl'
+              } font-extrabold text-gray-900 mb-3 tracking-tight leading-tight`}
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
@@ -214,9 +207,8 @@ export default function Testimonials({ testimonialsData, error, isLoading: testi
           </motion.h2>
 
           <motion.p
-            className={`${
-              locale === 'ta' ? 'text-sm sm:text-base md:text-lg leading-snug' : 'text-base sm:text-lg md:text-xl leading-relaxed'
-            } text-gray-600 max-w-2xl mx-auto font-light`}
+            className={`${locale === 'ta' ? 'text-sm sm:text-base md:text-lg leading-snug' : 'text-base sm:text-lg md:text-xl leading-relaxed'
+              } text-gray-600 max-w-2xl mx-auto font-light`}
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
@@ -269,7 +261,7 @@ export default function Testimonials({ testimonialsData, error, isLoading: testi
                       </div>
                     </div>
 
-                    <p className="mt-4 text-sm text-gray-700 leading-relaxed line-clamp-5 flex-1">{item.quote}</p>
+                    <p className="my-4 text-sm text-gray-700 leading-relaxed line-clamp-5 flex-1 ">{item.quote}</p>
 
                     <div className="mt-4 flex items-center justify-between">
                       <div className="flex items-center gap-1">
@@ -292,9 +284,8 @@ export default function Testimonials({ testimonialsData, error, isLoading: testi
                     <button
                       key={idx}
                       onClick={() => setActiveSlide(idx)}
-                      className={`h-2 rounded-full transition-all duration-300 ${
-                        idx === activeSlide ? 'w-8 bg-gradient-to-r from-yellow-500 to-yellow-600' : 'w-2 bg-gray-300 hover:bg-yellow-400'
-                      }`}
+                      className={`h-2 rounded-full transition-all duration-300 ${idx === activeSlide ? 'w-8 bg-gradient-to-r from-yellow-500 to-yellow-600' : 'w-2 bg-gray-300 hover:bg-yellow-400'
+                        }`}
                       aria-label={`Go to testimonial slide ${idx + 1}`}
                     />
                   ))}

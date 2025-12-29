@@ -101,13 +101,12 @@ export default function ExploreProperties({ districtSummaryData, error: district
             className="inline-flex items-center gap-2 px-4 py-1.5 mb-3 rounded-full bg-gradient-to-r from-yellow-50 to-yellow-100/50 border border-yellow-200/50 backdrop-blur-sm shadow-sm"
           >
             <Sparkles className="w-3.5 h-3.5 text-yellow-600" />
-            <span className="text-xs font-semibold text-yellow-700 tracking-wide uppercase">Explore by District</span>
+            <span className="text-xs font-semibold text-yellow-700 tracking-wide uppercase">{t('ExploreProperties.badge') || 'Explore by District'}</span>
           </motion.div>
 
           <motion.h2
-            className={`${
-              locale === 'ta' ? 'text-xl sm:text-2xl md:text-3xl lg:text-4xl' : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl'
-            } font-extrabold text-gray-900 mb-2 tracking-tight leading-tight`}
+            className={`${locale === 'ta' ? 'text-xl sm:text-2xl md:text-3xl lg:text-4xl' : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl'
+              } font-extrabold text-gray-900 mb-2 tracking-tight leading-tight`}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -119,9 +118,8 @@ export default function ExploreProperties({ districtSummaryData, error: district
           </motion.h2>
 
           <motion.p
-            className={`${
-              locale === 'ta' ? 'text-sm sm:text-base md:text-lg leading-snug' : 'text-base sm:text-lg md:text-xl leading-relaxed'
-            } text-gray-600 max-w-2xl mx-auto font-light mb-4`}
+            className={`${locale === 'ta' ? 'text-sm sm:text-base md:text-lg leading-snug' : 'text-base sm:text-lg md:text-xl leading-relaxed'
+              } text-gray-600 max-w-2xl mx-auto font-light mb-4`}
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}

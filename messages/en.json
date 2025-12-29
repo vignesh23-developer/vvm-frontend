@@ -118,6 +118,7 @@
   },
   "PopularProperties": {
     "title": "Our Popular Properties",
+    "badge": "Popular Now",
     "description": "Discover premium homes with modern amenities and prime locations.",
     "location": "Location",
     "bedrooms": "Bedrooms",
@@ -129,30 +130,125 @@
     "title": "Explore Your Dream Property in Tamil Nadu",
     "description": "Discover hand-picked districts with the best mix of homes, plots and investments in our chocolate & gold experience.",
     "viewDetails": "View Details",
-    "more": "See More"
+    "more": "See More",
+    "badge": "Explore by District"
   },
   "Testimonials": {
     "title": "Our Testimonials",
-    "description": "Everything starts with building trust!"
+    "description": "Everything starts with building trust!",
+    "badge": "Client Stories",
+    "stories": [
+      {
+        "name": "Priya S.",
+        "designation": "First-time Home Buyer",
+        "quote": "One of the standout qualities of this platform is their commitment to understanding client needs. This dedication to service and attention to detail sets them apart in the real estate industry. Found my dream home in Coimbatore!"
+      },
+      {
+        "name": "Senthil Kumar",
+        "designation": "Land Investor",
+        "quote": "This dedication to research and knowledge-building sets them apart from the competition. I found exactly what I was looking for with their help. Great investment opportunities in Tamil Nadu!"
+      },
+      {
+        "name": "Divya R.",
+        "designation": "Rental Customer",
+        "quote": "Their professionalism and eye for detail impressed us throughout the entire process. The team made finding a rental property in Chennai a breeze! Verified listings gave us peace of mind."
+      },
+      {
+        "name": "Rajesh M.",
+        "designation": "Property Developer",
+        "quote": "Exceptional service and deep market knowledge. They helped us find the perfect investment properties with great returns. The platform connects us with genuine buyers."
+      },
+      {
+        "name": "Lakshmi K.",
+        "designation": "Home Seller",
+        "quote": "The platform made selling my property in Madurai so easy. Professional, efficient, and always available to answer questions. Highly recommended for all property transactions!"
+      },
+      {
+        "name": "Arun V.",
+        "designation": "Commercial Space Buyer",
+        "quote": "Found the perfect commercial space in Trichy through this platform. The verification process and agent support made the entire transaction smooth and transparent."
+      }
+    ]
   },
   "WhyChooseUs": {
     "title": "Why Choose Us",
-    "description": "Your trusted partner for all real estate needs in Tamil Nadu"
+    "badge": "Why Choose Us",
+    "description": "Your trusted partner for all real estate needs in Tamil Nadu",
+    "features": {
+      "verified_properties": {
+        "title": "Verified Properties",
+        "description": "All properties are verified and posted by authorized agents."
+      },
+      "verified_agents": {
+        "title": "Verified Agents",
+        "description": "Reliable and experienced real estate professionals."
+      },
+      "verified_service_providers": {
+        "title": "Verified Service Providers",
+        "description": "Providers capable of delivering the best services in the real estate sector."
+      },
+      "fast_support": {
+        "title": "Fast Support",
+        "description": "Get answers and support immediately whenever you need them."
+      },
+      "trusted_platform": {
+        "title": "Tamil Nadu's Trusted Platform",
+        "description": "The most trusted real estate platform in Tamil Nadu."
+      },
+      "zero_brokerage": {
+        "title": "Zero Brokerage Options",
+        "description": "Save money without broker commission through direct owner listings."
+      },
+      "legal_assistance": {
+        "title": "Legal Assistance",
+        "description": "Expert legal support to ensure a smooth and safe property transaction."
+      },
+      "emi_loan_support": {
+        "title": "EMI & Loan Support",
+        "description": "Hassle-free home loan and EMI assistance from leading banks."
+      },
+      "transparent_pricing": {
+        "title": "Transparent Pricing",
+        "description": "No hidden charges; view clear and honest pricing for every property."
+      }
+    }
   },
   "ExploreVideo": {
-    "title": "Explore Our Service Videos",
-    "description": "Virtual tours, market insights, and expert tips – all in one place.",
-    "watchVideo": "Watch Video"
+    "title": "Explore Our Official Videos",
+    "description": "Watch our brand stories, company introduction, registration & joining offers, and latest promo videos all in one place.",
+    "watchVideo": "Watch Video",
+    "badge": "Explore Properties",
+    "view_full_tour": "View Full Tour",
+    "videos": {
+      "1": "The Countdown Begins | Coming Soon",
+      "2": "Vaazhga Valamudan Digital Realty Solutions",
+      "3": "All-in-One Real Estate Platform | Vaazhga Valamudan",
+      "4": "Start your journey with exclusive launch benefits!",
+      "5": "Vaazhga Valamudan Digital Realty Solution"
+    }
+  },
+  "HeroCallToAction": {
+    "title": "Ready to Find Your Ideal Property?",
+    "description": "Start your property journey today with Tamil Nadu's most trusted real estate platform.",
+    "button": "Start Searching"
   },
   "AppPromo": {
-    "title": "Check out our app too, don’t miss it!",
-    "description": "Find your dream property on the go with our mobile app.",
+    "title": "Download Our App!",
+    "badge": "Get Benefit",
+    "description": "Search for your dream property from anywhere with our mobile app.",
+    "features": {
+      "alerts": "Get real-time property alerts",
+      "favorites": "Save your favorite listings",
+      "chat": "Chat with verifying agents",
+      "browsing": "Faster browsing & videos"
+    },
     "message": "Don’t lose it when it comes out!",
     "download": "Download Now",
     "placeholder": "Your email",
     "subscribe": "Subscribe"
   },
   "Footer": {
+    "desc": "Tamil Nadu's trusted platform for buying, selling, and renting properties with verified listings.",
     "on_this_page": "On this page",
     "agents": "Agents",
     "our_story": "Our Story",
@@ -184,10 +280,11 @@
       "explore": "Explore",
       "contact": "Contact Us",
       "detailed_newsletter": "Detailed Newsletter",
-      "download_our_app": "Download Our App"
+      "newsletter_desc": "Subscribe to get the latest property updates and market insights directly to your inbox.",
+      "download_our_app": "Download Our App",
+      "app_desc": "Experience the best real estate platform on mobile."
     }
   },
-
   "PropertiesListCard": {
     "agent": "Agent",
     "operating_since": "Operating Since",
