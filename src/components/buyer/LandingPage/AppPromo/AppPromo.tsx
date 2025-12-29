@@ -4,9 +4,12 @@ import Image from 'next/image'
 import { useLocale, useTranslations } from 'next-intl'
 import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
+import { toast } from 'react-hot-toast'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { MaskContainer } from '../../../../components/ui/svg-mask-effect'
 import { BackgroundLines } from '../../../../components/ui/background-lines'
+import { postMethod } from '@/services/service'
+import { appEndpoints } from '@/services/endpoints'
 
 // Skeleton Loader for App Promo
 const AppPromoSkeleton = () => {
@@ -39,12 +42,48 @@ export default function AppPromo() {
   const t = useTranslations()
   const locale = useLocale()
   const [isLoading, setIsLoading] = useState(true)
+  const [email, setEmail] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     // Simulate loading delay
     const timer = setTimeout(() => setIsLoading(false), 400)
     return () => clearTimeout(timer)
   }, [])
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!email) {
+      toast.error('Please enter your email address')
+      return
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      const response = await postMethod(appEndpoints.createNewsletter, { email })
+
+      if (response.error) {
+        // Check if it's an "already subscribed" error
+        if (response.message?.toLowerCase().includes('already subscribed') || 
+            response.status === '409') {
+          toast.error('Already subscribed')
+        } else {
+          toast.error(response.message || 'Failed to subscribe to newsletter')
+        }
+        return
+      }
+
+      toast.success('Subscribed to newsletter')
+      setEmail('')
+    } catch (error) {
+      console.error('Newsletter subscription error:', error)
+      toast.error('An error occurred. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   if (isLoading) {
     return <AppPromoSkeleton />
@@ -123,20 +162,25 @@ export default function AppPromo() {
 
             <div className="space-y-2">
               <p className="text-xs text-gray-500">Get property alerts, offers & market insights. No spam.</p>
-              <form className="flex max-w-md rounded-lg overflow-hidden border-2 border-yellow-200 focus-within:ring-2 focus-within:ring-yellow-500 focus-within:border-yellow-400 shadow-md">
+              <form onSubmit={handleNewsletterSubmit} className="flex max-w-md rounded-lg overflow-hidden border-2 border-yellow-200 focus-within:ring-2 focus-within:ring-yellow-500 focus-within:border-yellow-400 shadow-md">
                 <input
                   type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder={t('AppPromo.placeholder') || 'Your email'}
                   className="w-full px-4 py-3 text-gray-700 focus:outline-none bg-white"
+                  required
+                  disabled={isSubmitting}
                 />
                 <div>
                   <Button
                     type="submit"
                     variant="primary"
                     size="medium"
-                    className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
+                    className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={isSubmitting}
                   >
-                    {t('AppPromo.subscribe') || 'Subscribe'}
+                    {isSubmitting ? 'Subscribing...' : (t('AppPromo.subscribe') || 'Subscribe')}
                   </Button>
                 </div>
               </form>
