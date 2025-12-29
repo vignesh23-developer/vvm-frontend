@@ -31,11 +31,10 @@ export default function NotificationCard({
 
   return (
     <div
-      className={`flex items-start gap-3 p-3 rounded-lg transition-colors cursor-pointer ${
-        notification.is_read
+      className={`flex items-start gap-3 p-3 rounded-lg transition-colors cursor-pointer ${notification.is_read
           ? 'bg-white hover:bg-gray-50'
           : 'bg-blue-50 hover:bg-blue-100 border-l-4 border-blue-500'
-      }`}
+        }`}
       onClick={handleClick}
     >
       {showCheckbox && (
@@ -49,24 +48,29 @@ export default function NotificationCard({
           }}
         >
           <div
-            className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-              isSelected
+            className={`w-5 h-5 rounded border-2 flex items-center justify-center ${isSelected
                 ? 'bg-blue-600 border-blue-600'
                 : 'border-gray-300 hover:border-blue-400'
-            }`}
+              }`}
           >
             {isSelected && <Check size={14} className="text-white" />}
           </div>
         </div>
       )}
 
-      {notification.icon && (
+      {/* {notification.icon && (
         <div className="flex-shrink-0 mt-1">
           <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-            <span className="text-lg">{notification.icon}</span>
+            <span className="text-lg">{notification.title.charAt(0)}</span>
           </div>
         </div>
-      )}
+      )} */}
+
+      <div className="flex-shrink-0 mt-1">
+        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+          <span className="text-lg">{notification.title.charAt(0)}</span>
+        </div>
+      </div>
 
       {/* {notification.image_url && !notification.icon && (
         <div className="flex-shrink-0">
@@ -81,9 +85,8 @@ export default function NotificationCard({
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
           <h4
-            className={`text-sm font-medium ${
-              notification.is_read ? 'text-gray-700' : 'text-gray-900 font-semibold'
-            }`}
+            className={`text-sm font-medium ${notification.is_read ? 'text-gray-700' : 'text-gray-900 font-semibold'
+              }`}
           >
             {notification.title}
           </h4>
@@ -92,9 +95,8 @@ export default function NotificationCard({
           )}
         </div>
         <p
-          className={`text-sm mt-1 line-clamp-2 ${
-            notification.is_read ? 'text-gray-600' : 'text-gray-800'
-          }`}
+          className={`text-sm mt-1 line-clamp-2 ${notification.is_read ? 'text-gray-600' : 'text-gray-800'
+            }`}
         >
           {notification.body}
         </p>
