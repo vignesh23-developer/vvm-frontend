@@ -227,6 +227,13 @@ export const appEndpoints = {
   getUsersNearQuotaLimit: '/admin/notifications/quota/near-limit',
   processScheduledNotifications: '/admin/notifications/process-scheduled',
   previewNotificationTemplate: '/admin/notifications/templates/preview',
+
+  // Newsletter Endpoints
+  getAllNewsletters: '/newsletters',
+  createNewsletter: '/newsletters',
+  subscribeNewsletter: '/newsletters/subscribe',
+  unsubscribeNewsletter: '/newsletters/unsubscribe',
+  getNewsletterAnalytics: '/newsletters/analytics',
 }
 
 

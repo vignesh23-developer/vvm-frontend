@@ -5,8 +5,11 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Facebook, Instagram, Twitter, Linkedin, Youtube, MapPin, Phone, Mail, Send } from 'lucide-react'
+import { toast } from 'react-hot-toast'
 import FooterColumn from './FooterColumn'
 import Button from '@/components/ui/CustomComponent/Button/Button'
+import { postMethod } from '@/services/service'
+import { appEndpoints } from '@/services/endpoints'
 
 const aboutLinks = [
   { label: 'our_story', href: '/our-story' },
@@ -48,11 +51,34 @@ export default function Footer() {
   const locale = useLocale()
   const [email, setEmail] = useState('')
 
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle newsletter subscription
-    console.log('Newsletter subscription:', email)
-    setEmail('')
+    
+    if (!email) {
+      toast.error('Please enter your email address')
+      return
+    }
+
+    try {
+      const response = await postMethod(appEndpoints.createNewsletter, { email })
+
+      if (response.error) {
+        // Check if it's an "already subscribed" error
+        if (response.message?.toLowerCase().includes('already subscribed') || 
+            response.status === '409') {
+          toast.error('Already subscribed')
+        } else {
+          toast.error(response.message || 'Failed to subscribe to newsletter')
+        }
+        return
+      }
+
+      toast.success('Subscribed to newsletter')
+      setEmail('')
+    } catch (error) {
+      console.error('Newsletter subscription error:', error)
+      toast.error('An error occurred. Please try again.')
+    }
   }
 
   return (
