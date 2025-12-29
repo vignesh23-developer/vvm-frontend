@@ -1,10 +1,10 @@
 'use client'
 
 import { useLocale, useTranslations } from 'next-intl'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Facebook, Instagram, Twitter, Linkedin, Youtube, MapPin, Phone, Mail, Send } from 'lucide-react'
+import { Facebook, Instagram, Twitter, Linkedin, Youtube, MapPin, Phone, Mail, Send, ArrowRight } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import FooterColumn from './FooterColumn'
 import Button from '@/components/ui/CustomComponent/Button/Button'
@@ -53,7 +53,7 @@ export default function Footer() {
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!email) {
       toast.error('Please enter your email address')
       return
@@ -64,8 +64,7 @@ export default function Footer() {
 
       if (response.error) {
         // Check if it's an "already subscribed" error
-        if (response.message?.toLowerCase().includes('already subscribed') || 
-            response.status === '409') {
+        if (response.message?.toLowerCase().includes('already subscribed') || response.status === '409') {
           toast.error('Already subscribed')
         } else {
           toast.error(response.message || 'Failed to subscribe to newsletter')
@@ -80,6 +79,23 @@ export default function Footer() {
       toast.error('An error occurred. Please try again.')
     }
   }
+
+  const quickLinks: Array<{ label: string; href: string }> = [
+    { label: 'Resale House for Sale in Madurai', href: '/resale-house-for-sale-in-madurai' },
+    { label: 'Commercial Office Space for Rent in Madurai', href: '/commercial-office-space-for-rent-in-madurai' },
+    { label: 'Fully Furnished Office Space for Rent in Madurai', href: '/fully-furnished-office-space-for-rent-in-madurai' },
+    { label: 'Best Property Listing Sites in Tirunelveli', href: '/best-property-listing-sites-in-tirunelveli' },
+    { label: 'Best Commercial Property for Sale in Coimbatore', href: '/best-commercial-property-for-sale-in-coimbatore' },
+  ]
+
+  const quickLinksItemHeightPx = 40
+  const quickLinksCycleHeightPx = quickLinks.length * quickLinksItemHeightPx
+
+  const rollingQuickLinks = useMemo(() => {
+    if (quickLinks.length === 0) return []
+    // Duplicate the list so the scroll loop is seamless.
+    return [...quickLinks, ...quickLinks]
+  }, [quickLinks])
 
   return (
     <footer className="bg-gradient-to-br from-[#2a1407] to-[#1a0a04] text-white px-4 sm:px-6 lg:px-10 py-12 font-sans border-t border-yellow-900/30">
@@ -178,13 +194,11 @@ export default function Footer() {
         <div className="h-px bg-gradient-to-r from-transparent via-yellow-900/40 to-transparent mb-10" />
 
         {/* Bottom Section: Newsletter & App */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 mb-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-16 mb-10">
           {/* Newsletter */}
           <div>
             <h3 className="font-semibold text-lg mb-2 text-yellow-500">{t('Footer.Headers.detailed_newsletter') || 'Detailed Newsletter'}</h3>
-            <p className="text-sm text-gray-400 mb-5 max-w-sm">
-              {t('Footer.Headers.newsletter_desc')}
-            </p>
+            <p className="text-sm text-gray-400 mb-5 max-w-sm">{t('Footer.Headers.newsletter_desc')}</p>
             <form onSubmit={handleNewsletterSubmit} className="relative max-w-md">
               <input
                 type="email"
@@ -202,6 +216,36 @@ export default function Footer() {
                 <Send size={18} className="-ml-0.5" />
               </button>
             </form>
+          </div>
+
+          {/* Quick Links (Auto Rolling) */}
+          <div className="flex flex-col items-start">
+            <h3 className="font-semibold text-lg mb-2 text-yellow-500">{t('Footer.Headers.quick_links') || 'Quick Links'}</h3>
+
+            <div className="w-full max-w-md px-4 py-4">
+              <div className="h-20 overflow-hidden relative">
+                <div
+                  className="footer-quicklinks-ticker will-change-transform"
+                  style={{
+                    ['--quickLinksShift' as any]: `${quickLinksCycleHeightPx}px`,
+                    animationDuration: `${Math.max(10, quickLinks.length * 3)}s`,
+                  }}
+                >
+                  {rollingQuickLinks.map((link, idx) => (
+                    <div key={`${link.href}-${idx}`} className="h-10 flex items-center">
+                      <Link
+                        href={link.href}
+                        className="flex items-start gap-2 text-sm font-semibold text-gray-200 hover:text-white hover:underline underline-offset-4 transition-colors"
+                      >
+                        <ArrowRight size={16} className="mt-[2px] flex-shrink-0 text-gray-200" />
+
+                        <span className="leading-snug">{link.label}</span>
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* App Download */}
@@ -236,6 +280,29 @@ export default function Footer() {
           <p className="leading-relaxed text-gray-300">© {new Date().getFullYear()} Vaazhga Valamudan. All Rights Reserved.</p>
         </div>
       </div>
+      <style jsx>{`
+        .footer-quicklinks-ticker {
+          animation-name: footerQuickLinksTicker;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+        }
+        .footer-quicklinks-ticker:hover {
+          animation-play-state: paused;
+        }
+        @keyframes footerQuickLinksTicker {
+          from {
+            transform: translateY(0);
+          }
+          to {
+            transform: translateY(calc(-1 * var(--quickLinksShift)));
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .footer-quicklinks-ticker {
+            animation: none !important;
+          }
+        }
+      `}</style>
     </footer>
   )
 }
