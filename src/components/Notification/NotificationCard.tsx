@@ -68,7 +68,7 @@ export default function NotificationCard({
         </div>
       )}
 
-      {notification.image_url && !notification.icon && (
+      {/* {notification.image_url && !notification.icon && (
         <div className="flex-shrink-0">
           <img
             src={notification.image_url}
@@ -76,7 +76,7 @@ export default function NotificationCard({
             className="w-10 h-10 rounded-full object-cover"
           />
         </div>
-      )}
+      )} */}
 
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
