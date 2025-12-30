@@ -141,12 +141,12 @@ export default function KYCStatus() {
           Complete your KYC verification to unlock full access and build trust with buyers and sellers.
         </p>
 
-        {kycStatus?.latestAttempt && kycStatus.latestAttempt.status === 'PENDING' && (
+        {/* {kycStatus?.latestAttempt && kycStatus.latestAttempt.status === 'PENDING' && (
           <div className="mb-6 p-3 bg-amber-50 border border-amber-100 rounded-lg text-amber-700 text-sm font-medium flex items-center justify-center gap-2">
             <Loader2 size={16} className="animate-spin" />
             Verification in progress...
           </div>
-        )}
+        )} */}
 
         <div className="space-y-4">
           {directCallToKyc ? (
