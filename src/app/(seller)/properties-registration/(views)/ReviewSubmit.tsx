@@ -31,6 +31,7 @@ interface Step6ReviewSubmitProps {
   onSubmit?: (agreedToTerms: boolean) => void
   formik: FormikProps<PropertyCreationFormValues>
   propertyCategoryData: PropertyCategory[]
+  propertyId?: string
 }
 interface UserData {
   id: string
@@ -39,7 +40,7 @@ interface UserData {
   email: string
 }
 
-export default function Step6ReviewSubmit({ listingData, onSubmit, formik, propertyCategoryData }: Step6ReviewSubmitProps) {
+export default function Step6ReviewSubmit({ listingData, onSubmit, formik, propertyCategoryData, propertyId }: Step6ReviewSubmitProps) {
   // only formik is currently accepted for potential future use
   const t = useTranslations()
   const { user } = useAuth()
@@ -50,7 +51,10 @@ export default function Step6ReviewSubmit({ listingData, onSubmit, formik, prope
   const [modalAction, setModalAction] = useState<string>('')
   const [comment, setComment] = useState('')
   const [rejectReason, setRejectReason] = useState('')
-  const { propertyDetailsData, propertyDetailsFetchLoader, propertyDetailsRefresh } = usePropertiesDetail({ id: globalValue ?? '' })
+  // In edit mode, effectivePropertyId is passed from parent page via props or context? 
+  // Actually, page.tsx doesn't pass propertyId to Step6ReviewSubmit.
+  // We should rely on globalValue AND propertiesId from context/url if globalValue is lost.
+  const { propertyDetailsData, propertyDetailsFetchLoader, propertyDetailsRefresh } = usePropertiesDetail({ id: propertyId || globalValue || '' })
 
   const [agreedToTerms, setAgreedToTerms] = useState(false)
   const router = useRouter()
@@ -152,11 +156,10 @@ export default function Step6ReviewSubmit({ listingData, onSubmit, formik, prope
           <button
             onClick={handleSubmit}
             disabled={!agreedToTerms}
-            className={`w-full md:w-auto px-8 py-3 rounded-lg font-medium transition-all duration-200 ${
-              agreedToTerms
-                ? 'bg-gradient-to-r from-yellow-500 to-yellow-600  hover:bg-blue-700 text-white cursor-pointer'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
+            className={`w-full md:w-auto px-8 py-3 rounded-lg font-medium transition-all duration-200 ${agreedToTerms
+              ? 'bg-gradient-to-r from-yellow-500 to-yellow-600  hover:bg-blue-700 text-white cursor-pointer'
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
           >
             Submit Listing
           </button>

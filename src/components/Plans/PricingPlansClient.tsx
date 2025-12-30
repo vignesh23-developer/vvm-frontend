@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import React from 'react'
 import { PricingPlansClientProps } from './types'
 import { useUserSubscription } from './hooks/useUserSubscription'
+import { useTranslations } from 'next-intl'
 
 
 /**
@@ -11,6 +12,7 @@ import { useUserSubscription } from './hooks/useUserSubscription'
  * Handles subscription state and renders mobile/desktop views
  */
 export default function PricingPlansClient({ plans, featuresList, apiPlans }: PricingPlansClientProps) {
+  const t = useTranslations()
   const { activeSubscription, error, loading: isLoading } = useUserSubscription()
   const [activeTab, setActiveTab] = React.useState<string>('MONTHLY')
 
@@ -104,7 +106,7 @@ export default function PricingPlansClient({ plans, featuresList, apiPlans }: Pr
             whileInView={{ opacity: 1, y: 0 }}
             className="inline-block px-4 py-1.5 rounded-full bg-yellow-100 text-yellow-800 text-sm font-semibold mb-4 border border-yellow-200"
           >
-            Flexible Pricing
+            {t('Pricing.flexible_pricing')}
           </motion.div>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -112,7 +114,7 @@ export default function PricingPlansClient({ plans, featuresList, apiPlans }: Pr
             transition={{ delay: 0.1 }}
             className="text-4xl md:text-5xl font-bold text-[#2a1407] mb-6 tracking-tight"
           >
-            Choose the Perfect Plan for You
+            {t('Pricing.title')}
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -120,7 +122,7 @@ export default function PricingPlansClient({ plans, featuresList, apiPlans }: Pr
             transition={{ delay: 0.2 }}
             className="text-xl text-gray-500 leading-relaxed"
           >
-            Whether you're just starting out or scaling your real estate business, we have a plan that fits your needs.
+            {t('Pricing.description')}
           </motion.p>
         </div>
 
@@ -137,7 +139,7 @@ export default function PricingPlansClient({ plans, featuresList, apiPlans }: Pr
                     : 'text-gray-500 hover:text-gray-700'
                     }`}
                 >
-                  {cycle.charAt(0).toUpperCase() + cycle.slice(1).toLowerCase()}
+                  {t(`Pricing.${cycle.toLowerCase()}`) || cycle.charAt(0).toUpperCase() + cycle.slice(1).toLowerCase()}
                 </button>
               ))}
             </div>
@@ -173,7 +175,7 @@ export default function PricingPlansClient({ plans, featuresList, apiPlans }: Pr
               >
                 {plan.highlight && (
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-yellow-500 text-white px-6 py-1.5 rounded-full text-sm font-bold shadow-lg flex items-center gap-1">
-                    <span className="text-lg">👑</span> Most Popular
+                    <span className="text-lg">👑</span> {t('Pricing.most_popular')}
                   </div>
                 )}
 
@@ -187,7 +189,7 @@ export default function PricingPlansClient({ plans, featuresList, apiPlans }: Pr
                       {plan.price}
                     </span>
                     <span className={`text-sm ${plan.highlight ? 'text-gray-400' : 'text-gray-500'}`}>
-                      / {activeTab.toLowerCase().replace('ly', '')}
+                      / {t(`Pricing.${activeTab.toLowerCase().replace('ly', '')}`) || activeTab.toLowerCase().replace('ly', '')}
                     </span>
                   </div>
                 </div>
@@ -220,7 +222,7 @@ export default function PricingPlansClient({ plans, featuresList, apiPlans }: Pr
                     }`}
                   disabled={plan.planAction === 'current'}
                 >
-                  {plan.planAction === 'current' ? 'Current Plan' : plan.planAction === 'upgrade' ? 'Upgrade Plan' : plan.planAction === 'downgrade' ? 'Downgrade' : 'Get Started'}
+                  {plan.planAction === 'current' ? t('Pricing.current_plan') : plan.planAction === 'upgrade' ? t('Pricing.upgrade_plan') : plan.planAction === 'downgrade' ? t('Pricing.downgrade') : t('Pricing.get_started')}
                 </button>
               </motion.div>
             ))}
@@ -230,10 +232,9 @@ export default function PricingPlansClient({ plans, featuresList, apiPlans }: Pr
             <div className="bg-yellow-50 p-6 rounded-full mb-6">
               <span className="text-6xl">🎁</span>
             </div>
-            <h3 className="text-2xl font-bold text-[#2a1407] mb-2">Enjoy Your Trial Period!</h3>
+            <h3 className="text-2xl font-bold text-[#2a1407] mb-2">{t('Pricing.trial_title')}</h3>
             <p className="text-gray-500 max-w-md mx-auto">
-              We don't have any {activeTab.toLowerCase()} plans listed at the moment.
-              Keep exploring our features with your current trial benefits.
+              {t('Pricing.trial_desc', { activeTab: t(`Pricing.${activeTab.toLowerCase()}`) || activeTab })}
             </p>
           </div>
         )}

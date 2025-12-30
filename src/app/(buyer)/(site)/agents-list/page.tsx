@@ -208,17 +208,17 @@ const AgentListPage = () => {
         suggestionsSet.add(s)
       }
     })
-    ;(agentCompanyProfileData || []).forEach((agency: any) => {
-      const candidates = [agency.companyName, agency.profileName, agency.contact_name, agency.city, agency.district, agency.state]
-      candidates.forEach(value => {
-        if (typeof value === 'string') {
-          const lower = value.toLowerCase()
-          if (lower.includes(query)) {
-            suggestionsSet.add(value)
+      ; (agentCompanyProfileData || []).forEach((agency: any) => {
+        const candidates = [agency.companyName, agency.profileName, agency.contact_name, agency.city, agency.district, agency.state]
+        candidates.forEach(value => {
+          if (typeof value === 'string') {
+            const lower = value.toLowerCase()
+            if (lower.includes(query)) {
+              suggestionsSet.add(value)
+            }
           }
-        }
+        })
       })
-    })
 
     return Array.from(suggestionsSet).slice(0, 8)
   }, [debouncedSearchTerm, agentCompanyProfileData, backendSuggestions])
@@ -296,9 +296,9 @@ const AgentListPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 lg:py-12">
           <div className="flex flex-col gap-6">
             <div>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#2a1407] tracking-tight mb-3">Expert Agents Ready to Help</h1>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#2a1407] tracking-tight mb-3">{t('AgentList.heading')}</h1>
               <p className="text-base sm:text-lg text-gray-600 max-w-2xl leading-relaxed">
-                Connect with trusted real estate experts who know your neighbourhood and budget.
+                {t('AgentList.subheading')}
               </p>
             </div>
 
@@ -316,7 +316,7 @@ const AgentListPage = () => {
                     type="text"
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
-                    placeholder="Search by agent, company or location..."
+                    placeholder={t('AgentList.search_placeholder')}
                     className="block w-full pl-11 pr-4 py-3 bg-transparent border-none rounded-xl text-gray-900 placeholder-gray-400 focus:ring-0 sm:text-base"
                   />
                   {searchTerm && (
@@ -342,9 +342,8 @@ const AgentListPage = () => {
                 {/* Filter Button */}
                 <button
                   onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-                  className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
-                    isFiltersOpen ? 'bg-[#2a1407] text-white shadow-md' : 'bg-yellow-50 text-[#2a1407] hover:bg-yellow-100'
-                  } cursor-pointer`}
+                  className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${isFiltersOpen ? 'bg-[#2a1407] text-white shadow-md' : 'bg-yellow-50 text-[#2a1407] hover:bg-yellow-100'
+                    } cursor-pointer`}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path
@@ -353,7 +352,7 @@ const AgentListPage = () => {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span>Filters</span>
+                  <span>{t('PropertiesList.filters')}</span>
                 </button>
               </div>
 
@@ -399,7 +398,7 @@ const AgentListPage = () => {
           <div className="flex-1 min-w-0">
             {/* Active Filters Display */}
             <div className="mb-5 flex flex-wrap items-center gap-2 p-4 bg-white/90 border border-yellow-200 rounded-2xl shadow-sm">
-              <span className="text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide">Active Filters</span>
+              <span className="text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide">{t('AgentList.active_filters')}</span>
               {filters.location.map(loc => (
                 <span
                   key={loc}
@@ -466,13 +465,13 @@ const AgentListPage = () => {
               ))}
               <div className="ml-auto flex items-center gap-2">
                 <span className="hidden sm:inline text-xs text-gray-500">
-                  {totalNumber} result{totalNumber !== 1 ? 's' : ''} found
+                  {totalNumber} {t('AgentList.results_found')}
                 </span>
                 <button
                   onClick={handleClearFilters}
                   className="px-3 py-1 text-xs sm:text-sm font-semibold text-yellow-800 hover:text-yellow-900 underline underline-offset-4 cursor-pointer"
                 >
-                  Clear all
+                  {t('AgentList.clear_all')}
                 </button>
               </div>
             </div>
@@ -496,15 +495,15 @@ const AgentListPage = () => {
               </div>
             ) : filteredAgencies?.length === 0 ? (
               <div className="text-center py-16 rounded-2xl bg-white/80 border border-dashed border-gray-200">
-                <p className="text-gray-700 text-lg font-semibold">No agencies match your filters</p>
+                <p className="text-gray-700 text-lg font-semibold">{t('AgentList.no_results_title')}</p>
                 <p className="mt-2 text-sm text-gray-500 max-w-md mx-auto">
-                  Widen your search by changing city or removing some filters to discover more expert agents.
+                  {t('AgentList.no_results_desc')}
                 </p>
                 <button
                   onClick={handleClearFilters}
                   className="mt-5 px-6 py-2.5 bg-yellow-500 text-[#2a1407] rounded-full text-sm font-semibold hover:bg-yellow-600 transition-all shadow-sm cursor-pointer"
                 >
-                  Clear Filters
+                  {t('AgentList.clear_filters')}
                 </button>
               </div>
             ) : (
@@ -545,7 +544,7 @@ const AgentListPage = () => {
                       {agentProperty.isVerified && (
                         <div className="absolute top-4 right-4 z-10">
                           <span className="px-3 py-1 rounded-full bg-[#FFFBEB] text-[#B45309] border border-[#FEF3C7] text-xs font-bold shadow-sm flex items-center gap-1">
-                            Verified
+                            {t('AgentList.verified')}
                           </span>
                         </div>
                       )}
@@ -588,8 +587,8 @@ const AgentListPage = () => {
                       {/* Footer Section */}
                       <div className="grid grid-cols-2 gap-4 pt-4 mt-4 items-end">
                         <div className="flex flex-col">
-                          <span className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-1">Status</span>
-                          <p className="text-sm font-semibold text-gray-700">{agentProperty.isActive ? 'Active' : 'Inactive'}</p>
+                          <span className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-1">{t('AgentList.status')}</span>
+                          <p className="text-sm font-semibold text-gray-700">{agentProperty.isActive ? t('AgentList.active') : t('AgentList.inactive')}</p>
                         </div>
                         <div className="flex justify-end">
                           <button
@@ -600,7 +599,7 @@ const AgentListPage = () => {
                             }}
                             className="text-sm font-semibold text-yellow-700 bg-yellow-50 hover:bg-yellow-100 px-4 py-2 rounded-lg transition-colors border border-yellow-100 cursor-pointer"
                           >
-                            View Profile
+                            {t('AgentList.view_profile')}
                           </button>
                         </div>
                       </div>

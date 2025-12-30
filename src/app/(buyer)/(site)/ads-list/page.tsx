@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from 'react'
 import useSWR from 'swr'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import { getMethod, postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import Pagination from '@/components/ui/CustomComponent/Paginations/Pagination'
@@ -75,6 +76,7 @@ interface FilterState {
 }
 
 const AdsListPage = () => {
+  const t = useTranslations()
   const router = useRouter()
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
@@ -335,10 +337,10 @@ const AdsListPage = () => {
           <div className="flex flex-col gap-6">
             <div>
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#2a1407] tracking-tight mb-3">
-                Discover High-Impact Property Ads
+                {t('AdsList.heading')}
               </h1>
               <p className="text-base sm:text-lg text-gray-600 max-w-2xl leading-relaxed">
-                Browse curated campaigns from verified sellers and promoters.
+                {t('AdsList.subheading')}
               </p>
             </div>
 
@@ -356,7 +358,7 @@ const AdsListPage = () => {
                     type="text"
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
-                    placeholder="Search ads by title, brand or location..."
+                    placeholder={t('AdsList.search_placeholder')}
                     className="block w-full pl-11 pr-4 py-3 bg-transparent border-none rounded-xl text-gray-900 placeholder-gray-400 focus:ring-0 sm:text-base"
                   />
                   {searchTerm && (
@@ -382,9 +384,8 @@ const AdsListPage = () => {
                 {/* Filter Button */}
                 <button
                   onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-                  className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
-                    isFiltersOpen ? 'bg-[#2a1407] text-white shadow-md' : 'bg-yellow-50 text-[#2a1407] hover:bg-yellow-100'
-                  } cursor-pointer`}
+                  className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${isFiltersOpen ? 'bg-[#2a1407] text-white shadow-md' : 'bg-yellow-50 text-[#2a1407] hover:bg-yellow-100'
+                    } cursor-pointer`}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path
@@ -393,7 +394,7 @@ const AdsListPage = () => {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span>Filters</span>
+                  <span>{t('PropertiesList.filters')}</span>
                 </button>
               </div>
 
@@ -439,7 +440,7 @@ const AdsListPage = () => {
           <div className="flex-1 min-w-0">
             {/* Active Filters Display */}
             <div className="mb-5 flex flex-wrap items-center gap-2 p-4 bg-white/90 border border-yellow-200 rounded-2xl shadow-sm">
-              <span className="text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide">Active Filters</span>
+              <span className="text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide">{t('AdsList.active_filters')}</span>
               {filters.location.map(loc => (
                 <span
                   key={loc}
@@ -506,13 +507,13 @@ const AdsListPage = () => {
               ))}
               <div className="ml-auto flex items-center gap-2">
                 <span className="hidden sm:inline text-xs text-gray-500">
-                  {totalResults} result{totalResults === 1 ? '' : 's'} found
+                  {totalResults} {t('AdsList.results_found')}
                 </span>
                 <button
                   onClick={handleClearFilters}
                   className="px-3 py-1 text-xs sm:text-sm font-semibold text-yellow-800 hover:text-yellow-900 underline underline-offset-4 cursor-pointer"
                 >
-                  Clear all
+                  {t('AdsList.clear_all')}
                 </button>
               </div>
             </div>
@@ -537,15 +538,15 @@ const AdsListPage = () => {
               </div>
             ) : displayedAds.length === 0 ? (
               <div className="text-center py-16 rounded-2xl bg-white/80 border border-dashed border-gray-200">
-                <p className="text-gray-700 text-lg font-semibold">No ads match your filters</p>
+                <p className="text-gray-700 text-lg font-semibold">{t('AdsList.no_results_title')}</p>
                 <p className="mt-2 text-sm text-gray-500 max-w-md mx-auto">
-                  Widen your search by changing city or removing some filters to discover more ads.
+                  {t('AdsList.no_results_desc')}
                 </p>
                 <button
                   onClick={handleClearFilters}
                   className="mt-5 px-6 py-2.5 bg-yellow-500 text-[#2a1407] rounded-full text-sm font-semibold hover:bg-yellow-600 transition-all shadow-sm cursor-pointer"
                 >
-                  Clear Filters
+                  {t('AdsList.clear_filters')}
                 </button>
               </div>
             ) : (
