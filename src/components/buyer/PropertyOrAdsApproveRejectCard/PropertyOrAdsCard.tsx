@@ -402,7 +402,7 @@ const ActionSection = ({
       <p className="text-[10px] uppercase tracking-[0.16em] text-yellow-400/90 font-semibold">
         {approval_status === 'APPROVED' ? 'Featured Listing' : approval_status.replace(/_/g, ' ')}
       </p>
-      <h3 className="text-xl font-bold text-white">{'₹ ' + price}</h3>
+      <h3 className="text-xl font-bold text-white">{'₹ ' + (price ? String(price) : '0')}</h3>
       <p className="text-xs sm:text-sm text-gray-300">{`${property_size || '--'} ${property_size_unit || ''}`}</p>
     </div>
     {propertyPreviewMode ? (
@@ -439,15 +439,14 @@ const ActionButton = ({
   <motion.div whileHover={{ y: -3 }}>
     <Button
       type="button"
-      onClick={disabled ? () => {} : onClick ?? (() => {})}
+      onClick={disabled ? () => { } : onClick ?? (() => { })}
       disabled={disabled}
-      className={`w-full rounded-full py-2 font-medium transition ${
-        disabled
+      className={`w-full rounded-full py-2 font-medium transition ${disabled
           ? 'border border-gray-200 bg-gray-100 text-gray-400'
           : variant === 'primary'
-          ? 'bg-black text-white hover:bg-gray-800'
-          : 'border bg-white hover:bg-gray-200'
-      }`}
+            ? 'bg-black text-white hover:bg-gray-800'
+            : 'border bg-white hover:bg-gray-200'
+        }`}
     >
       {label}
     </Button>

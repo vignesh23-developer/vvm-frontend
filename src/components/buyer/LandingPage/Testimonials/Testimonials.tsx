@@ -261,7 +261,7 @@ export default function Testimonials({ testimonialsData, error, isLoading: testi
                       </div>
                     </div>
 
-                    <p className="my-4 text-sm text-gray-700 leading-relaxed line-clamp-5 flex-1 ">{item.quote}</p>
+                    <p className="my-4 text-sm text-gray-700 leading-relaxed h-32 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-yellow-200 scrollbar-track-transparent flex-1 ">{item.quote}</p>
 
                     <div className="mt-4 flex items-center justify-between">
                       <div className="flex items-center gap-1">

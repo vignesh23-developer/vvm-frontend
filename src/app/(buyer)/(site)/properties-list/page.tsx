@@ -412,9 +412,9 @@ const PropertiesListPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 lg:py-12">
           <div className="flex flex-col gap-6">
             <div>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#2a1407] tracking-tight mb-3">Discover Your Dream Property</h1>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#2a1407] tracking-tight mb-3">{t('PropertiesList.heading')}</h1>
               <p className="text-base sm:text-lg text-gray-600 max-w-2xl leading-relaxed">
-                Curated homes, villas and apartments from trusted sellers.
+                {t('PropertiesList.subheading')}
               </p>
             </div>
 
@@ -432,7 +432,7 @@ const PropertiesListPage = () => {
                     }}
                     className="block w-full px-4 py-3 bg-transparent border-none rounded-xl text-gray-900 focus:ring-0 sm:text-base"
                   >
-                    <option value="">All Districts</option>
+                    <option value="">{t('PropertiesList.all_districts')}</option>
                     {districts.map(d => (
                       <option key={d} value={d}>
                         {d}
@@ -459,7 +459,7 @@ const PropertiesListPage = () => {
                       setPage(1)
                       setSearchTerm(e.target.value)
                     }}
-                    placeholder="Search by title, city, area or address..."
+                    placeholder={t('PropertiesList.search_placeholder')}
                     className="block w-full pl-11 pr-4 py-3 bg-transparent border-none rounded-xl text-gray-900 placeholder-gray-400 focus:ring-0 sm:text-base"
                   />
                   {searchTerm && (
@@ -485,9 +485,8 @@ const PropertiesListPage = () => {
                 {/* Filter Button */}
                 <button
                   onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-                  className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
-                    isFiltersOpen ? 'bg-[#2a1407] text-white shadow-md' : 'bg-yellow-50 text-[#2a1407] hover:bg-yellow-100'
-                  } cursor-pointer`}
+                  className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${isFiltersOpen ? 'bg-[#2a1407] text-white shadow-md' : 'bg-yellow-50 text-[#2a1407] hover:bg-yellow-100'
+                    } cursor-pointer`}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path
@@ -496,7 +495,7 @@ const PropertiesListPage = () => {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span>Filters</span>
+                  <span>{t('PropertiesList.filters')}</span>
                 </button>
               </div>
 
@@ -525,11 +524,11 @@ const PropertiesListPage = () => {
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-50 border border-yellow-100/50">
                 <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
                 <p className="text-sm font-medium text-gray-700">
-                  <span className="font-extrabold text-[#2a1407]">{totalResults}</span> properties found
+                  <span className="font-extrabold text-[#2a1407]">{totalResults}</span> {t('PropertiesList.results_found')}
                   {(searchTerm || params.location) && (
                     <span className="text-gray-500 font-normal">
                       {' '}
-                      for <span className="text-[#2a1407] italic">"{searchTerm || params.location}"</span>
+                      {t('PropertiesList.for')} <span className="text-[#2a1407] italic">"{searchTerm || params.location}"</span>
                     </span>
                   )}
                 </p>
@@ -560,7 +559,7 @@ const PropertiesListPage = () => {
             {/* {((params === 'explore_by_category' && hasActivePropertyFilters) || 
                   (params === 'agency' && filteredAgencies.length !== (agentCompanyProfileData?.length || 0))) && ( */}
             <div className="mb-5 flex flex-wrap items-center gap-2 p-4 bg-white/90 border border-yellow-200 rounded-2xl shadow-sm">
-              <span className="text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide">Active Filters</span>
+              <span className="text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide">{t('PropertiesList.active_filters')}</span>
               {filters.location.map(loc => (
                 <span
                   key={loc}
@@ -627,13 +626,13 @@ const PropertiesListPage = () => {
               ))}
               <div className="ml-auto flex items-center gap-2">
                 <span className="hidden sm:inline text-xs text-gray-500">
-                  {totalResults} result{totalResults === 1 ? '' : 's'} found
+                  {totalResults} {t('PropertiesList.results_found')}
                 </span>
                 <button
                   onClick={handleClearFilters}
                   className="px-3 py-1 text-xs sm:text-sm font-semibold text-yellow-800 hover:text-yellow-900 underline underline-offset-4 cursor-pointer"
                 >
-                  Clear all
+                  {t('PropertiesList.clear_all')}
                 </button>
               </div>
             </div>
@@ -660,15 +659,15 @@ const PropertiesListPage = () => {
                 </div>
               ) : displayedProperties.length === 0 ? (
                 <div className="text-center py-16 rounded-2xl bg-white/80 border border-dashed border-gray-200">
-                  <p className="text-gray-700 text-lg font-semibold">No properties match your filters</p>
+                  <p className="text-gray-700 text-lg font-semibold">{t('PropertiesList.no_results_title')}</p>
                   <p className="mt-2 text-sm text-gray-500 max-w-md mx-auto">
-                    Try adjusting your search keywords, price range or removing some filters to see more homes.
+                    {t('PropertiesList.no_results_desc')}
                   </p>
                   <button
                     onClick={handleClearFilters}
                     className="mt-5 px-6 py-2.5 bg-yellow-500 text-[#2a1407] rounded-full text-sm font-semibold hover:bg-yellow-600 transition-all shadow-sm cursor-pointer"
                   >
-                    Clear Filters
+                    {t('PropertiesList.clear_filters')}
                   </button>
                 </div>
               ) : (

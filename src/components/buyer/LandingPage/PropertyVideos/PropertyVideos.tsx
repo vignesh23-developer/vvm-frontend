@@ -308,7 +308,7 @@ export default function PropertyVideos() {
                       initial={{ opacity: 0 }}
                       whileInView={{ opacity: 1 }}
                       transition={{ delay: 0.4 }}
-                      className="text-xl font-bold text-[#2a1407] mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-yellow-600 group-hover:to-amber-600 transition-all duration-300"
+                      className="text-xl font-bold text-[#2a1407] mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-yellow-600 group-hover:to-amber-600 transition-all duration-300 h-[4.5rem] flex items-center line-clamp-2"
                     >
                       {item.title}
                     </motion.h3>

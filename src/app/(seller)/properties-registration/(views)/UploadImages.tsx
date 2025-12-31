@@ -1,10 +1,11 @@
 'use client'
 
-import React, { useState, useRef, useEffect, useTransition } from 'react'
-import { Upload, Trash2, CheckCircle, Image as ImageIcon, Film, Star, Link as LinkIcon, AlertCircle, Info, Play, X, FileVideo, GripVertical } from 'lucide-react'
+import React, { useState, useRef, useEffect, useTransition, forwardRef, useImperativeHandle } from 'react'
+import { Upload, Trash2, CheckCircle, Image as ImageIcon, Film, Star, Link as LinkIcon, AlertCircle, Info, Play, X, GripVertical } from 'lucide-react'
 import toast from 'react-hot-toast'
 import Button from '@/components/ui/CustomComponent/Button/Button'
-import { onAddPropertyMedia } from '../(action)/properties_registration_action'
+import { onAddPropertyMedia, getPropertyImages, updatePropertyImage, deletePropertyImage } from '../(action)/properties_registration_action'
+import { useParams } from 'next/navigation'
 import { ResponseDTO } from '@/components/dto/response_dto'
 
 interface Step5UploadImagesProps {
@@ -12,6 +13,10 @@ interface Step5UploadImagesProps {
   onUploaded: () => void
   onUploadingChange: (isUploading: boolean) => void
   mode: 'create' | 'edit'
+}
+
+export interface UploadImagesRef {
+  submit: () => void
 }
 
 type MediaItem = {
@@ -24,12 +29,62 @@ type MediaItem = {
   preview: string
 }
 
-export default function Step5UploadImages({ propertyId, onUploaded, onUploadingChange, mode }: Step5UploadImagesProps) {
+const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(({ propertyId, onUploaded, onUploadingChange, mode }, ref) => {
   const [activeTab, setActiveTab] = useState<'media' | 'youtube'>('media')
   const [items, setItems] = useState<MediaItem[]>([])
   const [ispending, startTransition] = useTransition()
   const [isSubmitted, setIsSubmitted] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Fetch images for edit mode
+  useEffect(() => {
+    const fetchImages = async () => {
+      if (mode === 'edit' && propertyId && items.length === 0) {
+        try {
+          const res = await getPropertyImages(propertyId)
+          if (res.success && Array.isArray(res.data)) {
+            const mappedItems: MediaItem[] = res.data.map((img: any) => {
+              const isYt = img.url && (img.url.includes('youtube.com') || img.url.includes('youtu.be'));
+              let preview = img.url;
+
+              if (isYt) {
+                const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
+                const match = img.url.match(regExp)
+                const videoId = (match && match[2].length === 11) ? match[2] : null
+                if (videoId) preview = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
+              }
+
+              return {
+                id: img.id || Math.random().toString(36).substr(2, 9),
+                url: img.url,
+                title: img.title || '',
+                type: img.media_type === 'IMAGE' ? 'IMAGE' : 'VIDEO',
+                isPrimary: img.is_primary,
+                preview: preview
+              }
+            })
+            // Sanitize: Ensure only one primary exists.
+            // If multiple are found, keep the first one and set others to false.
+            let primaryFound = false;
+            const sanitizedItems = mappedItems.map(item => {
+              if (item.isPrimary) {
+                if (primaryFound) {
+                  return { ...item, isPrimary: false };
+                }
+                primaryFound = true;
+              }
+              return item;
+            });
+
+            setItems(sanitizedItems)
+          }
+        } catch (error) {
+          console.error("Failed to fetch property images", error)
+        }
+      }
+    }
+    fetchImages()
+  }, [mode, propertyId])
 
   // YouTube Link State
   const [videoLink, setVideoLink] = useState('')
@@ -44,6 +99,10 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
   useEffect(() => {
     onUploadingChange(ispending)
   }, [ispending, onUploadingChange])
+
+  useImperativeHandle(ref, () => ({
+    submit: handleUploadAll
+  }))
 
   // Cleanup previews
   useEffect(() => {
@@ -151,7 +210,7 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
         file,
         title: file.name.split('.')[0],
         type: 'IMAGE',
-        isPrimary: items.length === 0 && currentImages.length === 0 && !items.some(i => i.isPrimary),
+        isPrimary: false, // Default to false, handled in setItems
         preview: URL.createObjectURL(file)
       }))
 
@@ -293,7 +352,10 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
   // COMMON ACTIONS
   // ----------------------------------------------------------------------
 
-  const handleRemove = (id: string) => {
+  const handleRemove = async (id: string) => {
+    const itemToRemove = items.find(i => i.id === id)
+
+    // Optimistic Update
     setItems(prev => {
       const remaining = prev.filter(i => i.id !== id)
       // If we removed the primary, assign new primary to the first item (if exists)
@@ -303,13 +365,38 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
       }
       return remaining
     })
+
+    // If it's an existing server image (no file object), call delete API
+    if (itemToRemove && !itemToRemove.file && propertyId) {
+      try {
+        await deletePropertyImage(propertyId, id)
+        toast.success('Image removed')
+      } catch (error) {
+        console.error("Failed to delete image", error)
+        toast.error('Failed to delete image')
+        // Ideally revert state here if critical
+      }
+    }
   }
 
-  const handleSetPrimary = (id: string) => {
+  const handleSetPrimary = async (id: string) => {
+    // Optimistic Update
     setItems(prev => prev.map(item => ({
       ...item,
       isPrimary: item.id === id
     })))
+
+    // If it's an existing server image (no file object), call update API
+    const item = items.find(i => i.id === id)
+    if (item && !item.file && propertyId) {
+      try {
+        await updatePropertyImage(propertyId, id, { is_primary: true })
+        toast.success('Primary image updated')
+      } catch (error) {
+        console.error("Failed to update primary image", error)
+        toast.error('Failed to update primary image')
+      }
+    }
   }
 
   const handleUploadAll = () => {
@@ -405,9 +492,11 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
   // ----------------------------------------------------------------------
 
 
-  const imageItems = items.filter(i => i.type === 'IMAGE' && i.file)
-  const localVideoItems = items.filter(i => i.type === 'VIDEO' && i.file)
-  const youtubeItems = items.filter(i => i.type === 'VIDEO' && i.url)
+  const isYoutube = (url?: string) => url && (url.includes('youtube.com') || url.includes('youtu.be'))
+
+  const imageItems = items.filter(i => i.type === 'IMAGE')
+  const localVideoItems = items.filter(i => i.type === 'VIDEO' && !isYoutube(i.url))
+  const youtubeItems = items.filter(i => i.type === 'VIDEO' && isYoutube(i.url))
 
   return (
     <div className="w-full max-w-5xl mx-auto bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100 min-h-[500px]">
@@ -502,7 +591,7 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
               {/* Unified Render Loop for Local Media (Allow mixing images and videos) */}
-              {items.filter(i => i.file).map((item, index) => (
+              {items.filter(i => (i.type === 'IMAGE' || (i.type === 'VIDEO' && !isYoutube(i.url)))).map((item, index) => (
                 <div
                   key={item.id}
                   draggable
@@ -707,24 +796,7 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
 
       </div>
 
-      {/* Action Bar */}
-      <div className="mt-10 pt-6 border-t border-gray-100 flex justify-end">
-        <Button
-          type="button"
-          onClick={handleUploadAll}
-          disabled={ispending || isSubmitted || items.length === 0}
-          className="bg-[#2a1407] hover:bg-[#3d1e0b] text-white px-8 py-3.5 rounded-xl text-md font-bold shadow-xl shadow-[#2a1407]/20 flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-[1.02] active:scale-[0.98]"
-        >
-          {ispending ? (
-            <span className="flex items-center gap-2">
-              <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Saving...
-            </span>
-          ) : (
-            <>Save & Continue <CheckCircle size={20} /></>
-          )}
-        </Button>
-      </div>
+
 
       {/* Video Modal */}
       {
@@ -761,4 +833,6 @@ export default function Step5UploadImages({ propertyId, onUploaded, onUploadingC
 
     </div >
   )
-}
+})
+
+export default Step5UploadImages

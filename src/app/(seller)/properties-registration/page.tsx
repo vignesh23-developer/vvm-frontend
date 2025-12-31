@@ -1,7 +1,7 @@
 'use client'
 import { CheckCircle, ContactRound, Home, MapPin, Star, Camera, Check, ArrowRight, ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { SetStateAction, startTransition, use, useActionState, useEffect, useState, useTransition } from 'react'
+import { SetStateAction, startTransition, use, useActionState, useEffect, useState, useTransition, useRef } from 'react'
 import { Formik, Form, FormikHelpers } from 'formik'
 import * as Yup from 'yup'
 
@@ -26,7 +26,7 @@ import Button from '@/components/ui/CustomComponent/Button/Button'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { useKycStatus } from '@/components/kyc/hooks/useKycStatus'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
-import Step5UploadImages from './(views)/UploadImages'
+import Step5UploadImages, { UploadImagesRef } from './(views)/UploadImages'
 // import Step5UploadImages from './(views)/UploadImages'
 
 const mapFeatureValuesToPayload = (featureValues: any[] | undefined, mappings: FeatureMappingDTO[] | null): FeaturePayloadDTO[] => {
@@ -183,6 +183,8 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
   const { user, setUser } = useAuth()
   const router = useRouter()
   const [valueData, setValueData] = useState<any>(null)
+
+  const uploadRef = useRef<UploadImagesRef>(null)
 
   // KYC Verification Hook
   const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
@@ -648,13 +650,12 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
                 <div
                   className={`relative flex items-center justify-center w-12 h-12 rounded-full border-2 text-sm font-semibold
             transition-all duration-300 shadow-sm
-            ${
-              isCompleted
-                ? 'bg-[#2a1407] border-[#2a1407] text-white'
-                : isActive
-                ? 'bg-white border-[#2a1407] text-[#2a1407] shadow-md scale-110'
-                : 'bg-white border-gray-300 text-gray-400 group-hover:border-gray-400'
-            }`}
+            ${isCompleted
+                      ? 'bg-[#2a1407] border-[#2a1407] text-white'
+                      : isActive
+                        ? 'bg-white border-[#2a1407] text-[#2a1407] shadow-md scale-110'
+                        : 'bg-white border-gray-300 text-gray-400 group-hover:border-gray-400'
+                    }`}
                 >
                   {isCompleted ? (
                     <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -784,12 +785,16 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
               {currentStep === 5 && (
                 <Step5UploadImages
                   propertyId={effectivePropertyId}
-                  onUploaded={() => setUploadCompleted(true)}
+                  onUploaded={() => {
+                    setUploadCompleted(true)
+                    setCurrentStep(s => s + 1)
+                  }}
                   onUploadingChange={setIsUploadingImages}
                   mode={isEdit ? 'edit' : 'create'}
+                  ref={uploadRef}
                 />
               )}
-              {currentStep === 6 && <Step6ReviewSubmit propertyCategoryData={propertyCategoryData} formik={formik} />}
+              {currentStep === 6 && <Step6ReviewSubmit propertyCategoryData={propertyCategoryData} formik={formik} propertyId={effectivePropertyId} />}
 
               <div className="flex flex-col sm:flex-row justify-between gap-3 mt-8 pt-6 border-t border-gray-100 max-w-4xl mx-auto">
                 <Button
@@ -804,52 +809,52 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
                   <>
                     {currentStep !== 5
                       ? (() => {
-                          const isLoading = formik.isSubmitting || LRIsPending || ULRIsPending
-                          return (
-                            <Button
-                              type="submit"
-                              onClick={() => {}}
-                              disabled={isLoading}
-                              className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#2a1407] text-white hover:bg-[#641717] cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ${
-                                isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                        const isLoading = formik.isSubmitting || LRIsPending || ULRIsPending
+                        return (
+                          <Button
+                            type="submit"
+                            onClick={() => { }}
+                            disabled={isLoading}
+                            className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#2a1407] text-white hover:bg-[#641717] cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
                               }`}
-                            >
-                              {!isLoading ? (
-                                <>
-                                  {isLastStep ? 'Submit' : currentStep === 4 ? 'Save Property' : 'Next Step'}
-                                  <ArrowRight size={20} />
-                                </>
-                              ) : (
-                                <span>Loading...</span>
-                              )}
-                            </Button>
-                          )
-                        })()
+                          >
+                            {!isLoading ? (
+                              <>
+                                {isLastStep ? 'Submit' : currentStep === 4 ? 'Save Property' : 'Next Step'}
+                                <ArrowRight size={20} />
+                              </>
+                            ) : (
+                              <span>Loading...</span>
+                            )}
+                          </Button>
+                        )
+                      })()
                       : (() => {
-                          const isLoading = isUploadingImages
-                          return (
-                            <Button
-                              type="button"
-                              onClick={() => {
-                                if (uploadCompleted) {
-                                  setCurrentStep(s => Math.min(s + 1, steps.length))
-                                }
-                              }}
-                              disabled={!uploadCompleted || isLoading}
-                              className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#2a1407] text-white hover:bg-[#641717] transition disabled:opacity-50 disabled:cursor-not-allowed ${
-                                uploadCompleted && !isLoading ? 'cursor-pointer' : ''
+                        const isLoading = isUploadingImages
+                        return (
+                          <Button
+                            type="button"
+                            onClick={() => {
+                              if (uploadCompleted) {
+                                setCurrentStep(s => Math.min(s + 1, steps.length))
+                              } else {
+                                uploadRef.current?.submit()
+                              }
+                            }}
+                            disabled={isLoading}
+                            className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#2a1407] text-white hover:bg-[#641717] transition disabled:opacity-50 disabled:cursor-not-allowed ${uploadCompleted && !isLoading ? 'cursor-pointer' : ''
                               }`}
-                            >
-                              {!isLoading ? (
-                                <>
-                                  {uploadCompleted ? 'Next Step' : 'Upload Photos to Continue'} <ArrowRight size={20} />
-                                </>
-                              ) : (
-                                <span>Uploading...</span>
-                              )}
-                            </Button>
-                          )
-                        })()}
+                          >
+                            {!isLoading ? (
+                              <>
+                                {uploadCompleted ? 'Next Step' : 'Upload Photos to Continue'} <ArrowRight size={20} />
+                              </>
+                            ) : (
+                              <span>Uploading...</span>
+                            )}
+                          </Button>
+                        )
+                      })()}
                   </>
                 )}
               </div>
