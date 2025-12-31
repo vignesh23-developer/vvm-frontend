@@ -30,6 +30,7 @@ import {
   ChevronRight,
   MoreHorizontal,
   Bell,
+  UserPlus,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTranslationContext } from '@/hooks/Translation/TranslationProvider'
@@ -164,6 +165,7 @@ const PROFILE_SECTIONS = (userId: string, companyId: string): NavItem[] => [
       { label: 'company profile', href: companyId ? `/company-profile/${companyId}` : '/company-profile', icon: <Building2 size={16} /> },
       { label: 'view subscriptions', href: '/view-subscriptions', icon: <Crown size={16} /> },
       { label: 'view transactions', href: '/admin/dashboard/view-transactions', icon: <BadgeIndianRupee size={16} /> },
+      { label: 'view referrals', href: '/profile/my-referrals', icon: <UserPlus size={16} /> },
       { label: 'feedback', href: '/feedback', icon: <Info size={16} /> },
       { label: 'logout', href: '/logout', icon: <LogOut size={16} /> },
     ],
@@ -581,6 +583,9 @@ export default function Navbar({
                     </Link>
                     <Link href="/view-subscriptions" className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition">
                       <Crown size={16} className="shrink-0" /> {t('Navbar.view subscriptions')}
+                    </Link>
+                    <Link href="/profile/my-referrals" className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition">
+                      <UserPlus size={16} className="shrink-0" /> {'View Referrals'}
                     </Link>
                     <Link href="/view-transactions" className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition">
                       <BadgeIndianRupee size={16} className="shrink-0" /> {t('Navbar.view transactions')}
