@@ -28,6 +28,7 @@ export class SSEService {
   private reconnectTimer: NodeJS.Timeout | null = null
   private isConnecting = false
   private isConnected = false
+  private shouldReconnect = true // Flag to prevent reconnection after logout
   private baseUrl: string
   private reader: ReadableStreamDefaultReader<Uint8Array> | null = null
 
@@ -41,6 +42,12 @@ export class SSEService {
    * Always reads token from cookies to ensure it's fresh (same as axios interceptor)
    */
   async connect(token?: string): Promise<boolean> {
+    // Don't connect if reconnection is disabled (user logged out)
+    if (!this.shouldReconnect) {
+      console.log('SSE: Reconnection disabled, skipping connect')
+      return false
+    }
+
     if (this.isConnecting || this.isConnected) {
       return true
     }
@@ -76,6 +83,7 @@ export class SSEService {
         console.warn('SSE: Unauthorized (401) - token invalid or expired')
         this.isConnecting = false
         this.isConnected = false
+        this.shouldReconnect = false // Stop reconnection attempts after auth failure
         // Don't attempt reconnect for auth failures - user needs to re-login
         return false
       }
@@ -173,7 +181,10 @@ export class SSEService {
       // Stream ended normally, handle reconnection
       this.isConnected = false
       this.reader = null
-      this.handleReconnect()
+      // Only attempt reconnect if allowed
+      if (this.shouldReconnect) {
+        this.handleReconnect()
+      }
       return true
     } catch (error: any) {
       // Don't log AbortError - it's expected during disconnect
@@ -184,7 +195,8 @@ export class SSEService {
       this.isConnected = false
       this.reader = null
 
-      if (error.name !== 'AbortError') {
+      // Only attempt reconnect if allowed and not aborted
+      if (error.name !== 'AbortError' && this.shouldReconnect) {
         this.handleReconnect()
       }
 
@@ -196,6 +208,8 @@ export class SSEService {
    * Disconnect from SSE endpoint
    */
   disconnect(): void {
+    // Disable reconnection when explicitly disconnected (e.g., on logout)
+    this.shouldReconnect = false
     this.clearReconnectTimer()
 
     // Abort fetch request
@@ -239,6 +253,9 @@ export class SSEService {
   ): string {
     const id = `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     this.subscribers.set(id, { id, callback, eventType })
+
+    // Re-enable reconnection when a new subscription is made (user logged in)
+    this.shouldReconnect = true
 
     // Auto-connect if not connected and token is provided
     if (!this.getConnectionStatus() && !this.isConnecting && token) {
@@ -288,6 +305,12 @@ export class SSEService {
    * Handle reconnection logic
    */
   private handleReconnect(): void {
+    // Don't reconnect if reconnection is disabled (user logged out)
+    if (!this.shouldReconnect) {
+      console.log('SSE: Reconnection disabled, skipping reconnect')
+      return
+    }
+
     // Don't reconnect if no subscribers (user logged out)
     if (this.subscribers.size === 0) {
       console.log('SSE: No subscribers, skipping reconnect')
@@ -296,10 +319,13 @@ export class SSEService {
 
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
       console.error('SSE: Max reconnection attempts reached')
-      this.notifySubscribers('error', {
-        event: 'error',
-        data: { message: 'Max reconnection attempts reached' },
-      })
+      // Only notify subscribers if they still exist
+      if (this.subscribers.size > 0) {
+        this.notifySubscribers('error', {
+          event: 'error',
+          data: { message: 'Max reconnection attempts reached' },
+        })
+      }
       return
     }
 
@@ -313,6 +339,12 @@ export class SSEService {
     )
 
     this.reconnectTimer = setTimeout(async () => {
+      // Double-check reconnection is still allowed
+      if (!this.shouldReconnect) {
+        console.log('SSE: Reconnection disabled during reconnect timer, aborting')
+        return
+      }
+
       // Double-check subscribers still exist before reconnecting
       if (this.subscribers.size === 0) {
         console.log('SSE: No subscribers during reconnect, aborting')
@@ -324,6 +356,8 @@ export class SSEService {
         this.connect(tokenResult.cookies as string)
       } else {
         console.warn('SSE: No valid token for reconnection')
+        // If no token, disable reconnection (user likely logged out)
+        this.shouldReconnect = false
       }
     }, delay)
   }

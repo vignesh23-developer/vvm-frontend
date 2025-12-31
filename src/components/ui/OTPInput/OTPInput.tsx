@@ -138,8 +138,14 @@ export default function OTPInput({
       phoneNumber: reSendData?.phoneNumber,
       otpTypes: reSendData?.otpTypes || 'SMS',
     }
+    
+    // Use registration endpoint if specified, otherwise use login endpoint
+    const endpoint = reSendData?.useRegistrationEndpoint 
+      ? appEndpoints.registerSendOtp 
+      : appEndpoints.loginSendOtp
+    
     try {
-      const response = (await postMethod(appEndpoints.loginSendOtp, resendPayload)) as ResponseDTO
+      const response = (await postMethod(endpoint, resendPayload)) as ResponseDTO
       // console.log('Resend OTP response:', response)
       if (response.status === '200') {
         toast.success('OTP resent successfully')
