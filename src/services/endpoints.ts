@@ -26,6 +26,8 @@ export const appEndpoints = {
   updateUserProfile: '/profile',
   uploadUserProfileImage: '/profile/picture',
   getUserHistory: '/profile/login-history',
+  getUserRefferrals: '/profile/referral',
+  getReferralAnalytics: '/profile/referral/analytics',
 
   // KYC enpoints
   // kyc status

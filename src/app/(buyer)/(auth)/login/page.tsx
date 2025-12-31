@@ -33,6 +33,7 @@ const Login = () => {
   const locale = useLocale()
   const searchParams = useSearchParams()
   const isRedirect = searchParams.get('next')
+  const referralCodeFromUrl = searchParams.get('referralCode')
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const { token, loading, setToken, setUser } = useAuth()
@@ -54,10 +55,20 @@ const Login = () => {
       setIsLoading(true)
       // Generate device info for web
       const deviceId = `web:${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-      const params = {
+      const params: {
+        deviceType: string
+        deviceId: string
+        platform: string
+        referralCode?: string
+      } = {
         deviceType: 'web',
         deviceId,
         platform: 'web'
+      }
+
+      // Include referralCode if present in URL
+      if (referralCodeFromUrl) {
+        params.referralCode = referralCodeFromUrl
       }
 
       const response = await getMethod<{ url: string }>(appEndpoints.googleLogin, params)
