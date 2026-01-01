@@ -30,7 +30,10 @@ const t = (translator: ((k: string) => string) | undefined, key: string, fallbac
 export interface MediaItem {
   id: string
   url: string
-  thumbnail_url?: string
+  thumbnail_url?: string | null
+  type?: string
+  mime_type?: string
+  media_type?: string
   is_primary?: boolean
   [key: string]: any
 }
@@ -262,7 +265,7 @@ const ImageSection = ({
   operatingSince,
   labels,
 }: {
-  imageUrl: string | { image: string; video: string | null }
+  imageUrl: any | { image: string; video: string | null }
   title: string
   agent: string
   operatingSince: string
@@ -274,7 +277,7 @@ const ImageSection = ({
     initial="rest"
     whileHover="hover"
   >
-    {typeof imageUrl === 'string' || !imageUrl.video ? (
+    {typeof imageUrl.image === 'string' || !imageUrl.video ? (
       <Image
         src={typeof imageUrl === 'string' ? imageUrl : imageUrl.image}
         alt={title}
@@ -439,14 +442,15 @@ const ActionButton = ({
   <motion.div whileHover={{ y: -3 }}>
     <Button
       type="button"
-      onClick={disabled ? () => { } : onClick ?? (() => { })}
+      onClick={disabled ? () => {} : onClick ?? (() => {})}
       disabled={disabled}
-      className={`w-full rounded-full py-2 font-medium transition ${disabled
+      className={`w-full rounded-full py-2 font-medium transition ${
+        disabled
           ? 'border border-gray-200 bg-gray-100 text-gray-400'
           : variant === 'primary'
-            ? 'bg-black text-white hover:bg-gray-800'
-            : 'border bg-white hover:bg-gray-200'
-        }`}
+          ? 'bg-black text-white hover:bg-gray-800'
+          : 'border bg-white hover:bg-gray-200'
+      }`}
     >
       {label}
     </Button>

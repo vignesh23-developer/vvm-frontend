@@ -523,5 +523,60 @@
     "title": "Service Providers: Partner With Vaazhga Valamudan & Grow Your Business",
     "on_this_page": "On this page",
     "content": "**Vaazhga Valamudan** is dedicated to building Tamil Nadu’s most reliable and comprehensive digital real estate ecosystem. Beyond connecting buyers and agents, we extend a warm welcome to all property-related service providers. Partner with us to advertise your services, enhance your visibility, and significantly grow your customer base.\n\n### 🌟 Who Can Partner With Us?\nWe proudly support a wide range of trusted service providers essential to the real estate journey:\n\n**Property Services:**\n- Civil Engineers\n- Building Contractors\n- Architects\n- Fencing Providers\n- Borewell Services\n- Building Material Suppliers\n- Interior Designers\n- Painters\n- Electricians / Plumbers\n\n**Legal & Documentation:**\n- Advocates\n- Legal Verification Experts\n- Property Document Writers\n- Patta / EC / Chitta Service Providers\n\n**Financial Services:**\n- Bank Loan Officers\n- Home Loan Consultants\n- Insurance Providers\n\n**Builder / Promoter Services:**\n- Layout Developers\n- Township Developers\n- Apartment Builders\n- Villa Project Owners\n\n### 🎯 Why Advertise Your Services With Vaazhga Valamudan?\n- **Dedicated Audience:** Access a highly engaged, Tamil Nadu-focused user base.\n- **Targeted Visibility:** Achieve precise, district-wise visibility, connecting you with local demand.\n- **High-Intent Leads:** Reach buyers who are actively searching and ready to proceed daily.\n- **Zero Commission Model:** Keep 100% of your earnings; we charge no commission.\n- **Affordable Plans:** Benefit from simple, cost-effective monthly advertisement plans.\n- **Direct Customer Contact:** Enjoy unrestricted, direct communication with your potential clients.\n\n### 💼 What Your Service Provider Listing Includes:\nEach comprehensive listing ensures your business stands out:\n\n- **Your Business Name**\n- **Owner / Primary Contact Person**\n- **Specific Service Category**\n- **Service Location(s)**\n- **1–2 High-Quality Photos**\n- **All Essential Contact Details**\n- **Google Map Link (Optional, for easy navigation)**\n\n### 💰 Simple & Affordable Pricing\nAdvertisement plans start from **Low Price Package with Features**.\n\n- Absolutely no hidden charges.\n- Zero commission on your deals.\n- Direct customer enquiries go straight to you.\n\n### 🤝 Our Commitment to Your Growth\nWe are committed to providing you with:\n\n- Genuine and highly relevant user traffic.\n- High-quality, verified listings that build trust.\n- Prompt and responsive support whenever you need it.\n- District-level visibility to effectively reach your exact target audience.\n\nJoin the Vaazhga Valamudan network today and let us help you grow your business.\n"
+  },
+  "PropertiesList": {
+    "heading": "Discover Your Dream Property",
+    "subheading": "Curated homes, villas and apartments from trusted sellers",
+    "all_districts": "All Districts",
+    "search_placeholder": "Search by title, city, area, or address...",
+    "filters": "Filters",
+    "results_found": "Results Found",
+    "for": "for",
+    "active_filters": "Active Filters",
+    "clear_all": "Clear All",
+    "no_results_title": "No properties match your filters",
+    "no_results_desc": "Expand your search by changing the city or removing some filters",
+    "clear_filters": "Clear Filters"
+  },
+  "AgentList": {
+    "heading": "Experts Agents Ready to Help",
+    "subheading": "Connect with trusted real estate experts who know your neighborhood and budget.",
+    "search_placeholder": "Search by agent, company, or location...",
+    "active_filters": "Active Filters",
+    "results_found": "Agent Found",
+    "clear_all": "Clear All",
+    "no_results_title": "No agents match your filters",
+    "no_results_desc": "Expand your search by changing the city or removing some filters",
+    "clear_filters": "Clear Filters",
+    "verified": "Verified",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "view_profile": "View Profile"
+  },
+  "AdsList": {
+    "heading": "Discover High-Impact Property Ads",
+    "subheading": "Browse curated campaigns from verified sellers and promoters.",
+    "search_placeholder": "Search by title, brand, or location...",
+    "active_filters": "Active Filters",
+    "results_found": "Results Found",
+    "clear_all": "Clear All",
+    "no_results_title": "No ads match your filters",
+    "no_results_desc": "Expand your search by changing the city or removing some filters",
+    "clear_filters": "Clear Filters"
+  },
+  "Pricing": {
+    "flexible_pricing": "Flexible Pricing",
+    "title": "Choose the Perfect Plan for You",
+    "description": "Whether you're just starting out or scaling your real estate business, we have a plan that fits your needs.",
+    "trial_title": "Enjoy Your Trial Period!",
+    "trial_desc": "We do not have any monthly plans listed. Keep exploring our features with your current trial benefits.",
+    "most_popular": "Most Popular",
+    "current_plan": "Current Plan",
+    "upgrade_plan": "Upgrade Plan",
+    "downgrade": "Downgrade",
+    "get_started": "Get Started",
+    "monthly": "Monthly",
+    "yearly": "Yearly"
   }
 }

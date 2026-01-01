@@ -61,7 +61,10 @@ export default function LocationPickerModal({ open, setOpen, initialLat, initial
       error => {
         console.log('log on get current location:', error)
 
-        toast.error(error.message)
+        toast(error.message, {
+          icon: '⚠️',
+          style: { borderRadius: '8px', background: '#fff3cd', color: '#856404' },
+        })
       },
       {
         enableHighAccuracy: true,

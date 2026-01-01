@@ -139,7 +139,7 @@ export async function getPropertyImages(propertyId: string): Promise<any> {
 
 export async function updatePropertyImage(propertyId: string, imageId: string, body: { is_primary?: boolean; sort_order?: number }): Promise<any> {
   try {
-    const response = await patchMethod(appEndpoints.updatePropertyImage(propertyId, imageId), body)
+    const response = await patchMethod(appEndpoints.updatePropertyImageByID(imageId), body)
     return {
       success: !response.error,
       error: response.error,

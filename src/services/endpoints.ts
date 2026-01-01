@@ -127,6 +127,7 @@ export const appEndpoints = {
   addPropertyImages: (propertyId: string) => `/property-media/${propertyId}/upload`,
   getPropertyImages: (propertyId: string) => `/property-media/${propertyId}`,
   updatePropertyImage: (propertyId: string, imageId: string) => `/property-media/${propertyId}/${imageId}`,
+  updatePropertyImageByID: (imageId: string) => `/property-media/${imageId}`,
   deletePropertyImage: (propertyId: string, imageId: string) => `/property-media/${propertyId}/${imageId}`,
 
   // Ads Endpoints
@@ -180,7 +181,7 @@ export const appEndpoints = {
   createUpgradeOrder: (userId: string, subscriptionId: number) => `/users/${userId}/subscription/${subscriptionId}/upgrade/order`,
   createDowngradeOrder: (userId: string, subscriptionId: number) => `/users/${userId}/subscription/${subscriptionId}/downgrade/order`,
   cancelSubscription: (userId: string, subscriptionId: number) => `/users/${userId}/subscription/${subscriptionId}/cancel`,
-  getAllSubscription: "/users/subscriptions/all",
+  getAllSubscription: '/users/subscriptions/all',
   getSubscriptionPlanAnalytics: '/users/subscriptions/analytics',
 
   // Addons
@@ -236,9 +237,6 @@ export const appEndpoints = {
   unsubscribeNewsletter: '/newsletters/unsubscribe',
   getNewsletterAnalytics: '/newsletters/analytics',
 }
-
-
-
 
 export const testAppEndpoints = {
   testKycNotification: '/kyc/test/notification',

@@ -23,17 +23,20 @@ export async function onCreateAd(prevState: any, payload: any): Promise<any> {
 }
 
 // Ads Images
-export async function onAddAdImages(prevState: any, params: { 
-  adId: string;
-  formData: FormData;
-  current: number;
-  total: number;
-}): Promise<any> {
+export async function onAddAdImages(
+  prevState: any,
+  params: {
+    adId: string
+    formData: FormData
+    current: number
+    total: number
+  },
+): Promise<any> {
   try {
     // Add current and total to form data
     params.formData.append('current', params.current.toString())
     params.formData.append('total', params.total.toString())
-    
+
     const response = await postMethod(appEndpoints.addAdImages(params.adId), params.formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })

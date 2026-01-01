@@ -1,7 +1,7 @@
 'use client'
 
 import { FileText, MapPin, Phone, ArrowRight, ArrowLeft, Upload } from 'lucide-react'
-import { useState, useEffect, useActionState, startTransition } from 'react'
+import { useState, useEffect, useActionState, startTransition, useRef } from 'react'
 import { Formik, Form, FormikHelpers } from 'formik'
 import * as Yup from 'yup'
 import toast from 'react-hot-toast'
@@ -12,7 +12,7 @@ import Step1BasicDetails from '../(views)/BasicDetails'
 import Step2Location from '../(views)/Location'
 import Step3Contact from '../(views)/ContactInfo'
 import StepperComponent from '@/components/ui/CustomComponent/StepperComponent/StepperComponent'
-import AdsImages from '../(views)/Images'
+import AdsImages, { UploadImagesRef } from '../(views)/Images'
 import { onCreateAd, onUpdateAd } from '../(action)/ads_action'
 import { AdsCreationFormValues } from '../page'
 import { useKycStatus } from '@/components/kyc/hooks/useKycStatus'
@@ -31,6 +31,10 @@ export default function AdsForm({ mode, initialData, adId }: AdsFormProps) {
   const { user, token, loading: authLoading } = useAuth()
   const [currentStep, setCurrentStep] = useState(1)
   const [createdAdId, setCreatedAdId] = useState<string | undefined>(adId)
+  const [isUploadingImages, setIsUploadingImages] = useState<boolean>(false)
+  const [hasAddedMedia, setHasAddedMedia] = useState<boolean>(false)
+  const [hasExistingMedia, setHasExistingMedia] = useState<boolean>(false)
+  const uploadImagesRef = useRef<UploadImagesRef | null>(null)
 
   // Admin-only guard (client-side fallback; middleware enforces on initial request)
   useEffect(() => {
@@ -248,7 +252,17 @@ export default function AdsForm({ mode, initialData, adId }: AdsFormProps) {
               {currentStep === 1 && <Step1BasicDetails formik={formik} />}
               {currentStep === 2 && <Step2Location formik={formik} />}
               {currentStep === 3 && <Step3Contact formik={formik} />}
-              {currentStep === 4 && <AdsImages adId={createdAdId || adId || ''} onUploaded={() => router.push('/ads/list')} mode={mode} />}
+              {currentStep === 4 && (
+                <AdsImages
+                  adId={createdAdId || adId || ''}
+                  onUploaded={() => router.push('/ads/list')}
+                  onUploadingChange={setIsUploadingImages}
+                  onHasMediaChange={setHasAddedMedia}
+                  onHasExistingMediaChange={setHasExistingMedia}
+                  mode={mode}
+                  ref={uploadImagesRef}
+                />
+              )}
             </div>
 
             {/* Navigation Buttons */}
@@ -279,6 +293,23 @@ export default function AdsForm({ mode, initialData, adId }: AdsFormProps) {
                         {isLastStep ? (mode === 'create' ? 'Create Ad & Continue' : 'Update Ad') : 'Next Step'} <ArrowRight size={20} />
                       </>
                     )}
+                  </button>
+                )}
+
+                {currentStep === 4 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const shouldUpload = hasAddedMedia || !hasExistingMedia
+                      if (shouldUpload) uploadImagesRef.current?.submit()
+                      else router.push('/ads/list')
+                    }}
+                    disabled={isUploadingImages}
+                    className={`w-full flex items-center justify-center gap-2 px-8 py-3 rounded-lg bg-[#2a1407] text-white hover:bg-[#641717] cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ${
+                      isUploadingImages ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    {isUploadingImages ? 'Uploading...' : hasAddedMedia || !hasExistingMedia ? 'Upload Images' : 'Go to Ads List'}
                   </button>
                 )}
               </div>
