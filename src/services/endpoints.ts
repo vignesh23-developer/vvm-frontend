@@ -4,7 +4,10 @@ import { get } from 'http'
 export const appEndpoints = {
   // Authentication Endpoints
   login: '/login',
+  googleLogin:"/login/google",
   signUp: '/register',
+  googleSignup:'/register/google',
+  registerSendOtp: '/register/send-otp',
   loginSendOtp: '/login/send-otp',
   loginVerifyOtp: '/login/verify-otp',
   loginRefreshToken: '/login/refresh-token',
@@ -23,6 +26,8 @@ export const appEndpoints = {
   updateUserProfile: '/profile',
   uploadUserProfileImage: '/profile/picture',
   getUserHistory: '/profile/login-history',
+  getUserRefferrals: '/profile/referral',
+  getReferralAnalytics: '/profile/referral/analytics',
 
   // KYC enpoints
   // kyc status
