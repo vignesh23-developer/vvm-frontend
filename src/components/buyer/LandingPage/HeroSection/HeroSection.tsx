@@ -4,12 +4,13 @@ import { useState, useEffect, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
-import { MapPin, Home, ChevronDown, IndianRupee, Search } from 'lucide-react'
+import { MapPin, Home, ChevronDown, IndianRupee, Search, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { motion, Variants } from 'framer-motion'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import LucideIconRenderer from '@/components/ui/CustomComponent/LucideIconRenderer/LucideIconRenderer'
 import { useExploreProperties } from '../ExploreProperties/hooks/useExploreProperties'
+import { useHomeSearch } from '@/hooks/CustomHooks/useHomeSearch'
 
 interface HeroSectionProps {
   propertyCategories: Array<any>
@@ -29,6 +30,8 @@ export default function HeroSection({ propertyCategories, error: categoriesError
   const [locationQuery, setLocationQuery] = useState('')
   const [debouncedLocationQuery, setDebouncedLocationQuery] = useState('')
   const [showSuggestions, setShowSuggestions] = useState(false)
+  const [showSavedSearches, setShowSavedSearches] = useState(false)
+  const { savedSearches, isLoading: isSearchHistoryLoading, deleteSavedSearch, mutate: mutateSearchHistory } = useHomeSearch()
   // Lightweight category shape used in this component
   interface Category {
     id: string | number
@@ -82,6 +85,42 @@ export default function HeroSection({ propertyCategories, error: categoriesError
     setLocationQuery(name)
     setFieldValue('location', name)
     setShowSuggestions(false)
+    setShowSavedSearches(false)
+  }
+
+  const handleSavedSearchSelect = (savedSearch: any, setFieldValue: (field: string, value: unknown) => void) => {
+    const criteria = savedSearch.search_criteria || {}
+    
+    // Extract location
+    if (criteria.location) {
+      setLocationQuery(criteria.location)
+      setFieldValue('location', criteria.location)
+    }
+    
+    // Extract type
+    if (criteria.type) {
+      setFieldValue('type', criteria.type)
+    }
+    
+    // Extract budget
+    if (criteria.budget) {
+      setFieldValue('budget', criteria.budget)
+      // Parse budget range if it's in format "min-max"
+      if (typeof criteria.budget === 'string' && criteria.budget.includes('-')) {
+        const [min, max] = criteria.budget.split('-').map(Number)
+        if (!isNaN(min) && !isNaN(max)) {
+          setBudgetRange([min, max])
+        }
+      }
+    }
+    
+    setShowSavedSearches(false)
+    setShowSuggestions(false)
+  }
+
+  const handleDeleteSavedSearch = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation()
+    await deleteSavedSearch(id)
   }
 
   // Background carousel images (external URLs)
@@ -306,16 +345,31 @@ export default function HeroSection({ propertyCategories, error: categoriesError
                           const nextValue = e.target.value
                           setLocationQuery(nextValue)
                           setFieldValue('location', nextValue)
-                          setShowSuggestions(nextValue.trim().length >= MIN_LOCATION_QUERY_LENGTH)
+                          const hasQuery = nextValue.trim().length >= MIN_LOCATION_QUERY_LENGTH
+                          setShowSuggestions(hasQuery)
+                          // Show saved searches only when there's no query (or minimal query)
+                          setShowSavedSearches(!hasQuery)
                           setShowBudget(false)
                           setShowType(false)
                         }}
                         onBlur={event => {
                           handleBlur(event)
-                          setTimeout(() => setShowSuggestions(false), 150)
+                          setTimeout(() => {
+                            setShowSuggestions(false)
+                            setShowSavedSearches(false)
+                          }, 150)
                         }}
                         onFocus={() => {
-                          setShowSuggestions(locationQuery.trim().length >= MIN_LOCATION_QUERY_LENGTH)
+                          const hasQuery = locationQuery.trim().length >= MIN_LOCATION_QUERY_LENGTH
+                          setShowSuggestions(hasQuery)
+                          // Trigger fetch of saved searches when input is focused
+                          mutateSearchHistory()
+                          // Show saved searches if no query (or minimal query) - will show once data loads
+                          if (!hasQuery) {
+                            setShowSavedSearches(true)
+                          } else {
+                            setShowSavedSearches(false)
+                          }
                           setShowBudget(false)
                           setShowType(false)
                         }}
@@ -350,6 +404,47 @@ export default function HeroSection({ propertyCategories, error: categoriesError
                             {name}
                           </button>
                         ))}
+                      </div>
+                    )}
+
+                    {showSavedSearches && (isSearchHistoryLoading || savedSearches.length > 0) && (
+                      <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-xl">
+                        {isSearchHistoryLoading ? (
+                          <div className="px-4 py-2 text-sm text-gray-500">Loading saved searches...</div>
+                        ) : (
+                          savedSearches.map(savedSearch => {
+                            const criteria = savedSearch.search_criteria || {}
+                            const location = criteria.location || 'Unknown location'
+                            return (
+                              <div
+                                key={savedSearch.id}
+                                className="flex items-center justify-between w-full px-4 py-2 text-left text-sm font-medium text-gray-700 transition hover:bg-gray-100 group"
+                              >
+                                <button
+                                  type="button"
+                                  onMouseDown={event => {
+                                    event.preventDefault()
+                                    handleSavedSearchSelect(savedSearch, setFieldValue)
+                                  }}
+                                  className="flex-1 text-left"
+                                >
+                                  {location}
+                                </button>
+                                <button
+                                  type="button"
+                                  onMouseDown={event => {
+                                    event.preventDefault()
+                                    handleDeleteSavedSearch(event, savedSearch.id)
+                                  }}
+                                  className="ml-2 p-1 rounded-full hover:bg-gray-200 transition opacity-0 group-hover:opacity-100"
+                                  aria-label="Delete saved search"
+                                >
+                                  <X className="w-4 h-4 text-gray-500 hover:text-red-600" />
+                                </button>
+                              </div>
+                            )
+                          })
+                        )}
                       </div>
                     )}
                   </motion.div>
@@ -525,16 +620,31 @@ export default function HeroSection({ propertyCategories, error: categoriesError
                           const nextValue = e.target.value
                           setLocationQuery(nextValue)
                           setFieldValue('location', nextValue)
-                          setShowSuggestions(nextValue.trim().length >= MIN_LOCATION_QUERY_LENGTH)
+                          const hasQuery = nextValue.trim().length >= MIN_LOCATION_QUERY_LENGTH
+                          setShowSuggestions(hasQuery)
+                          // Show saved searches only when there's no query (or minimal query)
+                          setShowSavedSearches(!hasQuery)
                           setShowBudget(false)
                           setShowType(false)
                         }}
                         onBlur={event => {
                           handleBlur(event)
-                          setTimeout(() => setShowSuggestions(false), 150)
+                          setTimeout(() => {
+                            setShowSuggestions(false)
+                            setShowSavedSearches(false)
+                          }, 150)
                         }}
                         onFocus={() => {
-                          setShowSuggestions(locationQuery.trim().length >= MIN_LOCATION_QUERY_LENGTH)
+                          const hasQuery = locationQuery.trim().length >= MIN_LOCATION_QUERY_LENGTH
+                          setShowSuggestions(hasQuery)
+                          // Trigger fetch of saved searches when input is focused
+                          mutateSearchHistory()
+                          // Show saved searches if no query (or minimal query) - will show once data loads
+                          if (!hasQuery) {
+                            setShowSavedSearches(true)
+                          } else {
+                            setShowSavedSearches(false)
+                          }
                           setShowBudget(false)
                           setShowType(false)
                         }}
@@ -569,6 +679,47 @@ export default function HeroSection({ propertyCategories, error: categoriesError
                             {name}
                           </button>
                         ))}
+                      </div>
+                    )}
+
+                    {showSavedSearches && (isSearchHistoryLoading || savedSearches.length > 0) && (
+                      <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-xl">
+                        {isSearchHistoryLoading ? (
+                          <div className="px-4 py-2 text-sm text-gray-500">Loading saved searches...</div>
+                        ) : (
+                          savedSearches.map(savedSearch => {
+                            const criteria = savedSearch.search_criteria || {}
+                            const location = criteria.location || 'Unknown location'
+                            return (
+                              <div
+                                key={savedSearch.id}
+                                className="flex items-center justify-between w-full px-4 py-2 text-left text-sm font-medium text-gray-700 transition hover:bg-gray-100 group"
+                              >
+                                <button
+                                  type="button"
+                                  onMouseDown={event => {
+                                    event.preventDefault()
+                                    handleSavedSearchSelect(savedSearch, setFieldValue)
+                                  }}
+                                  className="flex-1 text-left"
+                                >
+                                  {location}
+                                </button>
+                                <button
+                                  type="button"
+                                  onMouseDown={event => {
+                                    event.preventDefault()
+                                    handleDeleteSavedSearch(event, savedSearch.id)
+                                  }}
+                                  className="ml-2 p-1 rounded-full hover:bg-gray-200 transition opacity-0 group-hover:opacity-100"
+                                  aria-label="Delete saved search"
+                                >
+                                  <X className="w-4 h-4 text-gray-500 hover:text-red-600" />
+                                </button>
+                              </div>
+                            )
+                          })
+                        )}
                       </div>
                     )}
                   </motion.div>
