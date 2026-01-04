@@ -138,12 +138,10 @@ export default function OTPInput({
       phoneNumber: reSendData?.phoneNumber,
       otpTypes: reSendData?.otpTypes || 'SMS',
     }
-    
+
     // Use registration endpoint if specified, otherwise use login endpoint
-    const endpoint = reSendData?.useRegistrationEndpoint 
-      ? appEndpoints.registerSendOtp 
-      : appEndpoints.loginSendOtp
-    
+    const endpoint = reSendData?.useRegistrationEndpoint ? appEndpoints.registerSendOtp : appEndpoints.loginSendOtp
+
     try {
       const response = (await postMethod(endpoint, resendPayload)) as ResponseDTO
       // console.log('Resend OTP response:', response)
@@ -194,7 +192,7 @@ export default function OTPInput({
       {showResend && (
         <div className="text-right text-xs mt-2">
           {timeLeft > 0 ? (
-            <span className="text-gray-400">
+            <span className="text-gray-600 font-medium">
               Resend in {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}
             </span>
           ) : (

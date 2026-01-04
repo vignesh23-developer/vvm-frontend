@@ -64,8 +64,6 @@ export default function Step6ReviewSubmit({ listingData, onSubmit, formik, prope
     router.push('/properties/list')
   }
 
-  console.log('Property Details Data in ReviewSubmit:', propertyDetailsData)
-
   const handleTermsChange = (e: React.ChangeEvent<HTMLInputElement>) => setAgreedToTerms(e.target.checked)
 
   const handleFavorite = async (propertyId: string) => {

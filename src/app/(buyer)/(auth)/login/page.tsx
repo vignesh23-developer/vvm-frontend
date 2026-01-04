@@ -63,7 +63,7 @@ const Login = () => {
       } = {
         deviceType: 'web',
         deviceId,
-        platform: 'web'
+        platform: 'web',
       }
 
       // Include referralCode if present in URL
@@ -257,22 +257,19 @@ const Login = () => {
 
                 {/* Forgot Password and Signup Links */}
                 <motion.div
-                  className="flex items-center justify-between text-xs"
+                  className="flex items-center justify-end text-xs"
                   variants={{
                     hidden: { y: 20, opacity: 0 },
                     visible: { y: 0, opacity: 1 },
                   }}
                 >
-                  <Link
+                  {/* <Link
                     href="/forgot-password"
                     className="text-green-900 hover:text-green-700 hover:underline font-medium"
                   >
                     Forgot Password?
-                  </Link>
-                  <Link
-                    href="/signup"
-                    className="text-green-900 hover:text-green-700 hover:underline font-medium"
-                  >
+                  </Link> */}
+                  <Link href="/signup" className="text-green-900 hover:text-green-700 hover:underline font-medium">
                     Sign Up
                   </Link>
                 </motion.div>

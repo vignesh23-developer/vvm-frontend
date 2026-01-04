@@ -1,116 +1,124 @@
 'use client'
 
-import { Trash2, Edit3 } from 'lucide-react'
-import Table from '../../../../components/ui/CustomComponent/Table/Table'
+import { useCallback, useMemo, useState } from 'react'
+import DataTable from '@/components/ui/CustomComponent/Tables/DataTable'
+import { useUsersHook } from './(hooks)/useUsersHook'
+import { UserDataType } from './(dto)/userType'
 
-interface PropertyCategory {
-  id: number
-  name: string
-  status: string
-  created: string
-  edited: string
-}
-
-// Define a type for your table columns
-interface TableColumn<T> {
-  key: keyof T | string
-  header: string
-  render?: (row: T) => React.ReactNode
-}
+type UserDataTableRow = UserDataType & Record<string, unknown>
 
 export default function UserManagementPage() {
-  const data: PropertyCategory[] = [
-    {
-      id: 1,
-      name: 'Land',
-      status: 'Active',
-      created: '21.03.2021',
-      edited: '14.07.2021',
-    },
-    {
-      id: 2,
-      name: 'Flat',
-      status: 'In-Active',
-      created: '21.03.2021',
-      edited: '14.07.2021',
-    },
-    {
-      id: 3,
-      name: 'InvHouse',
-      status: 'Active',
-      created: '21.03.2021',
-      edited: '14.07.2021',
-    },
-  ]
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+  const { users, total, isLoading, handleRefreshUsers } = useUsersHook(page, limit)
 
-  const columns: TableColumn<PropertyCategory>[] = [
-    { key: 'name', header: 'Property Category' },
-    {
-      key: 'status',
-      header: 'Status',
-      render: row => (
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${
-            row.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
-          }`}
-        >
-          {row.status}
-        </span>
-      ),
-    },
-    { key: 'created', header: 'Created' },
-    { key: 'edited', header: 'Edited' },
-    {
-      key: 'actions',
-      header: 'Actions',
-      render: row => (
-        <div className="flex items-center gap-3">
-          <button className="text-gray-500 hover:text-red-500 transition">
-            <Trash2 size={16} />
-          </button>
-          <button className="text-gray-500 hover:text-blue-500 transition">
-            <Edit3 size={16} />
-          </button>
-        </div>
-      ),
-    },
-  ]
+  console.log('Rendering UserManagementPage with users:', users)
+
+  const fetchUsersForTable = useCallback(async () => {
+    return {
+      data: users,
+      totalItems: total,
+    }
+  }, [users, total])
+
+  const columns = useMemo(
+    () => [
+      {
+        field: 'firstName',
+        title: 'First Name',
+        sortable: true,
+        filterable: true,
+      },
+      {
+        field: 'lastName',
+        title: 'Last Name',
+        sortable: true,
+        filterable: true,
+      },
+      {
+        field: 'email',
+        title: 'Email',
+        sortable: true,
+        filterable: true,
+      },
+      {
+        field: 'phoneNumber',
+        title: 'Phone Number',
+        sortable: true,
+        filterable: true,
+      },
+      {
+        field: 'roles',
+        title: 'User Type',
+        sortable: true,
+        filterable: true,
+        render: (item: any) => {
+          const roles: string[] = Array.isArray(item) ? item : Array.isArray(item?.roles) ? item.roles : []
+
+          if (roles.length === 0) return null
+
+          let userType = 'BUYER'
+          let colorClass = 'bg-blue-100 text-blue-700 border border-blue-300'
+
+          if (roles.length === 2) {
+            userType = 'AGENT'
+            colorClass = 'bg-green-100 text-green-700 border border-green-300'
+          }
+
+          if (roles.length >= 3) {
+            userType = 'ADMIN'
+            colorClass = 'bg-yellow-100 text-yellow-700 border border-yellow-300'
+          }
+
+          return <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${colorClass}`}>{userType}</span>
+        },
+      },
+      {
+        field: 'isKycVerified',
+        title: 'KYC Verified',
+        sortable: true,
+        filterable: true,
+        render: (item: any) => {
+          console.log('KYC Verified item:', item)
+          const isVerified = Boolean(item)
+
+          return isVerified ? (
+            <span className="inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700 border border-green-300">Yes</span>
+          ) : (
+            <span className="inline-flex rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700 border border-red-300">No</span>
+          )
+        },
+      },
+    ],
+    [],
+  )
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      {/* Breadcrumb */}
-      <div className="text-sm text-gray-500 mb-4 flex items-center gap-2">
-        <span>Dashboard</span>
-        <span className="text-gray-400">›</span>
-        <span className="font-medium text-gray-700">Users</span>
-      </div>
-
-      {/* Header Tabs + Filters */}
-      <div className="flex flex-wrap items-center gap-3 mb-5">
-        <button className="px-4 py-2 rounded-md bg-orange-100 border border-orange-300 text-orange-700 text-sm font-medium">All</button>
-        <button className="px-4 py-2 rounded-md bg-white border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-100">
-          Projection
-        </button>
-        <button className="px-4 py-2 rounded-md bg-white border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-100">
-          Comparable
-        </button>
-        <button className="px-4 py-2 rounded-md bg-white border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-100">Merger</button>
-
-        <select className="ml-auto border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-600 focus:outline-none">
-          <option>All industries</option>
-        </select>
-
-        <div className="flex items-center border border-gray-200 rounded-md px-3 py-2 bg-white text-sm text-gray-600">Created</div>
-
-        <button className="p-2 border border-gray-200 rounded-md bg-white">🔍</button>
-
-        <button className="ml-2 bg-orange-100 hover:bg-orange-200 text-orange-700 px-4 py-2 rounded-md text-sm font-medium border border-orange-200 transition">
-          + Add User
-        </button>
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between mb-6">
+        <h1 className="text-xl font-semibold text-gray-800">User Details</h1>
       </div>
 
       {/* Table */}
-      <Table columns={columns} data={data} />
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+        <DataTable<UserDataTableRow>
+          columns={columns}
+          fetchData={fetchUsersForTable}
+          loading={isLoading}
+          allowExport
+          allowGrouping
+          allowRefresh
+          onRefresh={handleRefreshUsers}
+          initialPage={page}
+          pageSize={limit}
+          totalItemsData={total}
+          totalPageData={Math.ceil(total / limit)}
+          pageSizeOptions={[5, 10, 25, 50, 100]}
+          setPage={setPage}
+          setCurrentPageSize={setLimit}
+        />
+      </div>
     </div>
   )
 }

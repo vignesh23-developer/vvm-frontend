@@ -4,9 +4,9 @@ import { get } from 'http'
 export const appEndpoints = {
   // Authentication Endpoints
   login: '/login',
-  googleLogin:"/login/google",
+  googleLogin: '/login/google',
   signUp: '/register',
-  googleSignup:'/register/google',
+  googleSignup: '/register/google',
   registerSendOtp: '/register/send-otp',
   loginSendOtp: '/login/send-otp',
   loginVerifyOtp: '/login/verify-otp',
@@ -24,6 +24,9 @@ export const appEndpoints = {
   // User Endpoints
   getUserProfile: '/profile',
   updateUserProfile: '/profile',
+  // Change password for logged-in user
+  getAllUsers: '/profile/users',
+  changePassword: '/profile/update-password',
   uploadUserProfileImage: '/profile/picture',
   getUserHistory: '/profile/login-history',
   getUserRefferrals: '/profile/referral',

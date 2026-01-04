@@ -368,7 +368,7 @@ const InfoSection = ({
             icon={<Ruler size={18} />}
             label={labels.property_size_unit}
             value={property_size ? property_size.toString() : 'N/A'}
-            suffix={property_size_unit ? <span className="text-gray-500">sqft</span> : null}
+            suffix={property_size_unit ? <span className="text-gray-500">{property_size_unit}</span> : 'sqft'}
           />
 
           <PropertyTag icon={<Home size={18} />} label={labels.listing_type} value={listing_type} />

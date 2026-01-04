@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import ChangePassword from '@/components/ui/ChangePassword/ChangePassword'
 import { useRouter, useParams } from 'next/navigation'
 import { appEndpoints } from '@/services/endpoints'
 import { getMethod, postMethod } from '@/services/service'
@@ -28,6 +29,7 @@ const ProfilePage = () => {
     firstName: '',
     lastName: '',
     email: '',
+    phoneNumber: '',
   })
 
   // Redirect if no token
@@ -42,10 +44,10 @@ const ProfilePage = () => {
       const response: ResponseDTO = await getMethod(appEndpoints.getUserProfile)
 
       const payload = response?.data ?? {}
-      const { firstName, lastName, email, profilePicture } = payload
+      const { firstName, lastName, email, phoneNumber, profilePicture } = payload
 
       setImageUrl(profilePicture || null)
-      setInitialValues({ firstName, lastName, email })
+      setInitialValues({ firstName, lastName, email, phoneNumber })
     } catch (error) {
       console.error('Failed to fetch user profile:', error)
     } finally {
@@ -90,33 +92,39 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="p-6">
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
-        {/* Left Column - Profile */}
-        <div className="lg:row-span-2">
+    <div className="mx-auto max-w-7xl p-6">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[3fr_1.5fr] lg:items-start">
+        {/* LEFT COLUMN */}
+        <div className="space-y-8">
           {loading ? (
-            <div className="bg-white shadow-md rounded-2xl p-8 flex items-center justify-center h-64">
+            <div className="flex h-64 items-center justify-center rounded-lg border border-gray-200">
               <span className="text-gray-500">Loading profile data...</span>
             </div>
           ) : (
-            <ProfileForm
-              initialValues={initialValues}
-              validationSchema={ProfileValidationSchema}
-              isEdit={!!id}
-              profileImageUrl={imageUrl || undefined}
-              onImageUpload={handleProfileImageSubmit}
-            />
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+              <div className="w-full">
+                <ProfileForm
+                  initialValues={initialValues}
+                  validationSchema={ProfileValidationSchema}
+                  isEdit={!!id}
+                  profileImageUrl={imageUrl || undefined}
+                  onImageUpload={handleProfileImageSubmit}
+                />
+              </div>
+              <div className="w-full">
+                <ChangePassword />
+              </div>
+            </div>
           )}
         </div>
 
-        {/* Right Column - KYC + Wallet */}
-        <div className="space-y-6">
+        {/* RIGHT COLUMN */}
+        <div className="space-y-8">
           <KYCStatus />
           <WalletCard />
         </div>
       </div>
     </div>
-
   )
 }
 

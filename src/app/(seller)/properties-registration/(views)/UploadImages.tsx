@@ -108,10 +108,10 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
       onUploadingChange(ispending)
     }, [ispending, onUploadingChange])
 
-    // Notify parent when user selected new local file(s)
+    // Notify parent when user added any new media (device files OR new YouTube link)
     useEffect(() => {
-      const hasNewFiles = items.some(i => Boolean(i.file))
-      onHasNewFilesChange?.(hasNewFiles)
+      const hasNewMedia = items.some(i => (Boolean(i.file) || Boolean(i.url)) && !i.isFromServer)
+      onHasNewFilesChange?.(hasNewMedia)
     }, [items, onHasNewFilesChange])
 
     useImperativeHandle(ref, () => ({

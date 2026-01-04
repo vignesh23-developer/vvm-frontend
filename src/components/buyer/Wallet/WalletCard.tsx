@@ -23,9 +23,7 @@ export default function WalletCard() {
         setLoading(true)
         setError(null)
 
-        const response = await getMethod<{ success: boolean; data: { balance: number } }>(
-          appEndpoints.getUserWalletBalance(user.id)
-        )
+        const response = await getMethod<{ success: boolean; data: { balance: number } }>(appEndpoints.getUserWalletBalance(user.id))
 
         if (response.error) {
           setError(response.message || 'Failed to fetch wallet balance')
@@ -54,7 +52,7 @@ export default function WalletCard() {
   }
 
   return (
-    <div className="mt-6 p-6 bg-white border border-gray-200 rounded-lg shadow">
+    <div className="max-w-sm mx-auto mt-6 p-6 bg-white border border-gray-200 rounded-lg shadow">
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
@@ -63,9 +61,7 @@ export default function WalletCard() {
             </div>
             <h3 className="text-lg font-semibold text-gray-900">Wallet Balance</h3>
           </div>
-          <p className="mt-1 text-sm text-gray-600">
-            Your available wallet balance
-          </p>
+          <p className="mt-1 text-sm text-gray-600">Your available wallet balance</p>
         </div>
       </div>
 
@@ -76,18 +72,13 @@ export default function WalletCard() {
             <span className="text-sm text-gray-600">Loading balance...</span>
           </div>
         ) : error ? (
-          <div className="text-sm text-red-600">
-            {error}
-          </div>
+          <div className="text-sm text-red-600">{error}</div>
         ) : (
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-[#3b1804]">
-              {formatCurrency(balance)}
-            </span>
+            <span className="text-3xl font-bold text-[#3b1804]">{formatCurrency(balance)}</span>
           </div>
         )}
       </div>
     </div>
   )
 }
-

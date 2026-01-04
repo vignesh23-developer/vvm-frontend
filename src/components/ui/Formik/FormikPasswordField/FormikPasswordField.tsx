@@ -21,7 +21,7 @@ export default function FormikPasswordField({
   disabled = false,
   isrequired = false,
 }: PasswordFieldProps) {
-  const [showPassword, setShowPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(true)
 
   return (
     <div className="mb-4">
@@ -29,14 +29,7 @@ export default function FormikPasswordField({
         {label} {isrequired && <span className="text-red-500">*</span>}
       </label>
       <div className="relative">
-        <Field
-          id={name}
-          name={name}
-          type={showPassword ? 'text' : 'password'}
-          placeholder={placeholder}
-          className={className}
-          disabled={disabled}
-        />
+        <Field id={name} name={name} type={!showPassword ? 'text' : 'password'} placeholder={placeholder} className={className} disabled={disabled} />
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
@@ -50,4 +43,3 @@ export default function FormikPasswordField({
     </div>
   )
 }
-

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Formik, Form } from 'formik'
 import { useLocale, useTranslations } from 'next-intl'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, MessageCircle, Phone } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
@@ -39,6 +39,7 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const [isSendingOtp, setIsSendingOtp] = useState(false)
+  const [sendingOtpType, setSendingOtpType] = useState<'sms_otp' | 'whatsapp_otp' | null>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
   const nextUrl = searchParams.get('next') || globalValue?.isRedirect || null
@@ -49,17 +50,18 @@ export default function SignupPage() {
   // Extract name from email if Google OAuth (email format: firstname.lastname@gmail.com or firstname_lastname@gmail.com)
   const extractNameFromEmail = (email: string | null): { firstName: string; lastName: string } => {
     if (!email) return { firstName: '', lastName: '' }
-    
+
     const emailPrefix = email.split('@')[0]
     // Try to split by dot or underscore
     const parts = emailPrefix.split(/[._]/)
-    
+
     if (parts.length >= 2) {
       // Capitalize first letter of each part
       const firstName = parts[0].charAt(0).toUpperCase() + parts[0].slice(1).toLowerCase()
-      const lastName = parts.slice(1).map(part => 
-        part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
-      ).join(' ')
+      const lastName = parts
+        .slice(1)
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+        .join(' ')
       return { firstName, lastName }
     } else {
       // Single part - use as firstName
@@ -68,7 +70,7 @@ export default function SignupPage() {
     }
   }
 
-  const { firstName: prefillFirstName, lastName: prefillLastName } = 
+  const { firstName: prefillFirstName, lastName: prefillLastName } =
     googleIdFromUrl && emailFromUrl ? extractNameFromEmail(emailFromUrl) : { firstName: '', lastName: '' }
 
   // Redirect if already logged in or missing phone number
@@ -115,7 +117,7 @@ export default function SignupPage() {
       } = {
         deviceType: 'web',
         deviceId,
-        platform: 'web'
+        platform: 'web',
       }
 
       // Include referralCode if present in URL
@@ -139,20 +141,28 @@ export default function SignupPage() {
     }
   }
 
-  const handleSendOtp = async (phoneNumber: string) => {
+  const handleSendOtp = async (phoneNumber: string, otpType: 'sms_otp' | 'whatsapp_otp' = 'sms_otp') => {
     if (!phoneNumber || phoneNumber.trim() === '') {
       toast.error('Please enter a phone number')
       return
     }
 
     try {
+      console.debug('[Signup] handleSendOtp start', { phoneNumber, otpType, sendingOtpType })
+      // mark which channel is being sent so only that button is disabled
+      setSendingOtpType(otpType)
       setIsSendingOtp(true)
-      const response = await postMethod<{ message: string }>(appEndpoints.registerSendOtp, {
-        phoneNumber: phoneNumber.trim()
-      })
+
+      const payload: { phoneNumber: string; otpType?: string } = {
+        phoneNumber: phoneNumber.trim(),
+      }
+      if (otpType) payload.otpType = otpType
+
+      const response = await postMethod<{ message: string }>(appEndpoints.registerSendOtp, payload)
 
       if (response.status === '200' && !response.error) {
-        toast.success(response.data?.message || 'OTP sent successfully')
+        const methodLabel = otpType === 'whatsapp_otp' ? 'via WhatsApp' : 'via SMS'
+        toast.success(response.data?.message || `OTP sent successfully ${methodLabel}`)
       } else {
         toast.error(response.message || 'Failed to send OTP')
       }
@@ -161,6 +171,8 @@ export default function SignupPage() {
       toast.error(error?.response?.data?.message || 'Failed to send OTP')
     } finally {
       setIsSendingOtp(false)
+      setSendingOtpType(null)
+      console.debug('[Signup] handleSendOtp end', { sendingOtpType })
     }
   }
 
@@ -212,7 +224,7 @@ export default function SignupPage() {
         const successMessage = response.message || 'Registration successful'
         toast.success(successMessage)
         // Redirect to login page after successful registration
-        router.push('/login')
+        router.push('/')
         reset()
       } else {
         toast.error(response.message || 'Registration failed')
@@ -224,7 +236,7 @@ export default function SignupPage() {
       setSubmitting(false)
     }
   }
-  
+
   const itemVariants = {
     hidden: { opacity: 0, scale: 0.8 },
     show: { opacity: 1, scale: 1, transition: { duration: 0.3 } },
@@ -291,215 +303,261 @@ export default function SignupPage() {
               handleSignupSubmit(values, setSubmitting)
             }}
           >
-            {({ values, setFieldValue, errors, touched, isSubmitting }) => (
-              <Form className="mt-4 space-y-4">
-                {/* Input Fields */}
-                <motion.div
-                  initial="hidden"
-                  animate="visible"
-                  variants={{
-                    hidden: { opacity: 0, y: 20 },
-                    visible: {
-                      opacity: 1,
-                      y: 0,
-                      transition: { staggerChildren: 0.1 },
-                    },
-                  }}
-                >
-                  <FormikTextField
-                    label={t('form.first_name.label')}
-                    type="text"
-                    name="firstName"
-                    placeholder={t('form.first_name.placeholder')}
-                    className="w-full border border-yellow-200 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400"
-                  />
+            {({ values, setFieldValue, errors, touched, isSubmitting }) =>
+              (() => {
+                const isPhoneValid = Boolean(values.phone?.trim())
+                const isSending = Boolean(sendingOtpType)
 
-                  <FormikTextField
-                    label={t('form.last_name.label')}
-                    type="text"
-                    name="lastName"
-                    placeholder={t('form.last_name.placeholder')}
-                    className="w-full border border-yellow-200 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400"
-                  />
-                  <FormikTextField
-                    label={t('form.phone_number.label')}
-                    type="tel"
-                    name="phone"
-                    placeholder={t('form.phone_number.placeholder')}
-                    className="w-full border border-yellow-200 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400"
-                  />
+                return (
+                  <Form className="mt-4 space-y-4">
+                    {/* Input Fields */}
+                    <motion.div
+                      initial="hidden"
+                      animate="visible"
+                      variants={{
+                        hidden: { opacity: 0, y: 20 },
+                        visible: {
+                          opacity: 1,
+                          y: 0,
+                          transition: { staggerChildren: 0.1 },
+                        },
+                      }}
+                    >
+                      <FormikTextField
+                        label={t('form.first_name.label')}
+                        type="text"
+                        name="firstName"
+                        placeholder={t('form.first_name.placeholder')}
+                        className="w-full border border-yellow-200 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400"
+                      />
 
-                  {/* Email field - hide if Google OAuth, otherwise show */}
-                  {!googleIdFromUrl && (
-                    <FormikTextField
-                      label={t('form.email.label')}
-                      type="email"
-                      name="email"
-                      placeholder={t('form.email.placeholder')}
-                      className="w-full border border-yellow-200 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400"
-                    />
-                  )}
+                      <FormikTextField
+                        label={t('form.last_name.label')}
+                        type="text"
+                        name="lastName"
+                        placeholder={t('form.last_name.placeholder')}
+                        className="w-full border border-yellow-200 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400"
+                      />
+                      <FormikTextField
+                        label={t('form.phone_number.label')}
+                        type="tel"
+                        name="phone"
+                        placeholder={t('form.phone_number.placeholder')}
+                        className="w-full border border-yellow-200 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400"
+                      />
 
-                  {/* Show read-only email if Google OAuth */}
-                  {googleIdFromUrl && emailFromUrl && (
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium mb-1 text-gray-700">
-                        {t('form.email.label')}
-                      </label>
-                      <div className="relative">
-                        <input
+                      {/* Email field - hide if Google OAuth, otherwise show */}
+                      {!googleIdFromUrl && (
+                        <FormikTextField
+                          label={t('form.email.label')}
                           type="email"
-                          value={emailFromUrl}
-                          readOnly
-                          className="w-full border border-yellow-200 text-xs rounded-md px-4 py-2 pl-10 bg-gray-50 text-gray-600 cursor-not-allowed"
+                          name="email"
+                          placeholder={t('form.email.placeholder')}
+                          className="w-full border border-yellow-200 text-xs rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400"
                         />
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <svg className="w-4 h-4" viewBox="0 0 24 24">
-                            <path
-                              fill="#4285F4"
-                              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                      )}
+
+                      {/* Show read-only email if Google OAuth */}
+                      {googleIdFromUrl && emailFromUrl && (
+                        <div className="mb-4">
+                          <label className="block text-sm font-medium mb-1 text-gray-700">{t('form.email.label')}</label>
+                          <div className="relative">
+                            <input
+                              type="email"
+                              value={emailFromUrl}
+                              readOnly
+                              className="w-full border border-yellow-200 text-xs rounded-md px-4 py-2 pl-10 bg-gray-50 text-gray-600 cursor-not-allowed"
                             />
-                            <path
-                              fill="#34A853"
-                              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                            />
-                            <path
-                              fill="#FBBC05"
-                              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                            />
-                            <path
-                              fill="#EA4335"
-                              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                            />
-                          </svg>
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                              <svg className="w-4 h-4" viewBox="0 0 24 24">
+                                <path
+                                  fill="#4285F4"
+                                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                                />
+                                <path
+                                  fill="#34A853"
+                                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                                />
+                                <path
+                                  fill="#FBBC05"
+                                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                                />
+                                <path
+                                  fill="#EA4335"
+                                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                                />
+                              </svg>
+                            </div>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1 flex items-center">
+                            <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                              <polyline points="22 4 12 14.01 9 11.01" />
+                            </svg>
+                            Verified by Google
+                          </p>
                         </div>
+                      )}
+
+                      {/* Password fields - hide if Google OAuth */}
+                      {!googleIdFromUrl && (
+                        <>
+                          <FormikPasswordField
+                            label="Password"
+                            name="password"
+                            placeholder="Enter your password"
+                            className="w-full border border-yellow-200 text-xs rounded-md px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400"
+                          />
+
+                          <FormikPasswordField
+                            label="Confirm Password"
+                            name="confirmPassword"
+                            placeholder="Confirm your password"
+                            className="w-full border border-yellow-200 text-xs rounded-md px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400"
+                          />
+                        </>
+                      )}
+                    </motion.div>
+
+                    {/* Send OTP Button */}
+                    <motion.div
+                      className="flex flex-col sm:flex-row justify-between gap-4"
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.55 }}
+                    >
+                      {/* WhatsApp OTP */}
+                      <Button
+                        type="button"
+                        onClick={() => handleSendOtp(values.phone, 'whatsapp_otp')}
+                        disabled={isSending || !isPhoneValid}
+                        className="
+      flex-1 flex items-center justify-center gap-2
+      rounded-md border border-yellow-300
+      bg-gradient-to-r from-yellow-50 to-yellow-100/60
+      px-3 py-2 text-sm font-medium text-[#2a1407]
+      transition-all duration-200
+      hover:bg-yellow-100 hover:shadow-sm
+      active:scale-[0.98]
+      disabled:cursor-not-allowed disabled:opacity-60
+    "
+                      >
+                        <Phone size={18} />
+                        <span>{sendingOtpType === 'whatsapp_otp' ? 'Sending OTP...' : t('Auth.whatapp_button')}</span>
+                      </Button>
+
+                      {/* Divider */}
+                      <div className="hidden sm:flex items-center w-12">
+                        <div className="w-full border-t border-gray-300" />
+                        <span className="px-2 text-xs text-gray-500">OR</span>
+                        <div className="w-full border-t border-gray-300" />
                       </div>
-                      <p className="text-xs text-gray-500 mt-1 flex items-center">
-                        <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                          <polyline points="22 4 12 14.01 9 11.01" />
-                        </svg>
-                        Verified by Google
-                      </p>
-                    </div>
-                  )}
 
-                  {/* Password fields - hide if Google OAuth */}
-                  {!googleIdFromUrl && (
-                    <>
-                      <FormikPasswordField
-                        label="Password"
-                        name="password"
-                        placeholder="Enter your password"
-                        className="w-full border border-yellow-200 text-xs rounded-md px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400"
-                      />
-
-                      <FormikPasswordField
-                        label="Confirm Password"
-                        name="confirmPassword"
-                        placeholder="Confirm your password"
-                        className="w-full border border-yellow-200 text-xs rounded-md px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-400"
-                      />
-                    </>
-                  )}
-                </motion.div>
-
-                {/* Send OTP Button */}
-                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }}>
-                  <Button
-                    type="button"
-                    onClick={() => handleSendOtp(values.phone)}
-                    disabled={isSendingOtp || !values.phone || values.phone.trim() === ''}
-                    className="w-full border border-yellow-300 text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-yellow-50 bg-gradient-to-r from-yellow-50 to-yellow-100/50 text-[#2a1407] disabled:opacity-60 cursor-pointer"
-                  >
-                    <span>{isSendingOtp ? 'Sending OTP...' : 'Send OTP'}</span>
-                  </Button>
-                </motion.div>
-
-                {/* OTP */}
-                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
-                  <OTPInput
-                    length={6}
-                    value={values.otp}
-                    onChange={next => setFieldValue('otp', next)}
-                    initialTime={120}
-                    reSendData={{ 
-                      phoneNumber: values.phone, 
-                      otpTypes: ['sms_otp', 'whatsapp_otp'],
-                      useRegistrationEndpoint: true
-                    }}
-                    error={touched.otp && errors.otp ? errors.otp : undefined}
-                  />
-                </motion.div>
-
-                {/* Submit Button */}
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full bg-[#2a1407] text-white text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:from-[#2a1407] hover:to-[#2a1407] disabled:opacity-60 cursor-pointer"
-                  >
-                    <span>{isSubmitting ? 'Submitting...' : t('Auth.submit')}</span>
-                  </Button>
-                </motion.div>
-
-                {/* Divider and Google Login Button - Hide if Google OAuth is already in progress */}
-                {!googleIdFromUrl && !emailFromUrl && (
-                  <>
-                    {/* Divider */}
-                    <motion.div
-                      className="flex items-center justify-center space-x-2"
-                      variants={{
-                        hidden: { y: 20, opacity: 0 },
-                        visible: { y: 0, opacity: 1 },
-                      }}
-                    >
-                      <div className="flex-1 border-t border-gray-300"></div>
-                      <span className="text-gray-500 text-sm">OR</span>
-                      <div className="flex-1 border-t border-gray-300"></div>
+                      {/* SMS OTP */}
+                      <Button
+                        type="button"
+                        onClick={() => handleSendOtp(values.phone, 'sms_otp')}
+                        disabled={isSending || !isPhoneValid}
+                        className="
+      flex-1 flex items-center justify-center gap-2
+      rounded-md border border-yellow-300
+      bg-gradient-to-r from-yellow-50 to-yellow-100/60
+      px-3 py-2 text-sm font-medium text-[#2a1407]
+      transition-all duration-200
+      hover:bg-yellow-100 hover:shadow-sm
+      active:scale-[0.98]
+      disabled:cursor-not-allowed disabled:opacity-60
+    "
+                      >
+                        <MessageCircle size={18} />
+                        <span>{sendingOtpType === 'sms_otp' ? 'Sending OTP...' : t('Auth.continue_with_sms')}</span>
+                      </Button>
                     </motion.div>
 
-                    {/* Google Login Button */}
-                    <motion.div
-                      variants={{
-                        hidden: { y: 20, opacity: 0 },
-                        visible: { y: 0, opacity: 1 },
-                      }}
-                    >
-                      <motion.div whileTap={{ scale: 0.97 }}>
-                        <Button
-                          type="button"
-                          disabled={isSubmitting || isGoogleLoading}
-                          onClick={handleGoogleLogin}
-                          className="w-full border border-gray-300 text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-gray-50 bg-white text-gray-700 disabled:opacity-60"
+                    {/* OTP */}
+                    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
+                      <OTPInput
+                        length={6}
+                        value={values.otp}
+                        onChange={next => setFieldValue('otp', next)}
+                        initialTime={120}
+                        reSendData={{
+                          phoneNumber: values.phone,
+                          otpTypes: ['sms_otp', 'whatsapp_otp'],
+                          useRegistrationEndpoint: true,
+                        }}
+                        error={touched.otp && errors.otp ? errors.otp : undefined}
+                      />
+                    </motion.div>
+
+                    {/* Submit Button */}
+                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                      <Button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full bg-[#2a1407] text-white text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:from-[#2a1407] hover:to-[#2a1407] disabled:opacity-60 cursor-pointer"
+                      >
+                        <span>{isSubmitting ? 'Submitting...' : t('Auth.submit')}</span>
+                      </Button>
+                    </motion.div>
+
+                    {/* Divider and Google Login Button - Hide if Google OAuth is already in progress */}
+                    {!googleIdFromUrl && !emailFromUrl && (
+                      <>
+                        {/* Divider */}
+                        <motion.div
+                          className="flex items-center justify-center space-x-2"
+                          variants={{
+                            hidden: { y: 20, opacity: 0 },
+                            visible: { y: 0, opacity: 1 },
+                          }}
                         >
-                          <svg className="w-5 h-5" viewBox="0 0 24 24">
-                            <path
-                              fill="#4285F4"
-                              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                            />
-                            <path
-                              fill="#34A853"
-                              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                            />
-                            <path
-                              fill="#FBBC05"
-                              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                            />
-                            <path
-                              fill="#EA4335"
-                              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                            />
-                          </svg>
-                          <span>{isGoogleLoading ? 'Redirecting...' : 'Continue with Google'}</span>
-                        </Button>
-                      </motion.div>
-                    </motion.div>
-                  </>
-                )}
+                          <div className="flex-1 border-t border-gray-300"></div>
+                          <span className="text-gray-500 text-sm">OR</span>
+                          <div className="flex-1 border-t border-gray-300"></div>
+                        </motion.div>
 
-                {/* Continue with SMS */}
-                {/* <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                        {/* Google Login Button */}
+                        <motion.div
+                          variants={{
+                            hidden: { y: 20, opacity: 0 },
+                            visible: { y: 0, opacity: 1 },
+                          }}
+                        >
+                          <motion.div whileTap={{ scale: 0.97 }}>
+                            <Button
+                              type="button"
+                              disabled={isSubmitting || isGoogleLoading}
+                              onClick={handleGoogleLogin}
+                              className="w-full border border-gray-300 text-sm py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-gray-50 bg-white text-gray-700 disabled:opacity-60"
+                            >
+                              <svg className="w-5 h-5" viewBox="0 0 24 24">
+                                <path
+                                  fill="#4285F4"
+                                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                                />
+                                <path
+                                  fill="#34A853"
+                                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                                />
+                                <path
+                                  fill="#FBBC05"
+                                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                                />
+                                <path
+                                  fill="#EA4335"
+                                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                                />
+                              </svg>
+                              <span>{isGoogleLoading ? 'Redirecting...' : 'Continue with Google'}</span>
+                            </Button>
+                          </motion.div>
+                        </motion.div>
+                      </>
+                    )}
+
+                    {/* Continue with SMS */}
+                    {/* <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Button
                     type="button"
                     className="w-full border border-yellow-300 text-sm rounded-md py-2 flex items-center justify-center space-x-2 hover:bg-yellow-50 bg-gradient-to-r from-yellow-50 to-yellow-100/50 text-[#2a1407] cursor-pointer"
@@ -509,22 +567,19 @@ export default function SignupPage() {
                   </Button>
                 </motion.div> */}
 
-                {/* Already have an account? Sign in */}
-                <motion.div
-                  className="text-center mt-4"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.7 }}
-                >
-                  <p className="text-gray-600 text-sm">
-                    Already have an account?{' '}
-                    <Link href="/login" className="font-semibold text-green-900 hover:text-green-700 hover:underline">
-                      Sign in
-                    </Link>
-                  </p>
-                </motion.div>
-              </Form>
-            )}
+                    {/* Already have an account? Sign in */}
+                    <motion.div className="text-center mt-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
+                      <p className="text-gray-600 text-sm">
+                        Already have an account?{' '}
+                        <Link href="/login" className="font-semibold text-green-900 hover:text-green-700 hover:underline">
+                          Sign in
+                        </Link>
+                      </p>
+                    </motion.div>
+                  </Form>
+                )
+              })()
+            }
           </Formik>
         </motion.div>
       </motion.div>

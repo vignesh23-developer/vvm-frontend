@@ -19,6 +19,11 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
+        hostname: 'www.youtube.com',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
         hostname: 'vaazhgavalamudan-bizdev.s3.ap-south-1.amazonaws.com',
         pathname: '**',
       },
@@ -40,6 +45,11 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'i.ytimg.com', // YouTube thumbnails
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'img.youtube.com', // YouTube thumbnails (legacy domain)
         pathname: '**',
       },
       {

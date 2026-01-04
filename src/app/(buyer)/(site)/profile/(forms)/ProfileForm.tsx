@@ -20,6 +20,7 @@ interface ProfileFormProps {
     firstName: string
     lastName: string
     email: string
+    phoneNumber?: string
   }
   isEdit?: boolean
   validationSchema: any
@@ -27,13 +28,7 @@ interface ProfileFormProps {
   onImageUpload?: (file: File, resetForm: () => void) => void
 }
 
-const ProfileForm: React.FC<ProfileFormProps> = ({
-  initialValues,
-  validationSchema,
-  isEdit = false,
-  profileImageUrl,
-  onImageUpload
-}) => {
+const ProfileForm: React.FC<ProfileFormProps> = ({ initialValues, validationSchema, isEdit = false, profileImageUrl, onImageUpload }) => {
   const [profileImage, setProfileImage] = useState<string | null>(profileImageUrl || null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -52,7 +47,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
       onImageUpload(values.file, resetForm)
       setIsModalOpen(false)
     } else {
-      toast.error("Image upload function not provided.")
+      toast.error('Image upload function not provided.')
     }
   }
 
@@ -62,6 +57,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
       firstName: values.firstName,
       lastName: values.lastName,
       email: values.email,
+      phoneNumber: values.phoneNumber,
     }
 
     try {
@@ -82,15 +78,11 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
   }
 
   return (
-    <div className="max-w-lg mx-auto p-8 rounded-3xl bg-white shadow-xl shadow-yellow-900/10 border border-yellow-100">
+    <div className="max-w-md mx-auto p-5 rounded-3xl bg-white shadow-xl shadow-yellow-900/10 border border-yellow-100">
       {/* Title */}
       <div className="text-center mb-6">
-        <h2 className="text-3xl font-bold text-[#2a1407] mb-1">
-          {isEdit ? 'Edit Profile' : 'Create Profile'}
-        </h2>
-        <p className="text-gray-500 text-sm">
-          Your information helps us personalize your experience ✨
-        </p>
+        <h2 className="text-3xl font-bold text-[#2a1407] mb-1">{isEdit ? 'Edit Profile' : 'Create Profile'}</h2>
+        <p className="text-gray-500 text-sm">Your information helps us personalize your experience ✨</p>
       </div>
 
       {/* Profile Upload Circle */}
@@ -111,15 +103,48 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
           <Form className="space-y-6">
             <FormikTextField label="First Name" name="firstName" placeholder="Enter your first name" />
             <FormikTextField label="Last Name" name="lastName" placeholder="Enter your last name" />
-            <FormikTextField label="Email" name="email" placeholder="Enter your email" />
+            <FormikTextField
+              label="Email"
+              name="email"
+              placeholder="Enter your email"
+              readOnly
+              className="
+    w-full 
+    p-2 
+    border border-gray-300 
+    rounded-md 
+    bg-gray-100 
+    cursor-not-allowed
+    text-gray-700
+    focus:outline-none 
+    focus:ring-0 
+    focus:border-gray-300
+  "
+            />
+            <FormikTextField
+              label="Phone Number"
+              name="phoneNumber"
+              placeholder="Enter your phone number"
+              readOnly
+              className="
+    w-full 
+    p-2 
+    border border-gray-300 
+    rounded-md 
+    bg-gray-100 
+    cursor-not-allowed
+    text-gray-700
+    focus:outline-none 
+    focus:ring-0 
+    focus:border-gray-300
+  "
+            />
 
             <Button
               type="submit"
               disabled={isSubmitting}
               className={`w-full py-3 text-white font-semibold rounded-xl shadow-lg transition-all duration-200 
-                ${isSubmitting
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-[#2a1407] hover:bg-[#4a230c] hover:shadow-xl'}`}
+                ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#2a1407] hover:bg-[#4a230c] hover:shadow-xl'}`}
             >
               {isSubmitting ? 'Saving...' : isEdit ? 'Update Profile' : 'Create Profile'}
             </Button>

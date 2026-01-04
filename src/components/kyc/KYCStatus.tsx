@@ -18,9 +18,7 @@ export default function KYCStatus() {
   const { kycStatus, loading } = useKycStatus()
   const [initiating, setInitiating] = useState(false)
 
-  const directCallToKyc =
-    activeSubscription?.isActive == true ||
-    (kycStatus?.latestAttempt?.status === 'PENDING');
+  const directCallToKyc = activeSubscription?.isActive == true || kycStatus?.latestAttempt?.status === 'PENDING'
 
   const handleInitiateKyc = async () => {
     try {
@@ -31,7 +29,7 @@ export default function KYCStatus() {
         redirectUrl,
         verificationType: 'AADHAAR',
         entityType: 'USER',
-        directCall: directCallToKyc
+        directCall: directCallToKyc,
       })
 
       if (response.error) {
@@ -52,7 +50,7 @@ export default function KYCStatus() {
         // Store verificationId in localStorage
         setLocalStorageItem('kyc_verification_pending', {
           verificationId: kycData.verificationId,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         })
 
         toast.success('Redirecting to verification...')
@@ -85,7 +83,7 @@ export default function KYCStatus() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-lg mx-auto mt-8 p-8 bg-gradient-to-br from-green-50 to-white border border-green-100 rounded-2xl shadow-sm text-center"
+        className="max-w-sm mx-auto p-5 bg-gradient-to-br from-green-50 to-white border border-green-100 rounded-2xl shadow-sm text-center"
       >
         <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-green-100/50 ring-8 ring-green-50">
           <ShieldCheck className="h-10 w-10 text-green-600" />
@@ -120,18 +118,8 @@ export default function KYCStatus() {
     >
       <div className="relative h-48 bg-[#2a1407]/5 flex items-center justify-center overflow-hidden">
         {/* Illustration */}
-        <motion.div
-          initial={{ y: 10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="relative w-40 h-40"
-        >
-          <Image
-            src="/images/kyc_verification.png"
-            alt="KYC Verification"
-            fill
-            className="object-contain"
-          />
+        <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }} className="relative w-40 h-40">
+          <Image src="/images/kyc_verification.png" alt="KYC Verification" fill className="object-contain" />
         </motion.div>
       </div>
 
@@ -153,10 +141,9 @@ export default function KYCStatus() {
             <button
               onClick={handleInitiateKyc}
               disabled={initiating}
-              className={`w-full py-4 rounded-xl font-bold text-lg shadow-lg shadow-yellow-900/10 transition-all hover:-translate-y-1 ${initiating
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-[#2a1407] text-white hover:bg-[#4a230c] hover:shadow-xl'
-                }`}
+              className={`w-full py-4 rounded-xl font-bold text-lg shadow-lg shadow-yellow-900/10 transition-all hover:-translate-y-1 ${
+                initiating ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-[#2a1407] text-white hover:bg-[#4a230c] hover:shadow-xl'
+              }`}
             >
               {initiating ? (
                 <span className="flex items-center justify-center gap-2">
@@ -168,20 +155,15 @@ export default function KYCStatus() {
             </button>
           ) : (
             <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-10">
-              <p className="text-sm text-gray-600 mb-4">
-                To proceed with verification, a nominal fee is required.
-              </p>
+              <p className="text-sm text-gray-600 mb-4">To proceed with verification, a nominal fee is required.</p>
               <KYCPayment />
               {/* <TestKYCStatus /> */}
             </div>
           )}
         </div>
 
-        <p className="mt-6 text-xs text-gray-400">
-          Secure verification powered by Surepass
-        </p>
+        <p className="mt-6 text-xs text-gray-400">Secure verification powered by Surepass</p>
       </div>
     </motion.div>
   )
 }
-
