@@ -31,6 +31,8 @@ export const appEndpoints = {
   getUserHistory: '/profile/login-history',
   getUserRefferrals: '/profile/referral',
   getReferralAnalytics: '/profile/referral/analytics',
+  getUserSearchHistory: '/user/search-history',
+  deleteSavedSearch: (id: string) => `/user/search-history/${id}`,
 
   // KYC enpoints
   // kyc status
