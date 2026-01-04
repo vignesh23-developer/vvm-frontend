@@ -652,6 +652,10 @@ const page = () => {
     }
   }
 
+  {
+    filteredSimilarProperties.map((property: any, idx: number) => console.log('Similar Property:', property?.media?.[0]?.url, property.title))
+  }
+
   if (propertyDetailsFetchErr) {
     return (
       <main className="flex min-h-[50vh] items-center justify-center bg-gray-50">
@@ -753,12 +757,14 @@ const page = () => {
                 >
                   {galleryImages[1] ? (
                     <>
-                      <Image
-                        src={galleryImages[1].url}
-                        alt="Property media 2"
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
+                      {galleryImages[1].type === 'image' && (
+                        <Image
+                          src={galleryImages[1].url}
+                          alt="Property media 2"
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                      )}
                       {galleryImages[1].type === 'video' && (
                         <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
                           <div className="h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm border border-white/50 flex items-center justify-center">
@@ -825,12 +831,14 @@ const page = () => {
                     >
                       {galleryImages[1] ? (
                         <>
-                          <Image
-                            src={galleryImages[1].url}
-                            alt="Property media 2"
-                            fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-110"
-                          />
+                          {galleryImages[1].type === 'image' && (
+                            <Image
+                              src={galleryImages[1].url}
+                              alt="Property media 2"
+                              fill
+                              className="object-cover transition-transform duration-500 group-hover:scale-110"
+                            />
+                          )}
                           {galleryImages[1].type === 'video' && (
                             <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
                               <div className="h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm border border-white/50 flex items-center justify-center">
@@ -1567,33 +1575,25 @@ const page = () => {
                     if (!isPlayingTour) setIsPlayingTour(true)
                   }}
                 >
-                  {!isPlayingTour ? (
+                  {/* {!isPlayingTour ? (
                     <>
-                      {videoCoverImageSrc ? (
-                        <Image
-                          src={videoCoverImageSrc}
-                          alt="Video thumbnail"
-                          fill
-                          className="object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-300"
-                        />
-                      ) : null}
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-xl">
                           <Play className="w-6 h-6 text-white fill-white ml-1" />
                         </div>
                       </div>
                       {/* Overlay gradient */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                    </>
-                  ) : (
-                    <iframe
-                      src={`${videoEmbedUrl}${videoEmbedUrl.includes('?') ? '&' : '?'}autoplay=1`}
-                      title={propertyDetailsData?.title || 'Project walkthrough video'}
-                      className="absolute inset-0 h-full w-full"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      allowFullScreen
-                    />
-                  )}
+                  {/* <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" /> */}
+                  {/* </> */}
+                  {/* ) : ( */}
+                  <iframe
+                    src={`${videoEmbedUrl}${videoEmbedUrl.includes('?') ? '&' : '?'}`}
+                    title={propertyDetailsData?.title || 'Project walkthrough video'}
+                    className="absolute inset-0 h-full w-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
+                  {/* )} */}
                 </div>
 
                 {!hasEnquiry && (
@@ -1991,7 +1991,7 @@ const page = () => {
                   >
                     <div className="relative h-48 w-full overflow-hidden flex-shrink-0">
                       <Image
-                        src={property.media?.[0]?.url || property.image || '/villa.png'}
+                        src={property?.media?.[0]?.media_type === 'IMAGE' ? property?.media?.[0]?.url : '/villa.png'}
                         alt={property.title || 'Property'}
                         fill
                         className="object-cover transition-transform duration-500 hover:scale-110"
