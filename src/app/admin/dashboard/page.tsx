@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { useRouter } from 'next/navigation'
 import { Users, FileText, Home, ChartBar, Eye, Wallet, BadgeCheck, Tag, HatGlasses } from 'lucide-react'
 import { useDashboardHook } from './(hooks)/useDashboardHook'
 import {
@@ -20,6 +21,7 @@ import {
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import formatName from '@/utils/converter/formatName'
 import Link from 'next/link'
+import Button from '@/components/ui/CustomComponent/Button/Button'
 
 // Stat Card Component
 
@@ -161,6 +163,7 @@ function DashboardSkeleton() {
 
 export default function AdminDashboardPage() {
   const { user } = useAuth()
+  const router = useRouter()
   const { dashboardData, error, isLoading, handleRefresh } = useDashboardHook()
 
   const [financeSelection, setFinanceSelection] = React.useState<'WALLET' | 'SUBSCRIPTION'>('WALLET')
@@ -357,8 +360,8 @@ export default function AdminDashboardPage() {
         ? agent?.adStats?.byApprovalStatus ?? agent?.adStatsByApprovalStatus
         : admin?.adStats?.byApprovalStatus ?? admin?.adStatsByApprovalStatus
       : role === 'AGENT'
-        ? agent?.propertyStats?.byApprovalStatus ?? agent?.propertyStatsByApprovalStatus
-        : admin?.propertyStats?.byApprovalStatus ?? admin?.propertyStatsByApprovalStatus
+      ? agent?.propertyStats?.byApprovalStatus ?? agent?.propertyStatsByApprovalStatus
+      : admin?.propertyStats?.byApprovalStatus ?? admin?.propertyStatsByApprovalStatus
 
   const selectedByStatus =
     propertyAdSelection === 'ADS'
@@ -366,34 +369,34 @@ export default function AdminDashboardPage() {
         ? agent?.adStats?.byStatus
         : admin?.adStats?.byStatus
       : role === 'AGENT'
-        ? agent?.propertyStats?.byStatus
-        : admin?.propertyStats?.byStatus
+      ? agent?.propertyStats?.byStatus
+      : admin?.propertyStats?.byStatus
 
   const hasByStatusSupport = role === 'AGENT' || role === 'ADMIN' ? !!selectedByStatus : false
 
   const approvalStatusTiles =
     role === 'AGENT' || role === 'ADMIN'
       ? [
-        { label: 'Approved', value: selectedApprovalStatus?.approved ?? 0 },
-        { label: 'Under Review', value: selectedApprovalStatus?.underReview ?? 0 },
-        { label: 'Rejected', value: selectedApprovalStatus?.rejected ?? 0 },
-      ]
+          { label: 'Approved', value: selectedApprovalStatus?.approved ?? 0 },
+          { label: 'Under Review', value: selectedApprovalStatus?.underReview ?? 0 },
+          { label: 'Rejected', value: selectedApprovalStatus?.rejected ?? 0 },
+        ]
       : []
 
   const byStatusTiles =
     role === 'AGENT' || role === 'ADMIN'
       ? propertyAdSelection === 'ADS'
         ? [
-          { label: 'Available', value: (selectedByStatus as { available?: number } | undefined)?.available ?? 0 },
-          { label: 'Reserved', value: (selectedByStatus as { reserved?: number } | undefined)?.reserved ?? 0 },
-          { label: 'Sold', value: (selectedByStatus as { sold?: number } | undefined)?.sold ?? 0 },
-        ]
+            { label: 'Available', value: (selectedByStatus as { available?: number } | undefined)?.available ?? 0 },
+            { label: 'Reserved', value: (selectedByStatus as { reserved?: number } | undefined)?.reserved ?? 0 },
+            { label: 'Sold', value: (selectedByStatus as { sold?: number } | undefined)?.sold ?? 0 },
+          ]
         : [
-          { label: 'Available', value: (selectedByStatus as { available?: number } | undefined)?.available ?? 0 },
-          { label: 'Rented', value: (selectedByStatus as { rented?: number } | undefined)?.rented ?? 0 },
-          { label: 'Sold', value: (selectedByStatus as { sold?: number } | undefined)?.sold ?? 0 },
-          { label: 'Withdrawn', value: (selectedByStatus as { withdrawn?: number } | undefined)?.withdrawn ?? 0 },
-        ]
+            { label: 'Available', value: (selectedByStatus as { available?: number } | undefined)?.available ?? 0 },
+            { label: 'Rented', value: (selectedByStatus as { rented?: number } | undefined)?.rented ?? 0 },
+            { label: 'Sold', value: (selectedByStatus as { sold?: number } | undefined)?.sold ?? 0 },
+            { label: 'Withdrawn', value: (selectedByStatus as { withdrawn?: number } | undefined)?.withdrawn ?? 0 },
+          ]
       : []
 
   const propertyAdsStatusTiles = statusMetricSelection === 'STATUS' && hasByStatusSupport ? byStatusTiles : approvalStatusTiles
@@ -401,13 +404,13 @@ export default function AdminDashboardPage() {
   const financeTiles =
     effectiveFinanceSelection === 'WALLET'
       ? [
-        { label: 'Balance', value: walletSummary?.balance ?? 0 },
-        { label: 'Credited', value: walletSummary?.lifetimeCredited ?? 0 },
-        { label: 'Debited', value: walletSummary?.lifetimeDebited ?? 0 },
-        { label: 'Expired', value: walletSummary?.lifetimeExpired ?? 0 },
-      ]
+          { label: 'Balance', value: walletSummary?.balance ?? 0 },
+          { label: 'Credited', value: walletSummary?.lifetimeCredited ?? 0 },
+          { label: 'Debited', value: walletSummary?.lifetimeDebited ?? 0 },
+          { label: 'Expired', value: walletSummary?.lifetimeExpired ?? 0 },
+        ]
       : role === 'AGENT'
-        ? [
+      ? [
           { label: 'Plan', value: subscriptionSummary?.planName ?? (subscriptionSummary?.hasActiveSubscription ? '-' : 'No active plan') },
           { label: 'Status', value: subscriptionSummary?.status ?? (subscriptionSummary?.hasActiveSubscription ? '-' : 'inactive') },
           { label: 'Days Left', value: subscriptionSummary?.daysRemaining ?? 0 },
@@ -416,51 +419,51 @@ export default function AdminDashboardPage() {
             value: subscriptionSummary?.endDate ? new Date(subscriptionSummary.endDate).toLocaleDateString() : '-',
           },
         ]
-        : role === 'ADMIN'
-          ? [
-            { label: 'Active', value: admin?.subscriptionStats?.activeSubscriptions ?? 0 },
-            { label: 'Expiring Soon', value: admin?.subscriptionStats?.expiringSoon ?? 0 },
-          ]
-          : []
+      : role === 'ADMIN'
+      ? [
+          { label: 'Active', value: admin?.subscriptionStats?.activeSubscriptions ?? 0 },
+          { label: 'Expiring Soon', value: admin?.subscriptionStats?.expiringSoon ?? 0 },
+        ]
+      : []
 
   const title =
     role === 'ADMIN'
       ? `Welcome Back, ${formatName(user?.firstName) + ' ' + formatName(user?.lastName) || 'Admin Dashboard'}`
       : role === 'AGENT'
-        ? `Welcome Back, ${formatName(user?.firstName) + ' ' + formatName(user?.lastName) || 'Agent Dashboard'}`
-        : role === 'BUYER'
-          ? `Welcome Back, ${formatName(user?.firstName) + ' ' + formatName(user?.lastName)}`
-          : 'Dashboard'
+      ? `Welcome Back, ${formatName(user?.firstName) + ' ' + formatName(user?.lastName) || 'Agent Dashboard'}`
+      : role === 'BUYER'
+      ? `Welcome Back, ${formatName(user?.firstName) + ' ' + formatName(user?.lastName)}`
+      : 'Dashboard'
 
   // stats
   const stats =
     role === 'AGENT'
       ? [
-        { label: 'Total Properties', value: agent?.propertyStats?.total ?? 0, Icon: FileText },
-        { label: 'Total Ads', value: agent?.adStats?.total ?? 0, Icon: Home },
-        { label: 'Total Enquiries', value: agent?.enquiryStats?.total ?? 0, Icon: Users },
-        { label: 'Total Views', value: agent?.engagementStats?.totalViews ?? 0, Icon: Eye },
-      ]
+          { label: 'Total Properties', value: agent?.propertyStats?.total ?? 0, Icon: FileText },
+          { label: 'Total Ads', value: agent?.adStats?.total ?? 0, Icon: Home },
+          { label: 'Total Enquiries', value: agent?.enquiryStats?.total ?? 0, Icon: Users },
+          { label: 'Total Views', value: agent?.engagementStats?.totalViews ?? 0, Icon: Eye },
+        ]
       : role === 'BUYER'
-        ? [
+      ? [
           { label: 'Saved Searches', value: buyer?.quickStats?.savedSearches ?? 0, Icon: FileText },
           { label: 'Favorites Properties', value: buyer?.quickStats?.favoriteProperties ?? 0, Icon: Home },
           { label: 'Favorites Ads', value: buyer?.quickStats?.favoriteAds ?? 0, Icon: Users },
           { label: 'Enquiries Sent', value: buyer?.quickStats?.enquiriesSent ?? 0, Icon: ChartBar },
         ]
-        : role === 'ADMIN'
-          ? [
-            { label: 'Total Users', value: admin?.userStats?.total ?? 0, Icon: Users },
-            { label: 'Total Properties', value: admin?.propertyStats?.total ?? 0, Icon: FileText },
-            { label: 'Total Ads', value: admin?.adStats?.total ?? 0, Icon: Tag },
-            { label: 'Total Agents', value: admin?.userStats?.byRole?.agents ?? 0, Icon: HatGlasses },
-          ]
-          : [
-            { label: 'Total Properties', value: 0, Icon: FileText },
-            { label: 'Active Properties', value: 0, Icon: Home },
-            { label: 'Total Enquiries', value: 0, Icon: Users },
-            { label: 'Total Views', value: 0, Icon: ChartBar },
-          ]
+      : role === 'ADMIN'
+      ? [
+          { label: 'Total Users', value: admin?.userStats?.total ?? 0, Icon: Users },
+          { label: 'Total Properties', value: admin?.propertyStats?.total ?? 0, Icon: FileText },
+          { label: 'Total Ads', value: admin?.adStats?.total ?? 0, Icon: Tag },
+          { label: 'Total Agents', value: admin?.userStats?.byRole?.agents ?? 0, Icon: HatGlasses },
+        ]
+      : [
+          { label: 'Total Properties', value: 0, Icon: FileText },
+          { label: 'Active Properties', value: 0, Icon: Home },
+          { label: 'Total Enquiries', value: 0, Icon: Users },
+          { label: 'Total Views', value: 0, Icon: ChartBar },
+        ]
 
   const getStringField = (value: unknown, keys: string[]) => {
     if (!value || typeof value !== 'object') return undefined
@@ -482,15 +485,15 @@ export default function AdminDashboardPage() {
   const recentItems =
     role === 'AGENT'
       ? (agent?.recentEnquiries ?? []).map(item => {
-        const date = item.createdAt ? new Date(item.createdAt) : null
-        return {
-          id: item.id,
-          title: item.name,
-          meta: `${item.entityType} • ${item.status}${date ? ` • ${date.toLocaleDateString()}` : ''}`,
-        }
-      })
+          const date = item.createdAt ? new Date(item.createdAt) : null
+          return {
+            id: item.id,
+            title: item.name,
+            meta: `${item.entityType} • ${item.status}${date ? ` • ${date.toLocaleDateString()}` : ''}`,
+          }
+        })
       : role === 'BUYER'
-        ? [
+      ? [
           {
             id: 'buyer-favorites',
             title: 'Favorites',
@@ -504,11 +507,12 @@ export default function AdminDashboardPage() {
           {
             id: 'buyer-enquiries',
             title: 'Enquiries',
-            meta: `Total: ${buyer?.enquiryStats?.total ?? 0} • New: ${buyer?.enquiryStats?.newCount ?? 0} • Responded: ${buyer?.enquiryStats?.respondedCount ?? 0
-              }`,
+            meta: `Total: ${buyer?.enquiryStats?.total ?? 0} • New: ${buyer?.enquiryStats?.newCount ?? 0} • Responded: ${
+              buyer?.enquiryStats?.respondedCount ?? 0
+            }`,
           },
         ]
-        : []
+      : []
 
   const getRoleLabel = (roles?: string[] | string): string => {
     const roleArray = Array.isArray(roles) ? roles : [roles]
@@ -526,61 +530,61 @@ export default function AdminDashboardPage() {
   const adminRecentUsers =
     role === 'ADMIN'
       ? (() => {
-        const candidates = (admin?.recentAgents ?? admin?.recentUsers ?? []).slice(0, 10)
+          const candidates = (admin?.recentAgents ?? admin?.recentUsers ?? []).slice(0, 10)
 
-        // Include BUYER + AGENT, exclude ADMIN
-        const buyerAndAgents = candidates.filter(u => isBuyerOrAgent(u.roles))
+          // Include BUYER + AGENT, exclude ADMIN
+          const buyerAndAgents = candidates.filter(u => isBuyerOrAgent(u.roles))
 
-        const rows = buyerAndAgents.map((u, index) => {
-          const firstName = (u.firstName ?? '').trim()
-          const lastName = (u.lastName ?? '').trim()
-          const fullName = `${firstName} ${lastName}`.trim()
-          const email = (u.email ?? '').trim()
+          const rows = buyerAndAgents.map((u, index) => {
+            const firstName = (u.firstName ?? '').trim()
+            const lastName = (u.lastName ?? '').trim()
+            const fullName = `${firstName} ${lastName}`.trim()
+            const email = (u.email ?? '').trim()
 
-          const roleLabel = getRoleLabel(u.roles)
-          const createdAt = u.createdAt ? new Date(u.createdAt) : null
+            const roleLabel = getRoleLabel(u.roles)
+            const createdAt = u.createdAt ? new Date(u.createdAt) : null
 
-          const initials = `${firstName?.[0] ?? ''}${lastName?.[0] ?? ''}`.trim() || email?.[0]?.toUpperCase() || 'U'
+            const initials = `${firstName?.[0] ?? ''}${lastName?.[0] ?? ''}`.trim() || email?.[0]?.toUpperCase() || 'U'
 
-          return {
-            id: u.id ?? `${index}`,
-            fullName: fullName || 'User',
-            email,
-            roleLabel,
-            createdAt,
-            avatarUrl: (u as { avatarUrl?: string }).avatarUrl,
-            initials,
-          }
-        })
+            return {
+              id: u.id ?? `${index}`,
+              fullName: fullName || 'User',
+              email,
+              roleLabel,
+              createdAt,
+              avatarUrl: (u as { avatarUrl?: string }).avatarUrl,
+              initials,
+            }
+          })
 
-        return rows
-      })()
+          return rows
+        })()
       : []
 
   const graphStats =
     role === 'AGENT'
       ? [
-        { name: 'properties sold', value: agent?.propertyStats?.sold ?? 0 },
-        { name: 'properties rented', value: agent?.propertyStats?.rented ?? 0 },
-        { name: 'properties active', value: agent?.propertyStats?.active ?? 0 },
-        { name: 'ads sold', value: agent?.adStats?.sold ?? 0 },
-        { name: 'ads active', value: agent?.adStats?.active ?? 0 },
-      ]
+          { name: 'properties sold', value: agent?.propertyStats?.sold ?? 0 },
+          { name: 'properties rented', value: agent?.propertyStats?.rented ?? 0 },
+          { name: 'properties active', value: agent?.propertyStats?.active ?? 0 },
+          { name: 'ads sold', value: agent?.adStats?.sold ?? 0 },
+          { name: 'ads active', value: agent?.adStats?.active ?? 0 },
+        ]
       : role === 'BUYER'
-        ? [
+      ? [
           { name: 'Total', value: buyer?.enquiryStats?.total ?? 0 },
           { name: 'New Count', value: buyer?.enquiryStats?.newCount ?? 0 },
           { name: 'Closed Count', value: buyer?.enquiryStats?.closedCount ?? 0 },
           { name: 'Responded Count', value: buyer?.enquiryStats?.respondedCount ?? 0 },
         ]
-        : role === 'ADMIN'
-          ? [
-            { name: 'Buyers', value: admin?.userStats?.byRole?.buyers ?? 0 },
-            { name: 'Agents', value: admin?.userStats?.byRole?.agents ?? 0 },
-            { name: 'KYC Verified', value: admin?.userStats?.kycVerified ?? 0 },
-            { name: 'KYC Pending', value: admin?.userStats?.kycPending ?? 0 },
-          ]
-          : []
+      : role === 'ADMIN'
+      ? [
+          { name: 'Buyers', value: admin?.userStats?.byRole?.buyers ?? 0 },
+          { name: 'Agents', value: admin?.userStats?.byRole?.agents ?? 0 },
+          { name: 'KYC Verified', value: admin?.userStats?.kycVerified ?? 0 },
+          { name: 'KYC Pending', value: admin?.userStats?.kycPending ?? 0 },
+        ]
+      : []
 
   const agentBarData = (() => {
     if (role !== 'AGENT') return []
@@ -637,38 +641,38 @@ export default function AdminDashboardPage() {
   const adminRolePieData =
     role === 'ADMIN'
       ? [
-        { name: 'Admins', value: admin?.userStats?.byRole?.admins ?? 0 },
-        { name: 'Agents', value: admin?.userStats?.byRole?.agents ?? 0 },
-        { name: 'Buyers', value: admin?.userStats?.byRole?.buyers ?? 0 },
-      ].filter(d => typeof d.value === 'number' && d.value > 0)
+          { name: 'Admins', value: admin?.userStats?.byRole?.admins ?? 0 },
+          { name: 'Agents', value: admin?.userStats?.byRole?.agents ?? 0 },
+          { name: 'Buyers', value: admin?.userStats?.byRole?.buyers ?? 0 },
+        ].filter(d => typeof d.value === 'number' && d.value > 0)
       : []
 
   const engagementMetrics =
     role === 'AGENT'
       ? [
-        { label: 'Views', value: agent?.engagementStats?.totalViews ?? 0 },
-        { label: 'Favorites', value: agent?.engagementStats?.totalFavorites ?? 0 },
-        { label: 'Contacts', value: agent?.engagementStats?.totalContacts ?? 0 },
-        { label: 'Clicks', value: agent?.engagementStats?.totalClicks ?? 0 },
-      ]
+          { label: 'Views', value: agent?.engagementStats?.totalViews ?? 0 },
+          { label: 'Favorites', value: agent?.engagementStats?.totalFavorites ?? 0 },
+          { label: 'Contacts', value: agent?.engagementStats?.totalContacts ?? 0 },
+          { label: 'Clicks', value: agent?.engagementStats?.totalClicks ?? 0 },
+        ]
       : role === 'ADMIN'
-        ? [
+      ? [
           { label: 'Total Ad Views', value: admin?.engagementStats?.totalAdViews ?? 0 },
           { label: 'Total Enquiries', value: admin?.engagementStats?.totalEnquiries ?? 0 },
           { label: 'Total Favorites', value: admin?.engagementStats?.totalFavorites ?? 0 },
           { label: 'Total Property Views', value: admin?.engagementStats?.totalPropertyViews ?? 0 },
         ]
-        : []
+      : []
 
   const moderationTiles =
     role === 'ADMIN'
       ? [
-        { label: 'Property Approvals', value: admin?.moderationStats?.propertyApprovalsTotal ?? 0 },
-        { label: 'Ad Approvals', value: admin?.moderationStats?.adApprovalsTotal ?? 0 },
-        { label: 'Property Reports Pending', value: admin?.moderationStats?.propertyReportsPending ?? 0 },
-        { label: 'Ad Reports Pending', value: admin?.moderationStats?.adReportsPending ?? 0 },
-        { label: 'High Severity Reports', value: admin?.moderationStats?.highSeverityReports ?? 0 },
-      ]
+          { label: 'Property Approvals', value: admin?.moderationStats?.propertyApprovalsTotal ?? 0 },
+          { label: 'Ad Approvals', value: admin?.moderationStats?.adApprovalsTotal ?? 0 },
+          { label: 'Property Reports Pending', value: admin?.moderationStats?.propertyReportsPending ?? 0 },
+          { label: 'Ad Reports Pending', value: admin?.moderationStats?.adReportsPending ?? 0 },
+          { label: 'High Severity Reports', value: admin?.moderationStats?.highSeverityReports ?? 0 },
+        ]
       : []
 
   const hasModerationData = moderationTiles.some(t => (typeof t.value === 'number' ? t.value : 0) > 0)
@@ -679,22 +683,22 @@ export default function AdminDashboardPage() {
   const revenueTiles =
     role === 'ADMIN'
       ? [
-        { label: 'Total Revenue', value: adminRevenueStats?.totalRevenue ?? 0 },
-        { label: 'Revenue (Last 30 Days)', value: adminRevenueStats?.revenueLast30Days ?? 0 },
-        { label: 'Total Orders', value: adminRevenueStats?.totalOrders ?? 0 },
-        { label: 'Completed Orders', value: adminRevenueStats?.completedOrders ?? 0 },
-      ]
+          { label: 'Total Revenue', value: adminRevenueStats?.totalRevenue ?? 0 },
+          { label: 'Revenue (Last 30 Days)', value: adminRevenueStats?.revenueLast30Days ?? 0 },
+          { label: 'Total Orders', value: adminRevenueStats?.totalOrders ?? 0 },
+          { label: 'Completed Orders', value: adminRevenueStats?.completedOrders ?? 0 },
+        ]
       : []
 
   const revenueByPurpose = adminRevenueStats?.byPurpose
   const revenuePurposeRows =
     role === 'ADMIN'
       ? [
-        { label: 'Subscription', value: revenueByPurpose?.subscription ?? 0 },
-        { label: 'Wallet', value: revenueByPurpose?.wallet ?? 0 },
-        { label: 'Boost', value: revenueByPurpose?.boost ?? 0 },
-        { label: 'Top Listing', value: revenueByPurpose?.topListing ?? 0 },
-      ]
+          { label: 'Subscription', value: revenueByPurpose?.subscription ?? 0 },
+          { label: 'Wallet', value: revenueByPurpose?.wallet ?? 0 },
+          { label: 'Boost', value: revenueByPurpose?.boost ?? 0 },
+          { label: 'Top Listing', value: revenueByPurpose?.topListing ?? 0 },
+        ]
       : []
 
   const shouldShowSkeleton = isLoading && !payload && !error
@@ -711,9 +715,7 @@ export default function AdminDashboardPage() {
           </div>
 
           <Link href="/admin/dashboard/newsletters">
-            <button>
-              NewsLetters
-            </button>
+            <button>NewsLetters</button>
           </Link>
         </header>
 
@@ -1028,7 +1030,7 @@ export default function AdminDashboardPage() {
             </div>
 
             {revenueTiles.every(t => (typeof t.value === 'number' ? t.value : 0) === 0) &&
-              revenuePurposeRows.every(t => (typeof t.value === 'number' ? t.value : 0) === 0) ? (
+            revenuePurposeRows.every(t => (typeof t.value === 'number' ? t.value : 0) === 0) ? (
               <div className="mt-4 text-sm text-gray-600">No revenue data available.</div>
             ) : (
               <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -1066,9 +1068,13 @@ export default function AdminDashboardPage() {
                     <Users size={18} className="text-[#2a1407]" />
                     <h3 className="text-lg font-semibold text-[#2a1407]">Recent Users</h3>
                   </div>
-                  <button type="button" className="rounded-md border border-yellow-200 bg-white/70 px-3 py-1.5 text-xs font-medium text-[#2a1407]">
+                  <Button
+                    type="button"
+                    onClick={() => router.push('/admin/dashboard/users')}
+                    className="rounded-md border border-yellow-200 bg-white/70 px-3 py-1.5 text-xs font-medium text-[#2a1407]"
+                  >
                     View All
-                  </button>
+                  </Button>
                 </div>
 
                 {adminRecentUsers.length === 0 ? (

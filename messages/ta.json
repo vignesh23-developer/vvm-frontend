@@ -57,6 +57,7 @@
     "masters": "மாஸ்டர்கள்",
     "subscription": "சந்தா",
     "payments": "கட்டணங்கள்",
+    "reports": "அறிக்கைகள்",
     "properties": "சொத்துகள்",
     "leads": "வழிநடத்துகிறது",
     "users": "பயனர்கள்",
@@ -112,7 +113,8 @@
       "view transactions": "பரிவர்த்தனைகளைப் பார்க்கவும்",
       "payment reports / revenue summary": "கட்டண அறிக்கைகள் / வருமான சுருக்கம்",
       "refund management": "பணத்தைத் திருப்பி வழங்கல் மேலாண்மை",
-      "promo usage reports": "ப்ரோமோ பயன்பாட்டு அறிக்கைகள்"
+      "promo usage reports": "ப்ரோமோ பயன்பாட்டு அறிக்கைகள்",
+      "view all users": "அனைத்து பயனர்களையும் பார்க்கவும்"
     }
   },
   "PopularProperties": {

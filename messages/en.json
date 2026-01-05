@@ -58,6 +58,7 @@
     "properties": "Properties",
     "subscription": "Subscription",
     "payments": "Payments",
+    "reports": "Reports",
     "leads": "Leads",
     "users": "Users",
     "support": "Support",
@@ -113,7 +114,8 @@
       "payment reports / revenue summary": "Payment Reports / Revenue Summary",
       "refund management": "Refund Management",
       "promo usage reports": "Promo Usage Reports",
-      "feedback": "Feedback"
+      "feedback": "Feedback",
+      "view all users": "View All Users"
     }
   },
   "PopularProperties": {

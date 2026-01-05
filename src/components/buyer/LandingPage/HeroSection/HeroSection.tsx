@@ -31,7 +31,7 @@ export default function HeroSection({ propertyCategories, error: categoriesError
   const [debouncedLocationQuery, setDebouncedLocationQuery] = useState('')
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [showSavedSearches, setShowSavedSearches] = useState(false)
-  const { savedSearches, isLoading: isSearchHistoryLoading, deleteSavedSearch, mutate: mutateSearchHistory } = useHomeSearch()
+  // const { savedSearches, isLoading: isSearchHistoryLoading, deleteSavedSearch, mutate: mutateSearchHistory } = useHomeSearch()
   // Lightweight category shape used in this component
   interface Category {
     id: string | number
@@ -90,18 +90,18 @@ export default function HeroSection({ propertyCategories, error: categoriesError
 
   const handleSavedSearchSelect = (savedSearch: any, setFieldValue: (field: string, value: unknown) => void) => {
     const criteria = savedSearch.search_criteria || {}
-    
+
     // Extract location
     if (criteria.location) {
       setLocationQuery(criteria.location)
       setFieldValue('location', criteria.location)
     }
-    
+
     // Extract type
     if (criteria.type) {
       setFieldValue('type', criteria.type)
     }
-    
+
     // Extract budget
     if (criteria.budget) {
       setFieldValue('budget', criteria.budget)
@@ -113,15 +113,15 @@ export default function HeroSection({ propertyCategories, error: categoriesError
         }
       }
     }
-    
+
     setShowSavedSearches(false)
     setShowSuggestions(false)
   }
 
-  const handleDeleteSavedSearch = async (e: React.MouseEvent, id: string) => {
-    e.stopPropagation()
-    await deleteSavedSearch(id)
-  }
+  // const handleDeleteSavedSearch = async (e: React.MouseEvent, id: string) => {
+  //   e.stopPropagation()
+  //   await deleteSavedSearch(id)
+  // }
 
   // Background carousel images (external URLs)
   const heroImages = [
@@ -363,7 +363,7 @@ export default function HeroSection({ propertyCategories, error: categoriesError
                           const hasQuery = locationQuery.trim().length >= MIN_LOCATION_QUERY_LENGTH
                           setShowSuggestions(hasQuery)
                           // Trigger fetch of saved searches when input is focused
-                          mutateSearchHistory()
+                          // mutateSearchHistory()
                           // Show saved searches if no query (or minimal query) - will show once data loads
                           if (!hasQuery) {
                             setShowSavedSearches(true)
@@ -407,7 +407,7 @@ export default function HeroSection({ propertyCategories, error: categoriesError
                       </div>
                     )}
 
-                    {showSavedSearches && (isSearchHistoryLoading || savedSearches.length > 0) && (
+                    {/* {showSavedSearches && (isSearchHistoryLoading || savedSearches.length > 0) && (
                       <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-xl">
                         {isSearchHistoryLoading ? (
                           <div className="px-4 py-2 text-sm text-gray-500">Loading saved searches...</div>
@@ -446,7 +446,7 @@ export default function HeroSection({ propertyCategories, error: categoriesError
                           })
                         )}
                       </div>
-                    )}
+                    )} */}
                   </motion.div>
 
                   {/* Property Type Select */}
@@ -638,7 +638,7 @@ export default function HeroSection({ propertyCategories, error: categoriesError
                           const hasQuery = locationQuery.trim().length >= MIN_LOCATION_QUERY_LENGTH
                           setShowSuggestions(hasQuery)
                           // Trigger fetch of saved searches when input is focused
-                          mutateSearchHistory()
+                          // mutateSearchHistory()
                           // Show saved searches if no query (or minimal query) - will show once data loads
                           if (!hasQuery) {
                             setShowSavedSearches(true)
@@ -682,7 +682,7 @@ export default function HeroSection({ propertyCategories, error: categoriesError
                       </div>
                     )}
 
-                    {showSavedSearches && (isSearchHistoryLoading || savedSearches.length > 0) && (
+                    {/* {showSavedSearches && (isSearchHistoryLoading || savedSearches.length > 0) && (
                       <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-xl">
                         {isSearchHistoryLoading ? (
                           <div className="px-4 py-2 text-sm text-gray-500">Loading saved searches...</div>
@@ -721,7 +721,7 @@ export default function HeroSection({ propertyCategories, error: categoriesError
                           })
                         )}
                       </div>
-                    )}
+                    )} */}
                   </motion.div>
 
                   {/* Property Type */}

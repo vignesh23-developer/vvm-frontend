@@ -10,7 +10,7 @@ export const onSetCookies = async (cookiesName: string, data: any) => {
       name: cookiesName,
       value: JSON.stringify(data),
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'production',
       path: '/',
       sameSite: 'lax',
     })
