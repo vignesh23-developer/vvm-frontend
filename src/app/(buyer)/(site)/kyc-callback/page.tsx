@@ -62,7 +62,7 @@ export default function KYCCallbackPage() {
         // Call complete KYC endpoint
         const response = await postMethod(appEndpoints.completeKyc, {
           clientId: clientId,
-          verificationId: storedData.verificationId
+          // verificationId: storedData.verificationId
         })
 
         // Clear stored verification data
