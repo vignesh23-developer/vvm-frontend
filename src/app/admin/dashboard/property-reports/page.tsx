@@ -107,6 +107,7 @@ export default function PropertyReportsPage() {
         <DataTable<PropertyReportsTableRow>
           columns={columns}
           fetchData={fetchReports}
+          reloadKey={reports}
           initialPage={page}
           pageSize={limit}
           loading={isLoading}

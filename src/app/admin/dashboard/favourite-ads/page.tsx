@@ -43,9 +43,11 @@ export default function AdsFavoritePage() {
               ? 'bg-green-100 text-green-700 border border-green-300'
               : 'bg-red-100 text-red-700 border border-red-300'
 
-          return <span className={`px-3 py-1 rounded-full text-xs font-semibold ${colorClass}`}>
-            {approvalStatus === 'UNDER_REVIEW' ? 'PENDING' : approvalStatus}
-          </span>
+          return (
+            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${colorClass}`}>
+              {approvalStatus === 'UNDER_REVIEW' ? 'PENDING' : approvalStatus}
+            </span>
+          )
         },
       },
     ],
@@ -86,6 +88,7 @@ export default function AdsFavoritePage() {
         <DataTable<AdsFavoriteTableRow>
           columns={columns}
           fetchData={fetchFavorites}
+          reloadKey={favorites}
           loading={isLoading}
           allowExport
           allowGrouping

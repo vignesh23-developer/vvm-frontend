@@ -107,6 +107,7 @@ export default function FeatureGroupPage() {
           columns={columns}
           actions={actions}
           fetchData={fetchGroups}
+          reloadKey={groups}
           loading={isLoading}
           isPagination={true}
           allowExport

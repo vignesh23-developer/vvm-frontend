@@ -362,6 +362,7 @@ export default function AdsListPage() {
               columns={columns}
               actions={actions}
               fetchData={fetchAds}
+              reloadKey={ads}
               loading={isLoading}
               isPagination={true}
               initialPage={currentPage}

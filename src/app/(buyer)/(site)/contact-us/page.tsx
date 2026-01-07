@@ -10,6 +10,7 @@ const socialLinks = [
   { label: 'LinkedIn', icon: Linkedin, href: 'https://www.linkedin.com/in/vaazhga-valamudan-tn' },
   { label: 'YouTube', icon: Youtube, href: 'https://www.youtube.com/@VaazhgaValamudan-TN' },
   { label: 'Telegram', icon: Send, href: 'https://t.me/boost/vaazhgavalamudanvvdrs' },
+  { label: 'WhatsApp', icon: Phone, href: 'https://whatsapp.com/channel/0029VbCK0k41HsppK1avNo01' },
 ]
 
 const contactMethods = [

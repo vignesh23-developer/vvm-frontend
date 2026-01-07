@@ -41,6 +41,13 @@ const parseJSON = <T,>(value: any, fallback: T): T => {
   return (value as T) ?? fallback
 }
 
+const normalizeToken = (value: unknown): string | null => {
+  const parsed = parseJSON<string | null>(value, value as any)
+  if (typeof parsed !== 'string') return null
+  const trimmed = parsed.trim()
+  return trimmed.length > 0 ? trimmed : null
+}
+
 // -----------------------------
 // Provider
 // -----------------------------
@@ -56,7 +63,7 @@ export const AuthProvider = ({ children, initialUser, initialToken }: AuthProvid
     const [userRes, tokenRes] = await Promise.all([onGetCookies(USER_COOKIE), onGetCookies(TOKEN_COOKIE)])
 
     setUserState(parseJSON(userRes.cookies, null))
-    setTokenState(tokenRes.cookies ?? null)
+    setTokenState(normalizeToken(tokenRes.cookies))
   }, [])
 
   // Initial load

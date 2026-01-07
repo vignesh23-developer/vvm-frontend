@@ -315,6 +315,7 @@ export default function PropertiesPage() {
             columns={columns}
             actions={actions}
             fetchData={fetchProperties}
+            reloadKey={properties}
             loading={isLoadingProperties}
             isPagination={true}
             initialPage={page}

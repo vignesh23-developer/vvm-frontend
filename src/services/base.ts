@@ -3,19 +3,40 @@ import { onDeleteCookies, onGetCookies } from '@/utils/cookies/cookiesHelper'
 
 let isRedirectingToLogin = false
 
+const safeJsonParse = <T>(value: unknown, fallback: T): T => {
+  if (value === undefined || value === null) return fallback
+  if (typeof value !== 'string') return (value as T) ?? fallback
+
+  try {
+    return JSON.parse(value) as T
+  } catch {
+    return (value as unknown as T) ?? fallback
+  }
+}
+
+const normalizeToken = (value: unknown): string | null => {
+  const parsed = safeJsonParse<string | null>(value, value as any)
+  if (typeof parsed !== 'string') return null
+  const trimmed = parsed.trim()
+  return trimmed.length > 0 ? trimmed : null
+}
+
 const redirectToLogin = () => {
   if (typeof window === 'undefined') return
   if (isRedirectingToLogin) return
 
-  const pathSegments = window.location.pathname.split('/').filter(Boolean)
-  const lastSegment = pathSegments[pathSegments.length - 1]
-  const isLoginRoute = lastSegment === 'login'
+  const currentUrl = new URL(window.location.href)
+
+  // Avoid redirect loops when we're already on login.
+  const isLoginRoute = currentUrl.pathname === '/login' || currentUrl.pathname.startsWith('/login/')
   if (isLoginRoute) return
 
-  const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`
+  const nextPath = `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`
+  const loginUrl = new URL('/login', currentUrl.origin)
+  loginUrl.searchParams.set('next', nextPath)
 
   isRedirectingToLogin = true
-  window.location.replace(`/login?next=${encodeURIComponent(currentPath)}`)
+  window.location.replace(`${loginUrl.pathname}${loginUrl.search}`)
 }
 
 const axiosInstance = axios.create({
@@ -28,9 +49,8 @@ axiosInstance.interceptors.request.use(async config => {
 
   // const localStoredToken = await getLocalStorageItem(LOCAL_STORAGE_NAME.authToken)
   const localStoredToken = await onGetCookies('authToken').then(res => {
-    if (!res.isError) {
-      return res.cookies as string | null
-    }
+    if (res.isError) return null
+    return normalizeToken(res.cookies)
   })
 
   if (localStoredToken) {
@@ -51,7 +71,8 @@ axiosInstance.interceptors.response.use(
   error => {
     console.log('ERROR ON interceptors response', error)
 
-    if (error.response?.status === 401) {
+    const status = error?.response?.status ?? error?.status ?? error?.response?.statusCode
+    if (Number(status) === 401) {
       console.log('error from interceptors', error)
 
       onDeleteCookies('authToken')

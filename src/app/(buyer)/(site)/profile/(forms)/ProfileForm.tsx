@@ -57,7 +57,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialValues, validationSche
       firstName: values.firstName,
       lastName: values.lastName,
       email: values.email,
-      phoneNumber: values.phoneNumber,
+      // phoneNumber: values.phoneNumber,
     }
 
     try {

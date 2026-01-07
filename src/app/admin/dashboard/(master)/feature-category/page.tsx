@@ -89,6 +89,7 @@ export default function FeatureCategoryPage() {
           columns={columns}
           actions={actions}
           fetchData={fetchCategories}
+          reloadKey={categories}
           loading={isLoading}
           allowExport
           allowGrouping

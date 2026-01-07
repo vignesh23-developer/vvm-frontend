@@ -12,8 +12,6 @@ export default function UserManagementPage() {
   const [limit, setLimit] = useState(10)
   const { users, total, isLoading, handleRefreshUsers } = useUsersHook(page, limit)
 
-  console.log('Rendering UserManagementPage with users:', users)
-
   const fetchUsersForTable = useCallback(async () => {
     return {
       data: users,
@@ -79,7 +77,6 @@ export default function UserManagementPage() {
         sortable: true,
         filterable: true,
         render: (item: any) => {
-          console.log('KYC Verified item:', item)
           const isVerified = Boolean(item)
 
           return isVerified ? (
@@ -87,6 +84,21 @@ export default function UserManagementPage() {
           ) : (
             <span className="inline-flex rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700 border border-red-300">No</span>
           )
+        },
+      },
+      {
+        field: 'createdAt',
+        title: 'Created At',
+        sortable: true,
+        filterable: true,
+        render: (item: any) => {
+          if (!item) return '-'
+
+          return new Intl.DateTimeFormat('en-US', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+          }).format(new Date(item))
         },
       },
     ],
@@ -105,6 +117,7 @@ export default function UserManagementPage() {
         <DataTable<UserDataTableRow>
           columns={columns}
           fetchData={fetchUsersForTable}
+          reloadKey={users}
           loading={isLoading}
           allowExport
           allowGrouping

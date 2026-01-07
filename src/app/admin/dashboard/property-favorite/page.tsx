@@ -108,6 +108,7 @@ export default function PropertyFavoritePage() {
         <DataTable<PropertyFavoriteTableRow>
           columns={columns}
           fetchData={fetchFavorites}
+          reloadKey={favorites}
           loading={isLoading}
           allowExport
           allowGrouping

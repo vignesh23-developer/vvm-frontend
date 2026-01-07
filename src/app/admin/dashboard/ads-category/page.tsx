@@ -98,6 +98,7 @@ export default function AdsCategoryPage() {
         columns={columns}
         actions={actions}
         fetchData={fetchCategories}
+        reloadKey={categories}
         loading={isLoading}
         allowExport
         allowGrouping

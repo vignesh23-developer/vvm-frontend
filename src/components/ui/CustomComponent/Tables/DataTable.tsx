@@ -61,6 +61,11 @@ interface DataTableColors {
 interface DataTableProps<T extends RowData = RowData> {
   columns: Column<T>[]
   fetchData: () => Promise<FetchResult<T>>
+  /**
+   * Optional key to explicitly trigger internal reloads.
+   * Prefer this over relying on fetchData function identity changes.
+   */
+  reloadKey?: unknown
   actions?: DataTableAction<T>[]
   loading?: boolean
   initialPage?: number
@@ -390,6 +395,7 @@ const defaultColors: DataTableColors = {
 const DataTable = <T extends RowData = RowData>({
   columns: initialColumns,
   fetchData,
+  reloadKey,
   actions = [],
   loading: externalLoading = true,
   initialPage = 1,
@@ -627,8 +633,9 @@ const DataTable = <T extends RowData = RowData>({
   }, [loadData, shouldReload])
 
   useEffect(() => {
+    if (typeof reloadKey === 'undefined') return
     setShouldReload(true)
-  }, [fetchData])
+  }, [reloadKey])
 
   // Sync external pageSize prop with internal state
   useEffect(() => {

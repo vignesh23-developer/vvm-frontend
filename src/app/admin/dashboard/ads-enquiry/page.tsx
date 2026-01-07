@@ -81,6 +81,7 @@ export default function AdsEnquiryPage() {
         <DataTable<AdEnquiryTableRow>
           columns={columns}
           fetchData={fetchEnquiries}
+          reloadKey={enquiries}
           loading={isLoading}
           initialPage={page}
           pageSize={limit}

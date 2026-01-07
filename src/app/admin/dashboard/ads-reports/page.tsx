@@ -92,6 +92,7 @@ export default function AdsReportsPage() {
         <DataTable<AdReportTableRow>
           columns={columns}
           fetchData={fetchReports}
+          reloadKey={adReports}
           initialPage={page}
           pageSize={limit}
           loading={isLoading}

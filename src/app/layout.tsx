@@ -46,8 +46,21 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const userCookie = cookieStore.get('userData')?.value
   const tokenCookie = cookieStore.get('authToken')?.value ?? null
 
-  const initialUser = userCookie ? JSON.parse(userCookie) : null
-  const initialToken = tokenCookie ?? null
+  const safeJsonParse = <T,>(value: string | null | undefined, fallback: T): T => {
+    if (!value) return fallback
+    try {
+      return JSON.parse(value) as T
+    } catch {
+      return fallback
+    }
+  }
+
+  // `userData` can be absent or malformed; never crash the whole app on parse.
+  const initialUser = safeJsonParse<Record<string, unknown> | null>(userCookie, null)
+
+  // `authToken` is sometimes stored via JSON.stringify, so it can be "token" or `null`.
+  const parsedToken = safeJsonParse<string | null>(tokenCookie, tokenCookie)
+  const initialToken = typeof parsedToken === 'string' && parsedToken.trim().length > 0 ? parsedToken : null
 
   return (
     <html lang="ta" className={`${geistSans.variable} ${geistMono.variable}`}>

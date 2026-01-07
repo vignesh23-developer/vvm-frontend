@@ -105,6 +105,7 @@ export default function PropertyEnquiryPage() {
         <DataTable<PropertyEnquiry>
           columns={columns}
           fetchData={fetchEnquiries}
+          reloadKey={enquiries}
           loading={isLoading}
           allowExport
           allowGrouping

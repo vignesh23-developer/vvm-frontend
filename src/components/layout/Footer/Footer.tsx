@@ -38,12 +38,13 @@ const exploreLinks = [
 ]
 
 const socialLinks = [
-  { label: 'instagram', icon: Instagram, href: 'https://www.instagram.com/vaazhga._.valamudan?igsh=MXA1OGp5cnY5ZHR6YQ==' },
-  { label: 'facebook', icon: Facebook, href: 'https://www.facebook.com/share/1Cp5XJwHHC/' },
-  { label: 'twitter_(𝕏)', icon: Twitter, href: 'https://x.com/VaazhgaValam?t=Iu-WpKa3cvAT-h3BHUBdYg&s=09' },
-  { label: 'linked_in', icon: Linkedin, href: 'https://www.linkedin.com/in/vaazhga-valamudan-tn' },
-  { label: 'youtube', icon: Youtube, href: 'https://www.youtube.com/@VaazhgaValamudan-TN' },
-  { label: 'telegram', icon: Send, href: 'https://t.me/boost/vaazhgavalamudanvvdrs' },
+  { label: 'instagram', titleName: 'Instagram', icon: Instagram, href: 'https://www.instagram.com/vaazhga._.valamudan?igsh=MXA1OGp5cnY5ZHR6YQ==' },
+  { label: 'facebook', titleName: 'Facebook', icon: Facebook, href: 'https://www.facebook.com/share/1Cp5XJwHHC/' },
+  { label: 'twitter_(𝕏)', titleName: 'Twitter', icon: Twitter, href: 'https://x.com/VaazhgaValam?t=Iu-WpKa3cvAT-h3BHUBdYg&s=09' },
+  { label: 'linked_in', titleName: 'LinkedIn', icon: Linkedin, href: 'https://www.linkedin.com/in/vaazhga-valamudan-tn' },
+  { label: 'youtube', titleName: 'YouTube', icon: Youtube, href: 'https://www.youtube.com/@VaazhgaValamudan-TN' },
+  { label: 'telegram', titleName: 'Telegram', icon: Send, href: 'https://t.me/boost/vaazhgavalamudanvvdrs' },
+  { label: 'whatsapp', titleName: 'WhatsApp', icon: Phone, href: 'https://whatsapp.com/channel/0029VbCK0k41HsppK1avNo01' },
 ]
 
 export default function Footer() {
@@ -119,17 +120,18 @@ export default function Footer() {
             </p>
 
             {/* Social Media Icons */}
-            <div className="flex gap-3">
-              {socialLinks.map(({ label, icon: Icon, href }) => (
+            <div className="flex items-center gap-2 flex-wrap">
+              {socialLinks.map(({ label, icon: Icon, href, titleName }) => (
                 <Link
                   key={label}
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-full bg-white/5 hover:bg-yellow-500 border border-white/10 hover:border-yellow-500 flex items-center justify-center transition-all duration-300 group"
                   aria-label={t(`Footer.${label}`)}
+                  className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-300 hover:bg-yellow-500 hover:border-yellow-500 group"
+                  title={titleName}
                 >
-                  <Icon size={18} className="text-gray-300 group-hover:text-[#2a1407] transition-colors" />
+                  <Icon size={16} className="text-gray-300 group-hover:text-[#2a1407] transition-colors" />
                 </Link>
               ))}
             </div>
@@ -276,7 +278,7 @@ export default function Footer() {
         </div>
 
         {/* Footer Bottom: Copyright */}
-        <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row md:flex-wrap justify-center items-center gap-2 md:gap-3 text-xm text-gray-500 text-center">
+        <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row md:flex-wrap justify-center items-center gap-2 md:gap-3 text-sm text-gray-500 text-center">
           <p className="leading-relaxed text-gray-300">© {new Date().getFullYear()} Vaazhga Valamudan. All Rights Reserved.</p>
         </div>
       </div>
