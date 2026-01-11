@@ -18,7 +18,7 @@ const SitePageLayout = ({
       <header>
         <Navbar />
       </header>
-      <main className={isLandingPage ? '' : 'pt-16'}>{children}</main>
+      <main>{children}</main>
       <footer>
         <Footer />
       </footer>

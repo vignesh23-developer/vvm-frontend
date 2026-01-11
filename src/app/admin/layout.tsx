@@ -21,7 +21,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 bg-transparent pt-16">
+      <main className="flex-1 bg-transparent">
         <div className="p-5 flex items-center justify-between border-b border-gray-200 bg-white">
           <Breadcrumbs />
         </div>

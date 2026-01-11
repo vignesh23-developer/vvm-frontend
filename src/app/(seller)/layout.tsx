@@ -15,7 +15,7 @@ export default function SellerLayout({
       <header>
         <Navbar />
       </header>
-      <main className="pt-16">{children}</main>
+      <main >{children}</main>
       <footer>
         <Footer />
       </footer>

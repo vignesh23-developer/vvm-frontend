@@ -9,7 +9,7 @@ import Button from '@/components/ui/CustomComponent/Button/Button'
 import { patchMethod, postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import Image from 'next/image'
-import { Camera } from 'lucide-react'
+import { Camera, Mail, Phone, User, Check } from 'lucide-react'
 import UploadProfileImageModal from '@/components/ui/LogoOrProfileImageUpload/modal/UploadProfileImage'
 import LogoOrProfileImageUpload from '@/components/ui/LogoOrProfileImageUpload/LogoOrProfileImageUpload'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
@@ -33,7 +33,14 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialValues, validationSche
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const router = useRouter()
-  const { setUser } = useAuth()
+  const { setUser, user } = useAuth()
+
+  // Get user initials
+  const getUserInitials = () => {
+    const first = initialValues.firstName?.[0]?.toUpperCase() || ''
+    const last = initialValues.lastName?.[0]?.toUpperCase() || ''
+    return first + last || 'U'
+  }
 
   // Update local state when prop changes
   React.useEffect(() => {
@@ -57,7 +64,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialValues, validationSche
       firstName: values.firstName,
       lastName: values.lastName,
       email: values.email,
-      // phoneNumber: values.phoneNumber,
     }
 
     try {
@@ -78,80 +84,137 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialValues, validationSche
   }
 
   return (
-    <div className="max-w-md mx-auto p-5 rounded-3xl bg-white shadow-xl shadow-yellow-900/10 border border-yellow-100">
-      {/* Title */}
-      <div className="text-center mb-6">
-        <h2 className="text-3xl font-bold text-[#2a1407] mb-1">{isEdit ? 'Edit Profile' : 'Create Profile'}</h2>
-        <p className="text-gray-500 text-sm">Your information helps us personalize your experience ✨</p>
+    <div className="bg-white rounded-2xl border border-[#e8d5c4] shadow-sm overflow-hidden">
+
+      {/* Header Section with Avatar */}
+      <div className="bg-gradient-to-r from-[#fdf5eb] to-white p-6 border-b border-[#e8d5c4]">
+        <div className="flex items-center gap-5">
+          {/* Avatar with Upload */}
+          {isEdit && (
+            <div className="relative group">
+              <div
+                onClick={() => setIsModalOpen(true)}
+                className="w-20 h-20 rounded-2xl bg-[#f4e1c2] border-2 border-[#cfae78]/40 flex items-center justify-center overflow-hidden cursor-pointer transition-all hover:border-[#b8864b]"
+              >
+                {profileImage ? (
+                  <Image
+                    src={profileImage}
+                    alt="Profile"
+                    width={80}
+                    height={80}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-[#2a1407] font-bold text-2xl">{getUserInitials()}</span>
+                )}
+              </div>
+              {/* Camera overlay */}
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(true)}
+                className="absolute -bottom-1 -right-1 w-8 h-8 bg-[#2a1407] rounded-lg flex items-center justify-center shadow-lg hover:bg-[#b8864b] transition-colors"
+              >
+                <Camera className="w-4 h-4 text-white" />
+              </button>
+            </div>
+          )}
+
+          {/* User Info */}
+          <div className="flex-1">
+            <h2 className="text-xl font-bold text-[#2a1407]">
+              {initialValues.firstName || initialValues.lastName
+                ? `${initialValues.firstName} ${initialValues.lastName}`
+                : 'Your Profile'}
+            </h2>
+            <p className="text-sm text-[#7a4a1d]">{initialValues.email}</p>
+
+            {/* Status Badges */}
+            <div className="flex items-center gap-2 mt-2">
+              {user?.isEmailVerified && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-50 text-green-700 text-[10px] font-medium rounded-full border border-green-200">
+                  <Check className="w-3 h-3" />
+                  Email Verified
+                </span>
+              )}
+              {user?.isPhoneVerified && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-medium rounded-full border border-blue-200">
+                  <Check className="w-3 h-3" />
+                  Phone Verified
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Profile Upload Circle */}
-      {isEdit && (
-        <div className="flex justify-center mb-8">
-          <LogoOrProfileImageUpload
-            logoUrl={profileImage || ''}
-            onClick={() => setIsModalOpen(true)}
-            label=""
-            title="Upload Profile Image"
-            changeText="Change"
-          />
-        </div>
-      )}
+      {/* Form Section */}
+      <div className="p-6">
+        <h3 className="text-xs font-semibold text-[#7a4a1d] mb-4 uppercase tracking-wide flex items-center gap-2">
+          <User className="w-4 h-4 text-[#b8864b]" />
+          Personal Information
+        </h3>
 
-      <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit} enableReinitialize>
-        {({ isSubmitting }) => (
-          <Form className="space-y-6">
-            <FormikTextField label="First Name" name="firstName" placeholder="Enter your first name" />
-            <FormikTextField label="Last Name" name="lastName" placeholder="Enter your last name" />
-            <FormikTextField
-              label="Email"
-              name="email"
-              placeholder="Enter your email"
-              readOnly
-              className="
-    w-full 
-    p-2 
-    border border-gray-300 
-    rounded-md 
-    bg-gray-100 
-    cursor-not-allowed
-    text-gray-700
-    focus:outline-none 
-    focus:ring-0 
-    focus:border-gray-300
-  "
-            />
-            <FormikTextField
-              label="Phone Number"
-              name="phoneNumber"
-              placeholder="Enter your phone number"
-              readOnly
-              className="
-    w-full 
-    p-2 
-    border border-gray-300 
-    rounded-md 
-    bg-gray-100 
-    cursor-not-allowed
-    text-gray-700
-    focus:outline-none 
-    focus:ring-0 
-    focus:border-gray-300
-  "
-            />
+        <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit} enableReinitialize>
+          {({ isSubmitting }) => (
+            <Form className="space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormikTextField
+                  label="First Name"
+                  name="firstName"
+                  placeholder="Enter your first name"
+                  className="w-full px-4 py-3 bg-[#fdf5eb]/50 border border-[#e8d5c4] rounded-xl text-sm text-[#2a1407] focus:outline-none focus:border-[#b8864b] focus:ring-2 focus:ring-[#b8864b]/10 transition-all"
+                />
+                <FormikTextField
+                  label="Last Name"
+                  name="lastName"
+                  placeholder="Enter your last name"
+                  className="w-full px-4 py-3 bg-[#fdf5eb]/50 border border-[#e8d5c4] rounded-xl text-sm text-[#2a1407] focus:outline-none focus:border-[#b8864b] focus:ring-2 focus:ring-[#b8864b]/10 transition-all"
+                />
+              </div>
 
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className={`w-full py-3 text-white font-semibold rounded-xl shadow-lg transition-all duration-200 
-                ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#2a1407] hover:bg-[#4a230c] hover:shadow-xl'}`}
-            >
-              {isSubmitting ? 'Saving...' : isEdit ? 'Update Profile' : 'Create Profile'}
-            </Button>
-          </Form>
-        )}
-      </Formik>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="relative">
+                  <FormikTextField
+                    label="Email"
+                    name="email"
+                    placeholder="Enter your email"
+                    readOnly
+                    className="w-full px-4 py-3 pr-10 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-500 cursor-not-allowed"
+                  />
+                  {user?.isEmailVerified && (
+                    <span className="absolute right-3 top-9 w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+                      <Check className="w-3 h-3 text-green-600" />
+                    </span>
+                  )}
+                </div>
 
+                <FormikTextField
+                  label="Phone Number"
+                  name="phoneNumber"
+                  placeholder="Enter your phone number"
+                  readOnly
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-500 cursor-not-allowed"
+                />
+              </div>
+
+              <div className="pt-2">
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`px-6 py-3 text-white font-semibold text-sm rounded-xl shadow-sm transition-all ${isSubmitting
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-[#2a1407] hover:bg-[#3d2415] hover:shadow-md'
+                    }`}
+                >
+                  {isSubmitting ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
+            </Form>
+          )}
+        </Formik>
+      </div>
+
+      {/* Upload Modal */}
       <UploadProfileImageModal
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
@@ -159,7 +222,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialValues, validationSche
         onImageUploadSubmit={handleProfileImageSubmit}
         modalTitle="Upload Profile Image"
         modalLabel="Profile Image"
-        modalDescription="Kindly upload your profile image below 👇"
+        modalDescription="Choose a profile picture to upload"
       />
     </div>
   )
