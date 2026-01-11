@@ -1,783 +1,688 @@
 'use client'
 
-import { useState, useEffect, useRef, type ReactNode } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 import {
   Menu,
   X,
-  Globe,
   LogOut,
-  ArrowRight,
-  Building,
-  ChevronUp,
-  ChevronDown,
-  Shield,
-  Home,
-  Wrench,
-  Info,
-  HelpCircle,
-  Tag,
-  CircleUserRound,
-  Grip,
-  Megaphone,
-  CreditCard,
-  CircleSmall,
-  Building2,
-  User,
-  Crown,
-  BadgeIndianRupee,
-  ChevronRight,
-  MoreHorizontal,
   Bell,
-  UserPlus,
-  Flag,
+  Plus,
+  Globe,
+  ChevronDown,
+  Check,
+  LayoutDashboard,
+  Clock,
+  AlertTriangle,
+  MessageSquare,
+  CreditCard,
+  Wallet,
+  UserCog,
+  Building2,
+  Megaphone,
+  Search,
+  Shield,
+  Users,
+  FileText,
+  Settings,
+  Heart,
+  Home,
+  ChevronRight,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTranslationContext } from '@/hooks/Translation/TranslationProvider'
 import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { useGlobalContext } from '@/hooks/GlobalContext/GlobalContext'
-import LanguageSwitch from '@/components/ui/CustomComponent/languageSwitch/languageSwitch'
 import formatName from '@/utils/converter/formatName'
-import Button from '@/components/ui/CustomComponent/Button/Button'
 import { appEndpoints } from '@/services/endpoints'
 import { getMethod } from '@/services/service'
-import { Roles, getUserRoles, hasRole, type UserRole } from '@/utils/roles/roles'
+import { Roles, getUserRoles, hasRole } from '@/utils/roles/roles'
 import NotificationPopup from '@/components/Notification/NotificationPopup'
-import NotificationBadge from '@/components/Notification/NotificationBadge'
-import { useKycStatus } from '@/components/kyc/hooks/useKycStatus'
+import { useBadges } from '@/components/Notification/hooks/useBadges'
 
-export interface NavLink {
-  label: string
-  href: string
-  icon: React.ComponentType<{ size?: number }>
-  subMenu?: NavLink[]
-}
+// ============================================
+// TYPES & CONSTANTS
+// ============================================
 
 interface NavbarProps {
   logoSrc?: string
-  navLinks?: NavLink[]
   showLoginButton?: boolean
   showLanguageSelector?: boolean
-  bgColor?: string
-  user?: {
-    name: string
-    email?: string
-  } | null
 }
 
-interface NavItem {
-  label: string
-  href: string
-  icon: ReactNode
-  roles?: UserRole[]
-  subMenu?: { label: string; href: string; icon?: ReactNode; roles?: UserRole[] }[]
-}
-
-const DEFAULT_LINKS = [
-  { label: 'home', href: '/', icon: Home },
-  { label: 'about_us', href: '/about', icon: Info },
-  { label: 'properties', href: '/properties-list', icon: Building },
-  { label: 'agents', href: '/agents-list', icon: CircleUserRound },
-  { label: 'services', href: '/ads-list', icon: Megaphone },
-  // { label: 'services', href: '/services', icon: Wrench },
-  { label: 'pricing', href: '/pricing', icon: Tag },
+const NAV_LINKS = [
+  { label: 'home', href: '/' },
+  { label: 'properties', href: '/properties-list' },
+  { label: 'agents', href: '/agents-list' },
+  { label: 'services', href: '/ads-list' },
+  { label: 'pricing', href: '/pricing' },
+  { label: 'about_us', href: '/about' },
 ]
 
-const DASHBOARD_SECTIONS: NavItem[] = [
-  {
-    label: 'masters',
-    roles: [Roles.ADMIN],
-    href: '/admin/dashboard/masters',
-    icon: <Shield size={16} />,
-    subMenu: [
-      { label: 'feature group', href: '/admin/dashboard/feature-group' },
-      { label: 'feature categories', href: '/admin/dashboard/feature-category' },
-      { label: 'property categories', href: '/admin/dashboard/property-category' },
-      { label: 'ads categories', href: '/admin/dashboard/ads-category' },
-      // { label: 'promo code', href: '/admin/dashboard/promo-code' },
-      // { label: 'referral management', href: '/admin/dashboard/referral-management' },
-    ],
-  },
-  {
-    label: 'properties',
-    roles: [Roles.ADMIN, Roles.AGENT, Roles.BUYER],
-    href: '/properties',
-    icon: <Building size={16} />,
-    subMenu: [
-      { label: 'properties management', href: '/properties/list', roles: [Roles.ADMIN, Roles.AGENT] },
-      { label: 'register your properties', href: '/properties-registration', roles: [Roles.BUYER] },
-      { label: 'properties pending approval', href: '/admin/dashboard/properties-pending-approval', roles: [Roles.ADMIN] },
-      { label: 'favourite properties', href: '/admin/dashboard/property-favorite', roles: [Roles.BUYER, Roles.AGENT, Roles.ADMIN] },
-      { label: 'reported properties', href: '/admin/dashboard/property-reports', roles: [Roles.ADMIN, Roles.AGENT] },
-      { label: 'view enquiries', href: '/admin/dashboard/property-enquiry', roles: [Roles.ADMIN, Roles.AGENT] },
-      // { label: 'saved searches', href: '/admin/dashboard/saved-searches' },
-      // { label: 'recently viewed properties', href: '/admin/dashboard/recently-viewed' },
-      // { label: 'contact requests', href: '/admin/dashboard/contact-requests' },
-    ],
-  },
-  {
-    label: 'ads',
-    roles: [Roles.ADMIN, Roles.AGENT, Roles.BUYER],
-    href: '/ads/list',
-    icon: <Megaphone size={16} />,
-    subMenu: [
-      { label: 'ads management', href: '/ads/list', roles: [Roles.ADMIN, Roles.AGENT] },
-      { label: 'ads pending approval', href: '/admin/dashboard/ads-pending-approval', roles: [Roles.ADMIN] },
-      // { label: 'view recent ads', href: '/admin/dashboard/recent-ads' },
-      { label: 'favourite ads', href: '/admin/dashboard/favourite-ads', roles: [Roles.ADMIN, Roles.AGENT, Roles.BUYER] },
-      { label: 'reported ads', href: '/admin/dashboard/ads-reports', roles: [Roles.ADMIN, Roles.AGENT] },
-      { label: 'view enquiries', href: '/admin/dashboard/ads-enquiry', roles: [Roles.ADMIN, Roles.AGENT] },
-    ],
-  },
-  {
-    label: 'subscription',
-    roles: [Roles.ADMIN],
-    href: '/admin/dashboard/subscription-master',
-    icon: <CreditCard size={16} />,
-    subMenu: [
-      { label: 'subscription master', href: '/admin/dashboard/subscription-master' },
-      // { label: 'my subscription', href: '/admin/dashboard/my-subscription' },
-      { label: 'user subscription', href: '/admin/dashboard/user-subscription' },
-    ],
-  },
-  {
-    label: 'payments',
-    roles: [Roles.ADMIN],
-    href: '/admin/dashboard/view-transactions',
-    icon: <CreditCard size={16} />,
-    subMenu: [
-      { label: 'view transactions', href: '/admin/dashboard/view-transactions' },
-      { label: 'payment reports / revenue summary', href: '/admin/dashboard/payment-reports' },
-      // { label: 'refund management', href: '/admin/dashboard/refund-management' },
-      // { label: 'promo usage reports', href: '/admin/dashboard/promo-usage-reports' },
-    ],
-  },
-  {
-    label: 'reports',
-    roles: [Roles.ADMIN],
-    href: '/admin/dashboard/users',
-    icon: <Flag size={16} />,
-    subMenu: [{ label: 'view all users', href: '/admin/dashboard/users' }],
-  },
-]
-
-const PROFILE_SECTIONS = (userId: string, companyId: string): NavItem[] => [
-  {
-    label: 'profile',
-    href: `/profile/${userId}`,
-    icon: <CircleUserRound size={16} />,
-    subMenu: [
-      { label: 'profile', href: `/profile/${userId}`, icon: <User size={16} /> },
-      { label: 'company profile', href: companyId ? `/company-profile/${companyId}` : '/company-profile', icon: <Building2 size={16} /> },
-      { label: 'view subscriptions', href: '/view-subscriptions', icon: <Crown size={16} /> },
-      { label: 'view transactions', href: '/admin/dashboard/view-transactions', icon: <BadgeIndianRupee size={16} /> },
-      { label: 'view referrals', href: '/profile/my-referrals', icon: <UserPlus size={16} /> },
-      { label: 'feedback', href: '/feedback', icon: <Info size={16} /> },
-      { label: 'logout', href: '/logout', icon: <LogOut size={16} /> },
-    ],
-  },
-]
+// ============================================
+// MAIN NAVBAR COMPONENT
+// ============================================
 
 export default function Navbar({
   logoSrc = '/logo.png',
-  navLinks = DEFAULT_LINKS,
   showLoginButton = true,
   showLanguageSelector = true,
-  bgColor = '#2a1407',
 }: NavbarProps) {
   const t = useTranslations()
+  const pathname = usePathname()
   const { logout, user, token } = useAuth()
   const { reset } = useGlobalContext()
   const { locale, setLocale } = useTranslationContext()
   const router = useRouter()
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isOpen, setIsOpen] = useState(false)
+  // Badge counts
+  const {
+    notifications: notificationCount,
+    favorites: favoritesCount,
+    newEnquiries: newEnquiriesCount,
+    walletBalance,
+    totalPendingActions,
+    moderation,
+  } = useBadges({ enableSSE: false })
+
+  // State
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isLangOpen, setIsLangOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
-  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false)
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
-  const [visibleNavItems, setVisibleNavItems] = useState<typeof navLinks>(navLinks)
-  const [overflowNavItems, setOverflowNavItems] = useState<typeof navLinks>([])
-  const [companyProfileId, setCompanyProfileId] = useState<any | null>(null)
-  const [openSections, setOpenSections] = useState<Set<string>>(new Set())
-  const gripRef = useRef<HTMLDivElement | null>(null)
-  const profileRef = useRef<HTMLDivElement | null>(null)
-  const moreMenuRef = useRef<HTMLDivElement | null>(null)
-  const navContainerRef = useRef<HTMLDivElement | null>(null)
-  const navItemsRefs = useRef<(HTMLDivElement | null)[]>([])
-  const rightSectionRef = useRef<HTMLDivElement | null>(null)
-  const toggleSection = (key: string) =>
-    setOpenSections(prev => {
-      const next = new Set(prev)
-      if (next.has(key)) next.delete(key)
-      else next.add(key)
-      return next
-    })
+  const [activeAdminTab, setActiveAdminTab] = useState('overview')
+  const [companyProfileId, setCompanyProfileId] = useState<string>('')
 
+  // Refs
+  const langRef = useRef<HTMLDivElement>(null)
+  const profileRef = useRef<HTMLDivElement>(null)
+
+  // User roles
   const userRoles = getUserRoles(user)
-  const visibleDashboardSections = DASHBOARD_SECTIONS.map(section => {
-    const filteredSubMenu =
-      section.subMenu?.filter(sub => {
-        if (!sub.roles) return true
-        return hasRole(userRoles, sub.roles)
-      }) ?? []
+  const isAdmin = hasRole(userRoles, [Roles.ADMIN])
+  const isAgent = hasRole(userRoles, [Roles.AGENT])
+  const isBuyer = hasRole(userRoles, [Roles.BUYER]) && !isAgent && !isAdmin
 
-    return {
-      ...section,
-      subMenu: filteredSubMenu,
-    }
-  }).filter(section => {
-    const hasSectionAccess = !section.roles || hasRole(userRoles, section.roles)
-    const hasVisibleChildren = section.subMenu ? section.subMenu.length > 0 : true
-    return hasSectionAccess && hasVisibleChildren
-  })
+  // Check if nav link is active
+  const isActiveLink = (href: string) => {
+    if (href === '/') return pathname === '/'
+    return pathname.startsWith(href)
+  }
 
-  // KYC Verification Hook
-  // const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
-  console.log('userRoles in Navbar before filtering sections:', userRoles)
-
+  // Fetch company profile
   useEffect(() => {
     if (!token || !user) return
-    // console.log('Fetching user details in Navbar useEffect:', user)
     const fetchData = async () => {
       const companyProfiles = await getMethod(appEndpoints.getCompanyProfilesByUserID(user.id))
       const companyProfilesData = Array.isArray(companyProfiles?.data) ? (companyProfiles.data as any[]) : []
       setCompanyProfileId(companyProfilesData?.length > 0 ? companyProfilesData[0].id : '')
     }
-
     fetchData()
   }, [token, user])
 
-  // console.log('userValue in Navbar useEffect:', user, companyProfileId)
-
-  // Calculate visible nav items based on available space
+  // Close dropdowns on outside click
   useEffect(() => {
-    const calculateVisibleItems = () => {
-      if (!navContainerRef.current || !navLinks || navLinks.length === 0) {
-        // Initialize with all items visible, will recalculate after render
-        setVisibleNavItems(navLinks)
-        setOverflowNavItems([])
-        return
-      }
-
-      // Wait for next frame to ensure DOM is updated
-      requestAnimationFrame(() => {
-        if (!navContainerRef.current) return
-
-        const container = navContainerRef.current
-        const containerRect = container.getBoundingClientRect()
-        const containerWidth = containerRect.width
-
-        // Get logo width
-        const logoElement = container.querySelector('a[href="/"]')
-        const logoWidth = logoElement ? logoElement.getBoundingClientRect().width + 32 : 200
-
-        // Get right section width (language, grip, profile)
-        const rightSectionWidth = rightSectionRef.current ? rightSectionRef.current.getBoundingClientRect().width + 32 : 200
-
-        const availableWidth = containerWidth - logoWidth - rightSectionWidth - 64 // padding
-        const moreButtonWidth = 90 // Width for "More" button with icon and text
-        const gapWidth = 16 // Gap between items
-
-        let totalWidth = 0
-        const visible: typeof navLinks = []
-        const overflow: typeof navLinks = []
-
-        // Measure all items
-        navItemsRefs.current.forEach((itemRef, index) => {
-          if (!itemRef || index >= navLinks.length) return
-
-          const itemRect = itemRef.getBoundingClientRect()
-          const itemWidth = itemRect.width + gapWidth
-
-          // Check if item fits (account for "More" button if we already have overflow)
-          const needsMoreButton = overflow.length > 0 || (totalWidth + itemWidth + moreButtonWidth > availableWidth && index < navLinks.length - 1)
-          const wouldFit = totalWidth + itemWidth + (needsMoreButton ? moreButtonWidth : 0) <= availableWidth
-
-          if (wouldFit) {
-            visible.push(navLinks[index])
-            totalWidth += itemWidth
-          } else {
-            overflow.push(navLinks[index])
-          }
-        })
-
-        // If we have overflow but no visible items, show at least one
-        if (visible.length === 0 && navLinks.length > 0) {
-          visible.push(navLinks[0])
-          overflow.shift()
-        }
-
-        // For Tamil language, force only 3 items visible, rest in "More"
-        if (locale === 'ta' && navLinks.length > 3) {
-          const tamilVisible = navLinks.slice(0, 3)
-          const tamilOverflow = navLinks.slice(3)
-          setVisibleNavItems(tamilVisible)
-          setOverflowNavItems(tamilOverflow)
-        } else {
-          setVisibleNavItems(visible)
-          setOverflowNavItems(overflow)
-        }
-      })
+    const handleClickOutside = (e: MouseEvent) => {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) setIsLangOpen(false)
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) setIsProfileOpen(false)
     }
-
-    // Initial calculation
-    const timeoutId = setTimeout(calculateVisibleItems, 100)
-
-    // Calculate on resize
-    window.addEventListener('resize', calculateVisibleItems)
-    const resizeObserver = new ResizeObserver(() => {
-      calculateVisibleItems()
-    })
-
-    if (navContainerRef.current) {
-      resizeObserver.observe(navContainerRef.current)
-    }
-
-    return () => {
-      clearTimeout(timeoutId)
-      window.removeEventListener('resize', calculateVisibleItems)
-      resizeObserver.disconnect()
-    }
-  }, [navLinks, locale]) // Recalculate when language changes
-
-  // Close grip, profile, and more menu dropdowns when clicking outside or pressing Escape
-  useEffect(() => {
-    function onDocumentClick(e: MouseEvent | TouchEvent) {
-      const target = e.target as Node
-      if (gripRef.current && !gripRef.current.contains(target)) {
-        setIsOpen(false)
-      }
-      if (profileRef.current && !profileRef.current.contains(target)) {
-        setIsProfileOpen(false)
-      }
-      if (moreMenuRef.current && !moreMenuRef.current.contains(target)) {
-        setIsMoreMenuOpen(false)
-      }
-    }
-
-    function onFocusIn(e: FocusEvent) {
-      const target = e.target as Node
-      // if focus moved outside grip/menu, close it
-      if (gripRef.current && !gripRef.current.contains(target)) {
-        setIsOpen(false)
-      }
-      if (profileRef.current && !profileRef.current.contains(target)) {
-        setIsProfileOpen(false)
-      }
-      if (moreMenuRef.current && !moreMenuRef.current.contains(target)) {
-        setIsMoreMenuOpen(false)
-      }
-    }
-
-    function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') {
-        setIsOpen(false)
-        setIsProfileOpen(false)
-        setIsMoreMenuOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', onDocumentClick)
-    document.addEventListener('touchstart', onDocumentClick)
-    document.addEventListener('focusin', onFocusIn)
-    document.addEventListener('keydown', onKey)
-
-    return () => {
-      document.removeEventListener('mousedown', onDocumentClick)
-      document.removeEventListener('touchstart', onDocumentClick)
-      document.removeEventListener('focusin', onFocusIn)
-      document.removeEventListener('keydown', onKey)
-    }
-  }, [gripRef, profileRef, moreMenuRef])
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const handleLanguageChange = (lang: 'ta' | 'en') => {
     setLocale(lang)
+    setIsLangOpen(false)
     router.refresh()
   }
 
   const handleLogout = () => {
-    // Clear auth token and redirect to login
     logout()
     reset()
+    setIsProfileOpen(false)
+    setIsMobileMenuOpen(false)
     router.push('/login')
   }
 
+  const closeMenu = () => setIsProfileOpen(false)
+
+  // Get user initials
+  const getUserInitials = () => {
+    const first = user?.firstName?.[0]?.toUpperCase() || ''
+    const last = user?.lastName?.[0]?.toUpperCase() || ''
+    return first + last || 'U'
+  }
+
+  // Role display
+  const getRoleDisplay = () => {
+    if (isAdmin) return { label: 'Super Admin', color: 'text-purple-600', bg: 'bg-purple-50' }
+    if (isAgent) return { label: 'Agent', color: 'text-yellow-700', bg: 'bg-yellow-50' }
+    return { label: 'Buyer', color: 'text-green-600', bg: 'bg-green-50' }
+  }
+  const roleDisplay = getRoleDisplay()
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 shadow-md text-white transition-colors duration-300" style={{ backgroundColor: bgColor }}>
-      <div ref={navContainerRef} className="flex items-center justify-between px-4 sm:px-6 md:px-8 lg:px-12 py-3 md:py-4">
-        {/* Logo */}
-        <Link href="/" className="flex items-center flex-shrink-0">
-          <Image
-            src={logoSrc}
-            alt="Logo"
-            width={160}
-            height={60}
-            className="w-[130px] sm:w-[150px] md:w-[170px] lg:w-[180px] object-contain"
-            priority
-            unoptimized
-          />
-        </Link>
+    <>
+      <header className="fixed top-0 left-0 right-0 z-50 bg-[#2a1407] shadow-xl">
+        {/* Top accent line */}
+        <div className="h-0.5 bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-400" />
 
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-4 lg:gap-6 xl:gap-8 flex-1 min-w-0 justify-center">
-          {/* Render visible items */}
-          {visibleNavItems?.map((links: any) => (
-            <div key={links.href} className="relative group flex-shrink-0">
-              <Link href={links.href} className="relative text-sm md:text-base font-medium hover:text-gray-300 transition whitespace-nowrap px-1">
-                {t(`Navbar.${links.label}`)}
-                <span className="absolute left-0 -bottom-1 h-[2px] w-0 bg-white group-hover:w-full transition-all duration-300"></span>
-              </Link>
-            </div>
-          ))}
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
 
-          {/* Hidden container for measuring all items */}
-          <div className="absolute opacity-0 pointer-events-none -z-10 flex items-center gap-4">
-            {navLinks?.map((links: any, index: number) => (
-              <div
-                key={`measure-${links.href}`}
-                ref={el => {
-                  navItemsRefs.current[index] = el
-                }}
-                className="relative group flex-shrink-0"
-              >
-                <div className="relative text-sm md:text-base font-medium whitespace-nowrap px-1">{t(`Navbar.${links.label}`)}</div>
-              </div>
-            ))}
-          </div>
+            {/* LOGO */}
+            <Link href="/" className="flex items-center flex-shrink-0">
+              <Image
+                src={logoSrc}
+                alt="VaazhgaValamudan"
+                width={180}
+                height={60}
+                className="w-[140px] sm:w-[160px] md:w-[180px] object-contain"
+                priority
+                unoptimized
+              />
+            </Link>
 
-          {/* More Menu Button */}
-          {overflowNavItems && overflowNavItems.length > 0 && (
-            <div className="relative flex-shrink-0" ref={moreMenuRef}>
-              <button
-                onClick={() => setIsMoreMenuOpen(prev => !prev)}
-                className="relative flex items-center gap-1 text-sm md:text-base font-medium hover:text-gray-300 transition whitespace-nowrap px-2 py-1 rounded-md hover:bg-white/10"
-                aria-label="More menu"
-              >
-                <MoreHorizontal size={18} />
-                <span>{t('Navbar.more') || 'More'}</span>
-                {isMoreMenuOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-              </button>
+            {/* DESKTOP NAV */}
+            <nav className="hidden lg:flex items-center gap-1">
+              {NAV_LINKS.map((link) => {
+                const isActive = isActiveLink(link.href)
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`relative px-4 py-2 font-medium text-sm transition-colors ${isActive ? 'text-yellow-400' : 'text-white/90 hover:text-yellow-400'
+                      }`}
+                  >
+                    {t(`Navbar.${link.label}`)}
+                    <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-yellow-400 transition-all duration-300 ${isActive ? 'w-4/5' : 'w-0'}`} />
+                  </Link>
+                )
+              })}
+            </nav>
 
-              {/* More Menu Dropdown */}
-              {isMoreMenuOpen && (
-                <div className="absolute right-0 mt-2 bg-gradient-to-br from-white to-yellow-50 text-[#2a1407] rounded-lg shadow-lg border border-yellow-200 py-2 z-50 min-w-[180px]">
-                  {overflowNavItems.map((links: any) => (
-                    <Link
-                      key={links.href}
-                      href={links.href}
-                      onClick={() => setIsMoreMenuOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition whitespace-nowrap"
-                    >
-                      {links.icon && <links.icon size={16} className="text-yellow-600 shrink-0" />}
-                      {t(`Navbar.${links.label}`)}
-                    </Link>
-                  ))}
+            {/* RIGHT SIDE */}
+            <div className="flex items-center gap-2">
+
+              {/* Language Selector */}
+              {showLanguageSelector && (
+                <div ref={langRef} className="relative hidden md:block">
+                  <button
+                    onClick={() => setIsLangOpen(!isLangOpen)}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 text-white/70 hover:text-yellow-400 hover:bg-white/10 rounded-lg text-sm transition-all cursor-pointer"
+                  >
+                    <Globe className="w-4 h-4" />
+                    <span>{locale === 'ta' ? 'தமிழ்' : 'EN'}</span>
+                    <ChevronDown className={`w-3 h-3 transition-transform ${isLangOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {isLangOpen && (
+                    <div className="absolute top-full right-0 mt-2 w-36 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50">
+                      <button
+                        onClick={() => handleLanguageChange('en')}
+                        className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${locale === 'en' ? 'bg-yellow-50 text-yellow-700' : 'text-gray-700 hover:bg-gray-50'}`}
+                      >
+                        <span>🇬🇧</span> English
+                        {locale === 'en' && <Check className="w-3.5 h-3.5 ml-auto text-yellow-500" />}
+                      </button>
+                      <button
+                        onClick={() => handleLanguageChange('ta')}
+                        className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${locale === 'ta' ? 'bg-yellow-50 text-yellow-700' : 'text-gray-700 hover:bg-gray-50'}`}
+                      >
+                        <span>🇮🇳</span> தமிழ்
+                        {locale === 'ta' && <Check className="w-3.5 h-3.5 ml-auto text-yellow-500" />}
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
-          )}
-        </div>
 
-        {/* Desktop Right Section */}
-        <div ref={rightSectionRef} className="hidden md:flex items-center gap-4 relative">
-          {showLanguageSelector && <LanguageSwitch />}
+              {/* Post Property */}
+              <Link
+                href="/properties-registration"
+                className="hidden sm:flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#2a1407] font-bold text-sm rounded-lg hover:shadow-lg hover:shadow-yellow-400/30 transition-all"
+              >
+                <Plus className="w-4 h-4" strokeWidth={2.5} />
+                <span className="hidden md:inline">Post Property</span>
+              </Link>
 
-          {user ? (
-            <>
-              {/* Notification Bell */}
-              <div className="relative">
-                <button
-                  onClick={() => setIsNotificationOpen(prev => !prev)}
-                  className="relative p-2 hover:bg-gray-400 rounded-md transition focus:outline-none focus:ring-2 focus:ring-primary-300"
-                  title="Notifications"
-                  aria-label="Notifications"
-                >
-                  <Bell size={24} color="white" />
-                  {user && <NotificationBadge />}
-                </button>
-                <NotificationPopup isOpen={isNotificationOpen} onClose={() => setIsNotificationOpen(false)} />
-              </div>
-
-              <div className="relative grip-menu" ref={gripRef}>
-                {/* Grip Icon */}
-                <button
-                  onClick={() => setIsOpen(prev => !prev)}
-                  className="cursor-pointer p-2 hover:bg-gray-400 rounded-md transition focus:outline-none focus:ring-2 focus:ring-primary-300"
-                  title="dashboard_menu"
-                  aria-label={'common:dashboard_menu'}
-                >
-                  <Grip />
-                </button>
-
-                {/* Main Dropdown */}
-                {isOpen && (
-                  <div className="absolute right-0 mt-2 bg-gradient-to-br from-white to-yellow-50 text-[#2a1407] rounded-lg shadow-lg border border-yellow-200 w-72 py-2 z-50 max-h-[70vh] overflow-y-auto">
-                    <Link href="/admin/dashboard" className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition">
-                      <Home size={16} /> {t('Navbar.Dashboard')}
+              {user ? (
+                <>
+                  {/* AGENT: Wallet */}
+                  {isAgent && (
+                    <Link
+                      href="/view-transactions"
+                      className="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-white/10 rounded-lg text-white hover:bg-white/20 transition-all"
+                    >
+                      <span className="text-green-400 font-bold text-sm">₹</span>
+                      <span className="text-sm font-medium">{walletBalance.toLocaleString('en-IN')}</span>
                     </Link>
+                  )}
 
-                    {visibleDashboardSections.map((section: NavItem) => (
-                      <div key={section.label} className="border-t border-yellow-200 mt-2 pt-2">
-                        <Button
-                          onClick={() => toggleSection(section.label)}
-                          className="flex items-center justify-between w-full px-4 py-2 text-sm font-semibold text-[#2a1407] hover:bg-yellow-50 rounded-md transition"
-                        >
-                          <span className="flex items-center gap-2">
-                            {section.icon}
-                            {t(`Navbar.${section.label}`)}
-                          </span>
-                          {openSections.has(section.label) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                        </Button>
+                  {/* Notifications */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                      className="relative p-2 text-white/70 hover:text-yellow-400 hover:bg-white/10 rounded-lg transition-all cursor-pointer"
+                    >
+                      <Bell className="w-5 h-5" />
+                      {notificationCount > 0 && (
+                        <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                          {notificationCount > 99 ? '99+' : notificationCount}
+                        </span>
+                      )}
+                    </button>
+                    <NotificationPopup isOpen={isNotificationOpen} onClose={() => setIsNotificationOpen(false)} />
+                  </div>
 
-                        {openSections.has(section.label) && (
-                          <div className="flex flex-col pl-8 mt-1">
-                            {section.subMenu?.map((links: any) => {
-                              return (
-                                <Link
-                                  key={String(links.href)}
-                                  href={String(links.href)}
-                                  className="flex items-center gap-2 px-4 py-1 hover:bg-yellow-50 rounded-md text-sm transition"
-                                >
-                                  <span className="text-yellow-600">
-                                    <ChevronRight size={16} />
-                                  </span>
-                                  {t(`Navbar.subMenus.${links.label}`)}
-                                </Link>
-                              )
-                            })}
-                          </div>
+                  {/* PROFILE DROPDOWN */}
+                  <div ref={profileRef} className="relative hidden sm:block">
+                    <button
+                      onClick={() => setIsProfileOpen(!isProfileOpen)}
+                      className={`flex items-center gap-2 p-1.5 rounded-lg transition-all cursor-pointer ${isProfileOpen ? 'bg-white/20' : 'hover:bg-white/10'}`}
+                    >
+                      {/* Avatar */}
+                      <div className="w-8 h-8 rounded-lg bg-gray-200 flex items-center justify-center overflow-hidden">
+                        {user?.profilePicture ? (
+                          <Image src={user.profilePicture} alt="Profile" width={32} height={32} className="object-cover w-full h-full" />
+                        ) : (
+                          <span className="text-[#2a1407] font-bold text-xs">{getUserInitials()}</span>
                         )}
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="relative" ref={profileRef}>
-                <Button
-                  onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="flex items-center gap-2 text-[#2a1407] p-1 hover:transition focus:outline-none focus:ring-2 focus:ring-primary-300"
-                  aria-label={t('Navbar.profile')}
-                >
-                  {/* <Image
-                    src={userValue?.image ?? '/avatar.png'}
-                    alt={userValue?.firstName ?? 'Avatar'}
-                    width={32}
-                    height={32}
-                    className="rounded-lg"
-                  /> */}
-                  <User size={24} color="white" />
-                </Button>
-
-                {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 bg-gradient-to-br from-white to-yellow-50 text-[#2a1407] rounded-lg shadow-lg border border-yellow-200 w-72 py-2 z-50">
-                    <div className="px-4 py-2 border-b border-yellow-200">
-                      <span className="font-semibold text-sm truncate block text-[#2a1407]">
-                        {formatName(user?.firstName)} {formatName(user?.lastName)}
-                      </span>
-                    </div>
-                    <Link href={`/profile/${user?.id}`} className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition">
-                      <User size={16} className="shrink-0" /> {t('Navbar.profile')}
-                    </Link>
-
-                    <Link
-                      href={!!companyProfileId ? `/company-profile/${companyProfileId}` : `/company-profile`}
-                      className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition"
-                    >
-                      <Building2 size={16} className="shrink-0" /> {t('Navbar.company profile')}
-                    </Link>
-                    <Link href="/view-subscriptions" className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition">
-                      <Crown size={16} className="shrink-0" /> {t('Navbar.view subscriptions')}
-                    </Link>
-                    <Link href="/profile/my-referrals" className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition">
-                      <UserPlus size={16} className="shrink-0" /> {'View Referrals'}
-                    </Link>
-                    <Link href="/view-transactions" className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition">
-                      <BadgeIndianRupee size={16} className="shrink-0" /> {t('Navbar.view transactions')}
-                    </Link>
-                    <Link href="/feedback" className="flex items-center gap-2 px-4 py-2 hover:bg-yellow-50 text-sm transition">
-                      <Info size={16} className="shrink-0" /> {t('Navbar.feedback')}
-                    </Link>
-                    <Button
-                      onClick={handleLogout}
-                      className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-yellow-50 text-sm transition"
-                    >
-                      <LogOut size={16} className="shrink-0" /> {t('Navbar.logout')}
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </>
-          ) : (
-            showLoginButton && (
-              <div className="flex items-center gap-3">
-                <Link
-                  href="/login"
-                  className="flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#2a1407] border border-yellow-300 px-5 py-2.5 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-600 transition shadow-md hover:shadow-lg text-sm md:text-base"
-                >
-                  {t('Auth.login')}
-                </Link>
-              </div>
-            )
-          )}
-        </div>
-
-        {/* Mobile Menu Toggle */}
-        <Button
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="md:hidden p-2 rounded-md hover:bg-[#4b2410] transition"
-          aria-label="Toggle menu"
-        >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </Button>
-      </div>
-
-      {/* Mobile / Tablet Menu */}
-      <div
-        className={`md:hidden transition-all duration-300 ease-in-out ${
-          isMenuOpen ? 'max-h-[80vh] opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-3'
-        }`}
-        style={{ overflow: isMenuOpen ? 'auto' : 'hidden' }}
-      >
-        <div
-          style={{ backgroundColor: bgColor }}
-          className="flex flex-col items-center px-5 py-5 shadow-lg text-center rounded-b-2xl bg-opacity-95 backdrop-blur-md"
-        >
-          {/* Home Link */}
-          {navLinks.map(({ label, href, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              onClick={() => setIsMenuOpen(false)}
-              className="flex items-center gap-2 w-full py-2 text-white hover:text-gray-300 text-base font-medium"
-            >
-              <Icon size={18} /> {t(`Navbar.${label}`)}
-            </Link>
-          ))}
-
-          {/* Dynamically generated collapsible sections */}
-          {user && (
-            <>
-              <Link href="/admin/dashboard" className="flex items-center gap-2 w-full py-2 text-white hover:text-gray-300 text-base font-medium">
-                <Home size={16} /> {t('Navbar.Dashboard')}
-              </Link>
-
-              {visibleDashboardSections.map((section: NavItem) => (
-                <div key={section.label} className="w-full mt-2 border-t border-white/20 pt-2">
-                  <Button
-                    onClick={() => toggleSection(section.label)}
-                    className="flex justify-between items-center w-full text-left text-white font-medium py-2 px-2 rounded-lg hover:bg-white/10"
-                  >
-                    <span className="flex items-center gap-2">
-                      {section.icon}
-                      {t(`Navbar.${section.label}`)}
-                    </span>
-                    {openSections.has(section.label) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                  </Button>
-
-                  {openSections.has(section.label) && (
-                    <div className="flex flex-col pl-4 space-y-1">
-                      {section.subMenu?.map((sub: any) => {
-                        return (
-                          <Link
-                            key={sub.href}
-                            href={sub.href}
-                            onClick={() => setIsMenuOpen(false)}
-                            className="flex items-center gap-2 px-4 py-1 text-sm text-gray-200 hover:text-white transition no-underline"
-                          >
-                            <span className="text-gray-500">{sub.icon ? sub.icon : <ChevronRight size={16} />}</span>
-                            {t(`Navbar.subMenus.${sub.label}`)}
-                          </Link>
-                        )
-                      })}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </>
-          )}
-
-          {/* Profile / Login Section */}
-          {user
-            ? PROFILE_SECTIONS(user.id, companyProfileId).map(section => (
-                <div key={section.label} className="w-full mt-2 border-t border-white/20 pt-2">
-                  <Button
-                    onClick={() => toggleSection(section.label)}
-                    className="flex justify-between items-center w-full text-left text-white font-medium py-2 px-2 rounded-lg hover:bg-white/10"
-                  >
-                    <span className="flex items-center gap-2">
-                      {section.icon}
-                      {t(`Navbar.${section.label}`)}
-                    </span>
-                    {openSections.has(section.label) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                  </Button>
-
-                  {/* Header */}
-                  {openSections.has(section.label) && (
-                    <>
-                      <div className="px-4 py-3 mb-2 border-b border-gray-200 text-center">
-                        <span className="font-semibold text-sm block truncate">
-                          {formatName(user?.firstName)} {formatName(user?.lastName)}
-                        </span>
+                      <div className="hidden md:block text-left">
+                        <p className="text-white text-sm font-medium leading-tight truncate max-w-[80px]">
+                          {formatName(user?.firstName)}
+                        </p>
+                        <p className={`text-[10px] ${isAdmin ? 'text-purple-300' : isAgent ? 'text-yellow-400/80' : 'text-green-400/80'}`}>
+                          {roleDisplay.label}
+                        </p>
                       </div>
+                      <ChevronDown className={`w-4 h-4 text-white/50 hidden md:block transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
+                    </button>
 
-                      <div className="flex flex-col pl-4 space-y-1">
-                        {section.subMenu?.map((sub: any) => {
-                          if (sub.label === 'logout') {
-                            return (
-                              <Button
-                                key="mobile-logout"
-                                onClick={() => {
-                                  setIsMenuOpen(false)
-                                  handleLogout()
-                                }}
-                                className="flex items-center gap-2 w-full px-4 py-1 text-sm text-gray-200 hover:text-white transition"
+                    {/* DROPDOWN MENU */}
+                    {isProfileOpen && (
+                      <div className={`absolute top-full right-0 mt-2 ${isAdmin ? 'w-[400px]' : 'w-64'} bg-gradient-to-br from-[#fdf5eb] via-[#fef9f0] to-[#fdf5eb] rounded-xl shadow-2xl border border-[#e8d5c4] overflow-hidden z-50`}>
+
+                        {/* Header */}
+                        <div className="p-4 border-b border-[#e8d5c4]/60">
+                          <div className="flex items-center gap-3">
+                            {/* Avatar */}
+                            <div className="w-12 h-12 rounded-xl bg-[#f4e1c2] flex items-center justify-center overflow-hidden flex-shrink-0 border border-[#cfae78]/40">
+                              {user?.profilePicture ? (
+                                <Image src={user.profilePicture} alt="Profile" width={48} height={48} className="object-cover w-full h-full" />
+                              ) : (
+                                <span className="text-[#2b1b12] font-bold text-lg">{getUserInitials()}</span>
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold text-[#2b1b12] text-sm">{formatName(user?.firstName)} {formatName(user?.lastName)}</p>
+                              <p className="text-xs text-[#5c4533] truncate">{user?.email}</p>
+                              <span className={`inline-block mt-1 px-2 py-0.5 bg-[#f4e1c2] border border-[#cfae78]/40 ${roleDisplay.color} text-[10px] font-medium rounded-full`}>
+                                {roleDisplay.label}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Quick Stats for Admin/Agent */}
+                          {isAdmin && (
+                            <div className="grid grid-cols-4 gap-2 mt-3 pt-3 border-t border-[#e8d5c4]/60">
+                              <QuickStat value={moderation?.pendingProperties ?? 0} label="Pending" />
+                              <QuickStat value={(moderation?.reportedProperties ?? 0) + (moderation?.reportedAds ?? 0)} label="Reported" />
+                              <QuickStat value={moderation?.kycRequests ?? 0} label="KYC" />
+                              <QuickStat value={totalPendingActions} label="Total" />
+                            </div>
+                          )}
+
+                          {isAgent && !isAdmin && (
+                            <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-[#e8d5c4]/60">
+                              <QuickStat value={newEnquiriesCount} label="New Enquiries" />
+                              <QuickStat value={`₹${walletBalance.toLocaleString('en-IN')}`} label="Wallet" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Admin Tabs */}
+                        {isAdmin && (
+                          <div className="flex border-b border-[#e8d5c4]/60 bg-[#f7e8d9]/50">
+                            {['overview', 'manage', 'reports', 'settings'].map((tab) => (
+                              <button
+                                key={tab}
+                                onClick={() => setActiveAdminTab(tab)}
+                                className={`flex-1 px-2 py-2 text-[11px] font-medium capitalize transition-all cursor-pointer ${activeAdminTab === tab
+                                    ? 'bg-[#fdf5eb] text-[#2b1b12] border-b-2 border-[#b8864b]'
+                                    : 'text-[#5c4533] hover:text-[#2b1b12]'
+                                  }`}
                               >
-                                <span className="text-gray-400">{sub.icon ? sub.icon : <CircleSmall size={12} />}</span>
-                                {t(`Navbar.subMenus.${sub.label}`)}
-                              </Button>
-                            )
-                          }
+                                {tab}
+                                {tab === 'manage' && totalPendingActions > 0 && (
+                                  <span className="ml-1 w-1.5 h-1.5 bg-orange-500 rounded-full inline-block" />
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        )}
 
-                          // Avoid sending logged-in users to /login (middleware will bounce to /).
-                          // In this menu we already know `user` exists, so just use the target route.
-                          const targetHref = sub.href
+                        {/* Menu Content */}
+                        <div className="max-h-[320px] overflow-y-auto scrollbar-thin scrollbar-thumb-[#cfae78]/50 scrollbar-track-transparent hover:scrollbar-thumb-[#b8864b]/60">
 
-                          return (
+                          {/* BUYER MENU - Single line items */}
+                          {isBuyer && (
+                            <div className="py-2">
+                              <MenuItem href="/admin/dashboard" icon={<LayoutDashboard className="w-4 h-4" />} label="Dashboard" onClick={closeMenu} />
+                              <MenuItem href="/admin/dashboard/property-favorite" icon={<Heart className="w-4 h-4" />} label="My Favorites" badge={favoritesCount} onClick={closeMenu} />
+                              <MenuItem href="/admin/dashboard/saved-searches" icon={<Search className="w-4 h-4" />} label="Saved Searches" onClick={closeMenu} />
+                              <MenuItem href="/admin/dashboard/property-enquiry" icon={<MessageSquare className="w-4 h-4" />} label="My Enquiries" onClick={closeMenu} />
+                              <MenuItem href={`/profile/${user?.id}`} icon={<UserCog className="w-4 h-4" />} label="Profile & Settings" onClick={closeMenu} />
+                            </div>
+                          )}
+
+                          {/* AGENT MENU */}
+                          {isAgent && !isAdmin && (
+                            <div className="py-2">
+                              <MenuItem href="/admin/dashboard" icon={<LayoutDashboard className="w-4 h-4" />} label="Dashboard" onClick={closeMenu} />
+
+                              <MenuSection label="My Properties" />
+                              <MenuItem href="/properties/list" icon={<Building2 className="w-4 h-4" />} label="All Properties" onClick={closeMenu} />
+                              <MenuItem href="/admin/dashboard/properties-pending-approval" icon={<Clock className="w-4 h-4" />} label="Pending" onClick={closeMenu} />
+                              <MenuItem href="/admin/dashboard/property-reports" icon={<AlertTriangle className="w-4 h-4" />} label="Reported" onClick={closeMenu} />
+
+                              <MenuSection label="My Ads" />
+                              <MenuItem href="/ads/list" icon={<Megaphone className="w-4 h-4" />} label="All Ads" onClick={closeMenu} />
+                              <MenuItem href="/admin/dashboard/ads-reports" icon={<AlertTriangle className="w-4 h-4" />} label="Reported Ads" onClick={closeMenu} />
+
+                              <MenuSection label="Account" />
+                              <MenuItem href="/admin/dashboard/property-enquiry" icon={<MessageSquare className="w-4 h-4" />} label="Enquiries" badge={newEnquiriesCount} onClick={closeMenu} />
+                              <MenuItem href="/view-subscriptions" icon={<CreditCard className="w-4 h-4" />} label="Subscription" onClick={closeMenu} />
+                              <MenuItem href="/view-transactions" icon={<Wallet className="w-4 h-4" />} label="Wallet" onClick={closeMenu} />
+                              <MenuItem href={`/profile/${user?.id}`} icon={<UserCog className="w-4 h-4" />} label="Profile & KYC" onClick={closeMenu} />
+                            </div>
+                          )}
+
+                          {/* ADMIN MENU */}
+                          {isAdmin && (
+                            <>
+                              {activeAdminTab === 'overview' && (
+                                <div className="p-2 grid grid-cols-2 gap-2">
+                                  <QuickCard href="/admin/dashboard" icon={<LayoutDashboard className="w-4 h-4" />} label="Dashboard" onClick={closeMenu} />
+                                  <QuickCard href="/admin/dashboard/properties-pending-approval" icon={<Clock className="w-4 h-4" />} label="Pending" badge={(moderation?.pendingProperties ?? 0) + (moderation?.pendingAds ?? 0)} onClick={closeMenu} />
+                                  <QuickCard href="/admin/dashboard/kyc-requests" icon={<Shield className="w-4 h-4" />} label="KYC Requests" badge={moderation?.kycRequests} onClick={closeMenu} />
+                                  <QuickCard href="/admin/dashboard/property-reports" icon={<AlertTriangle className="w-4 h-4" />} label="Reported" badge={(moderation?.reportedProperties ?? 0) + (moderation?.reportedAds ?? 0)} onClick={closeMenu} />
+                                </div>
+                              )}
+
+                              {activeAdminTab === 'manage' && (
+                                <div className="py-2">
+                                  <MenuSection label="Masters" />
+                                  <div className="grid grid-cols-2 gap-1 px-2 mb-2">
+                                    <MiniLink href="/admin/dashboard/feature-group" label="Feature Groups" onClick={closeMenu} />
+                                    <MiniLink href="/admin/dashboard/feature-category" label="Feature Categories" onClick={closeMenu} />
+                                    <MiniLink href="/admin/dashboard/property-category" label="Property Categories" onClick={closeMenu} />
+                                    <MiniLink href="/admin/dashboard/ads-category" label="Ads Categories" onClick={closeMenu} />
+                                  </div>
+
+                                  <MenuSection label="Properties & Ads" />
+                                  <MenuItem href="/properties/list" label="All Properties" onClick={closeMenu} />
+                                  <MenuItem href="/admin/dashboard/properties-pending-approval" label="Pending Properties" badge={moderation?.pendingProperties} badgeColor="orange" onClick={closeMenu} />
+                                  <MenuItem href="/admin/dashboard/property-reports" label="Reported Properties" badge={moderation?.reportedProperties} badgeColor="red" onClick={closeMenu} />
+                                  <MenuItem href="/ads/list" label="All Ads" onClick={closeMenu} />
+                                  <MenuItem href="/admin/dashboard/ads-pending-approval" label="Pending Ads" badge={moderation?.pendingAds} badgeColor="orange" onClick={closeMenu} />
+                                  <MenuItem href="/admin/dashboard/ads-reports" label="Reported Ads" badge={moderation?.reportedAds} badgeColor="red" onClick={closeMenu} />
+
+                                  <MenuSection label="Users" />
+                                  <MenuItem href="/admin/dashboard/users" label="All Users" onClick={closeMenu} />
+                                  <MenuItem href="/admin/dashboard/kyc-requests" label="KYC Requests" badge={moderation?.kycRequests} badgeColor="yellow" onClick={closeMenu} />
+                                </div>
+                              )}
+
+                              {activeAdminTab === 'reports' && (
+                                <div className="py-2">
+                                  <MenuSection label="Subscriptions & Payments" />
+                                  <MenuItem href="/admin/dashboard/subscription-master" icon={<CreditCard className="w-4 h-4" />} label="Subscription Plans" onClick={closeMenu} />
+                                  <MenuItem href="/admin/dashboard/user-subscription" icon={<Users className="w-4 h-4" />} label="User Subscriptions" onClick={closeMenu} />
+                                  <MenuItem href="/admin/dashboard/view-transactions" icon={<FileText className="w-4 h-4" />} label="All Transactions" onClick={closeMenu} />
+                                  <MenuItem href="/admin/dashboard/payment-reports" icon={<FileText className="w-4 h-4" />} label="Revenue Reports" onClick={closeMenu} />
+                                </div>
+                              )}
+
+                              {activeAdminTab === 'settings' && (
+                                <div className="py-2">
+                                  <MenuItem href={`/profile/${user?.id}`} icon={<UserCog className="w-4 h-4" />} label="My Profile" onClick={closeMenu} />
+                                  <MenuItem href={companyProfileId ? `/company-profile/${companyProfileId}` : '/company-profile'} icon={<Building2 className="w-4 h-4" />} label="Company Profile" onClick={closeMenu} />
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
+
+                        {/* Become Agent CTA for Buyers */}
+                        {isBuyer && (
+                          <div className="p-3 border-t border-[#e8d5c4]/60 bg-[#f7e8d9]/30">
                             <Link
-                              key={String(sub.href)}
-                              href={targetHref}
-                              onClick={() => setIsMenuOpen(false)}
-                              className="flex items-center gap-2 px-4 py-1 text-sm text-gray-200 hover:text-white transition no-underline"
+                              href="/properties-registration"
+                              onClick={closeMenu}
+                              className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#2b1b12] font-bold text-xs rounded-lg hover:shadow-md transition-all cursor-pointer"
                             >
-                              <span className="text-gray-400">{sub.icon ? sub.icon : <CircleSmall size={12} />}</span>
-                              {t(`Navbar.subMenus.${sub.label}`)}
+                              <Plus className="w-4 h-4" />
+                              Post Property & Become Agent
                             </Link>
-                          )
-                        })}
+                            <p className="text-[10px] text-center text-[#7a4a1d]/70 mt-1.5">List your first property to unlock agent features!</p>
+                          </div>
+                        )}
+
+                        {/* Logout - Always visible at bottom */}
+                        <div className="p-2 border-t border-[#e8d5c4]/60 bg-[#fdf5eb]">
+                          <button
+                            onClick={handleLogout}
+                            className="w-full flex items-center justify-center gap-2 px-3 py-2 text-red-600 hover:bg-red-50/50 rounded-lg text-xs font-medium transition-all cursor-pointer"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            Logout
+                          </button>
+                        </div>
                       </div>
-                    </>
-                  )}
-                </div>
-              ))
-            : showLoginButton && (
-                <div className="flex flex-col gap-2 mt-4 mb-2">
-                  <Link
-                    href="/login"
-                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#2a1407] px-5 py-2.5 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-600 transition shadow-md text-sm"
-                  >
-                    {t('Auth.login')}
-                  </Link>
-                </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                /* PUBLIC */
+                showLoginButton && (
+                  <>
+                    <Link href="/login" className="px-3 py-2 text-white font-medium text-sm hover:text-yellow-400 transition-colors">
+                      {t('Auth.login')}
+                    </Link>
+                    <Link href="/register" className="px-4 py-2 bg-white/10 text-white font-semibold text-sm rounded-lg hover:bg-white hover:text-[#2a1407] transition-all">
+                      Register
+                    </Link>
+                  </>
+                )
               )}
 
-          {/* Keep your language selector & profile/login below unchanged */}
-          {showLanguageSelector && <LanguageSwitch />}
+              {/* Mobile Menu Toggle */}
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="lg:hidden p-2 text-white hover:text-yellow-400 transition-colors"
+              >
+                {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* MOBILE BACKDROP */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setIsMobileMenuOpen(false)} />
+      )}
+
+      {/* MOBILE MENU */}
+      <div className={`fixed top-0 right-0 h-full w-72 max-w-[85vw] bg-white z-50 shadow-2xl transform transition-transform duration-300 lg:hidden ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className="p-4 bg-[#2a1407] flex items-center justify-between">
+          <span className="text-white font-semibold">Menu</span>
+          <button onClick={() => setIsMobileMenuOpen(false)} className="p-1 text-white">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Mobile Language */}
+        <div className="p-3 border-b flex items-center justify-between">
+          <span className="text-gray-500 text-xs">Language</span>
+          <div className="flex gap-1">
+            <button onClick={() => handleLanguageChange('en')} className={`px-3 py-1 text-xs font-medium rounded ${locale === 'en' ? 'bg-yellow-400 text-[#2a1407]' : 'bg-gray-100 text-gray-600'}`}>EN</button>
+            <button onClick={() => handleLanguageChange('ta')} className={`px-3 py-1 text-xs font-medium rounded ${locale === 'ta' ? 'bg-yellow-400 text-[#2a1407]' : 'bg-gray-100 text-gray-600'}`}>தமிழ்</button>
+          </div>
+        </div>
+
+        <nav className="p-3 space-y-1 overflow-y-auto max-h-[calc(100vh-180px)]">
+          {NAV_LINKS.map((link) => {
+            const isActive = isActiveLink(link.href)
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`block px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive ? 'bg-yellow-50 text-yellow-700' : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+              >
+                {t(`Navbar.${link.label}`)}
+              </Link>
+            )
+          })}
+          {user && (
+            <>
+              <div className="border-t my-2" />
+              <Link href="/admin/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg text-sm font-medium">
+                <LayoutDashboard className="w-4 h-4 text-gray-400" /> Dashboard
+              </Link>
+              <Link href={`/profile/${user?.id}`} onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg text-sm font-medium">
+                <UserCog className="w-4 h-4 text-gray-400" /> Profile
+              </Link>
+            </>
+          )}
+        </nav>
+
+        <div className="absolute bottom-0 left-0 right-0 p-3 border-t bg-white">
+          {user ? (
+            <button onClick={handleLogout} className="flex items-center justify-center gap-2 w-full px-3 py-2.5 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium">
+              <LogOut className="w-4 h-4" /> Logout
+            </button>
+          ) : (
+            <>
+              <Link href="/properties-registration" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center gap-2 w-full px-3 py-2.5 bg-yellow-400 text-[#2a1407] font-bold rounded-lg text-sm mb-2">
+                <Plus className="w-4 h-4" /> Post Property
+              </Link>
+              <div className="flex gap-2">
+                <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="flex-1 px-3 py-2 text-center text-[#2a1407] text-sm font-medium border border-[#2a1407] rounded-lg">Login</Link>
+                <Link href="/register" onClick={() => setIsMobileMenuOpen(false)} className="flex-1 px-3 py-2 text-center bg-[#2a1407] text-white text-sm font-medium rounded-lg">Register</Link>
+              </div>
+            </>
+          )}
         </div>
       </div>
-    </nav>
+
+      {/* Spacer */}
+      <div className="h-16" />
+
+      {/* Scrollbar Styles */}
+      <style jsx global>{`
+        .scrollbar-thin::-webkit-scrollbar {
+          width: 4px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+          background: rgba(207, 174, 120, 0.5);
+          border-radius: 4px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+          background: rgba(184, 134, 75, 0.6);
+        }
+        .scrollbar-thin {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(207, 174, 120, 0.5) transparent;
+        }
+      `}</style>
+    </>
   )
 }
+
+// ============================================
+// COMPACT HELPER COMPONENTS
+// ============================================
+
+const QuickStat = ({ value, label }: { value: number | string; label: string }) => (
+  <div className="text-center">
+    <p className="text-sm font-bold text-[#2b1b12]">{value}</p>
+    <p className="text-[10px] text-[#7a4a1d]">{label}</p>
+  </div>
+)
+
+const MenuSection = ({ label }: { label: string }) => (
+  <p className="px-4 pt-3 pb-1 text-[10px] font-semibold text-[#7a4a1d] uppercase tracking-wide">{label}</p>
+)
+
+const MenuItem = ({ href, icon, label, badge, badgeColor = 'green', onClick }: {
+  href: string;
+  icon?: React.ReactNode;
+  label: string;
+  badge?: number;
+  badgeColor?: string;
+  onClick?: () => void
+}) => {
+  const colors: Record<string, string> = {
+    green: 'text-green-600',
+    orange: 'text-orange-600',
+    red: 'text-red-600',
+    yellow: 'text-[#b8864b]',
+  }
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className="flex items-center justify-between px-4 py-2 text-xs text-[#4b3727] hover:bg-[#f4e1c2]/50 transition-colors cursor-pointer"
+    >
+      <span className="flex items-center gap-2">
+        {icon && <span className="text-[#7a4a1d]">{icon}</span>}
+        {label}
+      </span>
+      {badge !== undefined && badge > 0 && (
+        <span className={`text-xs font-bold ${colors[badgeColor]}`}>{badge}</span>
+      )}
+    </Link>
+  )
+}
+
+const QuickCard = ({ href, icon, label, badge, onClick }: {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+  badge?: number;
+  onClick?: () => void
+}) => (
+  <Link
+    href={href}
+    onClick={onClick}
+    className="flex items-center gap-2 p-3 bg-[#f4e1c2]/40 hover:bg-[#f4e1c2]/70 border border-[#cfae78]/30 rounded-lg transition-colors cursor-pointer"
+  >
+    <span className="text-[#7a4a1d]">{icon}</span>
+    <div className="flex-1">
+      <p className="text-xs font-medium text-[#2b1b12]">{label}</p>
+      {badge !== undefined && badge > 0 && (
+        <p className="text-[10px] text-[#b8864b] font-medium">{badge} items</p>
+      )}
+    </div>
+  </Link>
+)
+
+const MiniLink = ({ href, label, onClick }: { href: string; label: string; onClick?: () => void }) => (
+  <Link
+    href={href}
+    onClick={onClick}
+    className="px-2 py-1.5 text-[11px] text-[#5c4533] hover:text-[#2b1b12] hover:bg-[#f4e1c2]/50 rounded transition-colors cursor-pointer"
+  >
+    {label}
+  </Link>
+)

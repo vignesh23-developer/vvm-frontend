@@ -246,6 +246,8 @@ export const appEndpoints = {
   subscribeNewsletter: '/newsletters/subscribe',
   unsubscribeNewsletter: '/newsletters/unsubscribe',
   getNewsletterAnalytics: '/newsletters/analytics',
+
+  getBadges: '/admin/notifications/badges',
 }
 
 export const testAppEndpoints = {

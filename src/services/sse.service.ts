@@ -6,7 +6,7 @@ export interface SSEMessage {
   data: any
 }
 
-export type SSEEventType = 'notification' | 'connected' | 'heartbeat' | 'error'
+export type SSEEventType = 'notification' | 'connected' | 'heartbeat' | 'error' | 'badge_update'
 
 export interface SSESubscriber {
   id: string
