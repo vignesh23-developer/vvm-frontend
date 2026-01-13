@@ -4,13 +4,15 @@ import AgencyDetails from '@/components/buyer/Agency/AgencyDetails/AgencyDetails
 import { useParams } from 'next/navigation'
 
 const page = () => {
-  const params = useParams() as string | any
+  const params = useParams() as { name?: string | string[] }
 
-  const name = Array.isArray(params.name) ? params.name[0] : params.name
-  // console.log('Params in Agency Details Page:', name)
+  const rawName = Array.isArray(params.name) ? params.name[0] : params.name
+
+  const decodedName = rawName ? decodeURIComponent(rawName) : ''
+  console.log('Params in Agency Details Page:', decodedName)
   return (
     <div>
-      <AgencyDetails name={name} />
+      <AgencyDetails decodedName={decodedName} />
     </div>
   )
 }

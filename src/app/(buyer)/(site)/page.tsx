@@ -31,6 +31,7 @@ export default function SitePage() {
   const router = useRouter()
   const {
     data,
+    allStats,
     featuredAds,
     featuredAdsTotal,
     propertiesData,
@@ -49,12 +50,10 @@ export default function SitePage() {
     enabled: true,
   })
 
-  console.log('Landing Page Data:', data)
-
   return (
     <main className="flex flex-col gap-0">
       <motion.div variants={sectionVariants} initial="hidden" animate="visible">
-        <HeroSection propertyCategories={propertyCategories} error={error} isLoading={isLoading} mutate={mutate} />
+        <HeroSection propertyCategories={propertyCategories} error={error} isLoading={isLoading} mutate={mutate} allStats={allStats} />
       </motion.div>
 
       <motion.div variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>

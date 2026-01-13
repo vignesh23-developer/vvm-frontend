@@ -21,7 +21,7 @@ interface ApiResponse<T> {
 interface UsePropertiesOptions {
   page?: number
   limit?: number
-  location?: string
+  district?: string
   listingType?: string
   type?: string
   budget?: string
@@ -69,11 +69,11 @@ const parseBudgetRange = (budget?: string): { min?: number; max?: number } => {
 // Custom hook for managing properties
 export function useSearchProperties(options: UsePropertiesOptions = {}) {
   const router = useRouter()
-  const { page = 1, limit = 10, location, listingType, type, budget } = options
+  const { page = 1, limit = 10, district, listingType, type, budget } = options
 
   const queryParams = new URLSearchParams()
-  if (location) {
-    queryParams.set('district', location)
+  if (district) {
+    queryParams.set('district', district)
   }
   if (listingType) {
     queryParams.set('listing_type', listingType)

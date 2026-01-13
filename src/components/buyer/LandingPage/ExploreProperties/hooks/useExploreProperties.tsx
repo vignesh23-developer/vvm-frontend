@@ -36,8 +36,6 @@ export function useExploreProperties(options: UseExplorePropertiesOptions = {}) 
 
   const { data, error, isLoading } = useSWR<ResponseDTO>(swrKey, fetchExploreProperties)
 
-  console.log('Explore Properties Data:', data)
-
   const handleSeeMore = (id: number) => {
     router.push(`/propertyDetails/${id}`)
   }

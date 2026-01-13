@@ -85,51 +85,51 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialValues, validationSche
 
   return (
     <div className="bg-white rounded-2xl border border-[#e8d5c4] shadow-sm overflow-hidden">
-
       {/* Header Section with Avatar */}
       <div className="bg-gradient-to-r from-[#fdf5eb] to-white p-6 border-b border-[#e8d5c4]">
-        <div className="flex items-center gap-5">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5">
           {/* Avatar with Upload */}
           {isEdit && (
-            <div className="relative group">
+            <div className="relative group self-center sm:self-auto">
               <div
                 onClick={() => setIsModalOpen(true)}
-                className="w-20 h-20 rounded-2xl bg-[#f4e1c2] border-2 border-[#cfae78]/40 flex items-center justify-center overflow-hidden cursor-pointer transition-all hover:border-[#b8864b]"
+                onKeyDown={e => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    setIsModalOpen(true)
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#f4e1c2] border-2 border-[#cfae78]/40 flex items-center justify-center overflow-hidden cursor-pointer transition-all hover:border-[#b8864b]"
               >
                 {profileImage ? (
-                  <Image
-                    src={profileImage}
-                    alt="Profile"
-                    width={80}
-                    height={80}
-                    className="w-full h-full object-cover"
-                  />
+                  <Image src={profileImage} alt="Profile" width={80} height={80} className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-[#2a1407] font-bold text-2xl">{getUserInitials()}</span>
+                  <span className="text-[#2a1407] font-bold text-xl sm:text-2xl">{getUserInitials()}</span>
                 )}
               </div>
               {/* Camera overlay */}
               <button
                 type="button"
                 onClick={() => setIsModalOpen(true)}
-                className="absolute -bottom-1 -right-1 w-8 h-8 bg-[#2a1407] rounded-lg flex items-center justify-center shadow-lg hover:bg-[#b8864b] transition-colors"
+                aria-label="Upload profile image"
+                className="absolute -bottom-1 -right-1 w-7 h-7 sm:w-8 sm:h-8 bg-[#2a1407] rounded-lg flex items-center justify-center shadow-lg hover:bg-[#b8864b] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b8864b]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fdf5eb]"
               >
-                <Camera className="w-4 h-4 text-white" />
+                <Camera className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
               </button>
             </div>
           )}
 
           {/* User Info */}
-          <div className="flex-1">
-            <h2 className="text-xl font-bold text-[#2a1407]">
-              {initialValues.firstName || initialValues.lastName
-                ? `${initialValues.firstName} ${initialValues.lastName}`
-                : 'Your Profile'}
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg sm:text-xl font-bold text-[#2a1407] break-words">
+              {initialValues.firstName || initialValues.lastName ? `${initialValues.firstName} ${initialValues.lastName}` : 'Your Profile'}
             </h2>
-            <p className="text-sm text-[#7a4a1d]">{initialValues.email}</p>
+            <p className="text-sm text-[#7a4a1d] break-all sm:break-normal sm:truncate">{initialValues.email}</p>
 
             {/* Status Badges */}
-            <div className="flex items-center gap-2 mt-2">
+            <div className="flex flex-wrap items-center gap-2 mt-2">
               {user?.isEmailVerified && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-50 text-green-700 text-[10px] font-medium rounded-full border border-green-200">
                   <Check className="w-3 h-3" />
@@ -201,10 +201,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialValues, validationSche
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className={`px-6 py-3 text-white font-semibold text-sm rounded-xl shadow-sm transition-all ${isSubmitting
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-[#2a1407] hover:bg-[#3d2415] hover:shadow-md'
-                    }`}
+                  className={`px-6 py-3 text-white font-semibold text-sm rounded-xl shadow-sm transition-all ${
+                    isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#2a1407] hover:bg-[#3d2415] hover:shadow-md'
+                  }`}
                 >
                   {isSubmitting ? 'Saving...' : 'Save Changes'}
                 </Button>

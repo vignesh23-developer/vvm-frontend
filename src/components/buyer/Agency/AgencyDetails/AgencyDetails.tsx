@@ -155,7 +155,7 @@ const cardVariants: Variants = {
   },
 }
 
-export default function AgencyDetails({ name }: { name: string }) {
+export default function AgencyDetails({ decodedName }: { decodedName: string }) {
   const t = useTranslations()
   const router = useRouter()
   const { user } = useAuth()
@@ -265,6 +265,8 @@ export default function AgencyDetails({ name }: { name: string }) {
     }
   }
 
+  // console.log('Decoded Name in AgencyDetails Component:', decodedName)
+
   useEffect(() => {
     let isMounted = true
 
@@ -273,7 +275,7 @@ export default function AgencyDetails({ name }: { name: string }) {
       setFetchError(null)
 
       try {
-        const response: ResponseDTO = await getMethod(appEndpoints.getCompanyProfilesByName(name))
+        const response: ResponseDTO = await getMethod(appEndpoints.getCompanyProfilesByName(decodedName))
 
         if (!isMounted) return
 
@@ -317,7 +319,7 @@ export default function AgencyDetails({ name }: { name: string }) {
     return () => {
       isMounted = false
     }
-  }, [name, t])
+  }, [decodedName, t])
 
   const establishedYear = useMemo(() => {
     if (!agencyData?.createdAt) return '—'
@@ -401,7 +403,7 @@ export default function AgencyDetails({ name }: { name: string }) {
   )
 
   const handleShare = useCallback(async () => {
-    if (typeof window !== 'undefined' && name) {
+    if (typeof window !== 'undefined' && decodedName) {
       setIsSharing(true)
       try {
         const url = window.location.href
@@ -433,7 +435,7 @@ export default function AgencyDetails({ name }: { name: string }) {
         setIsSharing(false)
       }
     }
-  }, [name, profileTitle])
+  }, [decodedName, profileTitle])
 
   // Fetch similar properties from backend
   const { similarProperties, isLoadingSimilar } = useSimilarProperties({
@@ -498,7 +500,7 @@ export default function AgencyDetails({ name }: { name: string }) {
     </div>
   )
   return (
-    <main className="min-h-screen bg-gradient-to-br from-stone-100 via-white to-stone-50 py-10 px-4 sm:px-6 lg:px-0">
+    <main className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-yellow-50 py-10 px-4 sm:px-6 lg:px-0">
       <div className="mx-auto w-full max-w-6xl space-y-10">
         <nav className="flex items-center gap-2 text-sm text-stone-500">
           <Link href="/" className="font-medium text-stone-700 transition hover:text-amber-600">
@@ -512,7 +514,7 @@ export default function AgencyDetails({ name }: { name: string }) {
           <CustumLoader text="Loading agency details..." />
         ) : (
           <div className="space-y-10">
-            <section className="relative overflow-hidden rounded-3xl border border-stone-200 bg-white/80 shadow-sm backdrop-blur">
+            <section className="relative overflow-hidden rounded-3xl border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/20 shadow-sm backdrop-blur">
               <div className="flex flex-col gap-8 px-6 py-8 sm:px-10 md:flex-row md:py-10">
                 <div className="mx-auto w-full max-w-xs md:mx-0 md:w-64">
                   <div className="relative aspect-square overflow-hidden rounded-2xl border border-stone-200 bg-stone-100">

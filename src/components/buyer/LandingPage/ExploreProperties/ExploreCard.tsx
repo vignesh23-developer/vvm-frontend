@@ -13,17 +13,23 @@ interface ExploreCardProps {
 }
 
 export default function ExploreCard({ item, variants }: ExploreCardProps) {
-  const initialLetter = item.district?.toString().charAt(0).toUpperCase()
-  const agentsCount = (item as any).createdByCount ?? (item as any).noOfAgents
+  const initialLetter = item.district?.toString().charAt(0).toUpperCase() || '?'
+  const agentsCountRaw = (item as any).createdByCount ?? (item as any).noOfAgents ?? 0
+  const agentsCount = Number(agentsCountRaw) || 0
+  const propertyCategories = Array.isArray(item.propertyCategories) ? item.propertyCategories.filter(Boolean) : []
+  const visibleCategories = propertyCategories.slice(0, 4)
+  const remainingCategories = Math.max(0, propertyCategories.length - visibleCategories.length)
 
   return (
-    <motion.div variants={variants}>
-      <Link href={`properties-list?location=${encodeURIComponent(item.district || '')}`} passHref>
-        <CometCard className="h-full rounded-2xl bg-white/95 border border-yellow-200 shadow-md overflow-hidden cursor-pointer">
+    <motion.div variants={variants} className="h-full">
+      <Link href={`properties-list?district=${encodeURIComponent(item.district || '')}`} className="block h-full">
+        <CometCard className="h-full min-h-[320px] rounded-2xl bg-white/95 border border-yellow-200 shadow-md overflow-hidden cursor-pointer">
           <div className="flex flex-col h-full">
             {/* Top content */}
             <div className="p-6 pb-8 flex-1">
-              <h3 className="text-lg font-semibold text-[#2a1407] mb-1 text-left">{item.district}</h3>
+              <h3 className="text-lg font-semibold text-[#2a1407] mb-1 text-left truncate" title={item.district || ''}>
+                {item.district}
+              </h3>
               <p className="text-xs font-medium uppercase tracking-wide text-yellow-700 mb-3 text-left">Price range</p>
               <p className="text-sm text-gray-700 mb-4 text-left">
                 {formatPrice(item.minAmount)} - {formatPrice(item.maxAmount)}
@@ -46,18 +52,22 @@ export default function ExploreCard({ item, variants }: ExploreCardProps) {
                   </p>
                 </div>
 
-                {Array.isArray(item.propertyCategories) && item.propertyCategories.length > 0 && (
-                  <div className="pt-1 flex flex-wrap gap-2">
-                    {item.propertyCategories.map((category, index) => (
-                      <span
-                        key={index}
-                        className="inline-block bg-yellow-50 text-yellow-800 border border-yellow-200 text-[11px] font-medium px-3 py-1 rounded-full"
-                      >
-                        {category}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                <div className="pt-1 h-[68px] overflow-hidden flex flex-wrap content-start gap-2">
+                  {visibleCategories.map((category, index) => (
+                    <span
+                      key={`${category}-${index}`}
+                      className="inline-block max-w-[160px] whitespace-nowrap truncate bg-yellow-50 text-yellow-800 border border-yellow-200 text-[11px] font-medium px-3 py-1 rounded-full"
+                    >
+                      {category}
+                    </span>
+                  ))}
+
+                  {remainingCategories > 0 && (
+                    <span className="inline-block whitespace-nowrap bg-yellow-50/70 text-yellow-900 border border-yellow-200 text-[11px] font-semibold px-3 py-1 rounded-full">
+                      +{remainingCategories} more
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
 

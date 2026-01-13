@@ -12,8 +12,150 @@
       "commercial": "Commercial",
       "search": "Search",
       "budget": "Budget",
+      "budget_up_to": "Up to ₹{value}L",
+      "budget_above": "Above ₹{value}L",
+      "budget_range": "₹{min}L - ₹{max}L",
+      "lakhs": "Lakhs",
       "flat": "Flat",
-      "add_more": "Add more..."
+      "select_property_type": "Select Property Type",
+      "add_more": "Add more...",
+      "select_district": "Select District",
+      "loading_districts": "Loading districts...",
+      "district_required": "Select a district",
+      "reset": "Reset",
+      "apply": "Apply"
+    },
+    "SlideType": {
+      "for_buyers": "For Buyers",
+      "for_agents": "For Agents",
+      "services": "Services"
+    },
+    "TrustBadges": {
+      "verified_properties": "Verified Properties",
+      "kyc_agents": "KYC Agents",
+      "districts": "Districts",
+      "all_districts": "All Districts",
+      "support_247": "24/7 Support"
+    }
+  },
+  "hero_slides": {
+    "buyer_1": {
+      "type": "buyer",
+      "badge": "Welcome to VaazhgaValamudan",
+      "title": "Tamil Nadu's",
+      "titleHighlight": "Trusted",
+      "titleAfter": "Property Platform",
+      "tamilText": "வாழ்க வளமுடன் - செழிப்புடன் வாழுங்கள்",
+      "description": "Your one-stop destination for buying, selling, and renting properties across all 38 districts of Tamil Nadu. Verified listings, trusted agents, transparent dealings.",
+      "features": {
+        "verified_Properties": "Verified Properties",
+        "KYC_Verified_Agents": "KYC Verified Agents",
+        "districts_covered": "Districts Covered"
+      },
+      "primaryCta": "Explore Properties",
+      "secondaryCta": "Create Free Account",
+      "imageAlt": "Beautiful properties in Tamil Nadu - Find your dream property",
+      "imageBadge": "Welcome",
+      "imageTitle": "Find Your Perfect Property",
+      "imageSubtitle": {
+        "Verified_Properties_Across": "Verified Properties Across",
+        "Districts": "Districts"
+      }
+    },
+    "buyer_2": {
+      "type": "buyer",
+      "badge": "For Property Seekers",
+      "title": "Find Your",
+      "titleHighlight": "Dream Property",
+      "tamilText": "உங்கள் கனவு சொத்தை கண்டறியுங்கள்",
+      "description": "Search properties by district, budget, or type. Save your favorites, set search alerts, and connect directly with verified agents.",
+      "features": {
+        "Browse_District_wise_Properties": "Browse District-wise Properties",
+        "Save_Your_Favorite_Properties": "Save Your Favorite Properties",
+        "Save_Searches_Get_Alerts": "Save Searches & Get Alerts"
+      },
+      "primaryCta": "Browse Properties",
+      "secondaryCta": "View All Districts",
+      "imageAlt": "Property search and discovery in Tamil Nadu",
+      "imageBadge": "Buyers",
+      "imageTitle": "Smart Property Search",
+      "imageSubtitle": "Advanced Filters • Save Favorites • Get Alerts"
+    },
+    "agent_1": {
+      "type": "agent",
+      "badge": "For Property Agents",
+      "title": "List Properties",
+      "titleHighlight": "for FREE",
+      "tamilText": "இலவசமாக சொத்துக்களை பதிவு செய்யுங்கள்",
+      "description": "Post unlimited property listings, manage your leads, track performance with a powerful dashboard, and grow your real estate business.",
+      "features": {
+        "Post_Properties_FREE": "Post Properties Absolutely FREE",
+        "Get_Quality_Leads": "Get Quality Leads & Enquiries",
+        "Analytics_Dashboard": "Powerful Analytics Dashboard"
+      },
+      "primaryCta": "Post Property FREE",
+      "secondaryCta": "View Subscription Plans",
+      "imageAlt": "Property agents posting listings on VaazhgaValamudan",
+      "imageBadge": "Agents",
+      "imageTitle": "Post Unlimited Properties",
+      "imageSubtitle": "Get Leads • Track Performance • Grow Business"
+    },
+    "agent_2": {
+      "type": "agent",
+      "badge": "Grow Your Business",
+      "title": "Boost Your",
+      "titleHighlight": "Property Sales",
+      "tamilText": "உங்கள் சொத்து விற்பனையை அதிகரிக்கவும்",
+      "description": "Get premium visibility with featured listings, boost your properties to reach more buyers, and access advanced tools to close deals faster.",
+      "features": {
+        "Featured_Listings": "Featured & Premium Listings",
+        "Agent_Profile": "Build Your Agent Profile",
+        "Buyer_Connections": "Direct Buyer Connections"
+      },
+      "primaryCta": "Upgrade to Premium",
+      "secondaryCta": "View Dashboard",
+      "imageAlt": "Real estate agent success and business growth",
+      "imageBadge": "Growth",
+      "imageTitle": "Premium Agent Features",
+      "imageSubtitle": "Featured Listings • Priority Support • Analytics"
+    },
+    "service_1": {
+      "type": "service",
+      "badge": "Property Services",
+      "title": "Complete",
+      "titleHighlight": "Property Services",
+      "tamilText": "முழுமையான சொத்து சேவைகள்",
+      "description": "From legal verification to interior design, we connect you with trusted service providers to make your property journey smooth and hassle-free.",
+      "features": {
+        "Legal_Verification": "Legal Document Verification",
+        "Interior_Design": "Professional Interior Design",
+        "Packers_Movers": "Trusted Packers & Movers"
+      },
+      "primaryCta": "Explore All Services",
+      "secondaryCta": "View Subscriptions",
+      "imageAlt": "Property related services - Legal, Interior, Moving",
+      "imageBadge": "Services",
+      "imageTitle": "End-to-End Property Services",
+      "imageSubtitle": "Legal • Interior • Packers & Movers"
+    },
+    "service_2": {
+      "type": "service",
+      "badge": "Trust & Safety",
+      "title": "Your Safety is",
+      "titleHighlight": "Our Priority",
+      "tamilText": "உங்கள் பாதுகாப்பு எங்கள் முன்னுரிமை",
+      "description": "Every property and agent on VaazhgaValamudan is verified. Complete KYC verification, secure wallet system, and transparent transactions.",
+      "features": {
+        "KYC_Verification": "Aadhaar-based KYC Verification",
+        "Verified_Listings": "100% Verified Property Listings",
+        "Secure_Wallet": "Secure Wallet & Transactions"
+      },
+      "primaryCta": "Learn About Safety",
+      "secondaryCta": "Verify Your Account",
+      "imageAlt": "Trust and safety - KYC verification process",
+      "imageBadge": "Trust",
+      "imageTitle": "KYC Verified Agents & Properties",
+      "imageSubtitle": "Secure Platform • Transparent Dealings"
     }
   },
   "Auth": {
@@ -53,6 +195,71 @@
     "help_center": "Help Center",
     "pricing": "Pricing",
     "more": "More",
+    "subMenus": {
+      "menu": "Menu",
+      "language": "Language",
+      "overview": "Overview",
+      "manage": "Manage",
+      "reports": "Reports",
+      "post_property": "Post Property",
+      "post_property_become_agent": "Post Property & Become Agent",
+      "become_agent_hint": "List your first property to unlock agent features!",
+
+      "role_super_admin": "Super Admin",
+      "role_agent": "Agent",
+      "role_buyer": "Buyer",
+
+      "new_enquiries": "New Enquiries",
+
+      "dashboard": "Dashboard",
+      "my_favorites": "My Favorites",
+      "saved_searches": "Saved Searches",
+      "my_enquiries": "My Enquiries",
+      "profile_settings": "Profile & Settings",
+      "profile_kyc": "Profile & KYC",
+
+      "my_properties": "My Properties",
+      "my_ads": "My Ads",
+      "account": "Account",
+
+      "masters": "Masters",
+      "properties_ads": "Properties & Ads",
+      "users": "Users",
+      "subscriptions_payments": "Subscriptions & Payments",
+      "settings": "Settings",
+
+      "all_properties": "All Properties",
+      "pending": "Pending",
+      "reported": "Reported",
+      "all_ads": "All Ads",
+      "reported_ads": "Reported Ads",
+
+      "pending_properties": "Pending Properties",
+      "reported_properties": "Reported Properties",
+      "pending_ads": "Pending Ads",
+      "kyc_pending": "KYC Pending",
+      "kyc_verification": "KYC Verification",
+
+      "subscription_plans": "Subscription Plans",
+      "user_subscriptions": "User Subscriptions",
+      "all_transactions": "All Transactions",
+
+      "my_profile": "My Profile",
+      "company_profile": "Company Profile",
+      "enquiries": "Enquiries",
+      "wallet": "Wallet",
+      "subscription": "Subscription",
+
+      "agency_details": "Agency Details",
+
+      "feature_group": "Feature Group",
+      "feature_category": "Feature Category",
+      "property_category": "Property Category",
+      "ads_category": "Ads Category",
+
+      "view_all_users": "View All Users",
+      "payment_reports_revenue_summary": "Payment Reports / Revenue Summary"
+    },
     "Dashboard": "Dashboard",
     "masters": "Masters",
     "properties": "Properties",
@@ -69,55 +276,7 @@
     "feedback": "Feedback",
     "logout": "Logout",
     "post_property": "Post Property",
-    "subMenus": {
-      "profile": "Profile",
-      "company profile": "Company Profile",
-      "logout": "Logout",
-      "agency_details": "Agency Details",
-      "feature_category": "Feature Category",
-      "users": "Users",
-      "role_management": "Role Management",
-      "subscription": "Subscription",
-      "saved_criteria": "Saved Criteria",
-      "referral_management": "Referral Management",
-      "notification": "Notification",
-      "property_category": "Property Category",
-      "feature_group": "Feature Group",
-      "enquiry_listing": "Enquiry Listing",
-      "property categories": "Property Categories",
-      "feature categories": "Feature Categories",
-      "feature group": "Feature Group",
-      "properties": "Properties",
-      "category mappings": "Category Mappings",
-      "ads categories": "Ads Categories",
-      "promo code": "Promo Code",
-      "referral management": "Referral Management",
-      "properties management": "Properties Management",
-      "register your properties": "Register Your Properties",
-      "properties pending approval": "Properties Pending Approval",
-      "favourite properties": "Favourite Properties",
-      "reported properties": "Reported Properties",
-      "view enquiries": "View Enquiries",
-      "saved searches": "Saved Searches",
-      "recently viewed properties": "Recently Viewed Properties",
-      "contact requests": "Contact Requests",
-      "ads management": "Ads Management",
-      "ads pending approval": "Ads Pending Approval",
-      "view recent ads": "View Recent Ads",
-      "favourite ads": "Favourite Ads",
-      "reported ads": "Reported Ads",
-      "view enquiries ads": "View Enquiries Ads",
-      "subscription master": "Subscription Master",
-      "my subscription": "My Subscription",
-      "user subscription": "User Subscription",
-      "view subscriptions": "View Subscriptions",
-      "view transactions": "View Transactions",
-      "payment reports / revenue summary": "Payment Reports / Revenue Summary",
-      "refund management": "Refund Management",
-      "promo usage reports": "Promo Usage Reports",
-      "feedback": "Feedback",
-      "view all users": "View All Users"
-    }
+    "agency_details": "Agency Details"
   },
   "PopularProperties": {
     "title": "Our Popular Properties",

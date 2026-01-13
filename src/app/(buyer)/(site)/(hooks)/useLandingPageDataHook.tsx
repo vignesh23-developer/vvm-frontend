@@ -46,6 +46,7 @@ export function useLandingPageData(options: UseLandingPageOptions = {}) {
     response: data,
     data: payload,
 
+    allStats: payload.stats ?? {},
     // frequently accessed blocks (safe defaults)
     featuredAds: payload.featuredAds?.data ?? [],
     featuredAdsTotal: payload.featuredAds?.total ?? 0,

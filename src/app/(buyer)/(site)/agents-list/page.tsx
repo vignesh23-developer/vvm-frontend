@@ -208,17 +208,17 @@ const AgentListPage = () => {
         suggestionsSet.add(s)
       }
     })
-      ; (agentCompanyProfileData || []).forEach((agency: any) => {
-        const candidates = [agency.companyName, agency.profileName, agency.contact_name, agency.city, agency.district, agency.state]
-        candidates.forEach(value => {
-          if (typeof value === 'string') {
-            const lower = value.toLowerCase()
-            if (lower.includes(query)) {
-              suggestionsSet.add(value)
-            }
+    ;(agentCompanyProfileData || []).forEach((agency: any) => {
+      const candidates = [agency.companyName, agency.profileName, agency.contact_name, agency.city, agency.district, agency.state]
+      candidates.forEach(value => {
+        if (typeof value === 'string') {
+          const lower = value.toLowerCase()
+          if (lower.includes(query)) {
+            suggestionsSet.add(value)
           }
-        })
+        }
       })
+    })
 
     return Array.from(suggestionsSet).slice(0, 8)
   }, [debouncedSearchTerm, agentCompanyProfileData, backendSuggestions])
@@ -297,9 +297,7 @@ const AgentListPage = () => {
           <div className="flex flex-col gap-6">
             <div>
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#2a1407] tracking-tight mb-3">{t('AgentList.heading')}</h1>
-              <p className="text-base sm:text-lg text-gray-600 max-w-2xl leading-relaxed">
-                {t('AgentList.subheading')}
-              </p>
+              <p className="text-base sm:text-lg text-gray-600 max-w-2xl leading-relaxed">{t('AgentList.subheading')}</p>
             </div>
 
             {/* Full Width Search & Filter Bar */}
@@ -342,8 +340,9 @@ const AgentListPage = () => {
                 {/* Filter Button */}
                 <button
                   onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-                  className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${isFiltersOpen ? 'bg-[#2a1407] text-white shadow-md' : 'bg-yellow-50 text-[#2a1407] hover:bg-yellow-100'
-                    } cursor-pointer`}
+                  className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
+                    isFiltersOpen ? 'bg-[#2a1407] text-white shadow-md' : 'bg-yellow-50 text-[#2a1407] hover:bg-yellow-100'
+                  } cursor-pointer`}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path
@@ -477,7 +476,7 @@ const AgentListPage = () => {
             </div>
 
             {agentCompanyProfileFetchLoader ? (
-              <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+              <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 ${isFiltersOpen ? 'xl:grid-cols-3' : 'xl:grid-cols-4'} gap-6`}>
                 {Array.from({ length: limit }).map((_, index) => (
                   <motion.div
                     key={`agency-skeleton-${index}`}
@@ -496,9 +495,7 @@ const AgentListPage = () => {
             ) : filteredAgencies?.length === 0 ? (
               <div className="text-center py-16 rounded-2xl bg-white/80 border border-dashed border-gray-200">
                 <p className="text-gray-700 text-lg font-semibold">{t('AgentList.no_results_title')}</p>
-                <p className="mt-2 text-sm text-gray-500 max-w-md mx-auto">
-                  {t('AgentList.no_results_desc')}
-                </p>
+                <p className="mt-2 text-sm text-gray-500 max-w-md mx-auto">{t('AgentList.no_results_desc')}</p>
                 <button
                   onClick={handleClearFilters}
                   className="mt-5 px-6 py-2.5 bg-yellow-500 text-[#2a1407] rounded-full text-sm font-semibold hover:bg-yellow-600 transition-all shadow-sm cursor-pointer"
@@ -507,7 +504,7 @@ const AgentListPage = () => {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 ${isFiltersOpen ? 'xl:grid-cols-3' : 'xl:grid-cols-4'} gap-6`}>
                 {pagedAgencies?.map((agentProperty: any, index: number) => (
                   <motion.div
                     key={agentProperty.id ?? index}
@@ -588,7 +585,9 @@ const AgentListPage = () => {
                       <div className="grid grid-cols-2 gap-4 pt-4 mt-4 items-end">
                         <div className="flex flex-col">
                           <span className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-1">{t('AgentList.status')}</span>
-                          <p className="text-sm font-semibold text-gray-700">{agentProperty.isActive ? t('AgentList.active') : t('AgentList.inactive')}</p>
+                          <p className="text-sm font-semibold text-gray-700">
+                            {agentProperty.isActive ? t('AgentList.active') : t('AgentList.inactive')}
+                          </p>
                         </div>
                         <div className="flex justify-end">
                           <button

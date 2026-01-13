@@ -87,7 +87,7 @@ const PropertiesListPage = () => {
   const [limit, setLimit] = useState(12)
   const searchParams = useSearchParams()
   const params = {
-    location: decodeURIComponent(searchParams.get('location') || ''),
+    district: decodeURIComponent(searchParams.get('district') || ''),
     listingType: decodeURIComponent(searchParams.get('listingType') || ''),
     type: decodeURIComponent(searchParams.get('type') || ''),
     budget: decodeURIComponent(searchParams.get('budget') || ''),
@@ -130,7 +130,7 @@ const PropertiesListPage = () => {
 
   const trimmedSearch = searchTerm.trim()
 
-  const selectedDistrict = filters.district?.[0] ?? ''
+  const selectedDistrict = filters.district?.[0] ?? params.district ?? ''
 
   // District dropdown options
   const { data: districtSummaryResponse } = useSWR(['property-district-summary', 500] as const, ([, limit]) =>
@@ -191,6 +191,8 @@ const PropertiesListPage = () => {
     else nextParams.delete('district')
 
     const qs = nextParams.toString()
+    console.log('Updating URL with params:', qs)
+
     router.replace(qs ? `/properties-list?${qs}` : '/properties-list', { scroll: false })
   }, [debouncedUrlSearch, isHydratedFromUrl, router, searchParams, selectedDistrict])
 
@@ -244,7 +246,7 @@ const PropertiesListPage = () => {
   const { properties, handleEdit, handleDelete, total, error, isLoadingProperties, mutateProperties, handlePropertyAction } = useSearchProperties({
     page,
     limit,
-    location: params.location,
+    district: params.district,
     listingType: params.listingType,
     type: params.type,
     budget: params.budget,
@@ -407,15 +409,12 @@ const PropertiesListPage = () => {
       transition={{ duration: 0.5 }}
     >
       {/* Heading Section */}
-      {/* Heading Section */}
       <div className="border-b border-yellow-100/70 bg-gradient-to-r from-[#FFF3D6] via-[#FFF9EB] to-[#FFFFFF]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 lg:py-12">
           <div className="flex flex-col gap-6">
             <div>
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#2a1407] tracking-tight mb-3">{t('PropertiesList.heading')}</h1>
-              <p className="text-base sm:text-lg text-gray-600 max-w-2xl leading-relaxed">
-                {t('PropertiesList.subheading')}
-              </p>
+              <p className="text-base sm:text-lg text-gray-600 max-w-2xl leading-relaxed">{t('PropertiesList.subheading')}</p>
             </div>
 
             {/* Full Width Search & Filter Bar */}
@@ -433,6 +432,7 @@ const PropertiesListPage = () => {
                     className="block w-full px-4 py-3 bg-transparent border-none rounded-xl text-gray-900 focus:ring-0 sm:text-base"
                   >
                     <option value="">{t('PropertiesList.all_districts')}</option>
+
                     {districts.map(d => (
                       <option key={d} value={d}>
                         {d}
@@ -485,8 +485,9 @@ const PropertiesListPage = () => {
                 {/* Filter Button */}
                 <button
                   onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-                  className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${isFiltersOpen ? 'bg-[#2a1407] text-white shadow-md' : 'bg-yellow-50 text-[#2a1407] hover:bg-yellow-100'
-                    } cursor-pointer`}
+                  className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
+                    isFiltersOpen ? 'bg-[#2a1407] text-white shadow-md' : 'bg-yellow-50 text-[#2a1407] hover:bg-yellow-100'
+                  } cursor-pointer`}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path
@@ -525,10 +526,10 @@ const PropertiesListPage = () => {
                 <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
                 <p className="text-sm font-medium text-gray-700">
                   <span className="font-extrabold text-[#2a1407]">{totalResults}</span> {t('PropertiesList.results_found')}
-                  {(searchTerm || params.location) && (
+                  {(searchTerm || params.district) && (
                     <span className="text-gray-500 font-normal">
                       {' '}
-                      {t('PropertiesList.for')} <span className="text-[#2a1407] italic">"{searchTerm || params.location}"</span>
+                      {t('PropertiesList.for')} <span className="text-[#2a1407] italic">"{searchTerm || params.district}"</span>
                     </span>
                   )}
                 </p>
@@ -542,7 +543,7 @@ const PropertiesListPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 lg:py-10">
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
           {/* Advanced Filters - Show for properties and agencies */}
-          {/* {(params === 'explore_by_category' || params === 'agency') && ( */}
+
           <AdvancedFilters
             filters={filters}
             onFilterChange={setFilters}
@@ -551,7 +552,6 @@ const PropertiesListPage = () => {
             onToggle={() => setIsFiltersOpen(!isFiltersOpen)}
             pageType={'property'}
           />
-          {/* )} */}
 
           {/* Properties / Agencies List */}
           <div className="flex-1 min-w-0">
@@ -640,7 +640,7 @@ const PropertiesListPage = () => {
 
             <>
               {isLoadingList ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 ${isFiltersOpen ? 'xl:grid-cols-3' : 'xl:grid-cols-4'} gap-6`}>
                   {Array.from({ length: limit }).map((_, index) => (
                     <motion.div
                       key={`property-skeleton-${index}`}
@@ -660,9 +660,7 @@ const PropertiesListPage = () => {
               ) : displayedProperties.length === 0 ? (
                 <div className="text-center py-16 rounded-2xl bg-white/80 border border-dashed border-gray-200">
                   <p className="text-gray-700 text-lg font-semibold">{t('PropertiesList.no_results_title')}</p>
-                  <p className="mt-2 text-sm text-gray-500 max-w-md mx-auto">
-                    {t('PropertiesList.no_results_desc')}
-                  </p>
+                  <p className="mt-2 text-sm text-gray-500 max-w-md mx-auto">{t('PropertiesList.no_results_desc')}</p>
                   <button
                     onClick={handleClearFilters}
                     className="mt-5 px-6 py-2.5 bg-yellow-500 text-[#2a1407] rounded-full text-sm font-semibold hover:bg-yellow-600 transition-all shadow-sm cursor-pointer"
@@ -671,7 +669,7 @@ const PropertiesListPage = () => {
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 ${isFiltersOpen ? 'xl:grid-cols-3' : 'xl:grid-cols-4'} gap-6`}>
                   {displayedProperties.map((property: any, index: number) => (
                     <motion.div
                       key={property.id ?? index}

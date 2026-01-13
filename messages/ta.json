@@ -12,8 +12,152 @@
       "commercial": "வணிக",
       "search": "தேடுக",
       "budget": "பட்ஜெட்",
+      "budget_up_to": "₹{value} லட்சம் வரை",
+      "budget_above": "₹{value} லட்சத்துக்கு மேல்",
+      "budget_range": "₹{min} - ₹{max} லட்சம்",
+      "lakhs": "லட்சம்",
       "flat": "பிளாட்",
-      "add_more": "மேலும் சேர்க்க..."
+      "select_property_type": "சொத்து வகை",
+      "add_more": "மேலும் சேர்க்க...",
+      "select_district": "மாவட்டத்தைத் தேர்ந்தெடுக்கவும்",
+      "loading_districts": "மாவட்டங்கள் ஏற்றப்படுகிறது...",
+      "district_required": "மாவட்டத்தைத் தேர்ந்தெடுக்கவும்",
+      "reset": "மீட்டமை",
+      "apply": "பயன்படுத்து"
+    },
+    "SlideType": {
+      "for_buyers": "வாங்குபவர்களுக்கு",
+      "for_agents": "முகவர்களுக்கு",
+      "services": "சேவைகள்"
+    },
+    "TrustBadges": {
+      "verified_properties": "சரிபார்க்கப்பட்ட சொத்துகள்",
+      "kyc_agents": "KYC முகவர்கள்",
+      "districts": "மாவட்டங்கள்",
+      "all_districts": "அனைத்து மாவட்டங்கள்",
+      "support_247": "24/7 ஆதரவு"
+    }
+  },
+  "hero_slides": {
+    "buyer_1": {
+      "type": "buyer",
+      "badge": "வாழ்க வளமுடன்-க்கு உங்களை வரவேற்கிறோம்",
+      "title": "தமிழ்நாட்டின்",
+      "titleHighlight": "நம்பகமான",
+      "titleAfter": "சொத்து தளம்",
+      "tamilText": "வாழ்க வளமுடன் - செழிப்புடன் வாழுங்கள்",
+      "description": "தமிழ்நாட்டின் 38 மாவட்டங்களிலும் சொத்துக்களை வாங்க, விற்க மற்றும் வாடகைக்கு எடுக்க உங்கள் ஒரே இடம். சரிபார்க்கப்பட்ட பட்டியல்கள் மற்றும் வெளிப்படையான ஒப்பந்தங்கள்.",
+      "features": {
+        "verified_Properties": "சரிபார்க்கப்பட்ட சொத்துக்கள்",
+        "KYC_Verified_Agents": "KYC சரிபார்க்கப்பட்ட முகவர்கள்",
+        "districts_covered": "மாவட்டங்கள் உள்ளடக்கப்பட்டவை"
+      },
+      "primaryCta": "சொத்துக்களை ஆராயுங்கள்",
+      "secondaryCta": "இலவச கணக்கை உருவாக்குங்கள்",
+      "imageAlt": "தமிழ்நாட்டின் அழகான சொத்துக்கள் - உங்கள் கனவு சொத்தை கண்டறியுங்கள்",
+      "imageBadge": "வரவேற்பு",
+      "imageTitle": "உங்கள் சரியான சொத்தை கண்டறியுங்கள்",
+      "imageSubtitle": {
+        "Verified_Properties_Across": "சரிபார்க்கப்பட்ட சொத்துக்கள்",
+        "Districts": "மாவட்டங்களில்"
+      }
+    },
+    "buyer_2": {
+      "type": "buyer",
+      "badge": "சொத்து தேடுபவர்களுக்கு",
+      "title": "உங்கள்",
+      "titleHighlight": "கனவு சொத்தை",
+      "tamilText": "உங்கள் கனவு சொத்தை கண்டறியுங்கள்",
+      "description": "மாவட்டம், பட்ஜெட் அல்லது வகை வாரியாக சொத்துக்களைத் தேடுங்கள். உங்களுக்குப் பிடித்தவற்றைச் சேமித்து, முகவர்களுடன் நேரடியாகத் தொடர்பு கொள்ளுங்கள்.",
+      "features": {
+        "Browse_District_wise_Properties": "மாவட்ட வாரியாக சொத்துக்களைத் தேடுங்கள்",
+        "Save_Your_Favorite_Properties": "பிடித்த சொத்துக்களைச் சேமிக்கவும்",
+        "Save_Searches_Get_Alerts": "தேடல்களைச் சேமித்து அறிவிப்புகளைப் பெறவும்"
+      },
+      "primaryCta": "சொத்துக்களைப் பார்க்க",
+      "secondaryCta": "அனைத்து மாவட்டங்களையும் காண்க",
+      "imageAlt": "தமிழ்நாட்டில் சொத்து தேடல் மற்றும் கண்டறிதல்",
+      "imageBadge": "வாங்குபவர்கள்",
+      "imageTitle": "புத்திசாலித்தனமான சொத்து தேடல்",
+      "imageSubtitle": "மேம்பட்ட வடிப்பான்கள் • விருப்பமானவை • அறிவிப்புகள்"
+    },
+    "agent_1": {
+      "type": "agent",
+      "badge": "சொத்து முகவர்களுக்கு",
+      "title": "சொத்துக்களை",
+      "titleHighlight": "இலவசமாகப்",
+      "titleAfter": "பதிவு செய்யுங்கள்",
+      "tamilText": "இலவசமாக சொத்துக்களை பதிவு செய்யுங்கள்",
+      "description": "வரம்பற்ற சொத்து பட்டியல்களைப் பதிவிடவும், உங்கள் வாடிக்கையாளர்களை நிர்வகிக்கவும் மற்றும் உங்கள் வணிகத்தை வளர்க்கவும்.",
+      "features": {
+        "Post_Properties_FREE": "சொத்துக்களை முற்றிலும் இலவசமாகப் பதிவிடவும்",
+        "Get_Quality_Leads": "தரமான வாடிக்கையாளர் விசாரணைகளைப் பெறுங்கள்",
+        "Analytics_Dashboard": "சிறந்த பகுப்பாய்வு டாஷ்போர்டு"
+      },
+      "primaryCta": "இலவசமாக பதிவிடவும்",
+      "secondaryCta": "சந்தா திட்டங்களைப் பார்க்க",
+      "imageAlt": "முகவர்கள் சொத்துக்களைப் பதிவிடுகின்றனர்",
+      "imageBadge": "முகவர்கள்",
+      "imageTitle": "வரம்பற்ற சொத்துக்களைப் பதிவிடவும்",
+      "imageSubtitle": "விசாரணைகள் • செயல்திறன் கண்காணிப்பு • வணிக வளர்ச்சி"
+    },
+    "agent_2": {
+      "type": "agent",
+      "badge": "உங்கள் வணிகத்தை வளர்க்க",
+      "title": "உங்கள்",
+      "titleHighlight": "சொத்து விற்பனையை",
+      "titleAfter": "அதிகரிக்கவும்",
+      "tamilText": "உங்கள் சொத்து விற்பனையை அதிகரிக்கவும்",
+      "description": "சிறப்புப் பட்டியல்கள் மூலம் அதிக வாடிக்கையாளர்களைச் சென்றடைந்து உங்கள் விற்பனையை விரைவுபடுத்துங்கள்.",
+      "features": {
+        "Featured_Listings": "பிரீமியம் சொத்து பட்டியல்கள்",
+        "Agent_Profile": "உங்கள் முகவர் சுயவிவரத்தை உருவாக்குங்கள்",
+        "Buyer_Connections": "நேரடி வாங்குபவர் தொடர்புகள்"
+      },
+      "primaryCta": "பிரீமியத்திற்கு மேம்படுத்தவும்",
+      "secondaryCta": "டாஷ்போர்டைப் பார்க்க",
+      "imageAlt": "ரியல் எஸ்டேட் முகவர் வெற்றி மற்றும் வணிக வளர்ச்சி",
+      "imageBadge": "வளர்ச்சி",
+      "imageTitle": "பிரீமியம் முகவர் அம்சங்கள்",
+      "imageSubtitle": "சிறப்புப் பட்டியல்கள் • முன்னுரிமை ஆதரவு • பகுப்பாய்வு"
+    },
+    "service_1": {
+      "type": "service",
+      "badge": "சொத்து சேவைகள்",
+      "title": "முழுமையான",
+      "titleHighlight": "சொத்து சேவைகள்",
+      "tamilText": "முழுமையான சொத்து சேவைகள்",
+      "description": "சட்ட ரீதியான சரிபார்ப்பு முதல் உள்நாட்டு வடிவமைப்பு வரை, உங்கள் பயணத்தை எளிதாக்க நம்பகமான சேவை வழங்குநர்களுடன் உங்களை இணைக்கிறோம்.",
+      "features": {
+        "Legal_Verification": "சட்ட ஆவண சரிபார்ப்பு",
+        "Interior_Design": "தொழில்முறை உள்நாட்டு வடிவமைப்பு",
+        "Packers_Movers": "நம்பகமான பேக்கர்ஸ் & மூவர்ஸ்"
+      },
+      "primaryCta": "அனைத்து சேவைகளையும் ஆராயுங்கள்",
+      "secondaryCta": "சந்தாக்களைப் பார்க்க",
+      "imageAlt": "சொத்து தொடர்பான சேவைகள் - சட்டம், உள்துறை",
+      "imageBadge": "சேவைகள்",
+      "imageTitle": "முழுமையான சொத்து சேவைகள்",
+      "imageSubtitle": "சட்டம் • உள்துறை • பேக்கர்ஸ் & மூவர்ஸ்"
+    },
+    "service_2": {
+      "type": "service",
+      "badge": "நம்பிக்கை மற்றும் பாதுகாப்பு",
+      "title": "உங்கள் பாதுகாப்பே",
+      "titleHighlight": "எங்கள் முன்னுரிமை",
+      "tamilText": "உங்கள் பாதுகாப்பு எங்கள் முன்னுரிமை",
+      "description": "ஒவ்வொரு சொத்தும் முகவரும் சரிபார்க்கப்படுகிறார்கள். பாதுகாப்பான பணப்பரிவர்த்தனை மற்றும் வெளிப்படையான செயல்பாடுகள்.",
+      "features": {
+        "KYC_Verification": "ஆதார் அடிப்படையிலான KYC சரிபார்ப்பு",
+        "Verified_Listings": "100% சரிபார்க்கப்பட்ட சொத்து பட்டியல்கள்",
+        "Secure_Wallet": "பாதுகாப்பான வாலட் மற்றும் பரிவர்த்தனைகள்"
+      },
+      "primaryCta": "பாதுகாப்பு பற்றி அறிய",
+      "secondaryCta": "கணக்கை சரிபார்க்கவும்",
+      "imageAlt": "நம்பிக்கை மற்றும் பாதுகாப்பு - KYC சரிபார்ப்பு",
+      "imageBadge": "நம்பிக்கை",
+      "imageTitle": "சரிபார்க்கப்பட்ட முகவர்கள் மற்றும் சொத்துக்கள்",
+      "imageSubtitle": "பாதுகாப்பான தளம் • வெளிப்படையான ஒப்பந்தங்கள்"
     }
   },
   "Auth": {
@@ -53,6 +197,71 @@
     "help_center": "உதவி மையம்",
     "pricing": "விலை நிர்ணயம்",
     "more": "மேலும்",
+    "subMenus": {
+      "menu": "மெனு",
+      "language": "மொழி",
+      "overview": "மேலோட்டம்",
+      "manage": "மேலாண்மை",
+      "reports": "அறிக்கைகள்",
+      "post_property": "சொத்தை பதிவிடவும்",
+      "post_property_become_agent": "சொத்தை பதிவு செய்து ஏஜென்டாகுங்கள்",
+      "become_agent_hint": "ஏஜென்ட் அம்சங்களைத் திறக்க உங்கள் முதல் சொத்தை பதிவு செய்யுங்கள்!",
+
+      "role_super_admin": "சூப்பர் நிர்வாகி",
+      "role_agent": "ஏஜென்ட்",
+      "role_buyer": "வாங்குபவர்",
+
+      "new_enquiries": "புதிய விசாரணைகள்",
+
+      "dashboard": "டாஷ்போர்டு",
+      "my_favorites": "என் பிடித்தவை",
+      "saved_searches": "சேமித்த தேடல்கள்",
+      "my_enquiries": "என் விசாரணைகள்",
+      "profile_settings": "சுயவிவரம் & அமைப்புகள்",
+      "profile_kyc": "சுயவிவரம் & KYC",
+
+      "my_properties": "என் சொத்துகள்",
+      "my_ads": "என் விளம்பரங்கள்",
+      "account": "கணக்கு",
+
+      "masters": "மாஸ்டர்கள்",
+      "properties_ads": "சொத்துகள் & விளம்பரங்கள்",
+      "users": "பயனர்கள்",
+      "subscriptions_payments": "சந்தா & கட்டணங்கள்",
+      "settings": "அமைப்புகள்",
+
+      "all_properties": "அனைத்து சொத்துகள்",
+      "pending": "நிலுவையில்",
+      "reported": "புகாரளிக்கப்பட்ட",
+      "all_ads": "அனைத்து விளம்பரங்கள்",
+      "reported_ads": "புகாரளிக்கப்பட்ட விளம்பரங்கள்",
+
+      "pending_properties": "நிலுவை சொத்துகள்",
+      "reported_properties": "புகாரளிக்கப்பட்ட சொத்துகள்",
+      "pending_ads": "நிலுவை விளம்பரங்கள்",
+      "kyc_pending": "KYC நிலுவையில்",
+      "kyc_verification": "KYC சரிபார்ப்பு",
+
+      "subscription_plans": "சந்தா திட்டங்கள்",
+      "user_subscriptions": "பயனர் சந்தாக்கள்",
+      "all_transactions": "அனைத்து பரிவர்த்தனைகள்",
+
+      "my_profile": "என் சுயவிவரம்",
+      "company_profile": "நிறுவன சுயவிவரம்",
+      "enquiries": "விசாரணைகள்",
+      "wallet": "வாலெட்",
+      "subscription": "சந்தா",
+
+      "agency_details": "ஏஜென்சி விவரங்கள்",
+
+      "feature_group": "அம்சம் குழு",
+      "feature_category": "அம்சம் வகை",
+      "property_category": "சொத்து வகை",
+      "ads_category": "விளம்பர வகை",
+
+      "view_all_users": "அனைத்து பயனர்களையும் பார்க்கவும்",
+      "payment_reports_revenue_summary": "கட்டண அறிக்கைகள் / வருமான சுருக்கம்"
+    },
     "Dashboard": "டாஷ்போர்டு",
     "masters": "மாஸ்டர்கள்",
     "subscription": "சந்தா",
@@ -68,55 +277,7 @@
     "view transactions": "பரிவர்த்தனைகளைப் பார்க்கவும்",
     "feedback": "கருத்து",
     "logout": "வெளியேறுதல்",
-    "post_property": "பதிவேறு சொத்துகள்",
-    "subMenus": {
-      "profile": "சுயவிவரம்",
-      "company profile": "நிறுவன சுயவிவரம்",
-      "logout": "வெளியேறுதல்",
-      "agency_details": "ஏஜென்சி விவரங்கள்",
-      "feature_category": "அம்சம் வகை",
-      "users": "பயனர்கள்",
-      "role_management": "பங்கு மேலாண்மை",
-      "subscription": "சந்தா",
-      "saved_criteria": "சேமிக்கப்பட்ட அளவுகோல்கள்",
-      "referral management": "பரிந்துரை மேலாண்மை",
-      "notification": "அறிவிப்பு",
-      "property_category": "சொத்து வகை",
-      "feature_group": "அம்சம் குழு",
-      "enquiry_listing": "விசாரணை பட்டியல்",
-      "property categories": "சொத்து வகைகள்",
-      "feature categories": "அம்சம் வகைகள்",
-      "feature group": "அம்சம் குழு",
-      "properties": "சொத்துகள்",
-      "category mappings": "வகை வரைபடங்கள்",
-      "ads categories": "விளம்பர வகைகள்",
-      "promo code": "ப்ரோமோ குறியீடு",
-      "feedback": "கருத்து",
-      "properties management": "சொத்து மேலாண்மை",
-      "register your properties": "உங்கள் சொத்துக்களை பதிவு செய்யுங்கள்",
-      "properties pending approval": "அனுமதி நிலுவையில் உள்ள சொத்துகள்",
-      "favourite properties": "பிடித்த சொத்துகள்",
-      "reported properties": "புகாரளிக்கப்பட்ட சொத்துகள்",
-      "view enquiries": "வினவல்களைப் பார்க்கவும்",
-      "saved searches": "சேமிக்கப்பட்ட தேடல்கள்",
-      "recently viewed properties": "சமீபத்தில் பார்வையிட்ட சொத்துகள்",
-      "contact requests": "தொடர்பு கோரிக்கைகள்",
-      "ads management": "விளம்பர மேலாண்மை",
-      "ads pending approval": "அனுமதி நிலுவையில் உள்ள விளம்பரங்கள்",
-      "view recent ads": "சமீபத்திய விளம்பரங்களைப் பார்க்கவும்",
-      "favourite ads": "பிடித்த விளம்பரங்கள்",
-      "reported ads": "புகாரளிக்கப்பட்ட விளம்பரங்கள்",
-      "view enquiries ads": "விளம்பர வினவல்களைப் பார்க்கவும்",
-      "subscription master": "சந்தா முதன்மை",
-      "my subscription": "என் சந்தா",
-      "user subscription": "பயனர் சந்தா",
-      "view subscriptions": "சந்தாக்களைப் பார்க்கவும்",
-      "view transactions": "பரிவர்த்தனைகளைப் பார்க்கவும்",
-      "payment reports / revenue summary": "கட்டண அறிக்கைகள் / வருமான சுருக்கம்",
-      "refund management": "பணத்தைத் திருப்பி வழங்கல் மேலாண்மை",
-      "promo usage reports": "ப்ரோமோ பயன்பாட்டு அறிக்கைகள்",
-      "view all users": "அனைத்து பயனர்களையும் பார்க்கவும்"
-    }
+    "post_property": "பதிவேறு சொத்துகள்"
   },
   "PopularProperties": {
     "title": "எங்கள் பிரபலமான சொத்துகள்",

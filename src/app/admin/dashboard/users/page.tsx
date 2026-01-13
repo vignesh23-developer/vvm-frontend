@@ -106,14 +106,14 @@ export default function UserManagementPage() {
   )
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6 bg-gradient-to-br from-yellow-50 via-white to-yellow-50 min-h-screen">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between mb-6">
         <h1 className="text-xl font-semibold text-gray-800">User Details</h1>
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+      <div className="bg-gradient-to-br from-white to-yellow-50/20 rounded-xl shadow-sm border border-yellow-200 p-4">
         <DataTable<UserDataTableRow>
           columns={columns}
           fetchData={fetchUsersForTable}

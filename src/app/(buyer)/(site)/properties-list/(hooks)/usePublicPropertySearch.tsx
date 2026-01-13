@@ -71,12 +71,19 @@ export function usePublicPropertySearch<T = any>({
     limit,
   }
 
+  console.log('Search Term:', trimmedSearch, 'Filters:', filters)
   // Text search
-  if (trimmedSearch) params.q = trimmedSearch
+  if (trimmedSearch) {
+    params.q = trimmedSearch
+  }
 
   // Listing type (support multiple, comma-separated)
   if (filters.listingType.length > 0) {
-    params.listing_type = filters.listingType[0] // API supports single enum, but we can extend if needed
+    if (filters.listingType.length > 1) {
+      params.q = filters.listingType.join(',')
+    } else {
+      params.listing_type = filters.listingType[0]
+    }
   }
 
   // Status (support multiple, comma-separated)
@@ -86,7 +93,11 @@ export function usePublicPropertySearch<T = any>({
 
   // Location filters
   if (filters.location.length > 0) {
-    params.city = filters.location[0] // Primary city filter
+    if (filters.location.length > 1) {
+      params.q = filters.location.join(',') // Support multiple cities
+    } else {
+      params.city = filters.location[0] // Primary city filter
+    }
   }
   if (filters.district.length > 0) {
     params.district = filters.district[0]
@@ -146,7 +157,11 @@ export function usePublicPropertySearch<T = any>({
 
   // Property category
   if (filters.propertyCategoryId.length > 0) {
-    params.property_category_id = filters.propertyCategoryId[0]
+    if (filters.propertyCategoryId.length > 1) {
+      params.q = filters.propertyCategoryId.join(',')
+    } else {
+      params.property_category_id = filters.propertyCategoryId[0]
+    }
   }
 
   // Boolean flags
@@ -210,17 +225,20 @@ export function usePublicPropertySearch<T = any>({
       // 3) [ ... ] (bare array)
       console.log('📦 Raw Property Search API Response:', response.data, response)
       const dtoPayload = response?.data?.data?.data
+      console.log('➡️ Extracted Property Search DTO Payload:', dtoPayload, response?.data?.data)
 
       // Unwrap one level of nesting if the payload itself has a "data" object
       const container =
         dtoPayload && typeof dtoPayload === 'object' && !Array.isArray(dtoPayload) && 'data' in dtoPayload ? (dtoPayload as any).data : dtoPayload
+
+      console.log('🔄 Normalizing Property Search API Response container:', container)
 
       let items: T[] = []
       let total = 0
 
       if (Array.isArray(container)) {
         items = container as T[]
-        total = items.length
+        total = response?.data?.data?.total
       } else if (container && typeof container === 'object') {
         const obj = container as any
         if (Array.isArray(obj.items)) {

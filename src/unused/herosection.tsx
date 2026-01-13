@@ -7,6 +7,7 @@ import * as Yup from 'yup'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
+  X,
   MapPin,
   ChevronDown,
   ChevronLeft,
@@ -56,7 +57,7 @@ interface HeroSectionProps {
   error: any
   isLoading: boolean
   mutate: () => void
-  stats?: HomeStats 
+  allStats?: HomeStats
 }
 
 // Slide data structure
@@ -98,168 +99,190 @@ export default function HeroSection({
   error: categoriesError,
   isLoading: categoriesLoading,
   mutate,
-  stats, 
+  allStats,
 }: HeroSectionProps) {
   const t = useTranslations()
   const router = useRouter()
 
-  const slides: SlideData[] = useMemo(() => [
-
-    {
-      id: 0,
-      type: 'buyer',
-      badge: 'Welcome to VaazhgaValamudan',
-      badgeIcon: <Home className="w-4 h-4" />,
-      title: "Tamil Nadu's",
-      titleHighlight: 'Trusted',
-      titleAfter: 'Property Platform',
-      tamilText: 'வாழ்க வளமுடன் - செழிப்புடன் வாழுங்கள்',
-      description:
-        'Your one-stop destination for buying, selling, and renting properties across all 38 districts of Tamil Nadu. Verified listings, trusted agents, transparent dealings.',
-      features: [
-        { icon: <CheckCircle className="w-5 h-5" />, text: `${stats?.totalProperties || 50}+ Verified Properties`, href: '/properties' },
-        { icon: <CheckCircle className="w-5 h-5" />, text: `${stats?.totalAgents || 10}+ KYC Verified Agents`, href: '/agents' },
-        { icon: <CheckCircle className="w-5 h-5" />, text: `${stats?.totalDistricts || 10}+ Districts Covered`, href: '/districts' },
-      ],
-      primaryCta: { text: 'Explore Properties', href: '/properties', icon: <ArrowRight className="w-5 h-5" /> },
-      secondaryCta: { text: 'Create Free Account', href: '/register' },
-      image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80',
-      imageAlt: 'Beautiful properties in Tamil Nadu - Find your dream property',
-      imageBadge: '🏠 Welcome',
-      imageTitle: 'Find Your Perfect Property',
-      imageSubtitle: `${stats?.totalProperties || 50}+ Verified Properties Across ${stats?.totalDistricts || 10}+ Districts`,
-    },
-    // ==========================================
-    // BUYER SLIDE 2: Search & Save Features
-    // ==========================================
-    {
-      id: 1,
-      type: 'buyer',
-      badge: 'For Property Seekers',
-      badgeIcon: <Search className="w-4 h-4" />,
-      title: 'Find Your',
-      titleHighlight: 'Dream Property',
-      tamilText: 'உங்கள் கனவு சொத்தை கண்டறியுங்கள்',
-      description:
-        'Search properties by district, budget, or type. Save your favorites, set search alerts, and connect directly with verified agents.',
-      features: [
-        { icon: <Map className="w-5 h-5" />, text: 'Browse District-wise Properties', href: '/districts' },
-        { icon: <Heart className="w-5 h-5" />, text: 'Save Your Favorite Properties', href: '/favorites' },
-        { icon: <Bell className="w-5 h-5" />, text: 'Save Searches & Get Alerts', href: '/saved-searches' },
-      ],
-      primaryCta: { text: 'Browse Properties', href: '/properties', icon: <ArrowRight className="w-5 h-5" /> },
-      secondaryCta: { text: 'View All 38 Districts', href: '/districts' },
-      image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80',
-      imageAlt: 'Property search and discovery in Tamil Nadu',
-      imageBadge: '🔍 Buyers',
-      imageTitle: 'Smart Property Search',
-      imageSubtitle: 'Advanced Filters • Save Favorites • Get Alerts',
-    },
-    // ==========================================
-    // AGENT SLIDE 1: Post Properties
-    // ==========================================
-    {
-      id: 2,
-      type: 'agent',
-      badge: 'For Property Agents',
-      badgeIcon: <Users className="w-4 h-4" />,
-      title: 'List Properties',
-      titleHighlight: 'for FREE',
-      tamilText: 'இலவசமாக சொத்துக்களை பதிவு செய்யுங்கள்',
-      description:
-        'Post unlimited property listings, manage your leads, track performance with a powerful dashboard, and grow your real estate business.',
-      features: [
-        { icon: <Plus className="w-5 h-5" />, text: 'Post Properties Absolutely FREE', href: '/post-property' },
-        { icon: <Users className="w-5 h-5" />, text: 'Get Quality Leads & Enquiries', href: '/dashboard/enquiries' },
-        { icon: <BarChart3 className="w-5 h-5" />, text: 'Powerful Analytics Dashboard', href: '/dashboard' },
-      ],
-      primaryCta: { text: 'Post Property FREE', href: '/post-property', icon: <Plus className="w-5 h-5" /> },
-      secondaryCta: { text: 'View Subscription Plans', href: '/pricing' },
-      image: 'https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?w=800&q=80',
-      imageAlt: 'Property agents posting listings on VaazhgaValamudan',
-      imageBadge: '👥 Agents',
-      imageTitle: 'Post Unlimited Properties',
-      imageSubtitle: 'Get Leads • Track Performance • Grow Business',
-    },
-    // ==========================================
-    // AGENT SLIDE 2: Grow Business
-    // ==========================================
-    {
-      id: 3,
-      type: 'agent',
-      badge: 'Grow Your Business',
-      badgeIcon: <TrendingUp className="w-4 h-4" />,
-      title: 'Boost Your',
-      titleHighlight: 'Property Sales',
-      tamilText: 'உங்கள் சொத்து விற்பனையை அதிகரிக்கவும்',
-      description:
-        'Get premium visibility with featured listings, boost your properties to reach more buyers, and access advanced tools to close deals faster.',
-      features: [
-        { icon: <Star className="w-5 h-5" />, text: 'Featured & Premium Listings', href: '/pricing' },
-        { icon: <Building2 className="w-5 h-5" />, text: 'Build Your Agent Profile', href: '/agent-profile' },
-        { icon: <Phone className="w-5 h-5" />, text: 'Direct Buyer Connections', href: '/dashboard/enquiries' },
-      ],
-      primaryCta: { text: 'Upgrade to Premium', href: '/pricing', icon: <ArrowRight className="w-5 h-5" /> },
-      secondaryCta: { text: 'View Dashboard', href: '/dashboard' },
-      image: 'https://images.unsplash.com/photo-1551836022-deb4988cc6c0?w=800&q=80',
-      imageAlt: 'Real estate agent success and business growth',
-      imageBadge: '📈 Growth',
-      imageTitle: 'Premium Agent Features',
-      imageSubtitle: 'Featured Listings • Priority Support • Analytics',
-    },
-    // ==========================================
-    // SERVICE PROVIDER SLIDE 1: Property Services
-    // ==========================================
-    {
-      id: 4,
-      type: 'service',
-      badge: 'Property Services',
-      badgeIcon: <Briefcase className="w-4 h-4" />,
-      title: 'Complete',
-      titleHighlight: 'Property Services',
-      tamilText: 'முழுமையான சொத்து சேவைகள்',
-      description:
-        'From legal verification to interior design, we connect you with trusted service providers to make your property journey smooth and hassle-free.',
-      features: [
-        { icon: <FileText className="w-5 h-5" />, text: 'Legal Document Verification', href: '/services/legal' },
-        { icon: <Palette className="w-5 h-5" />, text: 'Professional Interior Design', href: '/services/interior' },
-        { icon: <Truck className="w-5 h-5" />, text: 'Trusted Packers & Movers', href: '/services/movers' },
-      ],
-      primaryCta: { text: 'Explore All Services', href: '/services', icon: <ArrowRight className="w-5 h-5" /> },
-      secondaryCta: { text: 'Become a Partner', href: '/partner' },
-      image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&q=80',
-      imageAlt: 'Property related services - Legal, Interior, Moving',
-      imageBadge: '📋 Services',
-      imageTitle: 'End-to-End Property Services',
-      imageSubtitle: 'Legal • Interior • Packers & Movers',
-    },
-    // ==========================================
-    // SERVICE PROVIDER SLIDE 2: Trust & Safety
-    // ==========================================
-    {
-      id: 5,
-      type: 'service',
-      badge: 'Trust & Safety',
-      badgeIcon: <Shield className="w-4 h-4" />,
-      title: 'Your Safety is',
-      titleHighlight: 'Our Priority',
-      tamilText: 'உங்கள் பாதுகாப்பு எங்கள் முன்னுரிமை',
-      description:
-        'Every property and agent on VaazhgaValamudan is verified. Complete KYC verification, secure wallet system, and transparent transactions.',
-      features: [
-        { icon: <Shield className="w-5 h-5" />, text: 'Aadhaar-based KYC Verification', href: '/kyc-verification' },
-        { icon: <CheckCircle className="w-5 h-5" />, text: '100% Verified Property Listings', href: '/verified-properties' },
-        { icon: <CreditCard className="w-5 h-5" />, text: 'Secure Wallet & Transactions', href: '/wallet' },
-      ],
-      primaryCta: { text: 'Learn About Safety', href: '/trust-safety', icon: <ArrowRight className="w-5 h-5" /> },
-      secondaryCta: { text: 'Verify Your Account', href: '/kyc-verification' },
-      image: 'https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?w=800&q=80',
-      imageAlt: 'Trust and safety - KYC verification process',
-      imageBadge: '🛡️ Trust',
-      imageTitle: 'KYC Verified Agents & Properties',
-      imageSubtitle: 'Secure Platform • Transparent Dealings',
-    },
-  ], [stats]) // useMemo dependency on stats
+  const slides: SlideData[] = useMemo(
+    () => [
+      {
+        id: 0,
+        type: 'buyer',
+        badge: t('hero_slides.buyer_1.badge'),
+        badgeIcon: <Home className="w-4 h-4" />,
+        title: t('hero_slides.buyer_1.title'),
+        titleHighlight: t('hero_slides.buyer_1.titleHighlight'),
+        titleAfter: t('hero_slides.buyer_1.titleAfter'),
+        tamilText: t('hero_slides.buyer_1.tamilText'),
+        description: t('hero_slides.buyer_1.description'),
+        features: [
+          {
+            icon: <CheckCircle className="w-5 h-5" />,
+            text: `${allStats?.totalProperties || 50}+ ${t('hero_slides.buyer_1.features.verified_Properties')}`,
+            href: '/properties-list',
+          },
+          {
+            icon: <CheckCircle className="w-5 h-5" />,
+            text: `${allStats?.totalAgents || 10}+ ${t('hero_slides.buyer_1.features.KYC_Verified_Agents')}`,
+            href: '/agents-list',
+          },
+          {
+            icon: <CheckCircle className="w-5 h-5" />,
+            text: `${allStats?.totalDistricts || 10}+ ${t('hero_slides.buyer_1.features.districts_covered')}`,
+            href: '/exploreByDistricts',
+          },
+        ],
+        primaryCta: { text: t('hero_slides.buyer_1.primaryCta'), href: '/properties-list', icon: <ArrowRight className="w-5 h-5" /> },
+        secondaryCta: { text: t('hero_slides.buyer_1.secondaryCta'), href: '/signup' },
+        image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80',
+        imageAlt: t('hero_slides.buyer_1.imageAlt'),
+        imageBadge: `🏠 ${t('hero_slides.buyer_1.imageBadge')}`,
+        imageTitle: t('hero_slides.buyer_1.imageTitle'),
+        imageSubtitle: `${allStats?.totalProperties || 50}+ ${t('hero_slides.buyer_1.imageSubtitle.Verified_Properties_Across')} ${
+          allStats?.totalDistricts || 10
+        }+ ${t('hero_slides.buyer_1.imageSubtitle.Districts')}`,
+      },
+      // ==========================================
+      // BUYER SLIDE 2: Search & Save Features
+      // ==========================================
+      {
+        id: 1,
+        type: 'buyer',
+        badge: t('hero_slides.buyer_2.badge'),
+        badgeIcon: <Search className="w-4 h-4" />,
+        title: t('hero_slides.buyer_2.title'),
+        titleHighlight: t('hero_slides.buyer_2.titleHighlight'),
+        tamilText: t('hero_slides.buyer_2.tamilText'),
+        description: t('hero_slides.buyer_2.description'),
+        features: [
+          { icon: <Map className="w-5 h-5" />, text: t('hero_slides.buyer_2.features.Browse_District_wise_Properties'), href: '/exploreByDistricts' },
+          {
+            icon: <Heart className="w-5 h-5" />,
+            text: t('hero_slides.buyer_2.features.Save_Your_Favorite_Properties'),
+            href: '/admin/dashboard/property-favorite',
+          },
+          { icon: <Bell className="w-5 h-5" />, text: t('hero_slides.buyer_2.features.Save_Searches_Get_Alerts'), href: '/dashboard' },
+        ],
+        primaryCta: { text: t('hero_slides.buyer_2.primaryCta'), href: '/properties-list', icon: <ArrowRight className="w-5 h-5" /> },
+        secondaryCta: { text: t('hero_slides.buyer_2.secondaryCta'), href: '/exploreByDistricts' },
+        image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80',
+        imageAlt: t('hero_slides.buyer_2.imageAlt'),
+        imageBadge: `🔍 ${t('hero_slides.buyer_2.imageBadge')}`,
+        imageTitle: t('hero_slides.buyer_2.imageTitle'),
+        imageSubtitle: t('hero_slides.buyer_2.imageSubtitle'),
+      },
+      // ==========================================
+      // AGENT SLIDE 1: Post Properties
+      // ==========================================
+      {
+        id: 2,
+        type: 'agent',
+        badge: t('hero_slides.agent_1.badge'),
+        badgeIcon: <Users className="w-4 h-4" />,
+        title: t('hero_slides.agent_1.title'),
+        titleHighlight: t('hero_slides.agent_1.titleHighlight'),
+        tamilText: t('hero_slides.agent_1.tamilText'),
+        description: t('hero_slides.agent_1.description'),
+        features: [
+          { icon: <Plus className="w-5 h-5" />, text: t('hero_slides.agent_1.features.Post_Properties_FREE'), href: '/properties-registration' },
+          {
+            icon: <Users className="w-5 h-5" />,
+            text: t('hero_slides.agent_1.features.Get_Quality_Leads'),
+            href: '/admin/dashboard/property-enquiry',
+          },
+          { icon: <BarChart3 className="w-5 h-5" />, text: t('hero_slides.agent_1.features.Analytics_Dashboard'), href: '/dashboard' },
+        ],
+        primaryCta: { text: t('hero_slides.agent_1.primaryCta'), href: '/properties-registration', icon: <Plus className="w-5 h-5" /> },
+        secondaryCta: { text: t('hero_slides.agent_1.secondaryCta'), href: '/pricing' },
+        image: 'https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?w=800&q=80',
+        imageAlt: t('hero_slides.agent_1.imageAlt'),
+        imageBadge: `👥 ${t('hero_slides.agent_1.imageBadge')}`,
+        imageTitle: t('hero_slides.agent_1.imageTitle'),
+        imageSubtitle: t('hero_slides.agent_1.imageSubtitle'),
+      },
+      // ==========================================
+      // AGENT SLIDE 2: Grow Business
+      // ==========================================
+      {
+        id: 3,
+        type: 'agent',
+        badge: t('hero_slides.agent_2.badge'),
+        badgeIcon: <TrendingUp className="w-4 h-4" />,
+        title: t('hero_slides.agent_2.title'),
+        titleHighlight: t('hero_slides.agent_2.titleHighlight'),
+        tamilText: t('hero_slides.agent_2.tamilText'),
+        description: t('hero_slides.agent_2.description'),
+        features: [
+          { icon: <Star className="w-5 h-5" />, text: t('hero_slides.agent_2.features.Featured_Listings'), href: '/pricing' },
+          { icon: <Building2 className="w-5 h-5" />, text: t('hero_slides.agent_2.features.Agent_Profile'), href: '/company-profile' },
+          {
+            icon: <Phone className="w-5 h-5" />,
+            text: t('hero_slides.agent_2.features.Buyer_Connections'),
+            href: '/admin/dashboard/property-enquiry',
+          },
+        ],
+        primaryCta: { text: t('hero_slides.agent_2.primaryCta'), href: '/pricing', icon: <ArrowRight className="w-5 h-5" /> },
+        secondaryCta: { text: t('hero_slides.agent_2.secondaryCta'), href: '/dashboard' },
+        image: 'https://images.unsplash.com/photo-1551836022-deb4988cc6c0?w=800&q=80',
+        imageAlt: t('hero_slides.agent_2.imageAlt'),
+        imageBadge: `📈 ${t('hero_slides.agent_2.imageBadge')}`,
+        imageTitle: t('hero_slides.agent_2.imageTitle'),
+        imageSubtitle: t('hero_slides.agent_2.imageSubtitle'),
+      },
+      // ==========================================
+      // SERVICE PROVIDER SLIDE 1: Property Services
+      // ==========================================
+      {
+        id: 4,
+        type: 'service',
+        badge: t('hero_slides.service_1.badge'),
+        badgeIcon: <Briefcase className="w-4 h-4" />,
+        title: t('hero_slides.service_1.title'),
+        titleHighlight: t('hero_slides.service_1.titleHighlight'),
+        tamilText: t('hero_slides.service_1.tamilText'),
+        description: t('hero_slides.service_1.description'),
+        features: [
+          { icon: <FileText className="w-5 h-5" />, text: t('hero_slides.service_1.features.Legal_Verification'), href: '/ads-list' },
+          { icon: <Palette className="w-5 h-5" />, text: t('hero_slides.service_1.features.Interior_Design'), href: '/ads-list' },
+          { icon: <Truck className="w-5 h-5" />, text: t('hero_slides.service_1.features.Packers_Movers'), href: '/ads-list' },
+        ],
+        primaryCta: { text: t('hero_slides.service_1.primaryCta'), href: '/ads-list', icon: <ArrowRight className="w-5 h-5" /> },
+        secondaryCta: { text: t('hero_slides.service_1.secondaryCta'), href: '/view-subscriptions' },
+        image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&q=80',
+        imageAlt: t('hero_slides.service_1.imageAlt'),
+        imageBadge: `📋 ${t('hero_slides.service_1.imageBadge')}`,
+        imageTitle: t('hero_slides.service_1.imageTitle'),
+        imageSubtitle: t('hero_slides.service_1.imageSubtitle'),
+      },
+      // ==========================================
+      // SERVICE PROVIDER SLIDE 2: Trust & Safety
+      // ==========================================
+      {
+        id: 5,
+        type: 'service',
+        badge: t('hero_slides.service_2.badge'),
+        badgeIcon: <Shield className="w-4 h-4" />,
+        title: t('hero_slides.service_2.title'),
+        titleHighlight: t('hero_slides.service_2.titleHighlight'),
+        tamilText: t('hero_slides.service_2.tamilText'),
+        description: t('hero_slides.service_2.description'),
+        features: [
+          { icon: <Shield className="w-5 h-5" />, text: t('hero_slides.service_2.features.KYC_Verification'), href: '/kyc-pending' },
+          { icon: <CheckCircle className="w-5 h-5" />, text: t('hero_slides.service_2.features.Verified_Listings'), href: '/properties-list' },
+          { icon: <CreditCard className="w-5 h-5" />, text: t('hero_slides.service_2.features.Secure_Wallet'), href: '/view-transactions' },
+        ],
+        primaryCta: { text: t('hero_slides.service_2.primaryCta'), href: '/', icon: <ArrowRight className="w-5 h-5" /> },
+        secondaryCta: { text: t('hero_slides.service_2.secondaryCta'), href: '/kyc-pending' },
+        image: 'https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?w=800&q=80',
+        imageAlt: t('hero_slides.service_2.imageAlt'),
+        imageBadge: `🛡️ ${t('hero_slides.service_2.imageBadge')}`,
+        imageTitle: t('hero_slides.service_2.imageTitle'),
+        imageSubtitle: t('hero_slides.service_2.imageSubtitle'),
+      },
+    ],
+    [allStats, t],
+  ) // useMemo dependency on allStats
 
   // ============================================
   // STATE
@@ -340,14 +363,14 @@ export default function HeroSection({
   // ============================================
   const formatBudgetDisplay = (min: number, max: number) => {
     if (min === budgetMin && max === budgetMax) return t('Hero.HeroMenu.budget')
-    if (min === budgetMin) return `Up to ₹${(max / 100000).toFixed(0)}L`
-    if (max === budgetMax) return `Above ₹${(min / 100000).toFixed(0)}L`
-    return `₹${(min / 100000).toFixed(0)}L - ₹${(max / 100000).toFixed(0)}L`
+    if (min === budgetMin) return t('Hero.HeroMenu.budget_up_to', { value: (max / 100000).toFixed(0) })
+    if (max === budgetMax) return t('Hero.HeroMenu.budget_above', { value: (min / 100000).toFixed(0) })
+    return t('Hero.HeroMenu.budget_range', { min: (min / 100000).toFixed(0), max: (max / 100000).toFixed(0) })
   }
 
   const handleSearch = (values: any) => {
     const queryParams = new URLSearchParams({
-      location: encodeURIComponent(values.location || ''),
+      district: encodeURIComponent(values.district || ''),
       listingType: encodeURIComponent(currentTab.toUpperCase() || ''),
       type: encodeURIComponent(values.type ? String(values.type) : ''),
       budget: encodeURIComponent(values.budget || ''),
@@ -358,7 +381,7 @@ export default function HeroSection({
   // ============================================
   // ANIMATION VARIANTS - ENHANCED & BIGGER
   // ============================================
-  
+
   // Custom easing function (easeOutExpo equivalent)
   const customEase = 'easeOut' as const
 
@@ -478,13 +501,11 @@ export default function HeroSection({
   // ============================================
   return (
     <section
-      className="relative w-full overflow-hidden bg-gradient-to-br from-[#2a1407] via-[#3d1f0d] to-[#2a1407] min-h-[calc(100vh-80px)]"
+      className="relative w-full overflow-visible bg-gradient-to-br from-[#2a1407] via-[#3d1f0d] to-[#2a1407] min-h-[calc(100vh-80px)]"
       aria-label="VaazhgaValamudan Hero Section - Tamil Nadu Property Platform"
     >
       {/* SEO Hidden Content */}
-      <h1 className="sr-only">
-        VaazhgaValamudan - Tamil Nadu&apos;s Trusted Property Platform for Buying, Selling, and Renting Properties
-      </h1>
+      <h1 className="sr-only">VaazhgaValamudan - Tamil Nadu&apos;s Trusted Property Platform for Buying, Selling, and Renting Properties</h1>
 
       {/* Decorative Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -492,25 +513,14 @@ export default function HeroSection({
         <div className="absolute -bottom-1/2 -left-1/4 w-[80%] h-[150%] bg-gradient-radial from-yellow-400/5 to-transparent rounded-full blur-3xl" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8 lg:pt-28 lg:pb-10 min-h-[calc(100vh-80px)] flex flex-col justify-center">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-8 lg:pt-10 lg:pb-10 min-h-[calc(100vh-80px)] flex flex-col justify-center">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* ============================================
                LEFT CONTENT - Animated Text
                ============================================ */}
-          <article
-            className="order-2 lg:order-1"
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
-          >
+          <article className="order-2 lg:order-1" onMouseEnter={() => setIsPaused(true)} onMouseLeave={() => setIsPaused(false)}>
             <AnimatePresence mode="wait">
-              <motion.div
-                key={currentSlide}
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className="space-y-4"
-              >
+              <motion.div key={currentSlide} variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="space-y-4">
                 {/* Badge */}
                 <motion.div variants={itemVariants}>
                   <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-400/15 border border-yellow-400/30 text-yellow-400 text-xs sm:text-sm font-semibold backdrop-blur-sm">
@@ -555,9 +565,7 @@ export default function HeroSection({
                         href={feature.href}
                         className="group inline-flex items-center gap-2 text-white/85 hover:text-yellow-400 transition-all duration-300"
                       >
-                        <span className="text-yellow-400 group-hover:scale-110 transition-transform duration-300">
-                          {feature.icon}
-                        </span>
+                        <span className="text-yellow-400 group-hover:scale-110 transition-transform duration-300">{feature.icon}</span>
                         <span className="text-sm lg:text-base font-medium">{feature.text}</span>
                         <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-yellow-400" />
                       </Link>
@@ -588,11 +596,7 @@ export default function HeroSection({
           {/* ============================================
                RIGHT IMAGE SLIDER
                ============================================ */}
-          <aside
-            className="order-1 lg:order-2 relative"
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
-          >
+          <aside className="order-1 lg:order-2 relative" onMouseEnter={() => setIsPaused(true)} onMouseLeave={() => setIsPaused(false)}>
             <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-black/50 aspect-[4/3] max-w-lg mx-auto lg:max-w-none">
               {/* Progress Bar */}
               <div className="absolute top-0 left-0 right-0 h-1 bg-black/30 z-20">
@@ -605,14 +609,7 @@ export default function HeroSection({
 
               {/* Image Slides */}
               <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentSlide}
-                  variants={imageVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  className="absolute inset-0"
-                >
+                <motion.div key={currentSlide} variants={imageVariants} initial="hidden" animate="visible" exit="exit" className="absolute inset-0">
                   {/* Using img tag for better compatibility */}
                   <img
                     src={currentSlideData.image}
@@ -633,10 +630,10 @@ export default function HeroSection({
                   <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
                     <span className="inline-block px-2.5 py-1 bg-yellow-400 text-[#2a1407] text-[10px] font-bold rounded uppercase tracking-wide mb-2">
                       {currentSlideData.type === 'buyer'
-                        ? 'For Buyers'
+                        ? t('Hero.SlideType.for_buyers')
                         : currentSlideData.type === 'agent'
-                        ? 'For Agents'
-                        : 'Services'}
+                        ? t('Hero.SlideType.for_agents')
+                        : t('Hero.SlideType.services')}
                     </span>
                     <h3 className="text-white text-lg font-bold mb-0.5">{currentSlideData.imageTitle}</h3>
                     <p className="text-white/70 text-xs">{currentSlideData.imageSubtitle}</p>
@@ -680,35 +677,41 @@ export default function HeroSection({
             {/* Trust Badges with Real Stats */}
             <div className="flex flex-wrap justify-center gap-2 mt-4">
               {[
-                { 
-                  icon: <Shield className="w-3.5 h-3.5" />, 
-                  text: stats?.totalProperties ? `${stats.totalProperties}+ Verified Properties` : 'Verified Properties',
-                  show: true
+                {
+                  icon: <Shield className="w-3.5 h-3.5" />,
+                  text: allStats?.totalProperties
+                    ? `${allStats.totalProperties}+ ${t('Hero.TrustBadges.verified_properties')}`
+                    : t('Hero.TrustBadges.verified_properties'),
+                  show: true,
                 },
-                { 
-                  icon: <Users className="w-3.5 h-3.5" />, 
-                  text: stats?.totalAgents ? `${stats.totalAgents}+ KYC Agents` : 'KYC Agents',
-                  show: true
+                {
+                  icon: <Users className="w-3.5 h-3.5" />,
+                  text: allStats?.totalAgents ? `${allStats.totalAgents}+ ${t('Hero.TrustBadges.kyc_agents')}` : t('Hero.TrustBadges.kyc_agents'),
+                  show: true,
                 },
-                { 
-                  icon: <Map className="w-3.5 h-3.5" />, 
-                  text: stats?.totalDistricts ? `${stats.totalDistricts} Districts` : 'All Districts',
-                  show: true
+                {
+                  icon: <Map className="w-3.5 h-3.5" />,
+                  text: allStats?.totalDistricts
+                    ? `${allStats.totalDistricts} ${t('Hero.TrustBadges.districts')}`
+                    : t('Hero.TrustBadges.all_districts'),
+                  show: true,
                 },
-                { 
-                  icon: <Headphones className="w-3.5 h-3.5" />, 
-                  text: '24/7 Support',
-                  show: true
+                {
+                  icon: <Headphones className="w-3.5 h-3.5" />,
+                  text: t('Hero.TrustBadges.support_247'),
+                  show: true,
                 },
-              ].filter(badge => badge.show).map((badge, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 backdrop-blur-sm border border-white/10 rounded-full text-white/80 text-[11px] font-medium hover:bg-yellow-400/15 hover:border-yellow-400/30 hover:text-yellow-400 transition-all duration-300 cursor-default"
-                >
-                  <span className="text-yellow-400">{badge.icon}</span>
-                  <span>{badge.text}</span>
-                </div>
-              ))}
+              ]
+                .filter(badge => badge.show)
+                .map((badge, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 backdrop-blur-sm border border-white/10 rounded-full text-white/80 text-[11px] font-medium hover:bg-yellow-400/15 hover:border-yellow-400/30 hover:text-yellow-400 transition-all duration-300 cursor-default"
+                  >
+                    <span className="text-yellow-400">{badge.icon}</span>
+                    <span>{badge.text}</span>
+                  </div>
+                ))}
             </div>
           </aside>
         </div>
@@ -723,9 +726,9 @@ export default function HeroSection({
           className="mt-8"
         >
           <Formik
-            initialValues={{ location: '', type: '', budget: '' }}
+            initialValues={{ district: '', type: '', budget: '' }}
             validationSchema={Yup.object({
-              location: Yup.string().required('Select a location'),
+              district: Yup.string().required(t('Hero.HeroMenu.district_required')),
             })}
             onSubmit={handleSearch}
           >
@@ -739,10 +742,8 @@ export default function HeroSection({
                         key={tab}
                         type="button"
                         onClick={() => setCurrentTab(tab)}
-                        className={`flex-1 lg:flex-none px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                          currentTab === tab
-                            ? 'bg-[#2a1407] text-white shadow-md'
-                            : 'text-gray-600 hover:text-[#2a1407] hover:bg-gray-200'
+                        className={`flex-1 lg:flex-none px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 hover:cursor-pointer ${
+                          currentTab === tab ? 'bg-[#2a1407] text-white shadow-md' : 'text-gray-600 hover:text-[#2a1407] hover:bg-gray-200'
                         }`}
                       >
                         {t(`Hero.HeroMenu.${tab}`)}
@@ -759,17 +760,27 @@ export default function HeroSection({
                         setShowType(false)
                         setShowBudget(false)
                       }}
-                      className={`w-full flex items-center gap-2 px-4 py-3 rounded-xl transition-colors ${
-                        touched.location && errors.location
-                          ? 'bg-red-50 border-2 border-red-400'
-                          : 'bg-gray-50 hover:bg-gray-100'
+                      className={`w-full flex items-center gap-2 px-4 py-3 rounded-xl transition-colors hover:cursor-pointer ${
+                        touched.district && errors.district ? 'bg-red-50 border-2 border-red-400' : 'bg-gray-50 hover:bg-gray-100'
                       }`}
                     >
-                      <MapPin className={`w-5 h-5 flex-shrink-0 ${touched.location && errors.location ? 'text-red-500' : 'text-gray-400'}`} />
-                      <span className={`flex-1 text-left font-medium ${values.location ? 'text-gray-800' : 'text-gray-400'}`}>
-                        {values.location || 'Select District'}
+                      <MapPin className={`w-5 h-5 flex-shrink-0 ${touched.district && errors.district ? 'text-red-500' : 'text-gray-400'}`} />
+                      <span className={`flex-1 text-left text-sm font-medium ${values.district ? 'text-gray-800' : 'text-gray-400'}`}>
+                        {values.district || t('Hero.HeroMenu.select_district')}
                       </span>
-                      <ChevronDown className="w-4 h-4 text-gray-400" />
+                      {/* ❌ Close icon (only when selected) */}
+                      {values.district ? (
+                        <X
+                          className="w-4 h-4 text-gray-400 hover:text-gray-700"
+                          onClick={e => {
+                            e.stopPropagation() // prevent dropdown open
+                            setFieldValue('district', '')
+                            setShowLocation(false)
+                          }}
+                        />
+                      ) : (
+                        <ChevronDown className="w-4 h-4 text-gray-400" />
+                      )}
                     </button>
 
                     {showLocation && (
@@ -780,13 +791,11 @@ export default function HeroSection({
                               key={district}
                               type="button"
                               onClick={() => {
-                                setFieldValue('location', district)
+                                setFieldValue('district', district)
                                 setShowLocation(false)
                               }}
-                              className={`w-full px-4 py-2.5 text-left text-sm font-medium transition-colors flex items-center gap-2 ${
-                                values.location === district
-                                  ? 'bg-yellow-50 text-[#2a1407]'
-                                  : 'text-gray-700 hover:bg-gray-50 hover:text-[#2a1407]'
+                              className={`w-full px-4 py-2.5 text-left text-sm font-medium transition-colors flex items-center gap-2 hover:cursor-pointer ${
+                                values.district === district ? 'bg-yellow-50 text-[#2a1407]' : 'text-gray-700 hover:bg-gray-50 hover:text-[#2a1407]'
                               }`}
                             >
                               <MapPin className="w-4 h-4 text-gray-400" />
@@ -794,7 +803,7 @@ export default function HeroSection({
                             </button>
                           ))
                         ) : (
-                          <div className="px-4 py-3 text-sm text-gray-500">Loading districts...</div>
+                          <div className="px-4 py-3 text-sm text-gray-500">{t('Hero.HeroMenu.loading_districts')}</div>
                         )}
                       </div>
                     )}
@@ -809,20 +818,31 @@ export default function HeroSection({
                         setShowBudget(false)
                         setShowLocation(false)
                       }}
-                      className="flex items-center gap-2 px-4 py-3 bg-gray-50 rounded-xl min-w-[140px] text-gray-700 font-medium hover:bg-gray-100 transition-colors"
+                      className="flex items-center gap-2 px-4 py-3 bg-gray-50 rounded-xl min-w-[140px] text-gray-700 font-medium hover:bg-gray-100 transition-colors cursor-pointer"
                     >
                       {propertyCategories && values.type && (
-                        <LucideIconRenderer
-                          iconName={propertyCategories.find(c => String(c.id) === String(values.type))?.icon}
-                          className="w-5 h-5"
-                        />
+                        <LucideIconRenderer iconName={propertyCategories.find(c => String(c.id) === String(values.type))?.icon} className="w-5 h-5" />
                       )}
+
                       <span className="flex-1 text-left text-sm">
                         {propertyCategories && values.type
                           ? propertyCategories.find(c => String(c.id) === String(values.type))?.name
-                          : t('Hero.HeroMenu.flat')}
+                          : t('Hero.HeroMenu.select_property_type')}
                       </span>
-                      <ChevronDown className="w-4 h-4 text-gray-400" />
+
+                      {/* ❌ Close icon (only when selected) */}
+                      {values.type ? (
+                        <X
+                          className="w-4 h-4 text-gray-400 hover:text-gray-700"
+                          onClick={e => {
+                            e.stopPropagation() // prevent dropdown open
+                            setFieldValue('type', '')
+                            setShowType(false)
+                          }}
+                        />
+                      ) : (
+                        <ChevronDown className="w-4 h-4 text-gray-400" />
+                      )}
                     </button>
 
                     {showType && (
@@ -835,7 +855,7 @@ export default function HeroSection({
                               setFieldValue('type', item.id)
                               setShowType(false)
                             }}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 hover:text-[#2a1407] transition-colors"
+                            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 hover:text-[#2a1407] transition-colors cursor-pointer"
                           >
                             <LucideIconRenderer iconName={item.icon} className="w-5 h-5 text-gray-500" />
                             {item.name}
@@ -855,7 +875,7 @@ export default function HeroSection({
                         setShowType(false)
                         setShowLocation(false)
                       }}
-                      className="flex items-center gap-2 px-4 py-3 bg-gray-50 rounded-xl min-w-[130px] text-gray-700 font-medium hover:bg-gray-100 transition-colors"
+                      className="flex items-center gap-2 px-4 py-3 bg-gray-50 rounded-xl min-w-[130px] text-gray-700 font-medium hover:bg-gray-100 transition-colors cursor-pointer"
                     >
                       <IndianRupee className="w-5 h-5 text-gray-400" />
                       <span className="flex-1 text-left text-sm">{formatBudgetDisplay(budgetRange[0], budgetRange[1])}</span>
@@ -869,8 +889,12 @@ export default function HeroSection({
                       >
                         <div className="space-y-4">
                           <div className="flex justify-between text-xs text-gray-500 font-medium">
-                            <span>₹{(budgetRange[0] / 100000).toFixed(0)} Lakhs</span>
-                            <span>₹{(budgetRange[1] / 100000).toFixed(0)} Lakhs</span>
+                            <span>
+                              ₹{(budgetRange[0] / 100000).toFixed(0)} {t('Hero.HeroMenu.lakhs')}
+                            </span>
+                            <span>
+                              ₹{(budgetRange[1] / 100000).toFixed(0)} {t('Hero.HeroMenu.lakhs')}
+                            </span>
                           </div>
                           <div className="relative h-2">
                             <input
@@ -912,14 +936,14 @@ export default function HeroSection({
                               }}
                               className="flex-1 px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors font-medium"
                             >
-                              Reset
+                              {t('Hero.HeroMenu.reset')}
                             </button>
                             <button
                               type="button"
                               onClick={() => setShowBudget(false)}
                               className="flex-1 px-3 py-2 text-sm bg-[#2a1407] text-white rounded-lg hover:bg-[#3d1f0d] transition-colors font-medium"
                             >
-                              Apply
+                              {t('Hero.HeroMenu.apply')}
                             </button>
                           </div>
                         </div>
@@ -931,7 +955,7 @@ export default function HeroSection({
                   <button
                     type="button"
                     onClick={() => handleSubmit()}
-                    disabled={!values.location}
+                    disabled={!values.district}
                     className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#2a1407] font-bold text-sm rounded-xl shadow-lg shadow-yellow-400/30 hover:shadow-yellow-400/50 hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:shadow-none"
                   >
                     <Search className="w-5 h-5" />
