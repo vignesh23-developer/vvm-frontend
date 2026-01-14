@@ -599,25 +599,33 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                                     label={ui.dashboard}
                                     onClick={closeMenu}
                                   />
+
                                   <QuickCard
                                     href="/admin/dashboard/properties-pending-approval"
                                     icon={<Clock className="w-4 h-4" />}
-                                    label={ui.pending}
-                                    badge={(moderation?.pendingProperties ?? 0) + (moderation?.pendingAds ?? 0)}
+                                    label={ui.pendingProperties}
+                                    badge={moderation?.pendingProperties ?? 0}
                                     onClick={closeMenu}
                                   />
                                   <QuickCard
-                                    href="/kyc-pending"
-                                    icon={<Shield className="w-4 h-4" />}
-                                    label={ui.kycPending}
-                                    badge={moderation?.kycRequests}
+                                    href="/admin/dashboard/ads-pending-approval"
+                                    icon={<Clock className="w-4 h-4" />}
+                                    label={ui.pendingAds}
+                                    badge={moderation?.pendingAds ?? 0}
                                     onClick={closeMenu}
                                   />
                                   <QuickCard
                                     href="/admin/dashboard/property-reports"
                                     icon={<AlertTriangle className="w-4 h-4" />}
-                                    label={ui.reported}
-                                    badge={(moderation?.reportedProperties ?? 0) + (moderation?.reportedAds ?? 0)}
+                                    label={ui.reportedProperties}
+                                    badge={moderation?.reportedProperties ?? 0}
+                                    onClick={closeMenu}
+                                  />
+                                  <QuickCard
+                                    href="/admin/dashboard/ads-reports"
+                                    icon={<AlertTriangle className="w-4 h-4" />}
+                                    label={ui.reportedAds}
+                                    badge={moderation?.reportedAds ?? 0}
                                     onClick={closeMenu}
                                   />
                                 </div>
@@ -763,10 +771,10 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                       {t('Auth.login')}
                     </Link>
                     <Link
-                      href="/register"
-                      className="px-4 py-2 bg-white/10 text-white font-semibold text-sm rounded-lg hover:bg-white hover:text-[#2a1407] transition-all"
+                      href="/signup"
+                      className="px-2 py-2 bg-white/10 text-white font-semibold text-xs rounded-lg hover:bg-white hover:text-[#2a1407] transition-all"
                     >
-                      Register
+                      {t('Auth.register')}
                     </Link>
                   </>
                 )

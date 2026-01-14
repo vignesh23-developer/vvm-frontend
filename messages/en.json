@@ -160,6 +160,7 @@
   },
   "Auth": {
     "login": "Login",
+    "register": "Register",
     "login_description": "Sign In to Unlock Smarter Moves",
     "login_message": "Don’t have an account?",
     "signup": "Sign Up",
