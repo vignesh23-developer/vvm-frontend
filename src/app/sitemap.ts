@@ -69,7 +69,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // District exploration pages
   const districtPages: MetadataRoute.Sitemap = DISTRICTS.map((district) => ({
-    url: `${BASE_URL}/explore/${encodeURIComponent(district.toLowerCase())}`,
+    url: `${BASE_URL}/properties-list?district=${encodeURIComponent(district.toLowerCase())}`,
     lastModified: currentDate,
     changeFrequency: 'daily' as const,
     priority: 0.7,

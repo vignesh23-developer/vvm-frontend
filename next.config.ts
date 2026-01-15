@@ -1,6 +1,16 @@
 import type { NextConfig } from 'next'
 import createNextIntlPlugin from 'next-intl/plugin'
 
+// @ts-expect-error - next-pwa doesn't have proper TypeScript types
+import withPWAInit from 'next-pwa'
+
+const withPWA = withPWAInit({
+  dest: 'public',
+  register: true,
+  disable: false,
+  buildExcludes: [/app-build-manifest\.json$/],
+})
+
 const nextConfig: NextConfig = {
   async headers() {
     return [
@@ -44,22 +54,22 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'i.ytimg.com', // YouTube thumbnails
+        hostname: 'i.ytimg.com',
         pathname: '**',
       },
       {
         protocol: 'https',
-        hostname: 'img.youtube.com', // YouTube thumbnails (legacy domain)
+        hostname: 'img.youtube.com',
         pathname: '**',
       },
       {
         protocol: 'https',
-        hostname: 'yt3.ggpht.com', // YouTube profile/channel images
+        hostname: 'yt3.ggpht.com',
         pathname: '**',
       },
       {
         protocol: 'https',
-        hostname: 'images.unsplash.com', // Unsplash images
+        hostname: 'images.unsplash.com',
         pathname: '**',
       },
     ],
@@ -68,4 +78,4 @@ const nextConfig: NextConfig = {
 
 const withNextIntl = createNextIntlPlugin()
 
-export default withNextIntl(nextConfig)
+export default withPWA(withNextIntl(nextConfig))

@@ -113,8 +113,7 @@ export const metadata: Metadata = {
     apple: '/apple-touch-icon.png',
   },
 
-  // Manifest
-  manifest: '/manifest.json',
+  
 
   // Category
   category: 'real estate',
@@ -146,15 +145,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="ta" className={`${geistSans.variable} ${geistMono.variable}`}>
       <head>
+        <link rel="manifest" href="/manifest.json" crossOrigin="use-credentials" />
+
+        {/* Add these for iOS PWA support */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="VVM" />
+
         {/* JSON-LD Structured Data */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteSchema) }}
-        />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteSchema) }} />
 
         {/* Google Analytics */}
         <Script src="https://www.googletagmanager.com/gtag/js?id=G-PZHXJQ4J6J" strategy="afterInteractive" />
