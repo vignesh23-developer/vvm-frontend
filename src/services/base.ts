@@ -71,7 +71,7 @@ axiosInstance.interceptors.response.use(
   error => {
     console.log('ERROR ON interceptors response', error)
 
-    const status = error?.response?.status ?? error?.status ?? error?.response?.statusCode
+    const status = error?.response?.status ?? error?.status ?? error?.response?.statusCode ?? error?.statusCode
     if (Number(status) === 401) {
       console.log('error from interceptors', error)
 

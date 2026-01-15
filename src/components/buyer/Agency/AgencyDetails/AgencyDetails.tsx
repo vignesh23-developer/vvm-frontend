@@ -174,6 +174,8 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
   const [currentPage, setCurrentPage] = useState(1)
   const [carouselScrollPosition, setCarouselScrollPosition] = useState(0)
   const carouselRef = useRef<HTMLDivElement | null>(null)
+  // Prevent duplicate fetches in React 18 strict mode/dev double renders
+  const fetchedAgencyRef = useRef<string | null>(null)
 
   const normalizedProperties = useMemo(() => (Array.isArray(agentIdProperties) ? agentIdProperties : []), [agentIdProperties])
 
@@ -268,6 +270,12 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
   // console.log('Decoded Name in AgencyDetails Component:', decodedName)
 
   useEffect(() => {
+    if (!decodedName) return
+
+    const alreadyFetched = fetchedAgencyRef.current === decodedName
+    fetchedAgencyRef.current = decodedName
+    if (alreadyFetched) return
+
     let isMounted = true
 
     const fetchAgencyDetails = async () => {

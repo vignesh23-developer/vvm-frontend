@@ -9,7 +9,7 @@ const page = () => {
   const rawName = Array.isArray(params.name) ? params.name[0] : params.name
 
   const decodedName = rawName ? decodeURIComponent(rawName) : ''
-  console.log('Params in Agency Details Page:', decodedName)
+
   return (
     <div>
       <AgencyDetails decodedName={decodedName} />
