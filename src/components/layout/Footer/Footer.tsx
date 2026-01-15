@@ -10,6 +10,7 @@ import FooterColumn from './FooterColumn'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
+import PWAInstallButton from '@/components/common/PWAInstallPrompt'
 
 const aboutLinks = [
   { label: 'our_story', href: '/our-story' },
@@ -255,24 +256,7 @@ export default function Footer() {
             <h3 className="font-semibold text-lg mb-2 text-yellow-500">{t('Footer.Headers.download_our_app') || 'Download Our App'}</h3>
             <p className="text-sm text-gray-400 mb-5">{t('Footer.Headers.app_desc')}</p>
             <div className="flex flex-wrap gap-4 justify-start lg:justify-end">
-              <Link href="#" className="hover:-translate-y-1 transition-transform duration-300">
-                <Image
-                  src="/googleplay.png"
-                  alt="Get it on Google Play"
-                  width={135}
-                  height={40}
-                  className="h-10 w-auto opacity-90 hover:opacity-100"
-                />
-              </Link>
-              <Link href="#" className="hover:-translate-y-1 transition-transform duration-300">
-                <Image
-                  src="/appstore.png"
-                  alt="Download on the App Store"
-                  width={135}
-                  height={40}
-                  className="h-10 w-auto opacity-90 hover:opacity-100"
-                />
-              </Link>
+              <PWAInstallButton />
             </div>
           </div>
         </div>

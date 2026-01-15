@@ -10,6 +10,12 @@ import { MaskContainer } from '../../../../components/ui/svg-mask-effect'
 import { BackgroundLines } from '../../../../components/ui/background-lines'
 import { postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
+import { Download, Smartphone, CheckCircle } from 'lucide-react'
+
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
+}
 
 // Skeleton Loader for App Promo
 const AppPromoSkeleton = () => {
@@ -45,15 +51,68 @@ export default function AppPromo() {
   const [email, setEmail] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // PWA Install States
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null)
+  const [isInstalled, setIsInstalled] = useState(false)
+  const [isIOS, setIsIOS] = useState(false)
+
   useEffect(() => {
     // Simulate loading delay
     const timer = setTimeout(() => setIsLoading(false), 400)
     return () => clearTimeout(timer)
   }, [])
 
+  // PWA Install Logic
+  useEffect(() => {
+    // Check if already installed
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setIsInstalled(true)
+      return
+    }
+
+    // Check if iOS
+    setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent))
+
+    // Listen for install prompt
+    const handleBeforeInstall = (e: Event) => {
+      e.preventDefault()
+      setInstallPrompt(e as BeforeInstallPromptEvent)
+    }
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall)
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall)
+  }, [])
+
+  const handlePWAInstall = async () => {
+    if (!installPrompt) return
+    await installPrompt.prompt()
+    const { outcome } = await installPrompt.userChoice
+    if (outcome === 'accepted') {
+      setIsInstalled(true)
+      toast.success(t('AppPromo.installSuccess') || 'App installed successfully!')
+    }
+    setInstallPrompt(null)
+  }
+
+  const handleIOSInstall = () => {
+    toast(
+      tst => (
+        <div className="text-sm">
+          <p className="font-semibold mb-2">{t('AppPromo.iosTitle')}</p>
+          <ol className="list-decimal list-inside space-y-1">
+            <li>{t('AppPromo.iosStep1')}</li>
+            <li>{t('AppPromo.iosStep2')}</li>
+            <li>{t('AppPromo.iosStep3')}</li>
+          </ol>
+        </div>
+      ),
+      { duration: 6000 },
+    )
+  }
+
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!email) {
       toast.error('Please enter your email address')
       return
@@ -66,8 +125,7 @@ export default function AppPromo() {
 
       if (response.error) {
         // Check if it's an "already subscribed" error
-        if (response.message?.toLowerCase().includes('already subscribed') || 
-            response.status === '409') {
+        if (response.message?.toLowerCase().includes('already subscribed') || response.status === '409') {
           toast.error('Already subscribed')
         } else {
           toast.error(response.message || 'Failed to subscribe to newsletter')
@@ -155,19 +213,85 @@ export default function AppPromo() {
               ))}
             </ul>
 
+            {/* PWA Install Buttons */}
             <div className="flex flex-wrap gap-4">
-              <Image src="/googleplay.png" alt="Get it on Google Play" width={160} height={48} className="cursor-pointer drop-shadow-sm" />
-              <Image src="/appstore.png" alt="Download on the App Store" width={160} height={48} className="cursor-pointer drop-shadow-sm" />
+              {/* Already Installed */}
+              {isInstalled && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex items-center gap-3 px-6 py-3 bg-green-600 text-white rounded-xl shadow-lg"
+                >
+                  <CheckCircle className="w-6 h-6" />
+                  <span className="font-semibold">{t('AppPromo.installed')}</span>
+                </motion.div>
+              )}
+
+              {/* PWA Install Button - Android/Desktop */}
+              {!isInstalled && installPrompt && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handlePWAInstall}
+                  className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-amber-500 to-yellow-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer"
+                >
+                  <Download className="w-6 h-6" />
+                  <div className="text-left">
+                    <div className="text-xs opacity-90">{t('AppPromo.installNow') || 'Install Now'}</div>
+                    <div className="font-semibold">{t('AppPromo.quickInstall') || 'Quick Install'}</div>
+                  </div>
+                </motion.button>
+              )}
+
+              {/* iOS Install Instructions */}
+              {!isInstalled && isIOS && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleIOSInstall}
+                  className="flex items-center gap-3 px-6 py-3 bg-gray-800 text-white rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer"
+                >
+                  <Smartphone className="w-6 h-6" />
+                  <div className="text-left">
+                    <div className="text-xs opacity-90">{t('AppPromo.addTo') || 'Add to'}</div>
+                    <div className="font-semibold">{t('AppPromo.homeScreen') || 'Home Screen'}</div>
+                  </div>
+                </motion.button>
+              )}
+
+              {/* Fallback - When browser doesn't support install prompt */}
+              {!isInstalled && !installPrompt && !isIOS && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => toast(t('AppPromo.openInChrome') || 'Open in Chrome or Edge browser to install the app')}
+                  className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-amber-500 to-yellow-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer"
+                >
+                  <Download className="w-6 h-6" />
+                  <div className="text-left">
+                    <div className="text-xs opacity-90">{t('AppPromo.installApp') || 'Install App'}</div>
+                    <div className="font-semibold">{t('AppPromo.getApp') || 'Get the App'}</div>
+                  </div>
+                </motion.button>
+              )}
             </div>
 
             <div className="space-y-2">
               <p className="text-xs text-gray-500">Get property alerts, offers & market insights. No spam.</p>
-              <form onSubmit={handleNewsletterSubmit} className="flex max-w-md rounded-lg overflow-hidden border-2 border-yellow-200 focus-within:ring-2 focus-within:ring-yellow-500 focus-within:border-yellow-400 shadow-md">
+              <form
+                onSubmit={handleNewsletterSubmit}
+                className="flex max-w-md rounded-lg overflow-hidden border-2 border-yellow-200 focus-within:ring-2 focus-within:ring-yellow-500 focus-within:border-yellow-400 shadow-md"
+              >
                 <input
                   type="email"
-
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={e => setEmail(e.target.value)}
                   placeholder={t('AppPromo.placeholder') || 'Your email'}
                   className="w-full px-4 py-3 text-gray-700 focus:outline-none bg-white"
                   required
@@ -181,7 +305,7 @@ export default function AppPromo() {
                     className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? 'Subscribing...' : (t('AppPromo.subscribe') || 'Subscribe')}
+                    {isSubmitting ? 'Subscribing...' : t('AppPromo.subscribe') || 'Subscribe'}
                   </Button>
                 </div>
               </form>

@@ -205,59 +205,47 @@
       "post_property": "Post Property",
       "post_property_become_agent": "Post Property & Become Agent",
       "become_agent_hint": "List your first property to unlock agent features!",
-
       "role_super_admin": "Super Admin",
       "role_agent": "Agent",
       "role_buyer": "Buyer",
-
       "new_enquiries": "New Enquiries",
-
       "dashboard": "Dashboard",
       "my_favorites": "My Favorites",
       "saved_searches": "Saved Searches",
       "my_enquiries": "My Enquiries",
       "profile_settings": "Profile & Settings",
       "profile_kyc": "Profile & KYC",
-
       "my_properties": "My Properties",
       "my_ads": "My Ads",
       "account": "Account",
-
       "masters": "Masters",
       "properties_ads": "Properties & Ads",
       "users": "Users",
       "subscriptions_payments": "Subscriptions & Payments",
       "settings": "Settings",
-
       "all_properties": "All Properties",
       "pending": "Pending",
       "reported": "Reported",
       "all_ads": "All Ads",
       "reported_ads": "Reported Ads",
-
       "pending_properties": "Pending Properties",
       "reported_properties": "Reported Properties",
       "pending_ads": "Pending Ads",
       "kyc_pending": "KYC Pending",
       "kyc_verification": "KYC Verification",
-
       "subscription_plans": "Subscription Plans",
       "user_subscriptions": "User Subscriptions",
       "all_transactions": "All Transactions",
-
       "my_profile": "My Profile",
       "company_profile": "Company Profile",
       "enquiries": "Enquiries",
       "wallet": "Wallet",
       "subscription": "Subscription",
-
       "agency_details": "Agency Details",
-
       "feature_group": "Feature Group",
       "feature_category": "Feature Category",
       "property_category": "Property Category",
       "ads_category": "Ads Category",
-
       "view_all_users": "View All Users",
       "payment_reports_revenue_summary": "Payment Reports / Revenue Summary"
     },
@@ -412,10 +400,23 @@
       "chat": "Chat with verifying agents",
       "browsing": "Faster browsing & videos"
     },
-    "message": "Don’t lose it when it comes out!",
+    "message": "Don't lose it when it comes out!",
     "download": "Download Now",
     "placeholder": "Your email",
-    "subscribe": "Subscribe"
+    "subscribe": "Subscribe",
+    "installNow": "Install Now",
+    "quickInstall": "Quick Install",
+    "installed": "Installed ✓",
+    "installSuccess": "App installed successfully!",
+    "addTo": "Add to",
+    "homeScreen": "Home Screen",
+    "installApp": "Install App",
+    "getApp": "Get the App",
+    "openInChrome": "Open in Chrome or Edge to install",
+    "iosTitle": "To install on iPhone/iPad:",
+    "iosStep1": "Tap the Share button (□↑)",
+    "iosStep2": "Tap \"Add to Home Screen\"",
+    "iosStep3": "Tap \"Add\""
   },
   "Footer": {
     "desc": "Tamil Nadu's trusted platform for buying, selling, and renting properties with verified listings.",

@@ -207,59 +207,47 @@
       "post_property": "சொத்தை பதிவிடவும்",
       "post_property_become_agent": "சொத்தை பதிவு செய்து ஏஜென்டாகுங்கள்",
       "become_agent_hint": "ஏஜென்ட் அம்சங்களைத் திறக்க உங்கள் முதல் சொத்தை பதிவு செய்யுங்கள்!",
-
       "role_super_admin": "சூப்பர் நிர்வாகி",
       "role_agent": "ஏஜென்ட்",
       "role_buyer": "வாங்குபவர்",
-
       "new_enquiries": "புதிய விசாரணைகள்",
-
       "dashboard": "டாஷ்போர்டு",
       "my_favorites": "என் பிடித்தவை",
       "saved_searches": "சேமித்த தேடல்கள்",
       "my_enquiries": "என் விசாரணைகள்",
       "profile_settings": "சுயவிவரம் & அமைப்புகள்",
       "profile_kyc": "சுயவிவரம் & KYC",
-
       "my_properties": "என் சொத்துகள்",
       "my_ads": "என் விளம்பரங்கள்",
       "account": "கணக்கு",
-
       "masters": "மாஸ்டர்கள்",
       "properties_ads": "சொத்துகள் & விளம்பரங்கள்",
       "users": "பயனர்கள்",
       "subscriptions_payments": "சந்தா & கட்டணங்கள்",
       "settings": "அமைப்புகள்",
-
       "all_properties": "அனைத்து சொத்துகள்",
       "pending": "நிலுவையில்",
       "reported": "புகாரளிக்கப்பட்ட",
       "all_ads": "அனைத்து விளம்பரங்கள்",
       "reported_ads": "புகாரளிக்கப்பட்ட விளம்பரங்கள்",
-
       "pending_properties": "நிலுவை சொத்துகள்",
       "reported_properties": "புகாரளிக்கப்பட்ட சொத்துகள்",
       "pending_ads": "நிலுவை விளம்பரங்கள்",
       "kyc_pending": "KYC நிலுவையில்",
       "kyc_verification": "KYC சரிபார்ப்பு",
-
       "subscription_plans": "சந்தா திட்டங்கள்",
       "user_subscriptions": "பயனர் சந்தாக்கள்",
       "all_transactions": "அனைத்து பரிவர்த்தனைகள்",
-
       "my_profile": "என் சுயவிவரம்",
       "company_profile": "நிறுவன சுயவிவரம்",
       "enquiries": "விசாரணைகள்",
       "wallet": "வாலெட்",
       "subscription": "சந்தா",
-
       "agency_details": "ஏஜென்சி விவரங்கள்",
-
       "feature_group": "அம்சம் குழு",
       "feature_category": "அம்சம் வகை",
       "property_category": "சொத்து வகை",
       "ads_category": "விளம்பர வகை",
-
       "view_all_users": "அனைத்து பயனர்களையும் பார்க்கவும்",
       "payment_reports_revenue_summary": "கட்டண அறிக்கைகள் / வருமான சுருக்கம்"
     },
@@ -416,7 +404,20 @@
     "message": "வெளியாகும் போது அதைத் தவறவிடாதீர்கள்!",
     "download": "இப்போதே பதிவிறக்கவும்",
     "placeholder": "உங்கள் மின்னஞ்சல்",
-    "subscribe": "பதிவு செய்க"
+    "subscribe": "பதிவு செய்க",
+    "installNow": "இப்போது நிறுவு",
+    "quickInstall": "விரைவு நிறுவல்",
+    "installed": "நிறுவப்பட்டது ✓",
+    "installSuccess": "செயலி வெற்றிகரமாக நிறுவப்பட்டது!",
+    "addTo": "சேர்க்க",
+    "homeScreen": "முகப்புத் திரை",
+    "installApp": "செயலி நிறுவு",
+    "getApp": "செயலியைப் பெறுங்கள்",
+    "openInChrome": "நிறுவ Chrome அல்லது Edge உலாவியில் திறக்கவும்",
+    "iosTitle": "iPhone/iPad-ல் நிறுவ:",
+    "iosStep1": "Share பொத்தானை (□↑) தட்டவும்",
+    "iosStep2": "\"Add to Home Screen\" என்பதை தட்டவும்",
+    "iosStep3": "\"Add\" என்பதை தட்டவும்"
   },
   "Footer": {
     "desc": "சரிபார்க்கப்பட்ட பட்டியல்களுடன் சொத்துக்களை வாங்க, விற்க மற்றும் வாடகைக்கு எடுக்க தமிழ்நாட்டின் நம்பகமான தளம்.",
