@@ -26,7 +26,7 @@ export function useUsersHook(page: number = 1, limit: number = 10) {
   // SWR
   const { data, error, isLoading, mutate: mutateUsers } = useSWR<ResponseDTO>(url, fetchUsers)
 
-  console.log('Users data:', data)
+  // console.log('Users data:', data)
 
   const handleRefreshUsers = async () => {
     await mutateUsers()

@@ -23,7 +23,7 @@ export function useDashboardHook() {
     mutateDashboard()
   }, [mutateDashboard])
 
-  console.log('Dashboard Data:', data)
+  // console.log('Dashboard Data:', data)
 
   return {
     dashboardData: data?.data ?? null,

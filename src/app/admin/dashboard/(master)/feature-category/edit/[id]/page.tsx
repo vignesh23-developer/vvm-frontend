@@ -46,7 +46,7 @@ export default function EditFeatureCategory() {
             ? data.options.map((opt: any, index: number) => ({
                 id: opt?.id,
                 name: opt?.name ?? '',
-                value: opt?.value && typeof opt.value === 'string' && opt.value.trim() ? opt.value : opt?.name ?? '',
+                value: opt?.value && typeof opt.value === 'string' && opt.value.trim() ? opt.value : (opt?.name ?? ''),
                 icon: opt?.icon ?? '',
                 sortOrder: opt?.sortOrder ?? index + 1,
                 isActive: opt?.isActive ?? true,
@@ -79,7 +79,7 @@ export default function EditFeatureCategory() {
   // Handle form submit (UPDATE)
   const handleSubmit = async (values: FeatureCategoryFormValues) => {
     try {
-      console.log('Submitting values:', values)
+      // console.log('Submitting values:', values)
       const payload = {
         name: values.name,
         inputType: values.inputType,
@@ -94,7 +94,7 @@ export default function EditFeatureCategory() {
             : (values.options ?? []).map(opt => ({
                 id: opt?.id,
                 name: opt?.name ?? '',
-                value: opt?.value && opt.value.trim() ? opt.value : opt?.name ?? '',
+                value: opt?.value && opt.value.trim() ? opt.value : (opt?.name ?? ''),
                 icon: opt?.icon ?? '',
                 sortOrder: opt?.sortOrder ?? 1,
                 isActive: opt?.isActive ?? true,

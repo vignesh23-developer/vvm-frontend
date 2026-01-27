@@ -191,7 +191,7 @@ const PropertiesListPage = () => {
     else nextParams.delete('district')
 
     const qs = nextParams.toString()
-    console.log('Updating URL with params:', qs)
+    // console.log('Updating URL with params:', qs)
 
     router.replace(qs ? `/properties-list?${qs}` : '/properties-list', { scroll: false })
   }, [debouncedUrlSearch, isHydratedFromUrl, router, searchParams, selectedDistrict])
@@ -287,7 +287,7 @@ const PropertiesListPage = () => {
   }, [autocompleteResponse])
 
   const baseTotal = Number(total ?? 0)
-  const totalResults = shouldUseAdvancedResults ? searchedTotal ?? 0 : baseTotal
+  const totalResults = shouldUseAdvancedResults ? (searchedTotal ?? 0) : baseTotal
   const totalPages = Math.max(1, Math.ceil((totalResults || 0) / limit))
 
   const displayedProperties = shouldUseAdvancedResults ? searchedProperties : properties
@@ -319,7 +319,7 @@ const PropertiesListPage = () => {
     }
   }
 
-  console.log('PropertiesListPage render:', { properties, total, isLoadingProperties, error })
+  // console.log('PropertiesListPage render:', { properties, total, isLoadingProperties, error })
 
   // For explore_by_category we now rely on backend search; for other params we keep original list.
   // Suggestions for autocomplete in advanced search

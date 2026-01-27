@@ -507,8 +507,6 @@ const AdsImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
       })
     }
 
-    console.log('log on items state:', items)
-
     // ----------------------------------------------------------------------
     // RENDER
     // ----------------------------------------------------------------------
@@ -702,7 +700,7 @@ const AdsImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
                         <div className="flex items-center justify-between">
                           <p className="text-[10px] text-gray-500 uppercase tracking-wide font-medium flex items-center gap-1">
                             {item.type === 'IMAGE' ? <ImageIcon size={12} /> : <Film size={12} />}
-                            {(item.file_size ?? item.file?.size ? ((item.file_size ?? item.file?.size) as number) / 1024 / 1024 : 0).toFixed(1) +
+                            {((item.file_size ?? item.file?.size) ? ((item.file_size ?? item.file?.size) as number) / 1024 / 1024 : 0).toFixed(1) +
                               ' MB'}
                           </p>
                         </div>

@@ -62,8 +62,6 @@ const ReportPropertyModal = ({
       evidence: { links: values.evidenceLink ? [values.evidenceLink] : [] },
     }
 
-    console.log('Report Payload:', payload)
-
     try {
       const response = (await postMethod(appEndpoints.createPropertyReport(propertyId as string), payload)) as ResponseDTO
       if (Number(response.status) === 201) {

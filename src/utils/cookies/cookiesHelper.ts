@@ -28,7 +28,7 @@ export const onGetCookies = async (cookiesName: string) => {
     const parsedCookies = typeof cookiesData === 'string' ? JSON.parse(cookiesData) : cookiesData
     return { isError: false, message: '', cookies: parsedCookies }
   } catch (e: any) {
-    console.log('Error on Get Cookies:', e)
+    // console.log('Error on Get Cookies:', e)
     return { isError: true, message: 'Error on Get Cookies' }
   }
 }

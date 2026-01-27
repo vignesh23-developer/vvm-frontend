@@ -92,7 +92,7 @@ const PropertyCategoryMappingForm = ({ propertyCategory, featuresGrouped, onSucc
     const fieldPath = `featuresGrouped[${groupIdx}].features[${featureIdx}].isMapped`
     const isSelected = values.featuresGrouped[groupIdx].features[featureIdx].isMapped
 
-    console.log('Rendering FeatureButton:', f.name, 'Selected:', isSelected, featuresGrouped)
+    // console.log('Rendering FeatureButton:', f.name, 'Selected:', isSelected, featuresGrouped)
 
     const toggle = () => setFieldValue(fieldPath, !isSelected)
 

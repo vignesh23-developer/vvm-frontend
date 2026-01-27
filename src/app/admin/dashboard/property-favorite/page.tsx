@@ -15,7 +15,7 @@ export default function PropertyFavoritePage() {
   const [limit, setLimit] = useState(10)
   const { favorites, total, error, isLoading, mutateFavorites } = usePropertyFavorite({ page, limit })
 
-  console.log('Favorites:', favorites)
+  // console.log('Favorites:', favorites)
 
   // Columns definition
 
@@ -45,8 +45,8 @@ export default function PropertyFavoritePage() {
             status === ''
               ? 'bg-yellow-100 text-yellow-700 border border-yellow-300'
               : status === 'AVAILABLE'
-              ? 'bg-green-100 text-green-700 border border-green-300'
-              : 'bg-red-100 text-red-700 border border-red-300'
+                ? 'bg-green-100 text-green-700 border border-green-300'
+                : 'bg-red-100 text-red-700 border border-red-300'
 
           return <span className={`px-3 py-1 rounded-full text-xs font-semibold ${colorClass}`}>{status}</span>
         },
@@ -63,8 +63,8 @@ export default function PropertyFavoritePage() {
             approvalStatus === 'UNDER_REVIEW'
               ? 'bg-yellow-100 text-yellow-700 border border-yellow-300'
               : approvalStatus === 'APPROVED'
-              ? 'bg-green-100 text-green-700 border border-green-300'
-              : 'bg-red-100 text-red-700 border border-red-300'
+                ? 'bg-green-100 text-green-700 border border-green-300'
+                : 'bg-red-100 text-red-700 border border-red-300'
 
           return <span className={`px-3 py-1 rounded-full text-xs font-semibold ${colorClass}`}>{approvalStatus}</span>
         },

@@ -30,7 +30,7 @@ export default function useLandRegistration() {
   const propertyCategoryResult: Array<PropertyCategory> = propertyCategoryFetchVal?.data?.data
 
   async function onGetPropertyCategoryFeatureMapping(id: string): Promise<PropertyCategoryFeatureMappingResponse> {
-    console.log('Fetching feature mapping for category ID:', id)
+    // console.log('Fetching feature mapping for category ID:', id)
     const result: ResponseDTO<GetAllPropertyCategoryFeatureMappingDTO> = await getMethod(appEndpoints?.getPropertyCategoryFeatureMappingByID(id))
 
     const data: GetAllPropertyCategoryFeatureMappingDTO = result?.data

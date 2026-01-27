@@ -144,10 +144,10 @@ export function usePublicAdsSearch<T = any>({ page, limit, filters, searchTerm, 
   const swrKey = enabled ? (['public-ads-search', params] as const) : null
 
   const fetcher = async ([, query]: [string, Record<string, any>]): Promise<SearchResult<T>> => {
-    console.log('🔎 Ads Search API Call:', {
-      endpoint: appEndpoints.publicSearchAds,
-      params: query,
-    })
+    // console.log('🔎 Ads Search API Call:', {
+    //   endpoint: appEndpoints.publicSearchAds,
+    //   params: query,
+    // })
 
     try {
       const response = await getMethod<any>(appEndpoints.publicSearchAds, query)

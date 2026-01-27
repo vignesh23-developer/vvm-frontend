@@ -50,13 +50,15 @@ export default function AdsListPage() {
   const { ads, total, error, isLoading, mutateAds } = useAds({ page: currentPage, limit: currentLimit })
   const { categories } = useAdsCategories()
 
-  console.log('Fetched Ads:', ads)
   // Create a map for quick category lookup
   const categoryMap = useMemo(() => {
-    return categories.reduce((acc: any, cat: any) => {
-      acc[cat.id] = cat.name
-      return acc
-    }, {} as Record<string, string>)
+    return categories.reduce(
+      (acc: any, cat: any) => {
+        acc[cat.id] = cat.name
+        return acc
+      },
+      {} as Record<string, string>,
+    )
   }, [categories])
 
   const columns = [
@@ -121,8 +123,8 @@ export default function AdsListPage() {
           value === 'AVAILABLE'
             ? 'bg-green-100 text-green-700 border border-green-300'
             : value === 'SOLD'
-            ? 'bg-red-100 text-red-700 border border-red-300'
-            : 'bg-yellow-100 text-yellow-700 border border-yellow-300'
+              ? 'bg-red-100 text-red-700 border border-red-300'
+              : 'bg-yellow-100 text-yellow-700 border border-yellow-300'
 
         return <span className={`px-3 py-1 rounded-full text-xs font-semibold ${badgeClass}`}>{formatted}</span>
       },
@@ -145,8 +147,8 @@ export default function AdsListPage() {
           value === 'UNDER_REVIEW'
             ? 'bg-yellow-100 text-yellow-700 border border-yellow-300'
             : value === 'APPROVED'
-            ? 'bg-green-100 text-green-700 border border-green-300'
-            : 'bg-red-100 text-red-700 border border-red-300'
+              ? 'bg-green-100 text-green-700 border border-green-300'
+              : 'bg-red-100 text-red-700 border border-red-300'
 
         return <span className={`px-3 py-1 rounded-full text-xs font-semibold ${badgeClass}`}>{formatted}</span>
       },
@@ -289,16 +291,8 @@ export default function AdsListPage() {
     ]
   }
 
-  console.log('KYC Status on Ads List Page:', kycStatus, kycStatus?.isVerified)
-
   const handleAdsCreation = () => {
-    console.log('KYC Status on Add Ads:', kycStatus, kycStatus?.isVerified)
     router.push('/ads')
-    // if (!kycStatus?.isVerified) {
-    //   router.push('/kyc-pending')
-    // } else {
-    //   router.push('/ads')
-    // }
   }
 
   // Calculate monthly data from actual ads

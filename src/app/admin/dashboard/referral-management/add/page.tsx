@@ -30,7 +30,7 @@ export default function AddReferralManagementForm() {
   }
 
   const handleSubmit = async (values: FormValues) => {
-    console.log('Form values:', values)
+    // console.log('Form values:', values)
     // ✅ Add API call here
     router.push('/property-category')
   }
@@ -43,22 +43,14 @@ export default function AddReferralManagementForm() {
         <span className="text-gray-400">›</span>
         <span>Referral Management</span>
         <span className="text-gray-400">›</span>
-        <span className="font-medium text-gray-700">
-          Add Referral Management
-        </span>
+        <span className="font-medium text-gray-700">Add Referral Management</span>
       </div>
 
       {/* Form Card */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-8 max-w-3xl mx-auto">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-8">
-          Add Referral Management
-        </h2>
+        <h2 className="text-2xl font-semibold text-gray-900 mb-8">Add Referral Management</h2>
 
-        <Formik
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}
-        >
+        <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
           {({ isSubmitting }) => (
             <Form className="space-y-6">
               {/* Reward */}
@@ -72,24 +64,16 @@ export default function AddReferralManagementForm() {
 
               {/* Referrer */}
               <div>
-                <label className="font-medium text-gray-800 mb-2 block">
-                  Referrer
-                </label>
+                <label className="font-medium text-gray-800 mb-2 block">Referrer</label>
                 <div className="flex items-center gap-6 px-4 py-2">
                   <FormikRadioField name="referrer" value="User" label="User" />
-                  <FormikRadioField
-                    name="referrer"
-                    value="Agent"
-                    label="Agent"
-                  />
+                  <FormikRadioField name="referrer" value="Agent" label="Agent" />
                 </div>
               </div>
 
               {/* Referral Date */}
               <div>
-                <label className="font-medium text-gray-800 mb-2 block">
-                  Referral Date
-                </label>
+                <label className="font-medium text-gray-800 mb-2 block">Referral Date</label>
                 <Field
                   type="date"
                   name="referralDate"
@@ -110,9 +94,7 @@ export default function AddReferralManagementForm() {
                   type="submit"
                   disabled={isSubmitting}
                   className={`px-6 py-2 rounded-md text-white font-medium transition ${
-                    isSubmitting
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-black hover:bg-gray-800'
+                    isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-black hover:bg-gray-800'
                   }`}
                 >
                   {isSubmitting ? 'Creating...' : 'Approve Reward'}

@@ -89,7 +89,7 @@ export function useBadges(options: UseBadgesOptions = {}) {
       setError(null)
 
       const response = await getMethod<BadgeCountsResponse>(appEndpoints.getBadges)
-      console.log('Fetched badges:', response)
+      // console.log('Fetched badges:', response)
 
       if (response.error) {
         // Don't show error to user, just log it - badges are not critical

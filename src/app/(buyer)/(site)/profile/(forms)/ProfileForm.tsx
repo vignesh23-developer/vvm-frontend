@@ -59,7 +59,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialValues, validationSche
   }
 
   const handleSubmit = async (values: any) => {
-    console.log('Form submitted with values:', values)
+    // console.log('Form submitted with values:', values)
     const payload = {
       firstName: values.firstName,
       lastName: values.lastName,
@@ -76,7 +76,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialValues, validationSche
           toast.error(res?.message || 'Failed to update profile.')
         }
       } else {
-        console.log('Creating new profile...')
+        // console.log('Creating new profile...')
       }
     } catch (error) {
       console.error('Error submitting form:', error)

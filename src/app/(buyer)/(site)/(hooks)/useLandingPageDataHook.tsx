@@ -40,7 +40,7 @@ export function useLandingPageData(options: UseLandingPageOptions = {}) {
   const { data, error, isLoading, mutate } = useSWR<ResponseDTO<any>>(key, fetchLandingPageData)
 
   const payload = data?.data ?? {}
-  console.log('useLandingPageData data:', data, payload)
+  // console.log('useLandingPageData data:', data, payload)
   return {
     // raw objects
     response: data,

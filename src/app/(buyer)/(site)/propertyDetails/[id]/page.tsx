@@ -277,7 +277,7 @@ const page = () => {
   const onlyAdminOrAgentCanViewContactDetails = isCheckPropertiesOwner || isAdmin
 
   const hasEnquiry = onlyAdminOrAgentCanViewContactDetails || isEnquiryAvailable || (!onlyAdminOrAgentCanViewContactDetails && isEnquiryAvailable)
-  console.log('user amd propepties', user, propertyDetailsData)
+  // console.log('user amd propepties', user, propertyDetailsData)
   // Address
   const propertyFullAddress = hasEnquiry
     ? propertyDetailsData?.address_line
@@ -558,8 +558,8 @@ const page = () => {
       Array.isArray(similarProperties) && similarProperties.length > 0
         ? similarProperties
         : Array.isArray(popularSimilarProperties)
-        ? popularSimilarProperties
-        : []
+          ? popularSimilarProperties
+          : []
 
     if (base.length === 0) return []
 
@@ -690,13 +690,15 @@ const page = () => {
               >
                 {galleryImages[0] ? (
                   <>
-                    <Image
-                      src={galleryImages[0].url}
-                      alt="Property main media"
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
-                      priority
-                    />
+                    {galleryImages[0].type === 'image' && (
+                      <Image
+                        src={galleryImages[0].url}
+                        alt="Property main media"
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        priority
+                      />
+                    )}
                     {galleryImages[0].type === 'video' && (
                       <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
                         <div className="h-16 w-16 rounded-full bg-white/20 backdrop-blur-sm border border-white/50 flex items-center justify-center">
@@ -724,13 +726,15 @@ const page = () => {
                 >
                   {galleryImages[0] ? (
                     <>
-                      <Image
-                        src={galleryImages[0].url}
-                        alt="Property main media"
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-110"
-                        priority
-                      />
+                      {galleryImages[0].type === 'image' && (
+                        <Image
+                          src={galleryImages[0].url}
+                          alt="Property main media"
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                          priority
+                        />
+                      )}
                       {galleryImages[0].type === 'video' && (
                         <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
                           <div className="h-16 w-16 rounded-full bg-white/20 backdrop-blur-sm border border-white/50 flex items-center justify-center">
@@ -794,13 +798,15 @@ const page = () => {
                 >
                   {galleryImages[0] ? (
                     <>
-                      <Image
-                        src={galleryImages[0].url}
-                        alt="Property main media"
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-110"
-                        priority
-                      />
+                      {galleryImages[0].type === 'image' && (
+                        <Image
+                          src={galleryImages[0].url}
+                          alt="Property main media"
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                          priority
+                        />
+                      )}
                       {galleryImages[0].type === 'video' && (
                         <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
                           <div className="h-16 w-16 rounded-full bg-white/20 backdrop-blur-sm border border-white/50 flex items-center justify-center">
@@ -870,12 +876,14 @@ const page = () => {
                       >
                         {galleryImages[2] ? (
                           <>
-                            <Image
-                              src={galleryImages[2].url}
-                              alt="Property media 3"
-                              fill
-                              className="object-cover transition-transform duration-500 group-hover:scale-110"
-                            />
+                            {galleryImages[2].type === 'image' && (
+                              <Image
+                                src={galleryImages[2].url}
+                                alt="Property media 3"
+                                fill
+                                className="object-cover transition-transform duration-500 group-hover:scale-110"
+                              />
+                            )}
                             {galleryImages[2].type === 'video' && (
                               <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
                                 <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm border border-white/50 flex items-center justify-center">
@@ -908,12 +916,14 @@ const page = () => {
                       >
                         {galleryImages[3] ? (
                           <>
-                            <Image
-                              src={galleryImages[3].url}
-                              alt="Property media 4"
-                              fill
-                              className="object-cover transition-transform duration-500 group-hover:scale-110"
-                            />
+                            {galleryImages[3].type === 'image' && (
+                              <Image
+                                src={galleryImages[3].url}
+                                alt="Property media 4"
+                                fill
+                                className="object-cover transition-transform duration-500 group-hover:scale-110"
+                              />
+                            )}
                             {galleryImages[3].type === 'video' && (
                               <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
                                 <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm border border-white/50 flex items-center justify-center">
@@ -1284,8 +1294,8 @@ const page = () => {
                         status === 'PENDING' || status === 'UNDER_REVIEW'
                           ? 'bg-yellow-100 text-yellow-700'
                           : status === 'RESOLVED' || status === 'APPROVED'
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-gray-100 text-gray-700'
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-gray-100 text-gray-700'
 
                       return (
                         <details key={report?.id ?? idx} className="group relative pl-14">
@@ -1811,8 +1821,8 @@ const page = () => {
                               typeof totalFromApi === 'number'
                                 ? totalFromApi
                                 : Array.isArray((res?.data as any)?.data)
-                                ? (res.data as any).data.length
-                                : 0
+                                  ? (res.data as any).data.length
+                                  : 0
 
                             setQuizResultCount(count)
                             setShowQuizResult(true)
@@ -2184,13 +2194,32 @@ const page = () => {
                 {apiImages[selectedImageIndex] ? (
                   apiImages[selectedImageIndex].type === 'video' ? (
                     <div className="w-full h-full md:h-[80%] aspect-video bg-black rounded-lg overflow-hidden">
-                      <iframe
-                        src={getVideoEmbedUrlWithFallback(apiImages[selectedImageIndex].url)}
-                        title="Property Video"
-                        className="w-full h-full"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
+                      {hasEnquiry ? (
+                        <iframe
+                          src={getVideoEmbedUrlWithFallback(apiImages[selectedImageIndex].url)}
+                          title="Property Video"
+                          className="w-full h-full"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      ) : (
+                        <div className="max-h-[90vh] w-full flex flex-col items-center justify-center bg-gray-800 rounded-lg p-6">
+                          <div className="text-center text-white mb-4">
+                            <Lock size={64} className="mx-auto mb-4 opacity-50" />
+                            <p className="text-lg opacity-75">Submit an enquiry to unlock the video</p>
+                          </div>
+                          <Button
+                            type="button"
+                            onClick={() => {
+                              setEnquiryModalOpen(true)
+                              setSelectedImageIndex(null)
+                            }}
+                            className="bg-yellow-500 text-white hover:bg-yellow-600 py-2 px-4 rounded-lg text-sm font-semibold transition-all"
+                          >
+                            Enquire Now
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <Image

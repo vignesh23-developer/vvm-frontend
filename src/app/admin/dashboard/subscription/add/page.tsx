@@ -43,7 +43,7 @@ export default function AddSubscription() {
   }
 
   const handleSubmit = async (values: FormValues) => {
-    console.log('Form Submitted:', values)
+    // console.log('Form Submitted:', values)
     // ✅ Replace with API call
     // await fetch('/api/subscription', { method: 'POST', body: JSON.stringify(values) })
     router.push('/subscription')

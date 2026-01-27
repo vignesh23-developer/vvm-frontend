@@ -47,7 +47,7 @@ export function useAdsCategories({ page = 1, limit = 10 } = {} as AdsCategoryPro
     [mutate],
   )
 
-  console.log('Ads Categories Data:', data, data?.data)
+  // console.log('Ads Categories Data:', data, data?.data)
   return {
     categories: data?.data?.data ?? [],
     total: data?.data?.total ?? 0,

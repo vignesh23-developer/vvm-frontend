@@ -38,7 +38,7 @@ export default function AddSavedCriteriaForm() {
   }
 
   const handleSubmit = async (values: FormValues) => {
-    console.log('Form values:', values)
+    // console.log('Form values:', values)
     router.push('/notifications')
   }
 
@@ -62,58 +62,27 @@ export default function AddSavedCriteriaForm() {
 
       {/* Form Card */}
       <div className="bg-white rounded-lg shadow p-8 max-w-6xl mx-auto">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-8">
-          Add Saved Search Criteria
-        </h2>
+        <h2 className="text-2xl font-semibold text-gray-900 mb-8">Add Saved Search Criteria</h2>
 
-        <Formik
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}
-        >
+        <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
           {({ isSubmitting }) => (
             <Form className="space-y-8">
               {/* Row 1 */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <FormikTextField
-                  label="Saved Search Name"
-                  name="savedSearchName"
-                  type="text"
-                  placeholder="Enter Name"
-                />
-                <FormikTextField
-                  label="Location"
-                  name="location"
-                  type="text"
-                  placeholder="Enter Location"
-                />
+                <FormikTextField label="Saved Search Name" name="savedSearchName" type="text" placeholder="Enter Name" />
+                <FormikTextField label="Location" name="location" type="text" placeholder="Enter Location" />
                 <div className="flex flex-col">
-                  <label className="font-medium text-gray-800 mb-2">
-                    Frequency
-                  </label>
+                  <label className="font-medium text-gray-800 mb-2">Frequency</label>
                   <div className="flex items-center gap-6 bg-gray-100 border border-gray-200 rounded-lg px-4 py-2">
-                    <FormikRadioField
-                      name="frequency"
-                      value="Daily"
-                      label="Daily"
-                    />
-                    <FormikRadioField
-                      name="frequency"
-                      value="Weekly alerts"
-                      label="Weekly Alerts"
-                    />
+                    <FormikRadioField name="frequency" value="Daily" label="Daily" />
+                    <FormikRadioField name="frequency" value="Weekly alerts" label="Weekly Alerts" />
                   </div>
                 </div>
               </div>
 
               {/* Row 2 */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <FormikTextField
-                  label="Budget"
-                  type="text"
-                  name="budget"
-                  placeholder="Enter Budget"
-                />
+                <FormikTextField label="Budget" type="text" name="budget" placeholder="Enter Budget" />
                 <FormikSelectField
                   name="propertyType"
                   label="Property Type"
@@ -136,9 +105,7 @@ export default function AddSavedCriteriaForm() {
                   type="submit"
                   disabled={isSubmitting}
                   className={`px-6 py-3 rounded-lg text-white font-medium transition ${
-                    isSubmitting
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-black hover:bg-gray-800'
+                    isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-black hover:bg-gray-800'
                   }`}
                 >
                   {isSubmitting ? 'Creating...' : 'Trigger Test Alert'}

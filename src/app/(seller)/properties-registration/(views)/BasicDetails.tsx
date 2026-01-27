@@ -38,7 +38,7 @@ export default function Step1BasicDetails({
       setFeatureData(result?.data?.mappings)
       setFieldValue('propertyType', id)
     } else {
-      console.log('log on onSelectPropertyHandler error case', result?.message)
+      // console.log('log on onSelectPropertyHandler error case', result?.message)
     }
   }
 

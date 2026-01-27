@@ -41,7 +41,7 @@ const mapFeatureValuesToPayload = (featureValues: any[] | undefined, mappings: F
       if (!categoryId) {
         return null
       }
-      console.log('Mapping feature value:', feature)
+      // console.log('Mapping feature value:', feature)
       const mapping = mappings?.find(m => m.feature_category_id === categoryId)
       const inputType = mapping?.input_type ?? feature?.feature_category?.input_type ?? ''
 
@@ -52,7 +52,7 @@ const mapFeatureValuesToPayload = (featureValues: any[] | undefined, mappings: F
 
       if (inputType.includes('boolean')) {
         const rawBoolean = feature?.value_boolean ?? feature?.values
-        console.log('Raw Boolean Value:', rawBoolean)
+        // console.log('Raw Boolean Value:', rawBoolean)
         valueBoolean = rawBoolean === true || rawBoolean === 'true' ? 'true' : 'false'
       } else if (inputType.includes('text')) {
         const rawText = feature?.value_text ?? feature?.display_value ?? feature?.value
@@ -176,8 +176,6 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
 
   const { globalValue, setGlobalValue } = useGlobalContext()
 
-  console.log('global value from context:', globalValue)
-
   const effectivePropertyId = propertiesId ?? (globalValue != null ? String(globalValue) : '')
 
   const { user, setUser } = useAuth()
@@ -205,7 +203,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
   const fectchPropertiesById = async (id: string | undefined) => {
     if (id) {
       const res = (await getMethod(appEndpoints.getPropertiesByID(id as string))) as ResponseDTO<any>
-      console.log('property by id res:', res.data)
+      // console.log('property by id res:', res.data)
       setValueData(res?.data)
     }
   }
@@ -386,7 +384,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
     }
     if (ULRActionState?.success) {
       toast.success('Property Updated Successfully')
-      console.log('property id:', ULRActionState?.data?.id)
+      // console.log('property id:', ULRActionState?.data?.id)
       // setGlobalValue(ULRActionState?.data?.id)
       // setLocalStorageItem(LOCAL_STORAGE_NAME.propertyId, ULRActionState?.data?.id)
       setCurrentStep(step => step + 1)
@@ -457,7 +455,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
           // Extract all mandatory feature category IDs
           const mandatoryFeatures = featureData.filter(val => val.is_mandatory)
           const mandatoryIds = mandatoryFeatures.map(f => f.feature_category_id)
-          const selectedFeatures = (values.features?.length ? values.features : inputFeatureData ?? []) as FeaturePayloadDTO[]
+          const selectedFeatures = (values.features?.length ? values.features : (inputFeatureData ?? [])) as FeaturePayloadDTO[]
 
           // Find which mandatory features are filled by user
           const filledMandatory = mandatoryIds.filter(id => {
@@ -481,7 +479,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
 
         if (currentStep === 4 && featureData) {
           // Proceed when mandatory selection requirement is satisfied
-          const selectedFeatures = (values.features?.length ? values.features : inputFeatureData ?? []) as FeaturePayloadDTO[]
+          const selectedFeatures = (values.features?.length ? values.features : (inputFeatureData ?? [])) as FeaturePayloadDTO[]
           const LandRegistrationData: LandRegistrationPayloadDTO = new LandRegistrationPayloadDTO({
             contact_name: values?.contactName,
             contact_phone: values?.contactNumber,
@@ -514,7 +512,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
 
           const contextPropertyId = globalValue
 
-          console.log('log on data sss properties:', contextPropertyId, propertiesId)
+          // console.log('log on data sss properties:', contextPropertyId, propertiesId)
 
           if (contextPropertyId || propertiesId) {
             startTransition(async () => {
@@ -610,7 +608,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
         actions.setSubmitting(false)
       }
     } catch (err) {
-      console.log('step 6', err)
+      // console.log('step 6', err)
       if (err instanceof Yup.ValidationError) {
         const errors: { [field: string]: string } = {}
         err.inner.forEach(e => {
@@ -655,8 +653,8 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
               isCompleted
                 ? 'bg-[#2a1407] border-[#2a1407] text-white'
                 : isActive
-                ? 'bg-white border-[#2a1407] text-[#2a1407] shadow-md scale-110'
-                : 'bg-white border-gray-300 text-gray-400 group-hover:border-gray-400'
+                  ? 'bg-white border-[#2a1407] text-[#2a1407] shadow-md scale-110'
+                  : 'bg-white border-gray-300 text-gray-400 group-hover:border-gray-400'
             }`}
                 >
                   {isCompleted ? (
@@ -683,8 +681,8 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
           async function init() {
             // 1) If editing (propertiesId present and valueData fetched), populate with server data
             if (propertiesId && valueData) {
-              console.log('Editing property with ID:', propertiesId)
-              console.log('Fetched valueData:', valueData)
+              // console.log('Editing property with ID:', propertiesId)
+              // console.log('Fetched valueData:', valueData)
 
               // Map server data to form fields
               const serverToForm: Partial<PropertyCreationFormValues> = {
@@ -723,7 +721,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
                 features: [],
               }
 
-              console.log('Mapped serverToForm:', serverToForm)
+              // console.log('Mapped serverToForm:', serverToForm)
 
               Object.entries(serverToForm)
                 .filter(([key]) => key !== 'features')
@@ -741,7 +739,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
                 const featureResult = await onGetPropertyCategoryFeatureMapping(serverToForm.propertyType as string)
                 const mappings = featureResult?.data?.mappings
                 setFeatureData(mappings)
-                console.log('Fetched mappings:', mappings)
+                // console.log('Fetched mappings:', mappings)
                 const mappedFeatures = mapFeatureValuesToPayload(valueData?.feature_values, mappings ?? null)
                 formik.setFieldValue('features', mappedFeatures)
                 setInputFeatureData(mappedFeatures)

@@ -71,7 +71,7 @@ export function usePublicPropertySearch<T = any>({
     limit,
   }
 
-  console.log('Search Term:', trimmedSearch, 'Filters:', filters)
+  // console.log('Search Term:', trimmedSearch, 'Filters:', filters)
   // Text search
   if (trimmedSearch) {
     params.q = trimmedSearch
@@ -208,11 +208,11 @@ export function usePublicPropertySearch<T = any>({
 
   const fetcher = async ([, query]: [string, Record<string, any>]): Promise<SearchResult<T>> => {
     // Log the API call for debugging
-    console.log('🔍 Property Search API Call:', {
-      endpoint: appEndpoints.publicSearchProperties,
-      params: query,
-      hasFilters: Object.keys(query).length > 2, // More than just page and limit
-    })
+    // console.log('🔍 Property Search API Call:', {
+    //   endpoint: appEndpoints.publicSearchProperties,
+    //   params: query,
+    //   hasFilters: Object.keys(query).length > 2,
+    // })
 
     try {
       const response = await getMethod<any>(appEndpoints.publicSearchProperties, query)
@@ -223,15 +223,15 @@ export function usePublicPropertySearch<T = any>({
       // 1) { data: [...], total, page, limit }
       // 2) { items: [...], total, page, limit }
       // 3) [ ... ] (bare array)
-      console.log('📦 Raw Property Search API Response:', response.data, response)
+      // console.log('📦 Raw Property Search API Response:', response.data, response)
       const dtoPayload = response?.data?.data?.data
-      console.log('➡️ Extracted Property Search DTO Payload:', dtoPayload, response?.data?.data)
+      // console.log('➡️ Extracted Property Search DTO Payload:', dtoPayload, response?.data?.data)
 
       // Unwrap one level of nesting if the payload itself has a "data" object
       const container =
         dtoPayload && typeof dtoPayload === 'object' && !Array.isArray(dtoPayload) && 'data' in dtoPayload ? (dtoPayload as any).data : dtoPayload
 
-      console.log('🔄 Normalizing Property Search API Response container:', container)
+      // console.log('🔄 Normalizing Property Search API Response container:', container)
 
       let items: T[] = []
       let total = 0
@@ -249,12 +249,12 @@ export function usePublicPropertySearch<T = any>({
         total = typeof obj.total === 'number' ? obj.total : items.length
       }
 
-      console.log('✅ Property Search API Response (normalized):', {
-        raw: dtoPayload,
-        container,
-        itemsCount: items.length,
-        total,
-      })
+      // console.log('✅ Property Search API Response (normalized):', {
+      //   raw: dtoPayload,
+      //   container,
+      //   itemsCount: items.length,
+      //   total,
+      // })
 
       if (!Array.isArray(items)) {
         console.warn('⚠️ Property search response did not contain a list – defaulting to empty list.')
@@ -269,7 +269,7 @@ export function usePublicPropertySearch<T = any>({
   }
 
   const { data, error, isLoading, mutate } = useSWR<SearchResult<T>>(swrKey as any, fetcher)
-  console.log('SWR Key:', swrKey, 'Data:', data, 'Error:', error)
+  // console.log('SWR Key:', swrKey, 'Data:', data, 'Error:', error)
 
   return {
     items: data?.items ?? [],

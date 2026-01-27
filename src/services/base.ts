@@ -45,7 +45,7 @@ const axiosInstance = axios.create({
 })
 
 axiosInstance.interceptors.request.use(async config => {
-  console.log('REQUEST INTERCEPTORS CALLED', config)
+  // console.log('REQUEST INTERCEPTORS CALLED', config)
 
   // const localStoredToken = await getLocalStorageItem(LOCAL_STORAGE_NAME.authToken)
   const localStoredToken = await onGetCookies('authToken').then(res => {
@@ -69,11 +69,11 @@ axiosInstance.interceptors.request.use(async config => {
 axiosInstance.interceptors.response.use(
   response => response,
   error => {
-    console.log('ERROR ON interceptors response', error)
+    // console.log('ERROR ON interceptors response', error)
 
     const status = error?.response?.status ?? error?.status ?? error?.response?.statusCode ?? error?.statusCode
     if (Number(status) === 401) {
-      console.log('error from interceptors', error)
+      // console.log('error from interceptors', error)
 
       onDeleteCookies('authToken')
       onDeleteCookies('userData')

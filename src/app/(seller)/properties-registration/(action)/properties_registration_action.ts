@@ -4,10 +4,10 @@ import { appEndpoints } from '@/services/endpoints'
 
 export async function onCreateProperty(prevState: ResponseDTO, data: { payload: any; userId: string }): Promise<ResponseDTO> {
   try {
-    console.log('log on action:', data)
+    // console.log('log on action:', data)
     const response: ResponseDTO = await postMethod(appEndpoints.createProperties(data.userId), data.payload)
 
-    console.log('log on property creation:', response)
+    // console.log('log on property creation:', response)
 
     return {
       success: !response.error,
@@ -25,12 +25,12 @@ export async function onCreateProperty(prevState: ResponseDTO, data: { payload: 
 }
 
 export async function onUpdateProperty(prevState: ResponseDTO, data: { payload: any; propertiesId: string }): Promise<ResponseDTO> {
-  console.log('log on action:', data)
+  // console.log('log on action:', data)
 
   try {
     const response: ResponseDTO = await patchMethod(`properties/${data?.propertiesId}`, data?.payload)
 
-    console.log('log on property creation:', response)
+    // console.log('log on property creation:', response)
 
     return {
       success: !response.error,
@@ -55,7 +55,7 @@ export async function onAddPropertyMedia(
     if (params?.uploadType === 'addViaLink') {
       const response: ResponseDTO = await postMethod(appEndpoints.addPropertyMediaLink(params?.id), params?.payload)
 
-      console.log('log on add property media via link:', response)
+      // console.log('log on add property media via link:', response)
 
       return {
         success: !response.error,
@@ -68,7 +68,7 @@ export async function onAddPropertyMedia(
         headers: { 'Content-Type': 'multipart/form-data' },
       })
 
-      console.log('log on add property choose from device:', response)
+      // console.log('log on add property choose from device:', response)
 
       return {
         success: !response.error,

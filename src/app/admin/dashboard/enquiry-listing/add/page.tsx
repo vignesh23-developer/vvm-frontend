@@ -19,9 +19,7 @@ export default function AddEnquiryForm() {
 
   // ✅ Validation schema
   const validationSchema = Yup.object({
-    name: Yup.string()
-      .min(2, 'Name must be at least 2 characters')
-      .required('Name is required'),
+    name: Yup.string().min(2, 'Name must be at least 2 characters').required('Name is required'),
     contactDetails: Yup.string().required('Contact details are required'),
     leadSource: Yup.string().required('Lead source is required'),
     propertyId: Yup.string(),
@@ -39,7 +37,7 @@ export default function AddEnquiryForm() {
   }
 
   const handleSubmit = async (values: FormValues) => {
-    console.log('Form values:', values)
+    // console.log('Form values:', values)
     // ✅ Add your API call here
     router.push('/property-category')
   }
@@ -57,15 +55,9 @@ export default function AddEnquiryForm() {
 
       {/* Form Card */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-8 max-w-3xl mx-auto">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-8">
-          Add Enquires
-        </h2>
+        <h2 className="text-2xl font-semibold text-gray-900 mb-8">Add Enquires</h2>
 
-        <Formik
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}
-        >
+        <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
           {({ isSubmitting }) => (
             <Form className="space-y-6">
               {/* Name */}
@@ -144,9 +136,7 @@ export default function AddEnquiryForm() {
                   type="submit"
                   disabled={isSubmitting}
                   className={`px-6 py-2 rounded-md text-white font-medium transition ${
-                    isSubmitting
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-black hover:bg-gray-800'
+                    isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-black hover:bg-gray-800'
                   }`}
                 >
                   {isSubmitting ? 'Creating...' : 'Submit Enquiry'}
