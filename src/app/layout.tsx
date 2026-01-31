@@ -98,12 +98,11 @@ export const metadata: Metadata = {
     google: '8fq6jy3pkrKcHL6C20EVifJ3Y6_Bg21Z3Zd5d-hc-ME',
   },
 
-  // Canonical and alternates
+  // Alternate languages
   alternates: {
-    canonical: SITE_CONFIG.url,
     languages: {
-      'ta-IN': SITE_CONFIG.url,
-      'en-IN': `${SITE_CONFIG.url}/en`,
+      'ta-IN': '/',
+      'en-IN': '/en',
     },
   },
 
@@ -113,7 +112,7 @@ export const metadata: Metadata = {
     apple: '/apple-touch-icon.png',
   },
 
-  
+
 
   // Category
   category: 'real estate',

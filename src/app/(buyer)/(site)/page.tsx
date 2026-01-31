@@ -1,19 +1,20 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { motion, Variants } from 'framer-motion'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useLandingPageData } from '@/app/(buyer)/(site)/(hooks)/useLandingPageDataHook'
 import HeroSection from '@/unused/herosection'
 import PopularProperties from '@/components/buyer/LandingPage/PopularProperties/PopularProperties'
-import Testimonials from '@/components/buyer/LandingPage/Testimonials/Testimonials'
-import AppPromo from '@/components/buyer/LandingPage/AppPromo/AppPromo'
-import PropertyVideos from '@/components/buyer/LandingPage/PropertyVideos/PropertyVideos'
 import ExploreProperties from '@/components/buyer/LandingPage/ExploreProperties/ExploreProperties'
-import AdsSlider from '@/components/buyer/LandingPage/AdsSlider/AdsSlider'
-import { WebsiteReview } from '@/components/Reviews'
 import WhyChooseUs from '@/components/buyer/LandingPage/WhyChooseUs/WhyChooseUs'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { useTranslations } from 'next-intl'
+
+const AdsSlider = dynamic(() => import('@/components/buyer/LandingPage/AdsSlider/AdsSlider'), { ssr: false })
+const Testimonials = dynamic(() => import('@/components/buyer/LandingPage/Testimonials/Testimonials'), { ssr: false })
+const PropertyVideos = dynamic(() => import('@/components/buyer/LandingPage/PropertyVideos/PropertyVideos'), { ssr: false })
+const AppPromo = dynamic(() => import('@/components/buyer/LandingPage/AppPromo/AppPromo'), { ssr: false })
 
 const sectionVariants: Variants = {
   hidden: { opacity: 0, y: 40 },

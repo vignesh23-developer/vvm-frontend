@@ -18,12 +18,11 @@ const DISTRICTS = [
 const STATIC_PAGES = [
   { path: '/', changeFrequency: 'daily' as const, priority: 1.0 },
   { path: '/properties-list', changeFrequency: 'hourly' as const, priority: 0.9 },
-  { path: '/ads', changeFrequency: 'hourly' as const, priority: 0.8 },
+  { path: '/ads-list', changeFrequency: 'hourly' as const, priority: 0.8 },
   { path: '/about', changeFrequency: 'monthly' as const, priority: 0.5 },
   { path: '/contact-us', changeFrequency: 'monthly' as const, priority: 0.5 },
   { path: '/pricing', changeFrequency: 'weekly' as const, priority: 0.7 },
-  { path: '/login', changeFrequency: 'yearly' as const, priority: 0.3 },
-  { path: '/signup', changeFrequency: 'yearly' as const, priority: 0.3 },
+  { path: '/exploreByDistricts', changeFrequency: 'weekly' as const, priority: 0.6 },
 ]
 
 // Fetch properties from API

@@ -1,0 +1,44 @@
+# Robots.txt for Vaazhga Valamudan
+# https://vaazhgavalamudan.com
+
+# Allow all crawlers for public pages
+User-agent: *
+Allow: /
+Allow: /properties-list
+Allow: /propertyDetails/
+Allow: /ads-list
+Allow: /adsDetails/
+Allow: /about
+Allow: /contact-us
+Allow: /pricing
+Allow: /exploreByDistricts
+
+# Block private/admin/auth pages
+Disallow: /admin/
+Disallow: /login
+Disallow: /signup
+Disallow: /ta/login
+Disallow: /ta/signup
+Disallow: /en/login
+Disallow: /en/signup
+Disallow: /otp-verify
+Disallow: /profile/
+Disallow: /seller/
+Disallow: /my-properties
+Disallow: /my-ads
+Disallow: /my-subscription
+Disallow: /my-transactions
+Disallow: /favorites
+Disallow: /kyc/
+Disallow: /api/
+
+# Explicitly allow key pages (including those with parameters)
+Allow: /properties-list
+Allow: /ads-list
+Allow: /exploreByDistricts
+
+# Sitemap location
+Sitemap: https://vaazhgavalamudan.com/sitemap.xml
+
+# Crawl-delay (be polite to server)
+Crawl-delay: 1

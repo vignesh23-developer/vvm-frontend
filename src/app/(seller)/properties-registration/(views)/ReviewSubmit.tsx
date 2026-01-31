@@ -61,7 +61,7 @@ export default function Step6ReviewSubmit({ listingData, onSubmit, formik, prope
 
   const handleSubmit = () => {
     reset()
-    router.push('/properties/list')
+    router.push('/properties-list')
   }
 
   const handleTermsChange = (e: React.ChangeEvent<HTMLInputElement>) => setAgreedToTerms(e.target.checked)
@@ -154,11 +154,10 @@ export default function Step6ReviewSubmit({ listingData, onSubmit, formik, prope
           <button
             onClick={handleSubmit}
             disabled={!agreedToTerms}
-            className={`w-full md:w-auto px-8 py-3 rounded-lg font-medium transition-all duration-200 ${
-              agreedToTerms
+            className={`w-full md:w-auto px-8 py-3 rounded-lg font-medium transition-all duration-200 ${agreedToTerms
                 ? 'bg-gradient-to-r from-yellow-500 to-yellow-600  hover:bg-blue-700 text-white cursor-pointer'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
+              }`}
           >
             Submit Listing
           </button>

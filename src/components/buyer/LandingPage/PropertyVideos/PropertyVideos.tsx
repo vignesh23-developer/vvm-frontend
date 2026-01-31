@@ -1,10 +1,11 @@
 'use client'
 import React from 'react'
 
+import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import SwiperWrapper from '../../../ui/CustomComponent/Slider/SwipperSlider'
 import { useLocale, useTranslations } from 'next-intl'
-import { Sparkles, MapPin, Clock, Play, X } from 'lucide-react'
+import { Sparkles, MapPin, Clock, Play, X, Youtube, ArrowRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type VideoItem = {
@@ -434,22 +435,34 @@ export default function PropertyVideos() {
           />
         </motion.div>
 
-        {/* View All Videos Button */}
-        {/* <motion.div
+        {/* YouTube Subscription Call-to-Action */}
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.5, duration: 0.6 }}
-          className="mt-12 flex justify-center"
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="flex flex-col items-center gap-6 mt-16 pb-12"
         >
-          <Button
-            type="button"
-            onClick={() => router.push('/property-videos')}
-            className="bg-[#2a1407] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#2a1407] transition shadow-lg"
-          >
-            View All Property Videos →
-          </Button>
-        </motion.div> */}
+          <div className="relative group">
+            <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-amber-600 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200" />
+            <Link
+              href="https://www.youtube.com/@VaazhgaValamudan-TN"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative flex items-center gap-3 px-8 py-4 bg-white hover:bg-stone-50 text-stone-900 rounded-full font-bold shadow-xl transition-all hover:shadow-2xl hover:scale-105 active:scale-95 ring-1 ring-black/5"
+            >
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-red-600 text-white shadow-lg">
+                <Youtube className="w-5 h-5" fill="currentColor" />
+              </div>
+              <div className="flex flex-col items-start leading-none">
+                <span className="text-xs text-stone-500 font-medium uppercase tracking-wider mb-1">Stay Updated</span>
+                <span className="text-base">Subscribe on YouTube</span>
+              </div>
+              <ArrowRight className="w-5 h-5 text-stone-400 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+          <p className="text-stone-400 text-sm font-medium">Watch property tours, market trends & expert advice</p>
+        </motion.div>
       </div>
 
       {/* Enhanced CSS Animations */}

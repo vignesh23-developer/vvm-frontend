@@ -139,9 +139,8 @@ export default function HeroSection({
         imageAlt: t('hero_slides.buyer_1.imageAlt'),
         imageBadge: `🏠 ${t('hero_slides.buyer_1.imageBadge')}`,
         imageTitle: t('hero_slides.buyer_1.imageTitle'),
-        imageSubtitle: `${allStats?.totalProperties || 50}+ ${t('hero_slides.buyer_1.imageSubtitle.Verified_Properties_Across')} ${
-          allStats?.totalDistricts || 10
-        }+ ${t('hero_slides.buyer_1.imageSubtitle.Districts')}`,
+        imageSubtitle: `${allStats?.totalProperties || 50}+ ${t('hero_slides.buyer_1.imageSubtitle.Verified_Properties_Across')} ${allStats?.totalDistricts || 10
+          }+ ${t('hero_slides.buyer_1.imageSubtitle.Districts')}`,
       },
       // ==========================================
       // BUYER SLIDE 2: Search & Save Features
@@ -611,11 +610,14 @@ export default function HeroSection({
               <AnimatePresence mode="wait">
                 <motion.div key={currentSlide} variants={imageVariants} initial="hidden" animate="visible" exit="exit" className="absolute inset-0">
                   {/* Using img tag for better compatibility */}
-                  <img
+                  <Image
                     src={currentSlideData.image}
                     alt={currentSlideData.imageAlt}
-                    className="w-full h-full object-cover"
-                    loading={currentSlide === 0 ? 'eager' : 'lazy'}
+                    fill
+                    className="object-cover"
+                    priority={currentSlide === 0}
+                    loading={currentSlide === 0 ? undefined : 'lazy'}
+                    sizes="(max-width: 768px) 100vw, 50vw"
                   />
 
                   {/* Gradient Overlay */}
@@ -632,8 +634,8 @@ export default function HeroSection({
                       {currentSlideData.type === 'buyer'
                         ? t('Hero.SlideType.for_buyers')
                         : currentSlideData.type === 'agent'
-                        ? t('Hero.SlideType.for_agents')
-                        : t('Hero.SlideType.services')}
+                          ? t('Hero.SlideType.for_agents')
+                          : t('Hero.SlideType.services')}
                     </span>
                     <h3 className="text-white text-lg font-bold mb-0.5">{currentSlideData.imageTitle}</h3>
                     <p className="text-white/70 text-xs">{currentSlideData.imageSubtitle}</p>
@@ -664,9 +666,8 @@ export default function HeroSection({
                 <button
                   key={index}
                   onClick={() => goToSlide(index)}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    currentSlide === index ? 'w-7 bg-yellow-400' : 'w-2 bg-white/30 hover:bg-white/50'
-                  }`}
+                  className={`h-2 rounded-full transition-all duration-300 ${currentSlide === index ? 'w-7 bg-yellow-400' : 'w-2 bg-white/30 hover:bg-white/50'
+                    }`}
                   role="tab"
                   aria-selected={currentSlide === index}
                   aria-label={`Go to slide ${index + 1}: ${slides[index].badge}`}
@@ -742,9 +743,8 @@ export default function HeroSection({
                         key={tab}
                         type="button"
                         onClick={() => setCurrentTab(tab)}
-                        className={`flex-1 lg:flex-none px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 hover:cursor-pointer ${
-                          currentTab === tab ? 'bg-[#2a1407] text-white shadow-md' : 'text-gray-600 hover:text-[#2a1407] hover:bg-gray-200'
-                        }`}
+                        className={`flex-1 lg:flex-none px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 hover:cursor-pointer ${currentTab === tab ? 'bg-[#2a1407] text-white shadow-md' : 'text-gray-600 hover:text-[#2a1407] hover:bg-gray-200'
+                          }`}
                       >
                         {t(`Hero.HeroMenu.${tab}`)}
                       </button>
@@ -760,9 +760,8 @@ export default function HeroSection({
                         setShowType(false)
                         setShowBudget(false)
                       }}
-                      className={`w-full flex items-center gap-2 px-4 py-3 rounded-xl transition-colors hover:cursor-pointer ${
-                        touched.district && errors.district ? 'bg-red-50 border-2 border-red-400' : 'bg-gray-50 hover:bg-gray-100'
-                      }`}
+                      className={`w-full flex items-center gap-2 px-4 py-3 rounded-xl transition-colors hover:cursor-pointer ${touched.district && errors.district ? 'bg-red-50 border-2 border-red-400' : 'bg-gray-50 hover:bg-gray-100'
+                        }`}
                     >
                       <MapPin className={`w-5 h-5 flex-shrink-0 ${touched.district && errors.district ? 'text-red-500' : 'text-gray-400'}`} />
                       <span className={`flex-1 text-left text-sm font-medium ${values.district ? 'text-gray-800' : 'text-gray-400'}`}>
@@ -794,9 +793,8 @@ export default function HeroSection({
                                 setFieldValue('district', district)
                                 setShowLocation(false)
                               }}
-                              className={`w-full px-4 py-2.5 text-left text-sm font-medium transition-colors flex items-center gap-2 hover:cursor-pointer ${
-                                values.district === district ? 'bg-yellow-50 text-[#2a1407]' : 'text-gray-700 hover:bg-gray-50 hover:text-[#2a1407]'
-                              }`}
+                              className={`w-full px-4 py-2.5 text-left text-sm font-medium transition-colors flex items-center gap-2 hover:cursor-pointer ${values.district === district ? 'bg-yellow-50 text-[#2a1407]' : 'text-gray-700 hover:bg-gray-50 hover:text-[#2a1407]'
+                                }`}
                             >
                               <MapPin className="w-4 h-4 text-gray-400" />
                               {district}

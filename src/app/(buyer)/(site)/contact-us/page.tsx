@@ -2,6 +2,8 @@ import React from 'react'
 import Link from 'next/link'
 import MapView from '@/components/ui/map/MapView'
 import { Instagram, Facebook, Twitter, Linkedin, Send, Mail, Phone, MapPin, Clock4, ArrowUpRight, Youtube } from 'lucide-react'
+import { generateLocalBusinessSchema } from '@/lib/jsonld'
+import Script from 'next/script'
 
 const socialLinks = [
   { label: 'Instagram', icon: Instagram, href: 'https://www.instagram.com/vaazhga._.valamudan?igsh=MXA1OGp5cnY5ZHR6YQ==' },
@@ -49,8 +51,15 @@ const officeHours = [
 ]
 
 export default function ContactUs() {
+  const localBusinessSchema = generateLocalBusinessSchema()
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#0a0501] via-[#120a05] to-[#1d1007]">
+      <Script
+        id="local-business-schema"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
+      />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,193,7,0.2),_transparent_55%)]" />
       <div className="pointer-events-none absolute inset-y-0 left-1/2 w-[70vw] -translate-x-1/2 bg-[linear-gradient(120deg,rgba(255,255,255,0.08),transparent)] opacity-40 blur-3xl" />
 
@@ -58,7 +67,7 @@ export default function ContactUs() {
         <div className="text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.4em] text-amber-300">Let's talk</p>
           <h1 className="mt-4 text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
-            Crafting bold real-estate journeys for modern Tamil Nadu
+            Vaazhga Valamudan: Real Estate Solutions for Modern Tamil Nadu
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base text-stone-300 sm:text-lg">
             Whether you are strategizing your next project or looking for a dedicated partner, our team is ready with data-backed insights, curated

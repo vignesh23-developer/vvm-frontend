@@ -31,6 +31,11 @@ export const SITE_CONFIG = {
         'commercial property Tamil Nadu',
         'real estate agent Tamil Nadu',
         'property listing Tamil Nadu',
+        'Tamil Nadu property portal',
+        'verified properties Tamil Nadu',
+        'direct owner properties Tamil Nadu',
+        'best real estate site in Tamil Nadu',
+        'plots for sale in Tamil Nadu',
     ] as string[],
     contact: {
         email: 'contact@vaazhgavalamudan.com',
@@ -103,10 +108,9 @@ export const DEFAULT_METADATA: Metadata = {
 
     // Alternate languages
     alternates: {
-        canonical: SITE_CONFIG.url,
         languages: {
-            'ta-IN': `${SITE_CONFIG.url}/ta`,
-            'en-IN': `${SITE_CONFIG.url}/en`,
+            'ta-IN': '/ta',
+            'en-IN': '/en',
         },
     },
 

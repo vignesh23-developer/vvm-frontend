@@ -245,11 +245,11 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
   const agentMenu: SimpleNavItem[] = [
     { href: '/admin/dashboard', icon: <LayoutDashboard className="w-4 h-4" />, label: ui.dashboard },
 
-    { href: '/properties/list', icon: <Building2 className="w-4 h-4" />, label: ui.allProperties },
+    { href: '/properties-list', icon: <Building2 className="w-4 h-4" />, label: ui.allProperties },
     { href: '/admin/dashboard/properties-pending-approval', icon: <Clock className="w-4 h-4" />, label: ui.pending },
     { href: '/admin/dashboard/property-reports', icon: <AlertTriangle className="w-4 h-4" />, label: ui.reported },
 
-    { href: '/ads/list', icon: <Megaphone className="w-4 h-4" />, label: ui.allAds },
+    { href: '/ads-list', icon: <Megaphone className="w-4 h-4" />, label: ui.allAds },
     { href: '/admin/dashboard/ads-reports', icon: <AlertTriangle className="w-4 h-4" />, label: ui.reportedAds },
 
     { href: '/admin/dashboard/property-enquiry', icon: <MessageSquare className="w-4 h-4" />, label: ui.enquiries, badge: newEnquiriesCount },
@@ -295,15 +295,13 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`relative px-4 py-2 font-medium text-sm transition-colors ${
-                      isActive ? 'text-yellow-400' : 'text-white/90 hover:text-yellow-400'
-                    }`}
+                    className={`relative px-4 py-2 font-medium text-sm transition-colors ${isActive ? 'text-yellow-400' : 'text-white/90 hover:text-yellow-400'
+                      }`}
                   >
                     {t(`Navbar.${link.label}`)}
                     <span
-                      className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-yellow-400 transition-all duration-300 ${
-                        isActive ? 'w-4/5' : 'w-0'
-                      }`}
+                      className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-yellow-400 transition-all duration-300 ${isActive ? 'w-4/5' : 'w-0'
+                        }`}
                     />
                   </Link>
                 )
@@ -320,16 +318,14 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                     onKeyDown={e => {
                       if (e.key === 'Escape') setShowMore(false)
                     }}
-                    className={`relative px-4 py-2 font-medium text-sm transition-colors flex items-center gap-1 hover:cursor-pointer ${
-                      isMoreActive || showMore ? 'text-yellow-400' : 'text-white/90 hover:text-yellow-400'
-                    }`}
+                    className={`relative px-4 py-2 font-medium text-sm transition-colors flex items-center gap-1 hover:cursor-pointer ${isMoreActive || showMore ? 'text-yellow-400' : 'text-white/90 hover:text-yellow-400'
+                      }`}
                   >
                     {t('Navbar.more')}
                     <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showMore ? 'rotate-180' : ''}`} />
                     <span
-                      className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-yellow-400 transition-all duration-300 ${
-                        isMoreActive || showMore ? 'w-4/5' : 'w-0'
-                      }`}
+                      className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-yellow-400 transition-all duration-300 ${isMoreActive || showMore ? 'w-4/5' : 'w-0'
+                        }`}
                     />
                   </button>
 
@@ -344,9 +340,8 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                           href={link.href}
                           onClick={() => setShowMore(false)}
                           role="menuitem"
-                          className={`block px-4 py-2 text-sm transition-colors ${
-                            isActiveLink(link.href) ? 'bg-yellow-50 text-yellow-700' : 'text-gray-700 hover:bg-gray-50'
-                          }`}
+                          className={`block px-4 py-2 text-sm transition-colors ${isActiveLink(link.href) ? 'bg-yellow-50 text-yellow-700' : 'text-gray-700 hover:bg-gray-50'
+                            }`}
                         >
                           {t(`Navbar.${link.label}`)}
                         </Link>
@@ -374,18 +369,16 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                     <div className="absolute top-full right-0 mt-2 w-36 bg-gradient-to-br from-[#fdf5eb] via-[#fef9f0] to-[#fdf5eb] rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50">
                       <button
                         onClick={() => handleLanguageChange('en')}
-                        className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${
-                          locale === 'en' ? 'bg-yellow-50 text-yellow-700' : 'text-gray-700 hover:bg-gray-50'
-                        }`}
+                        className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${locale === 'en' ? 'bg-yellow-50 text-yellow-700' : 'text-gray-700 hover:bg-gray-50'
+                          }`}
                       >
                         <span>🇬🇧</span> English
                         {locale === 'en' && <Check className="w-3.5 h-3.5 ml-auto text-yellow-500" />}
                       </button>
                       <button
                         onClick={() => handleLanguageChange('ta')}
-                        className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${
-                          locale === 'ta' ? 'bg-yellow-50 text-yellow-700' : 'text-gray-700 hover:bg-gray-50'
-                        }`}
+                        className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${locale === 'ta' ? 'bg-yellow-50 text-yellow-700' : 'text-gray-700 hover:bg-gray-50'
+                          }`}
                       >
                         <span>🇮🇳</span> தமிழ்
                         {locale === 'ta' && <Check className="w-3.5 h-3.5 ml-auto text-yellow-500" />}
@@ -437,9 +430,8 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                   <div ref={profileRef} className="relative hidden sm:block">
                     <button
                       onClick={() => setIsProfileOpen(!isProfileOpen)}
-                      className={`flex items-center gap-2 p-1.5 rounded-lg transition-all cursor-pointer ${
-                        isProfileOpen ? 'bg-white/20' : 'hover:bg-white/10'
-                      }`}
+                      className={`flex items-center gap-2 p-1.5 rounded-lg transition-all cursor-pointer ${isProfileOpen ? 'bg-white/20' : 'hover:bg-white/10'
+                        }`}
                     >
                       {/* Avatar */}
                       <div className="w-8 h-8 rounded-lg bg-gray-200 flex items-center justify-center overflow-hidden">
@@ -461,9 +453,8 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                     {/* DROPDOWN MENU */}
                     {isProfileOpen && (
                       <div
-                        className={`absolute top-full right-0 mt-2 ${
-                          isAdmin ? 'w-[400px]' : 'w-64'
-                        } bg-gradient-to-br from-[#fdf5eb] via-[#fef9f0] to-[#fdf5eb] rounded-xl shadow-2xl border border-[#e8d5c4] overflow-hidden z-50`}
+                        className={`absolute top-full right-0 mt-2 ${isAdmin ? 'w-[400px]' : 'w-64'
+                          } bg-gradient-to-br from-[#fdf5eb] via-[#fef9f0] to-[#fdf5eb] rounded-xl shadow-2xl border border-[#e8d5c4] overflow-hidden z-50`}
                       >
                         {/* Header */}
                         <div className="p-4 border-b border-[#e8d5c4]/60">
@@ -514,11 +505,10 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                               <button
                                 key={tab.id}
                                 onClick={() => setActiveAdminTab(tab.id)}
-                                className={`flex-1 px-2 py-2 text-[11px] font-medium capitalize transition-all cursor-pointer ${
-                                  activeAdminTab === tab.id
+                                className={`flex-1 px-2 py-2 text-[11px] font-medium capitalize transition-all cursor-pointer ${activeAdminTab === tab.id
                                     ? 'bg-[#fdf5eb] text-[#2b1b12] border-b-2 border-[#b8864b]'
                                     : 'text-[#5c4533] hover:text-[#2b1b12]'
-                                }`}
+                                  }`}
                               >
                                 {tab.label}
                                 {tab.id === 'manage' && totalPendingActions > 0 && (
@@ -641,7 +631,7 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                                     <MiniLink href="/admin/dashboard/ads-category" label={ui.adsCategory} onClick={closeMenu} />
                                   </div>
                                   <MenuSection label={ui.propertiesAds} />
-                                  <MenuItem href="/properties/list" label={ui.allProperties} onClick={closeMenu} />
+                                  <MenuItem href="/properties-list" label={ui.allProperties} onClick={closeMenu} />
                                   <MenuItem
                                     href="/admin/dashboard/properties-pending-approval"
                                     label={ui.pendingProperties}
@@ -656,7 +646,7 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                                     badgeColor="red"
                                     onClick={closeMenu}
                                   />
-                                  <MenuItem href="/ads/list" label={ui.allAds} onClick={closeMenu} />
+                                  <MenuItem href="/ads-list" label={ui.allAds} onClick={closeMenu} />
                                   <MenuItem
                                     href="/admin/dashboard/ads-pending-approval"
                                     label={ui.pendingAds}
@@ -797,9 +787,8 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
 
       {/* MOBILE MENU */}
       <div
-        className={`fixed top-0 right-0 h-full w-72 max-w-[85vw] bg-white z-50 shadow-2xl transform transition-transform duration-300 lg:hidden ${
-          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
+        className={`fixed top-0 right-0 h-full w-72 max-w-[85vw] bg-white z-50 shadow-2xl transform transition-transform duration-300 lg:hidden ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
       >
         <div className="flex flex-col h-full">
           <div className="p-4 bg-[#2a1407] flex items-center justify-between">
@@ -816,17 +805,15 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
               <div className="flex gap-1">
                 <button
                   onClick={() => handleLanguageChange('en')}
-                  className={`px-3 py-1 text-xs font-medium rounded ${
-                    locale === 'en' ? 'bg-yellow-400 text-[#2a1407]' : 'bg-gray-100 text-gray-600'
-                  }`}
+                  className={`px-3 py-1 text-xs font-medium rounded ${locale === 'en' ? 'bg-yellow-400 text-[#2a1407]' : 'bg-gray-100 text-gray-600'
+                    }`}
                 >
                   English
                 </button>
                 <button
                   onClick={() => handleLanguageChange('ta')}
-                  className={`px-3 py-1 text-xs font-medium rounded ${
-                    locale === 'ta' ? 'bg-yellow-400 text-[#2a1407]' : 'bg-gray-100 text-gray-600'
-                  }`}
+                  className={`px-3 py-1 text-xs font-medium rounded ${locale === 'ta' ? 'bg-yellow-400 text-[#2a1407]' : 'bg-gray-100 text-gray-600'
+                    }`}
                 >
                   தமிழ்
                 </button>
@@ -842,9 +829,8 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                   key={link.href}
                   href={link.href}
                   onClick={closeMobileMenu}
-                  className={`block px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                    isActive ? 'bg-yellow-50 text-yellow-700' : 'text-gray-700 hover:bg-gray-50'
-                  }`}
+                  className={`block px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive ? 'bg-yellow-50 text-yellow-700' : 'text-gray-700 hover:bg-gray-50'
+                    }`}
                 >
                   {t(`Navbar.${link.label}`)}
                 </Link>
@@ -896,7 +882,7 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                   <>
                     <p className="mt-2 px-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">{ui.myProperties}</p>
                     <Link
-                      href="/properties/list"
+                      href="/properties-list"
                       onClick={closeMobileMenu}
                       className="flex items-center gap-2 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg text-sm font-medium"
                     >
@@ -919,7 +905,7 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
 
                     <p className="mt-2 px-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">{ui.myAds}</p>
                     <Link
-                      href="/ads/list"
+                      href="/ads-list"
                       onClick={closeMobileMenu}
                       className="flex items-center gap-2 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg text-sm font-medium"
                     >
@@ -996,7 +982,7 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
 
                     <p className="mt-3 px-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">{ui.propertiesAds}</p>
                     <Link
-                      href="/properties/list"
+                      href="/properties-list"
                       onClick={closeMobileMenu}
                       className="flex items-center gap-2 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg text-sm font-medium"
                     >
@@ -1028,7 +1014,7 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                     </Link>
 
                     <Link
-                      href="/ads/list"
+                      href="/ads-list"
                       onClick={closeMobileMenu}
                       className="flex items-center gap-2 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg text-sm font-medium"
                     >

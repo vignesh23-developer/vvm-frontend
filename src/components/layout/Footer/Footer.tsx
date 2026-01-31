@@ -164,9 +164,11 @@ export default function Footer() {
                   <MapPin size={16} className="text-yellow-400" />
                 </div>
                 <p className="text-sm text-gray-300 leading-snug group-hover:text-white transition-colors">
-                  Trichy & Chennai,
+                  Vaazhga Valamudan Digital Realty,
                   <br />
-                  Tamil Nadu
+                  No D-54/1, SP Arcade, Thillai Nagar,
+                  <br />
+                  Tiruchirappalli – 620018.
                 </p>
               </div>
 

@@ -129,12 +129,12 @@ const About = () => {
           variants={itemVariants}
           className="space-y-8 rounded-[36px] border border-white/70 bg-white/80 px-10 py-12 text-center shadow-[0_20px_80px_rgba(43,27,18,0.12)] backdrop-blur lg:text-left"
         >
-          <motion.span
+          <motion.h1
             variants={itemVariants}
-            className="inline-flex items-center justify-center rounded-full border border-[#b8864b]/40 bg-white/70 px-5 py-1 text-xs font-semibold uppercase tracking-[0.32em] text-[#7a4a1d]"
+            className="inline-flex items-center justify-center rounded-full border border-[#b8864b]/40 bg-white/70 px-6 py-2 text-xl sm:text-2xl font-bold uppercase tracking-wide text-[#7a4a1d]"
           >
             {t('About.header')}
-          </motion.span>
+          </motion.h1>
 
           {/* <motion.h2 variants={itemVariants} className="text-3xl sm:text-4xl font-extrabold leading-tight text-[#2b1b12]">
             {t('About.title')}

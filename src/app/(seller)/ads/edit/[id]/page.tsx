@@ -20,7 +20,7 @@ export default function AdsEditPage() {
       try {
         setIsLoading(true)
         const response = await getAdById(adId)
-        
+
         if (response.error) {
           setError(response.message || 'Failed to load ad')
           toast.error(response.message || 'Failed to load ad')
@@ -84,7 +84,7 @@ export default function AdsEditPage() {
         <div className="text-center">
           <p className="text-red-600 mb-4">{error || 'Ad not found'}</p>
           <button
-            onClick={() => router.push('/ads/list')}
+            onClick={() => router.push('/ads-list')}
             className="px-4 py-2 bg-[#2a1407] text-white rounded-lg hover:bg-[#641717]"
           >
             Back to Ads List

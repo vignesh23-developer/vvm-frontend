@@ -255,7 +255,7 @@ export default function AdsForm({ mode, initialData, adId }: AdsFormProps) {
               {currentStep === 4 && (
                 <AdsImages
                   adId={createdAdId || adId || ''}
-                  onUploaded={() => router.push('/ads/list')}
+                  onUploaded={() => router.push('/ads-list')}
                   onUploadingChange={setIsUploadingImages}
                   onHasMediaChange={setHasAddedMedia}
                   onHasExistingMediaChange={setHasExistingMedia}
@@ -282,9 +282,8 @@ export default function AdsForm({ mode, initialData, adId }: AdsFormProps) {
                   <button
                     type="submit"
                     disabled={formik.isSubmitting || adIsPending}
-                    className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#2a1407] text-white hover:bg-[#641717] cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ${
-                      formik.isSubmitting || adIsPending ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
+                    className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#2a1407] text-white hover:bg-[#641717] cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ${formik.isSubmitting || adIsPending ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                   >
                     {formik.isSubmitting || adIsPending ? (
                       'Loading...'
@@ -302,12 +301,11 @@ export default function AdsForm({ mode, initialData, adId }: AdsFormProps) {
                     onClick={() => {
                       const shouldUpload = hasAddedMedia || !hasExistingMedia
                       if (shouldUpload) uploadImagesRef.current?.submit()
-                      else router.push('/ads/list')
+                      else router.push('/ads-list')
                     }}
                     disabled={isUploadingImages}
-                    className={`w-full flex items-center justify-center gap-2 px-8 py-3 rounded-lg bg-[#2a1407] text-white hover:bg-[#641717] cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ${
-                      isUploadingImages ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
+                    className={`w-full flex items-center justify-center gap-2 px-8 py-3 rounded-lg bg-[#2a1407] text-white hover:bg-[#641717] cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ${isUploadingImages ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                   >
                     {isUploadingImages ? 'Uploading...' : hasAddedMedia || !hasExistingMedia ? 'Upload Images' : 'Go to Ads List'}
                   </button>

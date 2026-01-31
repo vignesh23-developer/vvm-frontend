@@ -188,13 +188,7 @@ export default function PopularProperties({
       <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-tl from-yellow-200/8 via-transparent to-transparent rounded-tl-[150px] pointer-events-none z-[1]" />
 
       {/* Subtle Grid Pattern */}
-      <div
-        className="absolute inset-0 opacity-[0.015] z-[1] pointer-events-none"
-        style={{
-          backgroundImage: 'linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)',
-          backgroundSize: '50px 50px',
-        }}
-      />
+      <div className="absolute inset-0 opacity-[0.015] z-[1] pointer-events-none bg-[linear-gradient(rgba(0,0,0,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.1)_1px,transparent_1px)] bg-[length:50px_50px]" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Premium Section Header */}
@@ -262,15 +256,11 @@ export default function PopularProperties({
                 onMouseEnter={() => setHovered(index)}
                 onMouseLeave={() => setHovered(null)}
                 className={cn(
-                  'group relative flex flex-col bg-white rounded-xl sm:rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ease-out',
-                  hovered === index && 'scale-[1.02] z-10',
+                  'group relative flex flex-col bg-white rounded-xl sm:rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ease-out shadow-[0_8px_25px_rgba(0,0,0,0.08),0_2px_10px_rgba(0,0,0,0.04)]',
+                  hovered === index && 'scale-[1.02] z-10 shadow-[0_20px_50px_rgba(0,0,0,0.15),0_8px_25px_rgba(251,191,36,0.1)]'
                 )}
                 style={{
                   minHeight: '16rem',
-                  boxShadow:
-                    hovered === index
-                      ? '0 20px 50px rgba(0, 0, 0, 0.15), 0 8px 25px rgba(251, 191, 36, 0.1)'
-                      : '0 8px 25px rgba(0, 0, 0, 0.08), 0 2px 10px rgba(0, 0, 0, 0.04)',
                 }}
               >
                 {/* Premium Border Glow */}
