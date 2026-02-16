@@ -109,8 +109,7 @@ export const DEFAULT_METADATA: Metadata = {
     // Alternate languages
     alternates: {
         languages: {
-            'ta-IN': '/ta',
-            'en-IN': '/en',
+            'ta-IN': '/',
         },
     },
 
@@ -243,6 +242,39 @@ export function generateStaticPageMetadata(
             card: 'summary_large_image',
             site: SITE_CONFIG.twitterHandle,
             title: `${title} | ${SITE_CONFIG.name}`,
+            description,
+        },
+        alternates: {
+            canonical: url,
+        },
+    }
+}
+
+type MetadataProps = {
+    title: string
+    description: string
+    path: string
+}
+
+export function processMetadata({ title, description, path }: MetadataProps): Metadata {
+    const url = `${SITE_CONFIG.url}${path === '/' ? '' : path}`
+
+    return {
+        ...DEFAULT_METADATA,
+        title: {
+            default: title,
+            template: `%s | ${SITE_CONFIG.name}`,
+        },
+        description,
+        openGraph: {
+            ...DEFAULT_METADATA.openGraph,
+            url,
+            title,
+            description,
+        },
+        twitter: {
+            ...DEFAULT_METADATA.twitter,
+            title,
             description,
         },
         alternates: {

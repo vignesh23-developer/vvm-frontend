@@ -4,6 +4,13 @@ import MapView from '@/components/ui/map/MapView'
 import { Instagram, Facebook, Twitter, Linkedin, Send, Mail, Phone, MapPin, Clock4, ArrowUpRight, Youtube } from 'lucide-react'
 import { generateLocalBusinessSchema } from '@/lib/jsonld'
 import Script from 'next/script'
+import { generateStaticPageMetadata } from '@/lib/seo'
+
+export const metadata = generateStaticPageMetadata(
+  'Contact Us',
+  'Get in touch with Vaazhga Valamudan for real estate inquiries in Tamil Nadu.',
+  '/contact-us'
+)
 
 const socialLinks = [
   { label: 'Instagram', icon: Instagram, href: 'https://www.instagram.com/vaazhga._.valamudan?igsh=MXA1OGp5cnY5ZHR6YQ==' },

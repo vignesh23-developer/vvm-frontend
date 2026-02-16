@@ -1,5 +1,12 @@
 import { appEndpoints } from '@/services/endpoints'
 import PricingPlansClient from '@/components/Plans/PricingPlansClient'
+import { generateStaticPageMetadata } from '@/lib/seo'
+
+export const metadata = generateStaticPageMetadata(
+  'Pricing Plans',
+  'Choose the best plan to sell or rent your property fast on Vaazhga Valamudan.',
+  '/pricing'
+)
 
 // Force dynamic rendering - don't try to statically generate this page
 export const dynamic = 'force-dynamic'

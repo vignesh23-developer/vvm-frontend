@@ -12,6 +12,20 @@ const withPWA = withPWAInit({
 })
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      {
+        source: '/explore/:district',
+        destination: '/exploreByDistricts?search=:district',
+        permanent: true,
+      },
+      {
+        source: '/en',
+        destination: '/',
+        permanent: true,
+      },
+    ]
+  },
   async headers() {
     return [
       {
@@ -20,6 +34,33 @@ const nextConfig: NextConfig = {
           {
             key: 'Permissions-Policy',
             value: 'compute-pressure=()',
+          },
+        ],
+      },
+      {
+        source: '/manifest.json',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow',
+          },
+        ],
+      },
+      {
+        source: '/_next/static/media/(.*)',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow',
+          },
+        ],
+      },
+      {
+        source: '/api/(.*)',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow',
           },
         ],
       },

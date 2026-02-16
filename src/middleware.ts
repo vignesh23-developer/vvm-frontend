@@ -15,7 +15,13 @@ const safeJsonParse = <T>(value: string | undefined, fallback: T): T => {
 }
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
+  const { pathname, host, protocol } = request.nextUrl
+
+  // Force non-www
+  if (host.startsWith('www.')) {
+    const newHost = host.replace('www.', '')
+    return NextResponse.redirect(`${protocol}//${newHost}${pathname}${request.nextUrl.search}`, 301)
+  }
 
   const rawToken = request.cookies.get(TOKEN_COOKIE)?.value
   // `authToken` is stored via JSON.stringify in server actions, so it can be
