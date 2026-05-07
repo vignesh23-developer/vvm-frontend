@@ -4,19 +4,14 @@ import { useState } from 'react'
 import { postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import { setLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
-import { useUserSubscription } from '@/components/Plans/hooks/useUserSubscription'
 import { useKycStatus } from './hooks/useKycStatus'
 import toast from 'react-hot-toast'
-import KYCPayment from '@/components/payment/KYCPayment'
 import Image from 'next/image'
 import { ShieldCheck, Shield, Loader2, Lock, Calendar } from 'lucide-react'
 
 export default function KYCStatus() {
-  const { activeSubscription, loading: subscriptionLoading } = useUserSubscription()
   const { kycStatus, loading } = useKycStatus()
   const [initiating, setInitiating] = useState(false)
-
-  const directCallToKyc = activeSubscription?.isActive == true || kycStatus?.latestAttempt?.status === 'PENDING'
 
   const handleInitiateKyc = async () => {
     try {
@@ -27,7 +22,7 @@ export default function KYCStatus() {
         redirectUrl,
         verificationType: 'AADHAAR',
         entityType: 'USER',
-        directCall: directCallToKyc,
+        directCall: true,
       })
 
       if (response.error) {
@@ -67,7 +62,7 @@ export default function KYCStatus() {
     }
   }
 
-  if (loading || subscriptionLoading) {
+  if (loading) {
     return (
       <div className="bg-white rounded-2xl border border-[#e8d5c4] p-8 flex items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-[#b8864b]" />
@@ -148,37 +143,23 @@ export default function KYCStatus() {
         </p>
 
         {/* CTA Section */}
-        {directCallToKyc ? (
-          <button
-            onClick={handleInitiateKyc}
-            disabled={initiating}
-            className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${initiating
+        <button
+          onClick={handleInitiateKyc}
+          disabled={initiating}
+          className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${
+            initiating
               ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
               : 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#2a1407] hover:shadow-lg hover:shadow-yellow-400/30'
-              }`}
-          >
-            {initiating ? (
-              <span className="flex items-center justify-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin" /> Processing...
-              </span>
-            ) : (
-              'Start Verification'
-            )}
-          </button>
-        ) : (
-          <div className="space-y-4">
-            {/* Fee Info */}
-            <div className="bg-[#fdf5eb] rounded-xl p-3 border border-[#e8d5c4]">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-[#7a4a1d]">Verification Fee</span>
-                <span className="text-base font-bold text-[#2a1407]">₹100</span>
-              </div>
-              <p className="text-[10px] text-[#7a4a1d]/70 mt-1">One-time payment</p>
-            </div>
-
-            <KYCPayment />
-          </div>
-        )}
+          }`}
+        >
+          {initiating ? (
+            <span className="flex items-center justify-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin" /> Processing...
+            </span>
+          ) : (
+            'Start Verification'
+          )}
+        </button>
 
         {/* Security Footer */}
         <p className="text-[10px] text-gray-400 mt-4 flex items-center justify-center gap-1.5">
