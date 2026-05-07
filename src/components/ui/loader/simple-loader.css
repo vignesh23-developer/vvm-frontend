@@ -1,0 +1,67 @@
+.vvm-simple-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: #2a1407;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    transition: opacity 0.5s ease-out;
+}
+
+.vvm-simple-loader.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.vvm-loader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+}
+
+.vvm-loader-logo {
+    width: 200px;
+    height: auto;
+    animation: pulse 2s infinite ease-in-out;
+}
+
+.vvm-progress-container {
+    width: 200px;
+    height: 4px;
+    background: rgba(253, 224, 71, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+}
+
+.vvm-progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: #fde047;
+    width: 0%;
+    animation: progress 1.2s forwards ease-in-out;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 1;
+    }
+}
+
+@keyframes progress {
+    0% { width: 0%; }
+    100% { width: 100%; }
+}

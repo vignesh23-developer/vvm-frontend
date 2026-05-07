@@ -9,7 +9,7 @@ import { GlobalProvider } from '@/hooks/GlobalContext/GlobalContext'
 import { cookies } from 'next/headers'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import ConnectivityNotifier from '@/components/common/ConnectivityNotifier'
-import LoadingAnimation from '../components/ui/loader/LoadingAnimation'
+import LoaderController from '../components/ui/loader/LoaderController'
 import ScrollToTop from '@/components/common/ScrollToTop'
 import GlobalNotificationListener from '@/components/Notification/GlobalNotificationListener'
 import FacebookPixel from '@/components/analytics/FacebookPixel'
@@ -172,7 +172,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       >
         <AuthProvider initialUser={initialUser} initialToken={initialToken}>
           <GlobalProvider>
-            <LoadingAnimation />
+            <LoaderController />
             <TranslationProvider>
               <ConnectivityNotifier />
               <GlobalNotificationListener />
