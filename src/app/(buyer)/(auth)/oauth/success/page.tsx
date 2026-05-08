@@ -7,6 +7,7 @@ import { getMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import { ResponseDTO } from '@/components/dto/response_dto'
 import { motion } from 'framer-motion'
+import { OAUTH_RETURN_NEXT_KEY } from '@/components/auth/LoginFormPanel'
 
 const OAuthSuccess = () => {
   const router = useRouter()
@@ -61,8 +62,16 @@ const OAuthSuccess = () => {
         // Small delay before redirect to ensure state is updated
         await new Promise(resolve => setTimeout(resolve, 100))
 
-        // Redirect to home or next URL
-        const redirectUrl = next || '/'
+        let storedNext: string | null = null
+        try {
+          storedNext = sessionStorage.getItem(OAUTH_RETURN_NEXT_KEY)
+          sessionStorage.removeItem(OAUTH_RETURN_NEXT_KEY)
+        } catch {
+          /* ignore */
+        }
+        const fromQuery = next && next.startsWith('/') ? next : null
+        const fromStorage = storedNext && storedNext.startsWith('/') ? storedNext : null
+        const redirectUrl = fromQuery ?? fromStorage ?? '/'
         router.push(redirectUrl)
       } catch (err) {
         console.error('OAuth success error:', err)

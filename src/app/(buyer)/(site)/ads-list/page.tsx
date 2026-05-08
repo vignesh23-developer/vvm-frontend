@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import useSWR from 'swr'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
@@ -14,6 +14,10 @@ import { AdsListDto } from '@/app/(buyer)/(site)/ads-list/(dto)/AdsListDto'
 import AdvancedFilters from '@/components/ui/AdvancedFilter/AdvancedFilters'
 import AdsCard from '@/components/buyer/Ads/AdsCard'
 import toast from 'react-hot-toast'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { useLoginModal } from '@/components/auth/LoginModalProvider'
+
+const ADS_LIST_PATH = '/ads-list'
 
 // Enhanced Agent Card Skeleton - Vertical for Grid
 const AdsCardSkeleton = () => (
@@ -80,7 +84,7 @@ interface FilterState {
   radius?: string
 }
 
-const AdsListPage = () => {
+function AdsListPageContent() {
   const t = useTranslations()
   const router = useRouter()
   const [page, setPage] = useState(1)
@@ -169,10 +173,9 @@ const AdsListPage = () => {
     return false
   }, [filters])
 
-  const { adsListData, adsListTotal, adsListFetchErr, adsListFetchLoader, adsListRefresh } = useAdsListHook({
+  const { adsListData, adsListTotal, adsListFetchLoader, adsListRefresh } = useAdsListHook({
     page,
     limit,
-    // approval_status: 'approved',
   })
 
   const shouldUseAdvancedResults = trimmedSearch.length > 0 || hasActiveAdsFilters
@@ -211,12 +214,11 @@ const AdsListPage = () => {
     return [] as string[]
   }, [autocompleteResponse])
 
-  const baseTotal = Number(adsListTotal ?? adsListData?.length ?? 0)
-  const totalResults = shouldUseAdvancedResults ? searchedTotal ?? 0 : baseTotal
+  const totalResults = searchedTotal ?? 0
   const totalPages = Math.max(1, Math.ceil((totalResults || 0) / limit))
 
-  const displayedAds: AdsListDto[] = (shouldUseAdvancedResults ? searchedAds : adsListData) ?? []
-  const isLoadingList = shouldUseAdvancedResults ? isLoadingSearchedAds : adsListFetchLoader
+  const displayedAds: AdsListDto[] = searchedAds ?? []
+  const isLoadingList = isLoadingSearchedAds
 
   const changePage = (page: number) => setPage(Math.max(1, Math.min(page, totalPages)))
 
@@ -245,7 +247,7 @@ const AdsListPage = () => {
     })
 
     return Array.from(suggestionsSet).slice(0, 8)
-  }, [debouncedSearch, backendSuggestions, searchedAds, adsListData, shouldUseAdvancedResults])
+  }, [debouncedSearch, backendSuggestions, searchedAds])
 
   const handleClearFilters = () => {
     setFilters({
@@ -598,6 +600,39 @@ const AdsListPage = () => {
       </div>
     </motion.div>
   )
+}
+
+function AdsListPage() {
+  const router = useRouter()
+  const { token, loading: authLoading } = useAuth()
+  const { openLoginModal } = useLoginModal()
+  const guestGateDone = useRef(false)
+
+  useEffect(() => {
+    if (authLoading || token) return
+    if (guestGateDone.current) return
+    guestGateDone.current = true
+    openLoginModal({ next: ADS_LIST_PATH })
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back()
+    } else {
+      router.replace('/')
+    }
+  }, [authLoading, token, openLoginModal, router])
+
+  if (authLoading) {
+    return (
+      <div className="min-h-[50vh] flex items-center justify-center text-gray-500 text-sm" aria-busy="true">
+        Loading...
+      </div>
+    )
+  }
+
+  if (!token) {
+    return null
+  }
+
+  return <AdsListPageContent />
 }
 
 export default AdsListPage

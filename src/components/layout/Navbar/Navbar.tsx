@@ -33,6 +33,7 @@ import { useRouter } from 'next/navigation'
 import { useTranslationContext } from '@/hooks/Translation/TranslationProvider'
 import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { useLoginModal } from '@/components/auth/LoginModalProvider'
 import { useGlobalContext } from '@/hooks/GlobalContext/GlobalContext'
 import formatName from '@/utils/converter/formatName'
 import { appEndpoints } from '@/services/endpoints'
@@ -60,6 +61,9 @@ const NAV_LINKS = [
   { label: 'about_us', href: '/about' },
 ]
 
+/** Public nav targets that require login — stay on current page and open modal for guests */
+const AUTH_GATE_PUBLIC_HREFS = new Set<string>(['/ads-list'])
+
 type SimpleNavItem = {
   href: string
   label: string
@@ -75,11 +79,12 @@ type SimpleNavItem = {
 export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, showLanguageSelector = true }: NavbarProps) {
   const t = useTranslations()
   const pathname = usePathname()
-  const { logout, user, token } = useAuth()
+  const { logout, user, token, loading: authLoading } = useAuth()
   const { reset } = useGlobalContext()
   const { locale, setLocale } = useTranslationContext()
   const isTamil = locale === 'ta'
   const router = useRouter()
+  const { openLoginModal } = useLoginModal()
   const [showMore, setShowMore] = useState(false)
 
   const visibleLinks = isTamil ? NAV_LINKS.slice(0, 3) : NAV_LINKS
@@ -210,7 +215,7 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
     reset()
     setIsProfileOpen(false)
     setIsMobileMenuOpen(false)
-    router.push('/login')
+    router.push('/')
   }
 
   const closeMenu = () => setIsProfileOpen(false)
@@ -295,6 +300,12 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                   <Link
                     key={link.href}
                     href={link.href}
+                    onClick={e => {
+                      if (!authLoading && !token && AUTH_GATE_PUBLIC_HREFS.has(link.href)) {
+                        e.preventDefault()
+                        openLoginModal({ next: link.href })
+                      }
+                    }}
                     className={`relative px-4 py-2 font-medium text-sm transition-colors ${isActive ? 'text-yellow-400' : 'text-white/90 hover:text-yellow-400'
                       }`}
                   >
@@ -338,7 +349,15 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                         <Link
                           key={link.href}
                           href={link.href}
-                          onClick={() => setShowMore(false)}
+                          onClick={e => {
+                            if (!authLoading && !token && AUTH_GATE_PUBLIC_HREFS.has(link.href)) {
+                              e.preventDefault()
+                              setShowMore(false)
+                              openLoginModal({ next: link.href })
+                              return
+                            }
+                            setShowMore(false)
+                          }}
                           role="menuitem"
                           className={`block px-4 py-2 text-sm transition-colors ${isActiveLink(link.href) ? 'bg-yellow-50 text-yellow-700' : 'text-gray-700 hover:bg-gray-50'
                             }`}
@@ -757,9 +776,13 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                 /* PUBLIC */
                 showLoginButton && (
                   <>
-                    <Link href="/login" className="px-3 py-2 text-white font-medium text-sm hover:text-yellow-400 transition-colors">
+                    <button
+                      type="button"
+                      onClick={() => openLoginModal()}
+                      className="px-3 py-2 text-white font-medium text-sm hover:text-yellow-400 transition-colors"
+                    >
                       {t('Auth.login')}
-                    </Link>
+                    </button>
                     <Link
                       href="/signup"
                       className="px-2 py-2 bg-white/10 text-white font-semibold text-xs rounded-lg hover:bg-white hover:text-[#2a1407] transition-all"
@@ -828,7 +851,15 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                 <Link
                   key={link.href}
                   href={link.href}
-                  onClick={closeMobileMenu}
+                  onClick={e => {
+                    if (!authLoading && !token && AUTH_GATE_PUBLIC_HREFS.has(link.href)) {
+                      e.preventDefault()
+                      closeMobileMenu()
+                      openLoginModal({ next: link.href })
+                      return
+                    }
+                    closeMobileMenu()
+                  }}
                   className={`block px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive ? 'bg-yellow-50 text-yellow-700' : 'text-gray-700 hover:bg-gray-50'
                     }`}
                 >
@@ -1152,13 +1183,16 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                   <Plus className="w-4 h-4" /> {ui.postProperty}
                 </Link>
                 <div className="flex gap-2">
-                  <Link
-                    href="/login"
-                    onClick={closeMobileMenu}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      closeMobileMenu()
+                      openLoginModal()
+                    }}
                     className="flex-1 px-3 py-2 text-center text-[#2a1407] text-sm font-medium border border-[#2a1407] rounded-lg"
                   >
                     {t('Auth.login')}
-                  </Link>
+                  </button>
                   <Link
                     href="/register"
                     onClick={closeMobileMenu}
