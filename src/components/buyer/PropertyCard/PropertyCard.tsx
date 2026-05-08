@@ -43,9 +43,13 @@ interface PropertiesCardProps {
   description: string
   property_category?: propertyCategory
   price: string
+  layout_price_min?: string | number
+  layout_price_max?: string | number
+  layout_total_sqft?: string | number
   property_size?: string | number
   property_size_unit?: string
   status: string
+  project_status?: string
   listing_type?: string
   address_line: string
   district: string
@@ -66,7 +70,7 @@ interface PropertiesCardProps {
   onPrimaryAction?: () => void
   onSecondaryAction?: () => void
   onThirdAction?: () => void
-  handleFavorite: (propertyId: string) => void
+  handleFavorite?: (propertyId: string) => void
   handleShare?: () => void
   isUserFavorited?: boolean
   primaryActionLabel?: string
@@ -91,6 +95,9 @@ export default function PropertyCard(props: PropertiesCardProps) {
     // description,
     listing_type,
     media,
+    layout_price_min,
+    layout_price_max,
+    layout_total_sqft,
     property_size,
     property_size_unit,
     address_line,
@@ -107,6 +114,7 @@ export default function PropertyCard(props: PropertiesCardProps) {
     propertyPreviewMode = false,
     isVerified,
     property_category,
+    project_status,
   } = props
 
   const getMediaUrls = () => {
@@ -157,29 +165,78 @@ export default function PropertyCard(props: PropertiesCardProps) {
   const mediaUrls = getMediaUrls()
   const imageUrl = mediaUrls.image
 
+  const resolvePriceRangeLabel = () => {
+    const min = layout_price_min === '' ? undefined : layout_price_min
+    const max = layout_price_max === '' ? undefined : layout_price_max
+    const minN = min !== undefined && min !== null ? Number(min) : undefined
+    const maxN = max !== undefined && max !== null ? Number(max) : undefined
+
+    const hasRange = typeof minN === 'number' && !Number.isNaN(minN) || typeof maxN === 'number' && !Number.isNaN(maxN)
+    if (hasRange) {
+      const left = typeof minN === 'number' && !Number.isNaN(minN) ? `₹ ${formatPrice(Math.abs(minN))}` : '₹ --'
+      const right = typeof maxN === 'number' && !Number.isNaN(maxN) ? `₹ ${formatPrice(Math.abs(maxN))}` : '₹ --'
+      return `${left} - ${right}`
+    }
+
+    const priceN = Number(price)
+    if (typeof priceN === 'number' && !Number.isNaN(priceN)) return `₹ ${formatPrice(Math.abs(priceN))}`
+    return price ? `₹ ${price}` : 'Price on request'
+  }
+
+  const resolveSqftLabel = () => {
+    const total = layout_total_sqft === '' ? undefined : layout_total_sqft
+    const totalN = total !== undefined && total !== null ? Number(total) : undefined
+    if (typeof totalN === 'number' && !Number.isNaN(totalN) && totalN > 0) {
+      return `${formatPrice(Math.round(totalN))} sqft`
+    }
+
+    if (property_size === undefined || property_size === null || property_size === '') return '-- sqft'
+    const sizeN = Number(property_size)
+    const unit = (property_size_unit || 'sqft').toString().trim() || 'sqft'
+    if (typeof sizeN === 'number' && !Number.isNaN(sizeN)) {
+      return `${formatPrice(Math.round(sizeN))} ${unit}`
+    }
+    return `${String(property_size)} ${unit}`
+  }
+
   return (
     <motion.div
       variants={cardVariants}
       initial="hidden"
       animate="visible"
       whileHover="hover"
-      className="group relative flex w-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 cursor-pointer h-full"
+      className="group relative flex w-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 cursor-pointer h-full focus:outline-none focus:ring-2 focus:ring-yellow-500/30"
       onClick={onPrimaryAction}
     >
       {/* 1. Image Section */}
-      <div className="relative h-64 w-full overflow-hidden bg-gray-100">
-        <Image src={imageUrl} alt={title} fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
+      <div className="relative h-56 sm:h-60 w-full overflow-hidden bg-gray-100">
+        <Image src={imageUrl} alt={title} fill className="object-cover transition-transform duration-700 group-hover:scale-[1.06]" />
 
         {/* Gradients for text visibility */}
-        <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent pointer-events-none" />
 
         {/* Top Badges */}
-        <div className="absolute top-4 left-4 right-4 flex justify-between items-start z-10">
-          {property_category && (
-            <span className="px-3 py-1 rounded-full bg-[#FFFBEB] text-[#B45309] border border-[#FEF3C7] text-xs font-bold shadow-sm flex items-center gap-1">
-              {property_category.name}
-            </span>
-          )}
+        <div className="absolute top-3 left-3 right-3 flex justify-between items-start gap-2 z-10">
+          <div className="flex flex-wrap items-start gap-2">
+            {property_category && (
+              <span className="px-2.5 py-1 rounded-full bg-white/90 text-[#2a1407] border border-white/70 text-[11px] font-semibold shadow-sm backdrop-blur flex items-center gap-1">
+                {property_category.name}
+              </span>
+            )}
+
+            {project_status && (
+              <span
+                className={(() => {
+                  const v = project_status?.toUpperCase()
+                  if (v === 'UPCOMING') return 'px-2.5 py-1 rounded-full bg-blue-50/95 text-blue-700 border border-blue-200/70 text-[11px] font-bold shadow-sm backdrop-blur'
+                  if (v === 'COMPLETED') return 'px-2.5 py-1 rounded-full bg-green-50/95 text-green-700 border border-green-200/70 text-[11px] font-bold shadow-sm backdrop-blur'
+                  return 'px-2.5 py-1 rounded-full bg-yellow-50/95 text-yellow-800 border border-yellow-200/70 text-[11px] font-bold shadow-sm backdrop-blur'
+                })()}
+              >
+                {project_status}
+              </span>
+            )}
+          </div>
 
           {/* Approval Status Badge (if needed) */}
           {propertyPreviewMode ? (
@@ -190,45 +247,53 @@ export default function PropertyCard(props: PropertiesCardProps) {
 
           {/* Verified Badge */}
           {(isVerified || approval_status === 'APPROVED') && (
-            <span className="px-3 py-1 rounded-full bg-[#FFFBEB] text-[#B45309] border border-[#FEF3C7] text-xs font-bold shadow-sm flex items-center gap-1">
+            <span className="px-2.5 py-1 rounded-full bg-white/90 text-[#2a1407] border border-white/70 text-[11px] font-semibold shadow-sm backdrop-blur">
               Verified
             </span>
           )}
         </div>
 
         {/* Favorite & Share Buttons (Overlay) */}
-        <div className="absolute bottom-4 right-4 flex items-center gap-2 z-10">
-          <div
-            className="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-sm hover:bg-white transition-colors"
-            onClick={e => e.stopPropagation()}
-          >
-            <FavoriteButton
-              propertyId={id}
-              isUserFavorited={isUserFavorited}
-              onToggleFavorite={handleFavorite}
-              size={18}
-              favoriteCount={favorite_count}
-            />
+        {(typeof handleFavorite === 'function' || typeof handleShare === 'function') && (
+          <div className="absolute bottom-3 right-3 flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+            {typeof handleFavorite === 'function' && (
+              <div
+                className="bg-white/95 backdrop-blur p-2 rounded-full shadow-sm hover:bg-white transition-colors"
+                onClick={e => e.stopPropagation()}
+              >
+                <FavoriteButton
+                  propertyId={id}
+                  isUserFavorited={isUserFavorited}
+                  onToggleFavorite={handleFavorite}
+                  size={18}
+                  favoriteCount={favorite_count}
+                />
+              </div>
+            )}
+            {typeof handleShare === 'function' && (
+              <button
+                onClick={e => {
+                  e.stopPropagation()
+                  handleShare?.()
+                }}
+                className="bg-white/95 backdrop-blur p-2 rounded-full shadow-sm hover:bg-white transition-colors text-gray-700 hover:text-blue-600"
+              >
+                <Share size={18} />
+              </button>
+            )}
           </div>
-          <button
-            onClick={e => {
-              e.stopPropagation()
-              handleShare?.()
-            }}
-            className="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-sm hover:bg-white transition-colors text-gray-700 hover:text-blue-600"
-          >
-            <Share size={18} />
-          </button>
-        </div>
+        )}
       </div>
 
       {/* 2. Content Section */}
-      <div className="flex flex-col flex-1 p-5">
-        <div className="mb-4">
-          <h3 className="text-lg font-bold text-gray-900 line-clamp-1 mb-2 group-hover:text-yellow-700 transition-colors">{title}</h3>
+      <div className="flex flex-col flex-1 p-4 sm:p-5">
+        <div className="space-y-2">
+          <h3 className="text-[15px] sm:text-base font-extrabold text-gray-900 line-clamp-1 group-hover:text-[#2a1407] transition-colors">
+            {title}
+          </h3>
           <div className="flex items-start gap-1.5 text-gray-500">
             <MapPin size={16} className="mt-0.5 flex-shrink-0 text-yellow-600" />
-            <p className="text-sm line-clamp-2 leading-relaxed">
+            <p className="text-sm line-clamp-1 leading-relaxed">
               {district}
               {district && city && ', '}
               {city}
@@ -236,33 +301,28 @@ export default function PropertyCard(props: PropertiesCardProps) {
           </div>
         </div>
 
-        {/* Divider */}
-        <div className="border-t border-gray-100 my-auto" />
-
-        {/* 3. Listing Section */}
-        <div className="mt-4 flex items-center justify-between gap-3">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1">
-            <Shapes size={14} className="shrink-0 text-yellow-600" />
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-700">{listing_type || 'N/A'}</span>
-          </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-50 text-yellow-900 border border-yellow-100 px-3 py-1">
+            <Shapes size={14} className="shrink-0 text-yellow-700" />
+            <span className="text-[11px] font-semibold">{listing_type || 'Listing'}</span>
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-50 text-gray-700 border border-gray-100 px-3 py-1">
+            <Ruler size={14} className="shrink-0 text-gray-600" />
+            <span className="text-[11px] font-semibold">{resolveSqftLabel()}</span>
+          </span>
         </div>
-        {/* 4. Footer Section (Price & Size) */}
-        <div className="grid grid-cols-2 gap-4 pt-4">
-          {/* Price */}
-          <div className="flex flex-col">
-            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-1">Price</span>
-            <span className="text-md sm:text-md font-bold text-[#2a1407]">₹ {formatPrice(Number(price))}</span>
-          </div>
-          {/* Size */}
-          <div className="flex flex-col items-end">
-            <span className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-gray-400">
-              <Ruler size={14} className="shrink-0" />
-              Property Size
-            </span>
 
-            <div className="flex items-center gap-1">
-              <span className="text-md sm:text-xm font-bold text-gray-700">{property_size || '--'}</span>
-              <span className="text-xs text-gray-500 font-medium translate-y-1">{property_size_unit || 'sqft'}</span>
+        <div className="mt-auto pt-4">
+          <div className="flex items-end justify-between gap-3 border-t border-gray-100 pt-3">
+            <div className="min-w-0">
+              <div className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">Price range</div>
+              <div className="mt-1 text-base sm:text-lg font-extrabold text-[#2a1407] truncate" title={resolvePriceRangeLabel()}>
+                {resolvePriceRangeLabel()}
+              </div>
+            </div>
+            <div className="shrink-0 text-right">
+              <div className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">Sqft</div>
+              <div className="mt-1 text-sm font-bold text-gray-700">{resolveSqftLabel()}</div>
             </div>
           </div>
         </div>

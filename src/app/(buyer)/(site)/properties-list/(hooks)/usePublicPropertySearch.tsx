@@ -13,6 +13,7 @@ interface FilterState {
   amenities: string[]
   listingType: string[]
   status: string[]
+  projectStatus: string[]
   verified: string[]
   featured: string[]
   priceRangePreset: string[]
@@ -20,6 +21,10 @@ interface FilterState {
   facing: string[]
   parking: string[]
   sizeRange: [number, number]
+  layoutPriceRange: [number, number]
+  layoutAreaRange: [number, number]
+  layoutTotalSqftRange: [number, number]
+  plotAvailableRange: [number, number]
   district: string[]
   state: string[]
   postalCode: string[]
@@ -91,6 +96,11 @@ export function usePublicPropertySearch<T = any>({
     params.status = filters.status[0] // API supports single enum
   }
 
+  // Project status
+  if (filters.projectStatus.length > 0) {
+    params.project_status = filters.projectStatus[0]
+  }
+
   // Location filters
   if (filters.location.length > 0) {
     if (filters.location.length > 1) {
@@ -124,6 +134,22 @@ export function usePublicPropertySearch<T = any>({
   if (filters.sizeRange[1] > 0) {
     params.size_max = filters.sizeRange[1]
   }
+
+  // Layout price range
+  if (filters.layoutPriceRange?.[0] > 0) params.layout_price_min = filters.layoutPriceRange[0]
+  if (filters.layoutPriceRange?.[1] > 0) params.layout_price_max = filters.layoutPriceRange[1]
+
+  // Layout area range
+  if (filters.layoutAreaRange?.[0] > 0) params.layout_area_min_sqft = filters.layoutAreaRange[0]
+  if (filters.layoutAreaRange?.[1] > 0) params.layout_area_max_sqft = filters.layoutAreaRange[1]
+
+  // Layout total sqft range
+  if (filters.layoutTotalSqftRange?.[0] > 0) params.layout_total_sqft_min = filters.layoutTotalSqftRange[0]
+  if (filters.layoutTotalSqftRange?.[1] > 0) params.layout_total_sqft_max = filters.layoutTotalSqftRange[1]
+
+  // Plot availability range
+  if (filters.plotAvailableRange?.[0] > 0) params.plot_available_count_min = filters.plotAvailableRange[0]
+  if (filters.plotAvailableRange?.[1] > 0) params.plot_available_count_max = filters.plotAvailableRange[1]
 
   // BHK (bedrooms) - comma-separated
   if (filters.bedrooms.length > 0) {

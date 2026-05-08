@@ -110,6 +110,7 @@ export interface PropertyCreationFormValues {
   propertyType: string
   purpose: string
   description: string
+  project_status: 'CURRENT' | 'UPCOMING' | 'COMPLETED' | string
 
   // Step 2
   door_number: string
@@ -125,6 +126,16 @@ export interface PropertyCreationFormValues {
   unit: string
   latitude: number
   longitude: number
+
+  layout_price_min: number | string
+  layout_price_max: number | string
+  layout_area_min_sqft: number | string
+  layout_area_max_sqft: number | string
+  plot_total_count: number | string
+  plot_sold_count: number | string
+  plot_booked_count: number | string
+  plot_available_count: number | string
+  layout_total_sqft: number | string
 
   // Step 3
   contactName: string
@@ -230,6 +241,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
     propertyType: '',
     purpose: '',
     description: '',
+    project_status: 'CURRENT',
 
     door_number: '',
     street_name: '',
@@ -245,6 +257,16 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
 
     latitude: 0,
     longitude: 0,
+
+    layout_price_min: '',
+    layout_price_max: '',
+    layout_area_min_sqft: '',
+    layout_area_max_sqft: '',
+    plot_total_count: '',
+    plot_sold_count: '',
+    plot_booked_count: '',
+    plot_available_count: '',
+    layout_total_sqft: '',
 
     // Step3: we’ll handle amenities selection differently
     option_ids: [],
@@ -278,6 +300,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
       propertyType: Yup.string().required('Property type is required'),
       purpose: Yup.string().required('Purpose is required'),
       description: Yup.string().trim().required('Property description is required'),
+      project_status: Yup.string().oneOf(['CURRENT', 'UPCOMING', 'COMPLETED']).required('Project status is required'),
     }),
 
     // STEP 2: (Correct - No changes)
@@ -491,6 +514,16 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
             property_size: values?.size as number,
             property_size_unit: values?.unit,
             listing_type: values?.purpose,
+            project_status: values?.project_status,
+            layout_price_min: values?.layout_price_min as any,
+            layout_price_max: values?.layout_price_max as any,
+            layout_area_min_sqft: values?.layout_area_min_sqft as any,
+            layout_area_max_sqft: values?.layout_area_max_sqft as any,
+            plot_total_count: values?.plot_total_count as any,
+            plot_sold_count: values?.plot_sold_count as any,
+            plot_booked_count: values?.plot_booked_count as any,
+            plot_available_count: values?.plot_available_count as any,
+            layout_total_sqft: values?.layout_total_sqft as any,
             door_number: values?.door_number,
             street_name: values?.street_name,
             address_line: values?.address_line,
