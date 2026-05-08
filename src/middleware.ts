@@ -14,6 +14,21 @@ const safeJsonParse = <T>(value: string | undefined, fallback: T): T => {
   }
 }
 
+function redirectHomeRequireAuth(request: NextRequest, pathname: string, search: string) {
+  const home = new URL('/', request.url)
+  home.searchParams.set('requireAuth', '1')
+  home.searchParams.set('next', `${pathname}${search}`)
+  return NextResponse.redirect(home)
+}
+
+/** In-app transitions send RSC/prefetch headers; address bar / refresh / new tab typically do not. */
+function isNextSoftNavigation(request: NextRequest): boolean {
+  const rsc = request.headers.get('RSC') ?? request.headers.get('rsc')
+  if (rsc === '1') return true
+  if (request.headers.get('Next-Router-Prefetch') === '1') return true
+  return false
+}
+
 export function middleware(request: NextRequest) {
   const { pathname, host, protocol } = request.nextUrl
 
@@ -43,13 +58,20 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/', request.url))
   }
 
+  // Authenticated admin routes only (unauthenticated → home + login modal)
+  if (!hasToken && (pathname === '/admin' || pathname.startsWith('/admin/'))) {
+    return redirectHomeRequireAuth(request, pathname, request.nextUrl.search)
+  }
+
+  // Services listing: hard navigation (paste/refresh) → home + login modal; soft nav handled on page + Navbar
+  if (!hasToken && pathname === '/ads-list' && !isNextSoftNavigation(request)) {
+    return redirectHomeRequireAuth(request, pathname, request.nextUrl.search)
+  }
+
   // Admin-only: restrict Ads create/edit pages
   if (pathname === '/ads' || pathname.startsWith('/ads/edit/')) {
     if (!hasToken) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/login'
-      url.searchParams.set('next', pathname)
-      return NextResponse.redirect(url)
+      return redirectHomeRequireAuth(request, pathname, request.nextUrl.search)
     }
 
     const user = safeJsonParse<Record<string, unknown> | null>(userRaw, null)
@@ -65,5 +87,16 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/otp-verification', '/login', '/signup', '/forgot-password', '/profile-creation', '/ads', '/ads/edit/:path*'],
+  matcher: [
+    '/otp-verification',
+    '/login',
+    '/signup',
+    '/forgot-password',
+    '/profile-creation',
+    '/ads',
+    '/ads/edit/:path*',
+    '/admin',
+    '/admin/:path*',
+    '/ads-list',
+  ],
 }
