@@ -45,6 +45,7 @@ export default interface AgentCompanyProfile {
   agentStats: {
     totalPropertiesPosted: number
     totalPropertiesSold: number
+    activeProperties: number
     totalClients: number
   }
   language: (key: string) => string
