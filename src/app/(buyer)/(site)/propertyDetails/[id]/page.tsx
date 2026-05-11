@@ -452,6 +452,38 @@ const page = () => {
         })
       }
 
+      if (propertyDetailsData.project_status) {
+        coreCandidates.push({
+          label: 'Project Status',
+          value: String(propertyDetailsData.project_status).replace(/_/g, ' '),
+        })
+      }
+
+      if (propertyDetailsData.layout_price_min != null || propertyDetailsData.layout_price_max != null) {
+        const min = propertyDetailsData.layout_price_min != null ? `₹ ${formatPrice(Number(propertyDetailsData.layout_price_min))}` : '—'
+        const max = propertyDetailsData.layout_price_max != null ? `₹ ${formatPrice(Number(propertyDetailsData.layout_price_max))}` : '—'
+        coreCandidates.push({
+          label: 'Layout Price Range',
+          value: `${min} - ${max}`,
+        })
+      }
+
+      if (propertyDetailsData.layout_area_min_sqft != null || propertyDetailsData.layout_area_max_sqft != null) {
+        const min = propertyDetailsData.layout_area_min_sqft != null ? `${propertyDetailsData.layout_area_min_sqft} sqft` : '—'
+        const max = propertyDetailsData.layout_area_max_sqft != null ? `${propertyDetailsData.layout_area_max_sqft} sqft` : '—'
+        coreCandidates.push({
+          label: 'Layout Area Range',
+          value: `${min} - ${max}`,
+        })
+      }
+
+      if (propertyDetailsData.layout_total_sqft != null) {
+        coreCandidates.push({
+          label: 'Layout Total Sqft',
+          value: `${propertyDetailsData.layout_total_sqft} sqft`,
+        })
+      }
+
       if (propertyDetailsData.city || propertyDetailsData.district) {
         coreCandidates.push({
           label: 'Location',
@@ -995,6 +1027,20 @@ const page = () => {
                     <span className="px-3 py-1.5 rounded-full bg-yellow-50 border border-yellow-200 text-[#2a1407] text-xs font-semibold uppercase">
                       {propertyDetailsData?.property_category_name || 'Category'}
                     </span>
+                    {propertyDetailsData?.project_status && (
+                      <span
+                        className={cn(
+                          'px-3 py-1.5 rounded-full border text-xs font-semibold uppercase',
+                          String(propertyDetailsData.project_status).toUpperCase() === 'UPCOMING'
+                            ? 'bg-blue-50 border-blue-200 text-blue-800'
+                            : String(propertyDetailsData.project_status).toUpperCase() === 'COMPLETED'
+                              ? 'bg-green-50 border-green-200 text-green-800'
+                              : 'bg-yellow-50 border-yellow-200 text-[#2a1407]',
+                        )}
+                      >
+                        {propertyDetailsData.project_status}
+                      </span>
+                    )}
                   </div>
 
                   {/* Title & Location */}

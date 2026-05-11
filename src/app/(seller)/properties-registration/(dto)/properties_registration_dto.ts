@@ -252,6 +252,16 @@ export class LandRegistrationPayloadDTO {
   property_size_unit: string
   listing_type: string
   status: string
+  project_status?: string
+  layout_price_min?: number | string
+  layout_price_max?: number | string
+  layout_area_min_sqft?: number | string
+  layout_area_max_sqft?: number | string
+  plot_total_count?: number | string
+  plot_sold_count?: number | string
+  plot_booked_count?: number | string
+  plot_available_count?: number | string
+  layout_total_sqft?: number | string
   door_number: string
   street_name: string
   address_line: string
@@ -278,6 +288,16 @@ export class LandRegistrationPayloadDTO {
     this.property_size_unit = init.property_size_unit ?? ''
     this.listing_type = init.listing_type ?? ''
     this.status = init.status ?? ''
+    this.project_status = init.project_status
+    this.layout_price_min = init.layout_price_min
+    this.layout_price_max = init.layout_price_max
+    this.layout_area_min_sqft = init.layout_area_min_sqft
+    this.layout_area_max_sqft = init.layout_area_max_sqft
+    this.plot_total_count = init.plot_total_count
+    this.plot_sold_count = init.plot_sold_count
+    this.plot_booked_count = init.plot_booked_count
+    this.plot_available_count = init.plot_available_count
+    this.layout_total_sqft = init.layout_total_sqft
     this.door_number = init.door_number ?? ''
     this.street_name = init.street_name ?? ''
     this.address_line = init.address_line ?? ''
@@ -306,6 +326,16 @@ export class LandRegistrationPayloadDTO {
       property_size_unit: this.property_size_unit,
       listing_type: this.listing_type.toUpperCase(),
       status: 'AVAILABLE',
+      project_status: this.project_status,
+      layout_price_min: this.layout_price_min === '' ? undefined : this.layout_price_min,
+      layout_price_max: this.layout_price_max === '' ? undefined : this.layout_price_max,
+      layout_area_min_sqft: this.layout_area_min_sqft === '' ? undefined : this.layout_area_min_sqft,
+      layout_area_max_sqft: this.layout_area_max_sqft === '' ? undefined : this.layout_area_max_sqft,
+      plot_total_count: this.plot_total_count === '' ? undefined : this.plot_total_count,
+      plot_sold_count: this.plot_sold_count === '' ? undefined : this.plot_sold_count,
+      plot_booked_count: this.plot_booked_count === '' ? undefined : this.plot_booked_count,
+      plot_available_count: this.plot_available_count === '' ? undefined : this.plot_available_count,
+      layout_total_sqft: this.layout_total_sqft === '' ? undefined : this.layout_total_sqft,
       door_number: this.door_number,
       street_name: this.street_name,
       address_line: this.address_line,

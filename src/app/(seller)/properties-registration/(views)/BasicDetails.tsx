@@ -124,6 +124,28 @@ export default function Step1BasicDetails({
           {touched.purpose && errors.purpose && <p className="text-red-600 text-xs mt-1">{errors.purpose}</p>}
         </div>
 
+        {/* Project Status */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700">
+            Project Status <span className="text-red-500">*</span>
+          </label>
+          <div className="grid grid-cols-3 gap-3 sm:gap-4 mt-3">
+            {(['CURRENT', 'UPCOMING', 'COMPLETED'] as const).map(s => (
+              <button
+                key={s}
+                type="button"
+                aria-pressed={String(values.project_status).toUpperCase() === s}
+                onClick={() => setFieldValue('project_status', s)}
+                className={`flex items-center justify-center rounded-lg border-2 px-3 py-2 transition
+                  ${String(values.project_status).toUpperCase() === s ? 'border-[#2a1407] bg-red-50 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}
+              >
+                <span className="text-sm text-gray-700 font-medium">{s}</span>
+              </button>
+            ))}
+          </div>
+          {touched.project_status && (errors as any).project_status && <p className="text-red-600 text-xs mt-1">{(errors as any).project_status}</p>}
+        </div>
+
         {/* Description */}
         <div>
           <label htmlFor="description" className="block text-sm font-semibold text-gray-700">

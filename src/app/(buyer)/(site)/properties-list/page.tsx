@@ -59,6 +59,7 @@ interface FilterState {
   amenities: string[]
   listingType: string[]
   status: string[]
+  projectStatus: string[]
   verified: string[]
   featured: string[]
   priceRangePreset: string[]
@@ -66,6 +67,10 @@ interface FilterState {
   facing: string[]
   parking: string[]
   sizeRange: [number, number]
+  layoutPriceRange: [number, number]
+  layoutAreaRange: [number, number]
+  layoutTotalSqftRange: [number, number]
+  plotAvailableRange: [number, number]
   district: string[]
   state: string[]
   postalCode: string[]
@@ -107,6 +112,7 @@ const PropertiesListPage = () => {
     amenities: [],
     listingType: [],
     status: [],
+    projectStatus: [],
     verified: [],
     featured: [],
     priceRangePreset: [],
@@ -114,6 +120,10 @@ const PropertiesListPage = () => {
     facing: [],
     parking: [],
     sizeRange: [0, 0],
+    layoutPriceRange: [0, 0],
+    layoutAreaRange: [0, 0],
+    layoutTotalSqftRange: [0, 0],
+    plotAvailableRange: [0, 0],
     district: [],
     state: [],
     postalCode: [],
@@ -359,6 +369,7 @@ const PropertiesListPage = () => {
       amenities: [],
       listingType: [],
       status: [],
+      projectStatus: [],
       verified: [],
       featured: [],
       priceRangePreset: [],
@@ -366,6 +377,10 @@ const PropertiesListPage = () => {
       facing: [],
       parking: [],
       sizeRange: [0, 0],
+      layoutPriceRange: [0, 0],
+      layoutAreaRange: [0, 0],
+      layoutTotalSqftRange: [0, 0],
+      plotAvailableRange: [0, 0],
       district: [],
       state: [],
       postalCode: [],

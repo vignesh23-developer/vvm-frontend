@@ -14,6 +14,9 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import Table from '../../../components/ui/CustomComponent/Table/Table'
+import { useUserSubscription } from '@/components/Plans/hooks/useUserSubscription'
+import PlanUsageWidget from '@/components/dashboard/PlanUsageWidget'
+import FeatureGate from '@/components/dashboard/FeatureGate'
 
 /* ---------------- DATA ---------------- */
 const stats = [
@@ -139,14 +142,26 @@ const QuickActionButton = ({
 
 /* ---------------- MAIN PAGE ---------------- */
 export default function DashboardPage() {
+  const { activeSubscription } = useUserSubscription()
+
+  // Very lightweight gating: if property limit is reached, lock “Import Leads” as an example.
+  // (This keeps the pattern in place; we can apply the same gate to other widgets/actions.)
+  const planItems = activeSubscription?.plan?.planItems ?? []
+  const propertyLimitItem = planItems.find(pi => (pi.item?.name || '').toLowerCase().includes('property'))
+  const isUnlimited = Boolean(propertyLimitItem?.isUnlimited)
+  const propertyLimit = !isUnlimited ? Number(propertyLimitItem?.numericValue ?? 0) : null
+  const propertyUsed = activeSubscription?.usages?.find(u => (u.item?.name || '').toLowerCase().includes('property'))?.usedCount ?? 0
+  const isPropertyLimitReached = propertyLimit !== null && propertyLimit > 0 && Number(propertyUsed) >= propertyLimit
+
   return (
     <div className="p-4 sm:p-6 space-y-6 bg-gradient-to-br from-yellow-50 via-white to-yellow-50 min-h-screen">
       {/* Header */}
-      <header className="space-y-1">
-        <h1 className="text-xl sm:text-2xl font-bold text-[#2a1407]">Leads Dashboard</h1>
-        <p className="text-gray-600 text-sm">
-          Track, manage, and convert your leads efficiently.
-        </p>
+      <header className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <div className="lg:col-span-2 space-y-1">
+          <h1 className="text-xl sm:text-2xl font-extrabold text-[#2a1407]">Dashboard</h1>
+          <p className="text-gray-600 text-sm">Your performance, plan usage, and quick actions in one place.</p>
+        </div>
+        <PlanUsageWidget subscription={activeSubscription} />
       </header>
 
       {/* Stats */}
@@ -178,7 +193,7 @@ export default function DashboardPage() {
         {/* Charts + Actions */}
         <aside className="space-y-6">
           {/* Charts */}
-          <div className="bg-gradient-to-br from-white to-yellow-50/20 rounded-lg p-4 sm:p-6 shadow-sm border border-yellow-200 space-y-6">
+          <div className="bg-gradient-to-br from-white to-yellow-50/20 rounded-2xl p-4 sm:p-6 shadow-sm border border-yellow-200 space-y-6">
             <div>
               <h3 className="font-semibold text-[#2a1407] mb-2">Leads by Status</h3>
               <ResponsiveContainer width="100%" height={200}>
@@ -207,11 +222,17 @@ export default function DashboardPage() {
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-gradient-to-br from-white to-yellow-50/20 rounded-lg p-4 sm:p-6 shadow-sm border border-yellow-200 space-y-4">
-            <h3 className="font-semibold text-[#2a1407]">Quick Actions</h3>
-            <QuickActionButton icon={Upload} label="Import Leads" />
-            <QuickActionButton icon={Download} label="Export Leads" />
-          </div>
+          <FeatureGate
+            locked={isPropertyLimitReached}
+            title="Plan limit reached"
+            description="You’ve reached your property listing limit. Upgrade to unlock more listings and tools."
+          >
+            <div className="bg-gradient-to-br from-white to-yellow-50/20 rounded-2xl p-4 sm:p-6 shadow-sm border border-yellow-200 space-y-4">
+              <h3 className="font-semibold text-[#2a1407]">Quick Actions</h3>
+              <QuickActionButton icon={Upload} label="Import Leads" />
+              <QuickActionButton icon={Download} label="Export Leads" />
+            </div>
+          </FeatureGate>
         </aside>
       </div>
     </div>

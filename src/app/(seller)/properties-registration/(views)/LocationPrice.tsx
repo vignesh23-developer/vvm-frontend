@@ -195,6 +195,32 @@ export default function Step2LocationPrice({ formik }: Step2LocationPriceProps) 
         </div>
       </div>
 
+      {/* Layout Category — Additional Fields */}
+      <div className="border-t border-gray-200 pt-6 space-y-4">
+        <h3 className="text-lg font-medium text-gray-800 mb-2">Layout Details (Optional)</h3>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <FormikTextField label="Layout Price Min (₹)" name="layout_price_min" placeholder="e.g., 4500000" />
+          <FormikTextField label="Layout Price Max (₹)" name="layout_price_max" placeholder="e.g., 9500000" />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <FormikTextField label="Layout Area Min (sqft)" name="layout_area_min_sqft" placeholder="e.g., 800" />
+          <FormikTextField label="Layout Area Max (sqft)" name="layout_area_max_sqft" placeholder="e.g., 2200" />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <FormikTextField label="Layout Total Sqft" name="layout_total_sqft" placeholder="e.g., 1450" />
+          <FormikTextField label="Total Plots" name="plot_total_count" placeholder="e.g., 120" />
+          <FormikTextField label="Available Plots" name="plot_available_count" placeholder="e.g., 65" />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <FormikTextField label="Sold Plots" name="plot_sold_count" placeholder="e.g., 40" />
+          <FormikTextField label="Booked Plots" name="plot_booked_count" placeholder="e.g., 15" />
+        </div>
+      </div>
+
       {/* Map Modal */}
       <LocationPickerModal
         open={isMapView}

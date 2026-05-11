@@ -17,6 +17,16 @@ export interface PropertyDetailsResponseDto {
   property_size_unit: string | null
   listing_type: 'RENT' | 'SALE' | string
   status: 'AVAILABLE' | 'SOLD' | 'RENTED' | string
+  project_status?: 'CURRENT' | 'UPCOMING' | 'COMPLETED' | string
+  layout_price_min?: number | null
+  layout_price_max?: number | null
+  layout_area_min_sqft?: number | null
+  layout_area_max_sqft?: number | null
+  plot_total_count?: number | null
+  plot_sold_count?: number | null
+  plot_booked_count?: number | null
+  plot_available_count?: number | null
+  layout_total_sqft?: number | null
   door_number: string
   street_name: string
   address_line: string

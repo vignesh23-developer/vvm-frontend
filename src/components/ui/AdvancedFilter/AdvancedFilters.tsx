@@ -17,6 +17,7 @@ interface FilterState {
   amenities: string[]
   listingType: string[]
   status: string[]
+  projectStatus: string[]
   verified: string[]
   featured: string[]
   priceRangePreset: string[]
@@ -24,6 +25,10 @@ interface FilterState {
   facing: string[]
   parking: string[]
   sizeRange: [number, number]
+  layoutPriceRange: [number, number]
+  layoutAreaRange: [number, number]
+  layoutTotalSqftRange: [number, number]
+  plotAvailableRange: [number, number]
   district: string[]
   state: string[]
   postalCode: string[]
@@ -54,6 +59,7 @@ type FilterOption = { value: string; label: string }
 // Frontend defaults – only overridden where the backend provides values.
 const defaultListingTypes: string[] = ['SALE', 'RENT']
 const defaultStatuses: string[] = ['AVAILABLE', 'SOLD', 'RENTED']
+const defaultProjectStatuses: string[] = ['CURRENT', 'UPCOMING', 'COMPLETED']
 const defaultPriceRanges: PriceRange[] = [
   { label: 'Under 50k', min: 0, max: 50000 },
   { label: '50k - 100k', min: 50000, max: 100000 },
@@ -230,9 +236,9 @@ export default function AdvancedFilters({
       totalFilters: Object.keys(activeBackendFilters).length,
       sampleFilter: Object.keys(activeBackendFilters)[0]
         ? {
-            key: Object.keys(activeBackendFilters)[0],
-            value: (activeBackendFilters as any)[Object.keys(activeBackendFilters)[0]],
-          }
+          key: Object.keys(activeBackendFilters)[0],
+          value: (activeBackendFilters as any)[Object.keys(activeBackendFilters)[0]],
+        }
         : null,
     })
   }
@@ -253,6 +259,7 @@ export default function AdvancedFilters({
   const listingTypes = transformFilterBuckets((activeBackendFilters as any).listing_types)
 
   const statuses = transformFilterBuckets((activeBackendFilters as any).statuses)
+  const projectStatuses = transformFilterBuckets((activeBackendFilters as any).project_statuses)
 
   // Price ranges - backend provides min/max, we create ranges from that.
   // If backend doesn't send stats, the list stays empty.
@@ -260,14 +267,14 @@ export default function AdvancedFilters({
   const priceRanges: PriceRange[] =
     backendPriceStats?.min !== undefined && backendPriceStats?.max !== undefined
       ? [
-          { label: `Under ${(backendPriceStats.min / 1000).toFixed(0)}k`, min: 0, max: backendPriceStats.min },
-          {
-            label: `${(backendPriceStats.min / 1000).toFixed(0)}k - ${(backendPriceStats.max / 1000).toFixed(0)}k`,
-            min: backendPriceStats.min,
-            max: backendPriceStats.max,
-          },
-          { label: `${(backendPriceStats.max / 1000).toFixed(0)}k+`, min: backendPriceStats.max, max: null },
-        ]
+        { label: `Under ${(backendPriceStats.min / 1000).toFixed(0)}k`, min: 0, max: backendPriceStats.min },
+        {
+          label: `${(backendPriceStats.min / 1000).toFixed(0)}k - ${(backendPriceStats.max / 1000).toFixed(0)}k`,
+          min: backendPriceStats.min,
+          max: backendPriceStats.max,
+        },
+        { label: `${(backendPriceStats.max / 1000).toFixed(0)}k+`, min: backendPriceStats.max, max: null },
+      ]
       : []
 
   // Property Types (e.g., Apartment/Villa) and Property Categories (master categories) are different.
@@ -316,6 +323,7 @@ export default function AdvancedFilters({
     (filters.amenities.length > 0 ? 1 : 0) +
     (filters.listingType.length > 0 ? 1 : 0) +
     (filters.status.length > 0 ? 1 : 0) +
+    (filters.projectStatus.length > 0 ? 1 : 0) +
     (filters.verified.length > 0 ? 1 : 0) +
     (filters.featured.length > 0 ? 1 : 0) +
     (filters.priceRangePreset.length > 0 ? 1 : 0) +
@@ -324,6 +332,10 @@ export default function AdvancedFilters({
     (filters.facing.length > 0 ? 1 : 0) +
     (filters.parking.length > 0 ? 1 : 0) +
     (filters.sizeRange[0] > 0 || filters.sizeRange[1] > 0 ? 1 : 0) +
+    (filters.layoutPriceRange[0] > 0 || filters.layoutPriceRange[1] > 0 ? 1 : 0) +
+    (filters.layoutAreaRange[0] > 0 || filters.layoutAreaRange[1] > 0 ? 1 : 0) +
+    (filters.layoutTotalSqftRange[0] > 0 || filters.layoutTotalSqftRange[1] > 0 ? 1 : 0) +
+    (filters.plotAvailableRange[0] > 0 || filters.plotAvailableRange[1] > 0 ? 1 : 0) +
     (filters.district.length > 0 ? 1 : 0) +
     (filters.state.length > 0 ? 1 : 0) +
     (filters.postalCode.length > 0 ? 1 : 0) +
@@ -379,6 +391,7 @@ export default function AdvancedFilters({
               onClear={onClear}
               listingTypes={listingTypes}
               statuses={statuses}
+              projectStatuses={projectStatuses}
               priceRanges={priceRanges}
               propertyTypes={propertyTypes}
               propertyCategories={propertyCategories}
@@ -460,6 +473,7 @@ export default function AdvancedFilters({
                 onClear={onClear}
                 listingTypes={listingTypes}
                 statuses={statuses}
+                projectStatuses={projectStatuses}
                 priceRanges={priceRanges}
                 propertyTypes={propertyTypes}
                 propertyCategories={propertyCategories}
@@ -496,6 +510,7 @@ function FilterContent({
   onClear,
   listingTypes,
   statuses,
+  projectStatuses,
   priceRanges,
   propertyTypes,
   propertyCategories,
@@ -523,6 +538,7 @@ function FilterContent({
   onClear: () => void
   listingTypes: string[]
   statuses: string[]
+  projectStatuses: string[]
   priceRanges: PriceRange[]
   propertyTypes: string[]
   propertyCategories: FilterOption[]
@@ -785,6 +801,25 @@ function FilterContent({
           </FilterSection>
         )}
 
+        {/* Project Status - buyer-facing */}
+        {pageType === 'property' && (
+          <FilterSection title="Project Status" isExpanded={expandedSections.projectStatus || false} onToggle={() => toggleSection('projectStatus')}>
+            <div className="space-y-2">
+              {(projectStatuses.length > 0 ? projectStatuses : defaultProjectStatuses).map((status: string) => (
+                <label key={status} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                  <input
+                    type="checkbox"
+                    checked={Array.isArray(filters.projectStatus) && filters.projectStatus.includes(status)}
+                    onChange={() => toggleArrayFilter('projectStatus', status)}
+                    className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
+                  />
+                  <span className="text-sm text-gray-700">{status}</span>
+                </label>
+              ))}
+            </div>
+          </FilterSection>
+        )}
+
         {/* Amenities - Only show on property page if more than 1 amenity */}
         {pageType === 'property' && amenities.length > 1 && (
           <FilterSection title="Amenities" isExpanded={expandedSections.amenities} onToggle={() => toggleSection('amenities')}>
@@ -877,6 +912,126 @@ function FilterContent({
                       const currentMin = Array.isArray(filters.sizeRange) ? filters.sizeRange[0] : 0
                       updateFilter('sizeRange', [typeof currentMin === 'number' && Number.isFinite(currentMin) ? currentMin : 0, nextMax])
                     }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    placeholder="No limit"
+                  />
+                </div>
+              </div>
+            </div>
+          </FilterSection>
+        )}
+
+        {/* Layout Price Range */}
+        {pageType === 'property' && (
+          <FilterSection title="Layout Price Range (₹)" isExpanded={expandedSections.layoutPriceRange || false} onToggle={() => toggleSection('layoutPriceRange')}>
+            <div className="pt-2">
+              <div className="flex items-center gap-3">
+                <div className="flex-1">
+                  <label className="text-xs text-gray-500 mb-1 block">Min</label>
+                  <input
+                    type="number"
+                    value={filters.layoutPriceRange?.[0] ? filters.layoutPriceRange[0] : ''}
+                    onChange={e => updateFilter('layoutPriceRange', [Number(e.target.value) || 0, filters.layoutPriceRange?.[1] || 0])}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    placeholder="0"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="text-xs text-gray-500 mb-1 block">Max</label>
+                  <input
+                    type="number"
+                    value={filters.layoutPriceRange?.[1] ? filters.layoutPriceRange[1] : ''}
+                    onChange={e => updateFilter('layoutPriceRange', [filters.layoutPriceRange?.[0] || 0, Number(e.target.value) || 0])}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    placeholder="No limit"
+                  />
+                </div>
+              </div>
+            </div>
+          </FilterSection>
+        )}
+
+        {/* Layout Area Range */}
+        {pageType === 'property' && (
+          <FilterSection title="Layout Area Range (sqft)" isExpanded={expandedSections.layoutAreaRange || false} onToggle={() => toggleSection('layoutAreaRange')}>
+            <div className="pt-2">
+              <div className="flex items-center gap-3">
+                <div className="flex-1">
+                  <label className="text-xs text-gray-500 mb-1 block">Min</label>
+                  <input
+                    type="number"
+                    value={filters.layoutAreaRange?.[0] ? filters.layoutAreaRange[0] : ''}
+                    onChange={e => updateFilter('layoutAreaRange', [Number(e.target.value) || 0, filters.layoutAreaRange?.[1] || 0])}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    placeholder="0"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="text-xs text-gray-500 mb-1 block">Max</label>
+                  <input
+                    type="number"
+                    value={filters.layoutAreaRange?.[1] ? filters.layoutAreaRange[1] : ''}
+                    onChange={e => updateFilter('layoutAreaRange', [filters.layoutAreaRange?.[0] || 0, Number(e.target.value) || 0])}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    placeholder="No limit"
+                  />
+                </div>
+              </div>
+            </div>
+          </FilterSection>
+        )}
+
+        {/* Layout Total Sqft */}
+        {pageType === 'property' && (
+          <FilterSection title="Layout Total Sqft" isExpanded={expandedSections.layoutTotalSqftRange || false} onToggle={() => toggleSection('layoutTotalSqftRange')}>
+            <div className="pt-2">
+              <div className="flex items-center gap-3">
+                <div className="flex-1">
+                  <label className="text-xs text-gray-500 mb-1 block">Min</label>
+                  <input
+                    type="number"
+                    value={filters.layoutTotalSqftRange?.[0] ? filters.layoutTotalSqftRange[0] : ''}
+                    onChange={e => updateFilter('layoutTotalSqftRange', [Number(e.target.value) || 0, filters.layoutTotalSqftRange?.[1] || 0])}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    placeholder="0"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="text-xs text-gray-500 mb-1 block">Max</label>
+                  <input
+                    type="number"
+                    value={filters.layoutTotalSqftRange?.[1] ? filters.layoutTotalSqftRange[1] : ''}
+                    onChange={e => updateFilter('layoutTotalSqftRange', [filters.layoutTotalSqftRange?.[0] || 0, Number(e.target.value) || 0])}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    placeholder="No limit"
+                  />
+                </div>
+              </div>
+            </div>
+          </FilterSection>
+        )}
+
+        {/* Plot Availability */}
+        {pageType === 'property' && (
+          <FilterSection title="Available Plots" isExpanded={expandedSections.plotAvailableRange || false} onToggle={() => toggleSection('plotAvailableRange')}>
+            <div className="pt-2">
+              <div className="flex items-center gap-3">
+                <div className="flex-1">
+                  <label className="text-xs text-gray-500 mb-1 block">Min</label>
+                  <input
+                    type="number"
+                    value={filters.plotAvailableRange?.[0] ? filters.plotAvailableRange[0] : ''}
+                    onChange={e => updateFilter('plotAvailableRange', [Number(e.target.value) || 0, filters.plotAvailableRange?.[1] || 0])}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    placeholder="0"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="text-xs text-gray-500 mb-1 block">Max</label>
+                  <input
+                    type="number"
+                    value={filters.plotAvailableRange?.[1] ? filters.plotAvailableRange[1] : ''}
+                    onChange={e => updateFilter('plotAvailableRange', [filters.plotAvailableRange?.[0] || 0, Number(e.target.value) || 0])}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
                     placeholder="No limit"
                   />

@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import TranslationProvider from '../hooks/Translation/TranslationProvider'
 import { AuthProvider } from '@/hooks/AuthContext/AuthContextProvider'
+import AuthShell from '@/components/auth/AuthShell'
 import { Toaster } from 'react-hot-toast'
 import { GlobalProvider } from '@/hooks/GlobalContext/GlobalContext'
 import { cookies } from 'next/headers'
@@ -172,13 +173,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       >
         <AuthProvider initialUser={initialUser} initialToken={initialToken}>
           <GlobalProvider>
-            <LoaderController />
             <TranslationProvider>
-              <ConnectivityNotifier />
-              <GlobalNotificationListener />
-              <main className="min-h-screen">{children}</main>
-              <ScrollToTop />
-              <Toaster position="top-right" reverseOrder={false} />
+              <AuthShell>
+                <LoaderController />
+                <ConnectivityNotifier />
+                <GlobalNotificationListener />
+                <main className="min-h-screen">{children}</main>
+                <ScrollToTop />
+                <Toaster position="top-right" reverseOrder={false} />
+              </AuthShell>
             </TranslationProvider>
           </GlobalProvider>
         </AuthProvider>

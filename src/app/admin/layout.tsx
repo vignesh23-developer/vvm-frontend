@@ -1,18 +1,18 @@
 'use client'
 
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
-import { redirect } from 'next/navigation'
 import Navbar from '@/components/layout/Navbar/Navbar'
 import Footer from '@/components/layout/Footer/Footer'
 import Breadcrumbs from '@/components/ui/CustomComponent/Breadcrumbs/Breadcrumbs'
 import ScrollToTop from '@/components/common/ScrollToTop'
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { token } = useAuth()
+  const { token, loading } = useAuth()
 
-  if (!token) {
-    redirect('/login')
+  if (loading || !token) {
+    return null
   }
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header Section */}
