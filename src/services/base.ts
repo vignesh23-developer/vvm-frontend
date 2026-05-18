@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { onDeleteCookies, onGetCookies } from '@/utils/cookies/cookiesHelper'
 import { requestOpenLoginModal } from '@/lib/openLoginModalEvent'
+import { isPublicBrowsingPath } from '@/lib/publicBrowsingRoutes'
 
 let isRedirectingToLogin = false
 
@@ -31,6 +32,8 @@ const promptLoginModal = () => {
   const isLoginRoute = currentUrl.pathname === '/login' || currentUrl.pathname.startsWith('/login/')
   if (isLoginRoute) return
 
+  if (isPublicBrowsingPath(currentUrl.pathname)) return
+
   const nextPath = `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`
 
   isRedirectingToLogin = true
@@ -46,19 +49,20 @@ const axiosInstance = axios.create({
 })
 
 axiosInstance.interceptors.request.use(async config => {
-  // console.log('REQUEST INTERCEPTORS CALLED', config)
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : ''
+  const onPublicPage = pathname ? isPublicBrowsingPath(pathname) : false
 
-  // const localStoredToken = await getLocalStorageItem(LOCAL_STORAGE_NAME.authToken)
-  const localStoredToken = await onGetCookies('authToken').then(res => {
-    if (res.isError) return null
-    return normalizeToken(res.cookies)
-  })
+  if (!onPublicPage) {
+    const localStoredToken = await onGetCookies('authToken').then(res => {
+      if (res.isError) return null
+      return normalizeToken(res.cookies)
+    })
 
-  if (localStoredToken) {
-    config.headers['Authorization'] = `Bearer ${localStoredToken}`
+    if (localStoredToken) {
+      config.headers['Authorization'] = `Bearer ${localStoredToken}`
+    }
   }
 
-  // allow multipart/form-data payloads without forcing application/json
   if (config.data instanceof FormData) {
     delete config.headers['Content-Type']
   } else if (!config.headers['Content-Type']) {
@@ -70,16 +74,16 @@ axiosInstance.interceptors.request.use(async config => {
 axiosInstance.interceptors.response.use(
   response => response,
   error => {
-    // console.log('ERROR ON interceptors response', error)
-
     const status = error?.response?.status ?? error?.status ?? error?.response?.statusCode ?? error?.statusCode
     if (Number(status) === 401) {
-      // console.log('error from interceptors', error)
+      const pathname = typeof window !== 'undefined' ? window.location.pathname : ''
+      const onPublicPage = pathname ? isPublicBrowsingPath(pathname) : false
 
-      onDeleteCookies('authToken')
-      onDeleteCookies('userData')
-
-      promptLoginModal()
+      if (!onPublicPage) {
+        onDeleteCookies('authToken')
+        onDeleteCookies('userData')
+        promptLoginModal()
+      }
     }
     return Promise.reject(error)
   },
