@@ -12,7 +12,7 @@ export const metadata = generateStaticPageMetadata(
 export const dynamic = 'force-dynamic'
 
 // Mock Data Toggle
-const USE_MOCK_DATA = true
+const USE_MOCK_DATA = false
 
 // API Response Types
 interface PlanItem {
