@@ -43,6 +43,8 @@ export interface LoginFormPanelProps {
   showHeader?: boolean
   /** Called before navigating to Sign Up (e.g. close the global login modal) */
   onBeforeSignupNavigate?: () => void
+  /** Opens forgot-password flow (e.g. close login modal and open forgot modal) */
+  onForgotPasswordClick?: () => void
 }
 
 export default function LoginFormPanel({
@@ -51,6 +53,7 @@ export default function LoginFormPanel({
   onLoginSuccess,
   showHeader = true,
   onBeforeSignupNavigate,
+  onForgotPasswordClick,
 }: LoginFormPanelProps) {
   const t = useTranslations()
   const router = useRouter()
@@ -232,12 +235,19 @@ export default function LoginFormPanel({
             </motion.div>
 
             <motion.div
-              className="flex items-center justify-end text-xs"
+              className="flex items-center justify-between text-xs"
               variants={itemVariants}
               initial="hidden"
               animate="visible"
               transition={{ delay: 0.24 }}
             >
+              <button
+                type="button"
+                onClick={() => onForgotPasswordClick?.()}
+                className="text-green-900 hover:text-green-700 hover:underline font-medium"
+              >
+                {t('Auth.forgot_password')}
+              </button>
               <Link
                 href="/signup"
                 onClick={() => onBeforeSignupNavigate?.()}

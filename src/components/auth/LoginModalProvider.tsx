@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { OPEN_LOGIN_MODAL_EVENT, type OpenLoginModalEventDetail } from '@/lib/openLoginModalEvent'
 import ModalComponent from '@/components/ui/CustomComponent/Modal/ModalComponent'
 import LoginFormPanel from '@/components/auth/LoginFormPanel'
+import { useForgotPasswordModal } from '@/components/auth/ForgotPasswordModalProvider'
 import { useTranslations } from 'next-intl'
 
 export type OpenLoginModalOptions = {
@@ -29,6 +30,7 @@ export function useLoginModal(): LoginModalContextValue {
 export function LoginModalProvider({ children }: { children: ReactNode }) {
   const t = useTranslations()
   const router = useRouter()
+  const { openForgotPasswordModal } = useForgotPasswordModal()
   const [open, setOpen] = useState(false)
   const [pendingNext, setPendingNext] = useState<string | null>(null)
 
@@ -83,6 +85,10 @@ export function LoginModalProvider({ children }: { children: ReactNode }) {
           showHeader={false}
           onLoginSuccess={handleLoginSuccess}
           onBeforeSignupNavigate={closeLoginModal}
+          onForgotPasswordClick={() => {
+            closeLoginModal()
+            openForgotPasswordModal()
+          }}
         />
       </ModalComponent>
     </LoginModalContext.Provider>
