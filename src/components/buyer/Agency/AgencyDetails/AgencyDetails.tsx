@@ -79,7 +79,7 @@ function InfoItem({ label, value, icon, href }: InfoItemProps) {
   return content
 }
 
-const PROPERTIES_PER_PAGE = 6
+const PROPERTIES_PER_PAGE = 2
 const DEFAULT_TABS = ['All']
 
 const extractYouTubeVideoId = (rawUrl: string): string | null => {
@@ -275,10 +275,6 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
   useEffect(() => {
     if (!decodedName) return
 
-    const alreadyFetched = fetchedAgencyRef.current === decodedName
-    fetchedAgencyRef.current = decodedName
-    if (alreadyFetched) return
-
     let isMounted = true
 
     const fetchAgencyDetails = async () => {
@@ -307,20 +303,26 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
 
         if (!isMounted) return
 
-        if (response?.status === '200') {
+        if (String(response?.status) === '200') {
           const payload = Array.isArray(response?.data) ? (response.data as AgentCompanyProfile[])[0] : (response?.data as AgentCompanyProfile | null)
           const agentId = payload?.id
-          fetchAgentGetById(agentId).then(agentProperties => {
+          
+          if (agentId) {
+            const agentProperties = await fetchAgentGetById(agentId)
             if (!agentProperties || !Array.isArray(agentProperties) || agentProperties.length === 0) {
               setAgentIdProperties([])
               setSelectedTab(DEFAULT_TABS[0])
-              return
+            } else {
+              setAgentIdProperties(agentProperties)
+              setSelectedTab(DEFAULT_TABS[0])
             }
-
-            setAgentIdProperties(agentProperties)
+          } else {
+            setAgentIdProperties([])
             setSelectedTab(DEFAULT_TABS[0])
-          })
+          }
+          
           setAgencyData(payload ?? null)
+          console.log('Agency Details Response Payload:', payload)
 
           if (!payload) {
             setFetchError(t('AgencyDetails.no_results'))
@@ -336,9 +338,7 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
         setFetchError(message)
         toast.error(message)
       } finally {
-        if (isMounted) {
-          setIsFetching(false)
-        }
+        setIsFetching(false)
       }
     }
 
@@ -358,7 +358,7 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
   const highlightStats = useMemo(
     () => [
       { label: 'Total Listings', value: agencyData?.agentStats?.totalPropertiesPosted ?? '—', Icon: Building2 },
-      { label: 'Active Properties', value: (agencyData?.agentStats as any)?.activeProperties ?? '—', Icon: Sparkles },
+      { label: 'Active Properties', value: agencyData?.agentStats?.activeListings ?? '—', Icon: Sparkles },
       { label: 'Closed Properties', value: agencyData?.agentStats?.totalPropertiesSold ?? '—', Icon: Handshake },
     ],
     [agencyData],
@@ -413,17 +413,17 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
     () => [
       {
         label: 'Number of Reports',
-        value: (agencyData as any)?.reports_count || 0,
+        value: 0, // Not available in current backend stats
         icon: BarChart3,
       },
       {
         label: 'Total Enquiries',
-        value: (agencyData as any)?.contact_count || 0,
+        value: agencyData?.agentStats?.totalEnquiriesReceived || 0,
         icon: MessageSquare,
       },
       {
         label: 'Page Views',
-        value: (agencyData as any)?.view_count || 0,
+        value: agencyData?.agentStats?.totalViews || 0,
         icon: Eye,
       },
     ],
@@ -484,8 +484,8 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
       Array.isArray(similarProperties) && similarProperties.length > 0
         ? similarProperties
         : Array.isArray(popularSimilarProperties)
-        ? popularSimilarProperties
-        : []
+          ? popularSimilarProperties
+          : []
 
     // Exclude properties from current agency
     const agencyPropertyIds = new Set(normalizedProperties.map((p: any) => p.id))
@@ -622,7 +622,7 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
                     </div>
                   </div>
 
-                  {isFetching ? (
+                  {isLoading ? (
                     <PropertyGallerySkeleton />
                   ) : paginatedProperties.length > 0 ? (
                     <motion.div
@@ -653,7 +653,7 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
                           media={item.media}
                           property_category={item.property_category}
                           onPrimaryAction={() => handleSeeMoreClick(item.id)}
-                          handleFavorite={() => {}}
+                          handleFavorite={() => { }}
                           isVerified={item.isVerified}
                         />
                       ))}
@@ -666,7 +666,18 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
 
                   {/* Pagination */}
                   {!isFetching && totalPages > 1 && (
-                    <div className="flex justify-center gap-2 pt-4">
+                    <div className="flex items-center justify-center gap-2 pt-4">
+                      <button
+                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        className={cn(
+                          "w-10 h-10 rounded-xl flex items-center justify-center transition-all border border-stone-200 bg-white text-stone-600 hover:border-amber-300 disabled:opacity-50 disabled:hover:border-stone-200 disabled:cursor-not-allowed"
+                        )}
+                        aria-label="Previous page"
+                      >
+                        <ChevronLeft size={16} />
+                      </button>
+
                       {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
                         <button
                           key={pageNum}
@@ -681,6 +692,17 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
                           {pageNum}
                         </button>
                       ))}
+
+                      <button
+                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        className={cn(
+                          "w-10 h-10 rounded-xl flex items-center justify-center transition-all border border-stone-200 bg-white text-stone-600 hover:border-amber-300 disabled:opacity-50 disabled:hover:border-stone-200 disabled:cursor-not-allowed"
+                        )}
+                        aria-label="Next page"
+                      >
+                        <ChevronRight size={16} />
+                      </button>
                     </div>
                   )}
                 </section>

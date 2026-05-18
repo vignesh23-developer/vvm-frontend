@@ -43,10 +43,15 @@ export default interface AgentCompanyProfile {
   latitude: string
   longitude: string
   agentStats: {
-    totalPropertiesPosted: number
-    totalPropertiesSold: number
-    activeProperties: number
-    totalClients: number
+    totalPropertiesPosted: number;
+    totalPropertiesSold: number;
+    totalPropertiesRented: number;
+    activeListings: number;
+    pendingApproval: number;
+    totalEnquiriesReceived: number;
+    totalLeadsConverted: number;
+    totalFavorites: number;
+    totalViews: number;
   }
   language: (key: string) => string
   handleFavorite?: (agentId: string) => void

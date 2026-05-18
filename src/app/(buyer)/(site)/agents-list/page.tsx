@@ -225,17 +225,17 @@ const AgentListPage = () => {
         suggestionsSet.add(s)
       }
     })
-    ;(agentCompanyProfileData || []).forEach((agency: any) => {
-      const candidates = [agency.companyName, agency.profileName, agency.contact_name, agency.city, agency.district, agency.state]
-      candidates.forEach(value => {
-        if (typeof value === 'string') {
-          const lower = value.toLowerCase()
-          if (lower.includes(query)) {
-            suggestionsSet.add(value)
+      ; (agentCompanyProfileData || []).forEach((agency: any) => {
+        const candidates = [agency.companyName, agency.profileName, agency.contact_name, agency.city, agency.district, agency.state]
+        candidates.forEach(value => {
+          if (typeof value === 'string') {
+            const lower = value.toLowerCase()
+            if (lower.includes(query)) {
+              suggestionsSet.add(value)
+            }
           }
-        }
+        })
       })
-    })
 
     return Array.from(suggestionsSet).slice(0, 8)
   }, [debouncedSearchTerm, agentCompanyProfileData, backendSuggestions])
@@ -362,9 +362,8 @@ const AgentListPage = () => {
                 {/* Filter Button */}
                 <button
                   onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-                  className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
-                    isFiltersOpen ? 'bg-[#2a1407] text-white shadow-md' : 'bg-yellow-50 text-[#2a1407] hover:bg-yellow-100'
-                  } cursor-pointer`}
+                  className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${isFiltersOpen ? 'bg-[#2a1407] text-white shadow-md' : 'bg-yellow-50 text-[#2a1407] hover:bg-yellow-100'
+                    } cursor-pointer`}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path

@@ -11,6 +11,9 @@ export const metadata = generateStaticPageMetadata(
 // Force dynamic rendering - don't try to statically generate this page
 export const dynamic = 'force-dynamic'
 
+// Mock Data Toggle
+const USE_MOCK_DATA = true
+
 // API Response Types
 interface PlanItem {
   id: number
@@ -167,6 +170,151 @@ function getUniqueFeatures(apiPlans: ApiPlan[]): string[] {
   })
 }
 
+// Mock Data for Development
+const MOCK_API_PLANS: ApiPlan[] = [
+  {
+    id: 1,
+    name: 'Free Plan',
+    tagline: 'Basic listing to get you started',
+    price: '0',
+    durationDays: 30,
+    billingCycle: 'MONTHLY',
+    isPopular: false,
+    isActive: true,
+    planItems: [
+      {
+        id: 101,
+        plan_id: 1,
+        item: { id: 1, name: 'Property Listings', type: 'core', valueType: 'NUMERIC', category: 'listing', unit: 'listings', description: 'Number of properties you can list', displayOrder: 1 },
+        isIncluded: true, numericValue: 1, textValue: null, isUnlimited: false
+      },
+      {
+        id: 102, plan_id: 1,
+        item: { id: 2, name: 'Featured Ads', type: 'marketing', valueType: 'NUMERIC', category: 'marketing', unit: 'ads', description: 'Number of featured advertisements', displayOrder: 2 },
+        isIncluded: true, numericValue: 0, textValue: null, isUnlimited: false
+      },
+      {
+        id: 103, plan_id: 1,
+        item: { id: 3, name: 'Support Level', type: 'service', valueType: 'TEXT', category: 'service', unit: 'Standard', description: 'Customer support level', displayOrder: 3 },
+        isIncluded: true, numericValue: null, textValue: 'Standard', isUnlimited: false
+      }
+    ]
+  },
+  {
+    id: 2,
+    name: 'Silver Plan',
+    tagline: 'Enhanced visibility for faster results',
+    price: '499',
+    durationDays: 45,
+    billingCycle: 'MONTHLY',
+    isPopular: true,
+    isActive: true,
+    planItems: [
+      {
+        id: 201, plan_id: 2,
+        item: { id: 1, name: 'Property Listings', type: 'core', valueType: 'NUMERIC', category: 'listing', unit: 'listings', description: 'Number of properties you can list', displayOrder: 1 },
+        isIncluded: true, numericValue: 10, textValue: null, isUnlimited: false
+      },
+      {
+        id: 202, plan_id: 2,
+        item: { id: 2, name: 'Featured Ads', type: 'marketing', valueType: 'NUMERIC', category: 'marketing', unit: 'ads', description: 'Number of featured advertisements', displayOrder: 2 },
+        isIncluded: true, numericValue: 3, textValue: null, isUnlimited: false
+      },
+      {
+        id: 203, plan_id: 2,
+        item: { id: 3, name: 'Support Level', type: 'service', valueType: 'TEXT', category: 'service', unit: 'Priority', description: 'Customer support level', displayOrder: 3 },
+        isIncluded: true, numericValue: null, textValue: 'Priority', isUnlimited: false
+      },
+      {
+        id: 204, plan_id: 2,
+        item: { id: 4, name: 'Social Media Sharing', type: 'marketing', valueType: 'BOOLEAN', category: 'marketing', unit: '', description: 'Share on social media', displayOrder: 4 },
+        isIncluded: true, numericValue: null, textValue: null, isUnlimited: false
+      }
+    ]
+  },
+  {
+    id: 3,
+    name: 'Gold Plan',
+    tagline: 'The ultimate professional package',
+    price: '999',
+    durationDays: 60,
+    billingCycle: 'MONTHLY',
+    isPopular: false,
+    isActive: true,
+    planItems: [
+      {
+        id: 301, plan_id: 3,
+        item: { id: 1, name: 'Property Listings', type: 'core', valueType: 'NUMERIC', category: 'listing', unit: 'listings', description: 'Number of properties you can list', displayOrder: 1 },
+        isIncluded: true, numericValue: null, textValue: null, isUnlimited: true
+      },
+      {
+        id: 302, plan_id: 3,
+        item: { id: 2, name: 'Featured Ads', type: 'marketing', valueType: 'NUMERIC', category: 'marketing', unit: 'ads', description: 'Number of featured advertisements', displayOrder: 2 },
+        isIncluded: true, numericValue: 15, textValue: null, isUnlimited: false
+      },
+      {
+        id: 303, plan_id: 3,
+        item: { id: 3, name: 'Support Level', type: 'service', valueType: 'TEXT', category: 'service', unit: '24/7 Premium', description: 'Customer support level', displayOrder: 3 },
+        isIncluded: true, numericValue: null, textValue: '24/7 Premium', isUnlimited: false
+      },
+      {
+        id: 304, plan_id: 3,
+        item: { id: 4, name: 'Social Media Sharing', type: 'marketing', valueType: 'BOOLEAN', category: 'marketing', unit: '', description: 'Share on social media', displayOrder: 4 },
+        isIncluded: true, numericValue: null, textValue: null, isUnlimited: false
+      }
+    ]
+  },
+  {
+    id: 4,
+    name: 'Business Pro',
+    tagline: 'Annual savings for agencies',
+    price: '8999',
+    durationDays: 365,
+    billingCycle: 'YEARLY',
+    isPopular: false,
+    isActive: true,
+    planItems: [
+      {
+        id: 401, plan_id: 4,
+        item: { id: 1, name: 'Property Listings', type: 'core', valueType: 'NUMERIC', category: 'listing', unit: 'listings', description: 'Number of properties you can list', displayOrder: 1 },
+        isIncluded: true, numericValue: 100, textValue: null, isUnlimited: false
+      },
+      {
+        id: 402, plan_id: 4,
+        item: { id: 2, name: 'Featured Ads', type: 'marketing', valueType: 'NUMERIC', category: 'marketing', unit: 'ads', description: 'Number of featured advertisements', displayOrder: 2 },
+        isIncluded: true, numericValue: 50, textValue: null, isUnlimited: false
+      },
+      {
+        id: 403, plan_id: 4,
+        item: { id: 3, name: 'Support Level', type: 'service', valueType: 'TEXT', category: 'service', unit: 'Dedicated Manager', description: 'Customer support level', displayOrder: 3 },
+        isIncluded: true, numericValue: null, textValue: 'Dedicated Manager', isUnlimited: false
+      }
+    ]
+  },
+  {
+    id: 5,
+    name: 'Single Ad Blast',
+    tagline: 'Boost your property visibility once',
+    price: '99',
+    durationDays: 7,
+    billingCycle: 'ONE-TIME',
+    isPopular: false,
+    isActive: true,
+    planItems: [
+      {
+        id: 501, plan_id: 5,
+        item: { id: 1, name: 'Property Listings', type: 'core', valueType: 'NUMERIC', category: 'listing', unit: 'listings', description: 'Number of properties you can list', displayOrder: 1 },
+        isIncluded: true, numericValue: 1, textValue: null, isUnlimited: false
+      },
+      {
+        id: 502, plan_id: 5,
+        item: { id: 2, name: 'Priority Indexing', type: 'marketing', valueType: 'BOOLEAN', category: 'marketing', unit: '', description: 'Priority indexing', displayOrder: 2 },
+        isIncluded: true, numericValue: null, textValue: null, isUnlimited: false
+      }
+    ]
+  }
+]
+
 async function fetchPricingPlans(): Promise<ApiPlan[]> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
@@ -203,7 +351,7 @@ async function fetchPricingPlans(): Promise<ApiPlan[]> {
 }
 
 export default async function PricingPlans() {
-  const apiPlans = await fetchPricingPlans()
+  const apiPlans = USE_MOCK_DATA ? MOCK_API_PLANS : await fetchPricingPlans()
   const plans = apiPlans.map(plan => transformPlan(plan))
   const featuresList = getUniqueFeatures(apiPlans)
 
