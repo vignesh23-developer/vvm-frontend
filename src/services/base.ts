@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { onDeleteCookies, onGetCookies } from '@/utils/cookies/cookiesHelper'
+import { requestOpenLoginModal } from '@/lib/openLoginModalEvent'
 
 let isRedirectingToLogin = false
 
@@ -21,22 +22,22 @@ const normalizeToken = (value: unknown): string | null => {
   return trimmed.length > 0 ? trimmed : null
 }
 
-const redirectToLogin = () => {
+const promptLoginModal = () => {
   if (typeof window === 'undefined') return
   if (isRedirectingToLogin) return
 
   const currentUrl = new URL(window.location.href)
 
-  // Avoid redirect loops when we're already on login.
   const isLoginRoute = currentUrl.pathname === '/login' || currentUrl.pathname.startsWith('/login/')
   if (isLoginRoute) return
 
   const nextPath = `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`
-  const loginUrl = new URL('/login', currentUrl.origin)
-  loginUrl.searchParams.set('next', nextPath)
 
   isRedirectingToLogin = true
-  window.location.replace(`${loginUrl.pathname}${loginUrl.search}`)
+  requestOpenLoginModal(nextPath)
+  window.setTimeout(() => {
+    isRedirectingToLogin = false
+  }, 1500)
 }
 
 const axiosInstance = axios.create({
@@ -78,7 +79,7 @@ axiosInstance.interceptors.response.use(
       onDeleteCookies('authToken')
       onDeleteCookies('userData')
 
-      redirectToLogin()
+      promptLoginModal()
     }
     return Promise.reject(error)
   },

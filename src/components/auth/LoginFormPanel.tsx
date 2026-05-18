@@ -41,6 +41,8 @@ export interface LoginFormPanelProps {
   onLoginSuccess?: (resolvedNext: string) => void
   /** Hide the hello / welcome heading (e.g. when the modal already has a title) */
   showHeader?: boolean
+  /** Called before navigating to Sign Up (e.g. close the global login modal) */
+  onBeforeSignupNavigate?: () => void
 }
 
 export default function LoginFormPanel({
@@ -48,6 +50,7 @@ export default function LoginFormPanel({
   referralCodeFromUrl = null,
   onLoginSuccess,
   showHeader = true,
+  onBeforeSignupNavigate,
 }: LoginFormPanelProps) {
   const t = useTranslations()
   const router = useRouter()
@@ -235,7 +238,11 @@ export default function LoginFormPanel({
               animate="visible"
               transition={{ delay: 0.24 }}
             >
-              <Link href="/signup" className="text-green-900 hover:text-green-700 hover:underline font-medium">
+              <Link
+                href="/signup"
+                onClick={() => onBeforeSignupNavigate?.()}
+                className="text-green-900 hover:text-green-700 hover:underline font-medium"
+              >
                 Sign Up
               </Link>
             </motion.div>

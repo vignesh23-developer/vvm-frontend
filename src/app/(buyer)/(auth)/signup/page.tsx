@@ -20,6 +20,7 @@ import { ResponseDTO } from '@/components/dto/response_dto'
 import OTPInput from '@/components/ui/OTPInput/OTPInput'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { useGlobalContext } from '@/hooks/GlobalContext/GlobalContext'
+import { useLoginModal } from '@/components/auth/LoginModalProvider'
 
 interface SignupFormValues {
   firstName: string
@@ -41,6 +42,7 @@ export default function SignupPage() {
   const [isSendingOtp, setIsSendingOtp] = useState(false)
   const [sendingOtpType, setSendingOtpType] = useState<'sms_otp' | 'whatsapp_otp' | null>(null)
   const router = useRouter()
+  const { openLoginModal } = useLoginModal()
   const searchParams = useSearchParams()
   const nextUrl = searchParams.get('next') || globalValue?.isRedirect || null
   const googleIdFromUrl = searchParams.get('googleId')
@@ -273,9 +275,13 @@ export default function SignupPage() {
         <motion.div className="w-full max-w-md" initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.5 }}>
           {/* Back Button */}
           <motion.div variants={itemVariants}>
-            <Link href="/login" className="flex items-center text-sm font-semibold text-green-900 mb-2 hover:underline">
+            <button
+              type="button"
+              onClick={() => openLoginModal({ next: nextUrl && nextUrl.startsWith('/') ? nextUrl : '/' })}
+              className="flex items-center text-sm font-semibold text-green-900 mb-2 hover:underline"
+            >
               <ArrowLeft size={20} className="mr-2" /> {t('Auth.back')}
-            </Link>
+            </button>
           </motion.div>
           <motion.h2
             className="text-2xl font-bold text-[#2a1407]"
@@ -571,9 +577,13 @@ export default function SignupPage() {
                     <motion.div className="text-center mt-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
                       <p className="text-gray-600 text-sm">
                         Already have an account?{' '}
-                        <Link href="/login" className="font-semibold text-green-900 hover:text-green-700 hover:underline">
+                        <button
+                          type="button"
+                          onClick={() => openLoginModal({ next: nextUrl && nextUrl.startsWith('/') ? nextUrl : '/' })}
+                          className="font-semibold text-green-900 hover:text-green-700 hover:underline"
+                        >
                           Sign in
-                        </Link>
+                        </button>
                       </p>
                     </motion.div>
                   </Form>

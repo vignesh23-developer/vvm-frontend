@@ -9,6 +9,7 @@ import Image from 'next/image'
 import { AuthSchema } from '@/utils/validations/auth/AuthValidationSchema'
 import LanguageSwitch from '@/components/ui/CustomComponent/languageSwitch/languageSwitch'
 import { useLocale, useTranslations } from 'next-intl'
+import { useLoginModal } from '@/components/auth/LoginModalProvider'
 
 interface AuthFormValues {
   phone: string
@@ -17,6 +18,7 @@ interface AuthFormValues {
 const ForgotPassword = () => {
   const t = useTranslations()
   const locale = useLocale()
+  const { openLoginModal } = useLoginModal()
   const initialValues: AuthFormValues = {
     phone: '',
   }
@@ -68,9 +70,13 @@ const ForgotPassword = () => {
           className="w-full max-w-md"
         >
           {/* Back Button */}
-          <Link href="/login" className="flex items-center text-sm font-semibold text-green-900 mb-4 hover:underline">
+          <button
+            type="button"
+            onClick={() => openLoginModal()}
+            className="flex items-center text-sm font-semibold text-green-900 mb-4 hover:underline w-full text-left"
+          >
             <ArrowLeft size={20} className="mr-2" /> {t('Auth.back')}
-          </Link>
+          </button>
 
           {/* Title */}
           <motion.h2

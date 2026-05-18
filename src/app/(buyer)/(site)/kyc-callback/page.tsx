@@ -1,16 +1,19 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import { getLocalStorageItem, removeLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { useLoginModal } from '@/components/auth/LoginModalProvider'
 
 export default function KYCCallbackPage() {
   const router = useRouter()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
+  const { openLoginModal } = useLoginModal()
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
   const [message, setMessage] = useState('Processing your KYC verification...');
   const { user: userData, loading: authLoading, refreshAuth } = useAuth();
@@ -32,7 +35,9 @@ export default function KYCCallbackPage() {
           setStatus('error')
           setMessage('Please login to continue')
           toast.error('Please login to continue')
-          setTimeout(() => router.push('/login'), 2000)
+          const qs = searchParams.toString()
+          const next = qs ? `${pathname}?${qs}` : pathname || '/kyc-callback'
+          setTimeout(() => openLoginModal({ next }), 500)
           return
         }
 
@@ -104,14 +109,16 @@ export default function KYCCallbackPage() {
     }
 
     completeKyc()
-  }, [router, searchParams, userData, authLoading, refreshAuth])
+  }, [router, searchParams, pathname, userData, authLoading, refreshAuth, openLoginModal])
 
   const handleRetry = () => {
 
     if (userData && userData.id) {
       router.push(`/profile/${userData.id}`)
     } else {
-      router.push('/login')
+      const qs = searchParams.toString()
+      const next = qs ? `${pathname}?${qs}` : pathname || '/kyc-callback'
+      openLoginModal({ next })
     }
   }
 

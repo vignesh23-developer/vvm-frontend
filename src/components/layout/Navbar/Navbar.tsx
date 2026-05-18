@@ -84,7 +84,7 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
   const { locale, setLocale } = useTranslationContext()
   const isTamil = locale === 'ta'
   const router = useRouter()
-  const { openLoginModal } = useLoginModal()
+  const { openLoginModal, closeLoginModal } = useLoginModal()
   const [showMore, setShowMore] = useState(false)
 
   const visibleLinks = isTamil ? NAV_LINKS.slice(0, 3) : NAV_LINKS
@@ -211,11 +211,12 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
   }
 
   const handleLogout = () => {
-    logout()
+    closeLoginModal()
+    void logout()
     reset()
     setIsProfileOpen(false)
     setIsMobileMenuOpen(false)
-    router.push('/')
+    router.replace('/')
   }
 
   const closeMenu = () => setIsProfileOpen(false)

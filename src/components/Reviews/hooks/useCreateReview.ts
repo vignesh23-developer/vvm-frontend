@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { useLoginModal } from '@/components/auth/LoginModalProvider'
 import { postMethod } from '@/services/service'
 import { ResponseDTO } from '@/components/dto/response_dto'
 import { appEndpoints } from '@/services/endpoints'
@@ -10,7 +10,7 @@ import { CreateReviewDto, Review } from '../types'
  * Custom hook for creating reviews
  */
 export function useCreateReview() {
-  const router = useRouter()
+  const { openLoginModal } = useLoginModal()
   const { user: userData } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -23,7 +23,11 @@ export function useCreateReview() {
 
         if (!userData || !(userData as { id?: string }).id) {
           setError('Please login to create a review')
-          router.push('/login')
+          const next =
+            typeof window !== 'undefined'
+              ? `${window.location.pathname}${window.location.search}` || '/'
+              : '/'
+          openLoginModal({ next })
           return null
         }
 
@@ -43,7 +47,7 @@ export function useCreateReview() {
         setLoading(false)
       }
     },
-    [router, userData]
+    [openLoginModal, userData]
   )
 
   return { createReview, loading, error }

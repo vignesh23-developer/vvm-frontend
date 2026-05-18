@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { useLoginModal } from '@/components/auth/LoginModalProvider'
 import { patchMethod } from '@/services/service'
 import { ResponseDTO } from '@/components/dto/response_dto'
 import { appEndpoints } from '@/services/endpoints'
@@ -10,7 +10,7 @@ import { UpdateReviewDto, Review } from '../types'
  * Custom hook for updating reviews
  */
 export function useUpdateReview() {
-  const router = useRouter()
+  const { openLoginModal } = useLoginModal()
   const { user: userData } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -23,7 +23,11 @@ export function useUpdateReview() {
 
         if (!userData || !(userData as { id?: string }).id) {
           setError('Please login to update a review')
-          router.push('/login')
+          const next =
+            typeof window !== 'undefined'
+              ? `${window.location.pathname}${window.location.search}` || '/'
+              : '/'
+          openLoginModal({ next })
           return null
         }
 
@@ -43,7 +47,7 @@ export function useUpdateReview() {
         setLoading(false)
       }
     },
-    [router, userData]
+    [openLoginModal, userData]
   )
 
   return { updateReview, loading, error }

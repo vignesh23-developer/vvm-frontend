@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { useLoginModal } from '@/components/auth/LoginModalProvider'
 import { getMethod } from '@/services/service'
 import { ResponseDTO } from '@/components/dto/response_dto'
 import { appEndpoints } from '@/services/endpoints'
@@ -16,7 +16,7 @@ export function useAdminTransactions(
   limit: number = 10,
   filters?: TransactionQueryParams,
 ) {
-  const router = useRouter()
+  const { openLoginModal } = useLoginModal()
   const { user: userData } = useAuth()
   const [transactions, setTransactions] = useState<PaymentTransaction[]>([])
   const [loading, setLoading] = useState(true)
@@ -29,7 +29,11 @@ export function useAdminTransactions(
       setError(null)
 
       if (!userData || !(userData as { id?: string }).id) {
-        router.push('/login')
+        const next =
+          typeof window !== 'undefined'
+            ? `${window.location.pathname}${window.location.search}` || '/'
+            : '/'
+        openLoginModal({ next })
         return
       }
 
@@ -90,7 +94,7 @@ export function useAdminTransactions(
     } finally {
       setLoading(false)
     }
-  }, [router, page, limit, filters, userData])
+  }, [openLoginModal, page, limit, filters, userData])
 
   useEffect(() => {
     fetchTransactions()

@@ -46,6 +46,13 @@ export function middleware(request: NextRequest) {
   const hasToken = typeof token === 'string' && token.trim().length > 0
   const userRaw = request.cookies.get(USER_COOKIE)?.value
 
+  // Legacy /login URL: never render the old login page for guests — home + login modal (preserves ?next=)
+  if (!hasToken && pathname === '/login') {
+    const nextParam = request.nextUrl.searchParams.get('next')
+    const safeNext = nextParam && nextParam.startsWith('/') ? nextParam : '/'
+    return redirectHomeRequireAuth(request, safeNext, '')
+  }
+
   // If already logged in, don't allow access to auth pages
   if (
     hasToken &&

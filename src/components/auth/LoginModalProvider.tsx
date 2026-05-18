@@ -1,7 +1,8 @@
 'use client'
 
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
+import { OPEN_LOGIN_MODAL_EVENT, type OpenLoginModalEventDetail } from '@/lib/openLoginModalEvent'
 import ModalComponent from '@/components/ui/CustomComponent/Modal/ModalComponent'
 import LoginFormPanel from '@/components/auth/LoginFormPanel'
 import { useTranslations } from 'next-intl'
@@ -53,6 +54,15 @@ export function LoginModalProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(() => ({ openLoginModal, closeLoginModal }), [openLoginModal, closeLoginModal])
 
+  useEffect(() => {
+    const onOpen = (e: Event) => {
+      const detail = (e as CustomEvent<OpenLoginModalEventDetail>).detail
+      openLoginModal({ next: detail?.next })
+    }
+    window.addEventListener(OPEN_LOGIN_MODAL_EVENT, onOpen as EventListener)
+    return () => window.removeEventListener(OPEN_LOGIN_MODAL_EVENT, onOpen as EventListener)
+  }, [openLoginModal])
+
   const nextForForm = pendingNext ?? '/'
 
   return (
@@ -68,7 +78,12 @@ export function LoginModalProvider({ children }: { children: ReactNode }) {
         panelClassName="sm:max-h-[min(90dvh,calc(100vh-2rem))]"
         contentClassName="pr-1 -mr-1"
       >
-        <LoginFormPanel nextPath={nextForForm} showHeader={false} onLoginSuccess={handleLoginSuccess} />
+        <LoginFormPanel
+          nextPath={nextForForm}
+          showHeader={false}
+          onLoginSuccess={handleLoginSuccess}
+          onBeforeSignupNavigate={closeLoginModal}
+        />
       </ModalComponent>
     </LoginModalContext.Provider>
   )
