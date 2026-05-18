@@ -8,9 +8,11 @@ import AgentCompanyProfile from '@/app/(buyer)/(site)/agents-list/(dto)/agentCom
 import { getMethod, postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import { ResponseDTO } from '@/components/dto/response_dto'
+import { mockAgents, mockAgentProperties, USE_MOCK_DATA } from '@/app/(buyer)/(site)/agents-list/mockAgents'
 import { toast } from 'react-hot-toast'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import CustumLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
+import PropertyCard from '@/components/buyer/PropertyCard/PropertyCard'
 import {
   Loader2,
   CalendarDays,
@@ -77,7 +79,7 @@ function InfoItem({ label, value, icon, href }: InfoItemProps) {
   return content
 }
 
-const PROPERTIES_PER_PAGE = 6
+const PROPERTIES_PER_PAGE = 2
 const DEFAULT_TABS = ['All']
 
 const extractYouTubeVideoId = (rawUrl: string): string | null => {
@@ -176,6 +178,7 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
   const carouselRef = useRef<HTMLDivElement | null>(null)
   // Prevent duplicate fetches in React 18 strict mode/dev double renders
   const fetchedAgencyRef = useRef<string | null>(null)
+  const useMockData = USE_MOCK_DATA
 
   const normalizedProperties = useMemo(() => (Array.isArray(agentIdProperties) ? agentIdProperties : []), [agentIdProperties])
 
@@ -272,13 +275,26 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
   useEffect(() => {
     if (!decodedName) return
 
-    const alreadyFetched = fetchedAgencyRef.current === decodedName
-    fetchedAgencyRef.current = decodedName
-    if (alreadyFetched) return
-
     let isMounted = true
 
     const fetchAgencyDetails = async () => {
+      if (useMockData) {
+        setIsFetching(true)
+        // Find mock agent by profileName (decodedName)
+        const mockAgent = mockAgents.find(a => a.profileName === decodedName)
+        if (mockAgent) {
+          setAgencyData(mockAgent)
+          const properties = mockAgentProperties[mockAgent.id] || []
+          setAgentIdProperties(properties)
+          setSelectedTab(DEFAULT_TABS[0])
+        } else {
+          setAgencyData(null)
+          setFetchError('Mock Agent not found')
+        }
+        setIsFetching(false)
+        return
+      }
+
       setIsFetching(true)
       setFetchError(null)
 
@@ -287,20 +303,26 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
 
         if (!isMounted) return
 
-        if (response?.status === '200') {
+        if (String(response?.status) === '200') {
           const payload = Array.isArray(response?.data) ? (response.data as AgentCompanyProfile[])[0] : (response?.data as AgentCompanyProfile | null)
           const agentId = payload?.id
-          fetchAgentGetById(agentId).then(agentProperties => {
+          
+          if (agentId) {
+            const agentProperties = await fetchAgentGetById(agentId)
             if (!agentProperties || !Array.isArray(agentProperties) || agentProperties.length === 0) {
               setAgentIdProperties([])
               setSelectedTab(DEFAULT_TABS[0])
-              return
+            } else {
+              setAgentIdProperties(agentProperties)
+              setSelectedTab(DEFAULT_TABS[0])
             }
-
-            setAgentIdProperties(agentProperties)
+          } else {
+            setAgentIdProperties([])
             setSelectedTab(DEFAULT_TABS[0])
-          })
+          }
+          
           setAgencyData(payload ?? null)
+          console.log('Agency Details Response Payload:', payload)
 
           if (!payload) {
             setFetchError(t('AgencyDetails.no_results'))
@@ -316,9 +338,7 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
         setFetchError(message)
         toast.error(message)
       } finally {
-        if (isMounted) {
-          setIsFetching(false)
-        }
+        setIsFetching(false)
       }
     }
 
@@ -337,11 +357,11 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
 
   const highlightStats = useMemo(
     () => [
-      { labelKey: 'PropertiesListCard.operating_since', value: establishedYear, Icon: CalendarDays },
-      { labelKey: 'PropertiesListCard.total_properties', value: agencyData?.agentStats?.totalPropertiesPosted ?? '—', Icon: Building2 },
-      { labelKey: 'PropertiesListCard.deals_closed', value: agencyData?.agentStats?.totalPropertiesSold ?? '—', Icon: Handshake },
+      { label: 'Total Listings', value: agencyData?.agentStats?.totalPropertiesPosted ?? '—', Icon: Building2 },
+      { label: 'Active Properties', value: agencyData?.agentStats?.activeListings ?? '—', Icon: Sparkles },
+      { label: 'Closed Properties', value: agencyData?.agentStats?.totalPropertiesSold ?? '—', Icon: Handshake },
     ],
-    [establishedYear],
+    [agencyData],
   )
 
   // buyer can't see contact details unless admin or agent
@@ -393,17 +413,17 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
     () => [
       {
         label: 'Number of Reports',
-        value: (agencyData as any)?.reports_count || 0,
+        value: 0, // Not available in current backend stats
         icon: BarChart3,
       },
       {
         label: 'Total Enquiries',
-        value: (agencyData as any)?.contact_count || 0,
+        value: agencyData?.agentStats?.totalEnquiriesReceived || 0,
         icon: MessageSquare,
       },
       {
         label: 'Page Views',
-        value: (agencyData as any)?.view_count || 0,
+        value: agencyData?.agentStats?.totalViews || 0,
         icon: Eye,
       },
     ],
@@ -464,8 +484,8 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
       Array.isArray(similarProperties) && similarProperties.length > 0
         ? similarProperties
         : Array.isArray(popularSimilarProperties)
-        ? popularSimilarProperties
-        : []
+          ? popularSimilarProperties
+          : []
 
     // Exclude properties from current agency
     const agencyPropertyIds = new Set(normalizedProperties.map((p: any) => p.id))
@@ -509,7 +529,7 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
   )
   return (
     <main className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-yellow-50 py-10 px-4 sm:px-6 lg:px-0">
-      <div className="mx-auto w-full max-w-6xl space-y-10">
+      <div className="mx-auto w-full px-10 space-y-10">
         <nav className="flex items-center gap-2 text-sm text-stone-500">
           <Link href="/" className="font-medium text-stone-700 transition hover:text-amber-600">
             {t('Navbar.home')}
@@ -522,367 +542,235 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
           <CustumLoader text="Loading agency details..." />
         ) : (
           <div className="space-y-10">
-            <section className="relative overflow-hidden rounded-3xl border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/20 shadow-sm backdrop-blur">
-              <div className="flex flex-col gap-8 px-6 py-8 sm:px-10 md:flex-row md:py-10">
-                <div className="mx-auto w-full max-w-xs md:mx-0 md:w-64">
-                  <div className="relative aspect-square overflow-hidden rounded-2xl border border-stone-200 bg-stone-100">
-                    <Image src={companyLogo} alt={`${profileTitle} logo`} fill className="object-contain" sizes="256px" priority />
-                  </div>
-                </div>
-
-                <div className="flex-1 space-y-6">
-                  <div className="space-y-3">
-                    <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-wide">
-                      <span className="inline-flex items-center rounded-full bg-amber-100/80 px-3 py-1 text-amber-700">
-                        {t('PropertiesListCard.agent')}
-                      </span>
-
-                      {!isVerified ? (
-                        <span className="inline-flex items-center rounded-full bg-stone-200 px-3 py-1 text-stone-600">
-                          {t('AgencyDetails.not_verified')}
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-emerald-700">
-                          <ShieldCheck size={14} />
-                          {t('AgencyDetails.verified')}
-                        </span>
-                      )}
-                    </div>
-
-                    <h1 className="text-3xl font-bold text-stone-900 sm:text-4xl">{agencyData?.companyName}</h1>
-                    {agencyData?.shortTitle && <p className="text-base text-stone-600">{agencyData.shortTitle}</p>}
-                    {agencyData?.description && <p className="text-sm leading-relaxed text-stone-600">{agencyData.description}</p>}
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                    {highlightStats.map(stat => (
-                      <div key={stat.labelKey} className="flex gap-3 rounded-2xl border border-stone-200 bg-white px-4 py-5 shadow-sm">
-                        <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
-                          <stat.Icon size={22} />
-                        </span>
-                        <div>
-                          <p className="text-2xl font-semibold text-stone-900">{stat.value}</p>
-                          <p className="whitespace-pre-line text-xs font-medium uppercase tracking-wide text-stone-500">{t(stat.labelKey)}</p>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Left Column: Profile Info */}
+              <div className="lg:col-span-2 space-y-8">
+                <section className="overflow-hidden rounded-3xl border border-yellow-200 bg-white shadow-sm">
+                  <div className="p-6 sm:p-8">
+                    <div className="flex flex-col md:flex-row gap-8">
+                      <div className="w-full md:w-48 shrink-0">
+                        <div className="relative aspect-square overflow-hidden rounded-2xl border border-stone-100 bg-stone-50 shadow-inner">
+                          <Image src={companyLogo} alt={`${profileTitle} logo`} fill className="object-contain p-4" sizes="192px" priority />
                         </div>
                       </div>
-                    ))}
+
+                      <div className="flex-1 space-y-4">
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <h1 className="text-3xl font-bold text-stone-900">{agencyData?.companyName}</h1>
+                            {isVerified && (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-700 border border-emerald-100">
+                                <ShieldCheck size={12} />
+                                Verified
+                              </span>
+                            )}
+                          </div>
+                          {agencyData?.shortTitle && <p className="text-lg text-amber-700 font-medium">{agencyData.shortTitle}</p>}
+                        </div>
+
+                        <p className="text-sm leading-relaxed text-stone-600 line-clamp-4">
+                          {agencyData?.description || 'This agency provides professional real estate services. Contact them for more details about their current listings and specialized areas.'}
+                        </p>
+
+                        <div className="flex flex-wrap gap-4 pt-2">
+                          <div className="flex items-center gap-2 text-sm text-stone-500">
+                            <MapPin size={16} className="text-amber-600" />
+                            <span>{fullAddress}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-stone-500">
+                            <CalendarDays size={16} className="text-amber-600" />
+                            <span>Operating since {establishedYear}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
 
-              <div className="absolute top-4 right-4 z-30 md:top-6 md:right-6">
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={handleShare}
-                  disabled={isSharing}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm text-gray-700 shadow-lg transition hover:bg-white cursor-pointer hover:text-[#2a1407] disabled:opacity-50"
-                  aria-label="Share property"
-                  title="Share Agent"
-                >
-                  <Share2 size={18} />
-                </motion.button>
-              </div>
-
-              <div className="flex flex-col gap-4 border-t border-stone-200 bg-stone-50/80 px-6 py-5 sm:px-10 sm:py-6 md:flex-row md:items-center md:justify-between">
-                <div className="flex flex-wrap items-center gap-x-8 gap-y-3 text-sm text-stone-600">
-                  {contactName && (
-                    <span className="inline-flex items-center gap-2 font-medium text-stone-800">
-                      <CircleUserRound size={16} /> {contactName}
-                    </span>
-                  )}
-                  {contactPhone && (
-                    <a
-                      href={`tel:${contactPhone}`}
-                      className="inline-flex items-center gap-2 font-medium text-stone-800 transition hover:text-amber-600"
-                    >
-                      <Phone size={16} /> {contactPhone}
-                    </a>
-                  )}
-                  {contactEmail && (
-                    <a
-                      href={`mailto:${contactEmail}`}
-                      className="inline-flex items-center gap-2 font-medium text-stone-800 transition hover:text-amber-600"
-                    >
-                      <Mail size={16} /> {contactEmail}
-                    </a>
-                  )}
-                  {fullAddress && (
-                    <span className="inline-flex items-center gap-2">
-                      <MapPin size={16} /> {fullAddress}
-                    </span>
-                  )}
-                </div>
-
-                {/* {contactPhone && (
-                  <Button
-                    onClick={() => window.open(`tel:${contactPhone}`)}
-                    className="flex items-center gap-2 rounded-full bg-amber-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-amber-700"
-                  >
-                    <Phone size={16} /> {t('AgencyDetails.contact_owner')}
-                  </Button>
-                )} */}
-              </div>
-            </section>
-
-            {/* Properties by this Agency - Full Width and Centered */}
-            <section className="w-full flex flex-col items-center py-8">
-              <div className="w-full max-w-7xl mx-auto px-4 md:px-8">
-                <h2 className="mb-6 text-center text-2xl font-bold tracking-wide text-stone-900">Properties by this Agency</h2>
-
-                {/* Tabs - Always show All plus category names derived from properties */}
-                {isLoading ? (
-                  <div className="flex justify-center py-10">
-                    <Loader2 className="h-8 w-8 animate-spin text-amber-600" />
+                  <div className="border-t border-stone-100 bg-stone-50/50 px-6 py-4 flex flex-wrap gap-6">
+                    {contactPhone && (
+                      <a href={`tel:${contactPhone}`} className="flex items-center gap-2 text-sm font-semibold text-stone-700 hover:text-amber-600 transition-colors">
+                        <Phone size={16} /> {contactPhone}
+                      </a>
+                    )}
+                    {contactEmail && (
+                      <a href={`mailto:${contactEmail}`} className="flex items-center gap-2 text-sm font-semibold text-stone-700 hover:text-amber-600 transition-colors">
+                        <Mail size={16} /> {contactEmail}
+                      </a>
+                    )}
                   </div>
-                ) : (
-                  <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-                    {availableTabs.map((tab, idx) => {
-                      const isActive = selectedTab === tab
-                      return (
-                        <motion.div
+                </section>
+
+                {/* Property Listings Section */}
+                <section className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-bold text-stone-900">Agency Listings</h2>
+                    <div className="flex gap-2">
+                      {availableTabs.map((tab) => (
+                        <button
                           key={tab}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.3, delay: idx * 0.05 }}
-                        >
-                          <Button
-                            type="button"
-                            onClick={() => setSelectedTab(tab)}
-                            className={`rounded-full border px-6 py-2.5 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-amber-300 ${
-                              isActive
-                                ? 'border-amber-400 bg-amber-50 text-amber-800 shadow-sm'
-                                : 'border-stone-200 bg-white text-stone-700 hover:border-amber-200 hover:text-amber-700'
-                            }`}
-                          >
-                            {tab}
-                          </Button>
-                        </motion.div>
-                      )
-                    })}
-                  </div>
-                )}
-
-                {/* Property Cards */}
-                {isFetching ? (
-                  <PropertyGallerySkeleton />
-                ) : paginatedProperties.length > 0 ? (
-                  <motion.div
-                    key={`page-${currentPage}-${selectedTab}`}
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                    className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 w-full"
-                  >
-                    {paginatedProperties.map((item: PopularPropertyDto, index: number) => (
-                      <motion.div
-                        key={`${item.id}-page-${currentPage}`}
-                        variants={cardVariants}
-                        initial="hidden"
-                        animate="visible"
-                        onMouseEnter={() => setHovered(index)}
-                        onMouseLeave={() => setHovered(null)}
-                        className={cn(
-                          'group relative flex flex-col bg-white rounded-xl sm:rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ease-out',
-                          hovered === index && 'scale-[1.02] z-10',
-                        )}
-                        style={{
-                          minHeight: '16rem',
-                          boxShadow:
-                            hovered === index
-                              ? '0 20px 50px rgba(0, 0, 0, 0.15), 0 8px 25px rgba(251, 191, 36, 0.1)'
-                              : '0 8px 25px rgba(0, 0, 0, 0.08), 0 2px 10px rgba(0, 0, 0, 0.04)',
-                        }}
-                      >
-                        {/* Premium Border Glow */}
-                        <div
+                          onClick={() => setSelectedTab(tab)}
                           className={cn(
-                            'absolute inset-0 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 pointer-events-none z-20',
-                            hovered === index ? 'border-yellow-400/60 shadow-[0_0_20px_rgba(251,191,36,0.3)]' : 'border-transparent',
+                            "px-4 py-1.5 rounded-full text-xs font-bold transition-all border",
+                            selectedTab === tab
+                              ? "bg-[#2a1407] text-white border-[#2a1407]"
+                              : "bg-white text-stone-600 border-stone-200 hover:border-amber-200"
                           )}
-                        />
-
-                        {/* Image Container */}
-                        <div className="relative w-full h-64 sm:h-72 lg:h-80 overflow-hidden rounded-xl sm:rounded-2xl">
-                          <motion.div
-                            animate={{ scale: hovered === index ? 1.1 : 1 }}
-                            transition={{ duration: 0.5, ease: 'easeOut' }}
-                            className="w-full h-full"
-                          >
-                            {item?.media && item.media.length > 0 ? (
-                              <Image
-                                src={getMediaPreviewImageSrc(item.media?.[0]?.url)}
-                                alt={item.title || 'Property'}
-                                fill
-                                className="object-cover"
-                                priority={index < 3}
-                              />
-                            ) : (
-                              <Image src="/villa.png" alt="Property" fill className="object-cover" />
-                            )}
-                          </motion.div>
-
-                          {/* Shimmer Effect */}
-                          <div
-                            className={cn(
-                              'absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 ease-in-out',
-                              hovered === index ? 'translate-x-full' : '-translate-x-full',
-                            )}
-                            style={{ width: '200%' }}
-                          />
-                        </div>
-
-                        {/* Expandable Card Content */}
-                        <motion.div
-                          className="absolute bottom-0 left-0 right-0 bg-white p-3 sm:p-4 flex flex-col rounded-b-xl sm:rounded-b-2xl shadow-lg"
-                          initial={false}
-                          animate={{
-                            y: hovered === index ? 0 : '100%',
-                            opacity: hovered === index ? 1 : 0,
-                          }}
-                          transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
                         >
-                          {/* Title Section */}
-                          <div className="mb-2">
-                            <h3 className="flex items-start gap-2 text-xs sm:text-sm font-semibold text-gray-900 leading-tight line-clamp-2">
-                              <Captions size={14} className="text-yellow-600" />
-                              <span className="text-xs font-semibold text-gray-800">{item?.title ? item.title : ''}</span>
-                            </h3>
-                          </div>
-
-                          {/* Address Section */}
-                          <div className="mb-2">
-                            <h3 className="flex items-start gap-2 text-xs sm:text-sm font-semibold text-gray-900 leading-tight line-clamp-2">
-                              <MapPin size={14} className="text-yellow-600 shrink-0 mt-0.5" />
-                              <span className="flex-1">
-                                {item?.district}
-                                {item?.district && item?.city && ', '}
-                                {item?.city}
-                              </span>
-                            </h3>
-                          </div>
-
-                          {/* Property Features */}
-                          <div className="flex items-center gap-2 mb-3 pb-3 border-b border-yellow-100">
-                            <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-yellow-50/50">
-                              <ChartBarStacked size={14} className="text-yellow-600" />
-                              <span className="text-xs font-semibold text-gray-800">{item?.listing_type ? item.listing_type : 0}</span>
-                            </div>
-                            <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-yellow-50/50">
-                              <Ruler size={14} className="text-yellow-600" />
-                              <span className="text-xs font-semibold text-gray-800">
-                                {item?.property_size ? `${item.property_size} ${item.property_size_unit || ''}`.trim() : 'N/A'}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Price & Button Section */}
-                          <div className="flex justify-between items-center gap-2">
-                            <Button
-                              type="button"
-                              variant="primary"
-                              size="small"
-                              className="px-3 py-1.5 bg-[#2a1407] text-white rounded-lg font-semibold text-xs shadow-md hover:shadow-lg hover:bg-[#2a1407] transition-all duration-300"
-                              onClick={() => handleSeeMoreClick(item.id)}
-                            >
-                              {t('PopularProperties.see_more')}
-                            </Button>
-
-                            <div className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-gradient-to-r from-yellow-50 to-yellow-100/50 border border-yellow-200/50">
-                              <IndianRupee size={14} className="text-yellow-700 font-bold" />
-                              <p className="font-bold text-xs sm:text-sm text-gray-900">{formatPrice(item.price) || 'N/A'}</p>
-                            </div>
-                          </div>
-
-                          {/* Top Border Accent */}
-                          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600" />
-                        </motion.div>
-
-                        {/* Corner Accent */}
-                        <div
-                          className={cn(
-                            'absolute top-3 right-3 w-2 h-2 bg-yellow-400 rounded-full transition-opacity duration-300 shadow-[0_0_8px_rgba(251,191,36,0.6)]',
-                            hovered === index ? 'opacity-100' : 'opacity-0',
-                          )}
-                        />
-                      </motion.div>
-                    ))}
-                  </motion.div>
-                ) : (
-                  <div className="text-center py-12 mt-8 w-full">
-                    {(() => {
-                      const copy = getEmptyStateCopy(selectedTab)
-                      return (
-                        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100/30 rounded-xl border border-yellow-200 p-8 shadow-sm">
-                          <p className="text-gray-600 text-lg font-medium mb-2">{copy.title}</p>
-                          <p className="text-gray-500 text-sm">{copy.subtitle}</p>
-                        </div>
-                      )
-                    })()}
+                          {tab}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                )}
 
-                {/* Pagination */}
-                {!isFetching && totalPages > 1 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: 0.1 }}
-                    className="flex items-center justify-center gap-2 mt-8"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                      disabled={currentPage === 1}
-                      className={cn(
-                        'flex items-center justify-center w-10 h-10 rounded-lg border transition-all duration-300',
-                        currentPage === 1
-                          ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50'
-                          : 'border-yellow-200 text-yellow-700 bg-white hover:bg-yellow-50 hover:border-yellow-300 hover:scale-105 shadow-sm',
-                      )}
-                      aria-label="Previous page"
+                  {isLoading ? (
+                    <PropertyGallerySkeleton />
+                  ) : paginatedProperties.length > 0 ? (
+                    <motion.div
+                      key={`page-${currentPage}-${selectedTab}`}
+                      variants={containerVariants}
+                      initial="hidden"
+                      animate="visible"
+                      className="grid grid-cols-1 sm:grid-cols-2 gap-6"
                     >
-                      <ChevronLeft size={18} />
-                    </button>
+                      {paginatedProperties.map((item: any) => (
+                        <PropertyCard
+                          key={item.id}
+                          id={String(item.id)}
+                          title={item.title}
+                          description={item.description || ''}
+                          price={String(item.price)}
+                          property_size={item.property_size}
+                          property_size_unit={item.property_size_unit}
+                          status={item.status || 'Active'}
+                          listing_type={item.listing_type}
+                          address_line={item.address_line || ''}
+                          district={item.district || ''}
+                          city={item.city || ''}
+                          state={item.state || ''}
+                          postal_code={item.postal_code || ''}
+                          approval_status={item.approval_status || 'APPROVED'}
+                          favorite_count={item.favorite_count || 0}
+                          media={item.media}
+                          property_category={item.property_category}
+                          onPrimaryAction={() => handleSeeMoreClick(item.id)}
+                          handleFavorite={() => { }}
+                          isVerified={item.isVerified}
+                        />
+                      ))}
+                    </motion.div>
+                  ) : (
+                    <div className="text-center py-12 bg-white rounded-3xl border border-dashed border-stone-200">
+                      <p className="text-stone-500">No properties found in this category.</p>
+                    </div>
+                  )}
 
-                    <div className="flex items-center gap-1">
-                      {Array.from({ length: totalPages }, (_, idx) => idx + 1).map(pageNum => (
+                  {/* Pagination */}
+                  {!isFetching && totalPages > 1 && (
+                    <div className="flex items-center justify-center gap-2 pt-4">
+                      <button
+                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        className={cn(
+                          "w-10 h-10 rounded-xl flex items-center justify-center transition-all border border-stone-200 bg-white text-stone-600 hover:border-amber-300 disabled:opacity-50 disabled:hover:border-stone-200 disabled:cursor-not-allowed"
+                        )}
+                        aria-label="Previous page"
+                      >
+                        <ChevronLeft size={16} />
+                      </button>
+
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
                         <button
                           key={pageNum}
-                          type="button"
                           onClick={() => setCurrentPage(pageNum)}
                           className={cn(
-                            'min-w-[2.5rem] h-10 px-3 rounded-lg font-semibold text-sm transition-all duration-300',
+                            "w-10 h-10 rounded-xl font-bold text-sm transition-all",
                             currentPage === pageNum
-                              ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-white shadow-lg shadow-yellow-500/30 scale-105'
-                              : 'bg-white text-gray-700 border border-gray-200 hover:border-yellow-300 hover:bg-yellow-50 hover:scale-105',
+                              ? "bg-amber-500 text-white shadow-lg shadow-amber-200"
+                              : "bg-white text-stone-600 border border-stone-200 hover:border-amber-300"
                           )}
                         >
                           {pageNum}
                         </button>
                       ))}
-                    </div>
 
-                    <button
-                      type="button"
-                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                      disabled={currentPage === totalPages}
-                      className={cn(
-                        'flex items-center justify-center w-10 h-10 rounded-lg border transition-all duration-300',
-                        currentPage === totalPages
-                          ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50'
-                          : 'border-yellow-200 text-yellow-700 bg-white hover:bg-yellow-50 hover:border-yellow-300 hover:scale-105 shadow-sm',
-                      )}
-                      aria-label="Next page"
-                    >
-                      <ChevronRight size={18} />
-                    </button>
-                  </motion.div>
-                )}
+                      <button
+                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        className={cn(
+                          "w-10 h-10 rounded-xl flex items-center justify-center transition-all border border-stone-200 bg-white text-stone-600 hover:border-amber-300 disabled:opacity-50 disabled:hover:border-stone-200 disabled:cursor-not-allowed"
+                        )}
+                        aria-label="Next page"
+                      >
+                        <ChevronRight size={16} />
+                      </button>
+                    </div>
+                  )}
+                </section>
               </div>
-            </section>
+
+              {/* Right Column: Stats & Actions */}
+              <div className="space-y-6">
+                <section className="rounded-3xl border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/30 p-6 shadow-sm">
+                  <h3 className="text-lg font-bold text-stone-900 mb-6">Performance Stats</h3>
+                  <div className="space-y-4">
+                    {highlightStats.map((stat) => (
+                      <div key={stat.label} className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-stone-100 shadow-sm">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+                          <stat.Icon size={24} />
+                        </div>
+                        <div>
+                          <p className="text-2xl font-bold text-stone-900">{stat.value}</p>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400">{stat.label}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                <section className="rounded-3xl border border-stone-100 bg-white p-6 shadow-sm space-y-4">
+                  <h3 className="text-lg font-bold text-stone-900">Quick Actions</h3>
+                  <div className="grid gap-3">
+                    <button
+                      onClick={handleShare}
+                      className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl border border-stone-200 font-bold text-stone-700 hover:bg-stone-50 transition-all"
+                    >
+                      <Share2 size={18} /> Share Profile
+                    </button>
+                    {contactPhone && (
+                      <a
+                        href={`tel:${contactPhone}`}
+                        className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl bg-amber-500 text-white font-bold hover:bg-amber-600 transition-all shadow-md shadow-amber-200"
+                      >
+                        <Phone size={18} /> Contact Agency
+                      </a>
+                    )}
+                  </div>
+                </section>
+
+                <section className="rounded-3xl border border-stone-100 bg-white p-6 shadow-sm">
+                  <h3 className="text-lg font-bold text-stone-900 mb-4">Location</h3>
+                  <div className="h-48 rounded-2xl overflow-hidden border border-stone-100 grayscale hover:grayscale-0 transition-all duration-500">
+                    <MapView
+                      center={{
+                        lat: Number(agencyData?.latitude || 0),
+                        lng: Number(agencyData?.longitude || 0),
+                      }}
+                      markers={[
+                        {
+                          lat: Number(agencyData?.latitude || 0),
+                          lng: Number(agencyData?.longitude || 0),
+                        },
+                      ]}
+                      zoom={12}
+                    />
+                  </div>
+                  <p className="mt-4 text-xs text-stone-500 flex items-center gap-2">
+                    <MapPin size={14} className="text-amber-500" />
+                    {fullAddress}
+                  </p>
+                </section>
+              </div>
+            </div>
 
             {/* Main Content Grid */}
             <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">

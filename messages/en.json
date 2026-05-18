@@ -755,6 +755,8 @@
     "downgrade": "Downgrade",
     "get_started": "Get Started",
     "monthly": "Monthly",
-    "yearly": "Yearly"
+    "yearly": "Yearly",
+    "month": "month",
+    "year": "year"
   }
 }

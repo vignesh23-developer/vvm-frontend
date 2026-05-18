@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import AgentCard from '@/components/buyer/Agency/AgentCard/AgentCard'
 import { useTranslations } from 'next-intl'
+import { mockAgents, USE_MOCK_DATA } from './mockAgents'
 import { getMethod, postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import Pagination from '@/components/ui/CustomComponent/Paginations/Pagination'
@@ -119,9 +120,13 @@ const AgentListPage = () => {
     lon: undefined,
     radius: undefined,
   })
+  const [expandedAgentId, setExpandedAgentId] = useState<string | null>(null)
 
   const { agentCompanyProfileData, agentCompanyProfileFetchErr, agentCompanyProfileFetchLoader, agentCompanyProfileRefresh } =
     useAgentCompanyProfile()
+
+  // Hardcoded boolean for mock data
+  const useMockData = USE_MOCK_DATA
 
   useEffect(() => {
     const handle = setTimeout(() => {
@@ -158,7 +163,9 @@ const AgentListPage = () => {
     const query = debouncedSearchTerm.trim().toLowerCase()
     const shouldApplySearch = query.length >= 3
 
-    return (agentCompanyProfileData || []).filter((agency: any) => {
+    const sourceData = useMockData ? mockAgents : (agentCompanyProfileData || [])
+
+    return sourceData.filter((agency: any) => {
       // Location filter
       if (filters.location.length > 0) {
         const matchesLocation = filters.location.some(
@@ -219,17 +226,17 @@ const AgentListPage = () => {
         suggestionsSet.add(s)
       }
     })
-    ;(agentCompanyProfileData || []).forEach((agency: any) => {
-      const candidates = [agency.companyName, agency.profileName, agency.contact_name, agency.city, agency.district, agency.state]
-      candidates.forEach(value => {
-        if (typeof value === 'string') {
-          const lower = value.toLowerCase()
-          if (lower.includes(query)) {
-            suggestionsSet.add(value)
+      ; (agentCompanyProfileData || []).forEach((agency: any) => {
+        const candidates = [agency.companyName, agency.profileName, agency.contact_name, agency.city, agency.district, agency.state]
+        candidates.forEach(value => {
+          if (typeof value === 'string') {
+            const lower = value.toLowerCase()
+            if (lower.includes(query)) {
+              suggestionsSet.add(value)
+            }
           }
-        }
+        })
       })
-    })
 
     return Array.from(suggestionsSet).slice(0, 8)
   }, [debouncedSearchTerm, agentCompanyProfileData, backendSuggestions])
@@ -356,9 +363,8 @@ const AgentListPage = () => {
                 {/* Filter Button */}
                 <button
                   onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-                  className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
-                    isFiltersOpen ? 'bg-[#2a1407] text-white shadow-md' : 'bg-yellow-50 text-[#2a1407] hover:bg-yellow-100'
-                  } cursor-pointer`}
+                  className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${isFiltersOpen ? 'bg-[#2a1407] text-white shadow-md' : 'bg-yellow-50 text-[#2a1407] hover:bg-yellow-100'
+                    } cursor-pointer`}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path
@@ -534,7 +540,13 @@ const AgentListPage = () => {
                       duration: 0.4,
                     }}
                     className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer h-full"
-                    onClick={() => router.push(`/agent-profile/${agentProperty.profileName}`)}
+                    onClick={() => {
+                      if (expandedAgentId === agentProperty.id) {
+                        setExpandedAgentId(null)
+                      } else {
+                        setExpandedAgentId(agentProperty.id)
+                      }
+                    }}
                   >
                     {/* Image Section */}
                     <div className="relative h-64 w-full overflow-hidden bg-gray-100">
@@ -619,6 +631,48 @@ const AgentListPage = () => {
                         </div>
                       </div>
                     </div>
+
+                    {/* Expanded Content */}
+                    {/* <AnimatePresence>
+                      {expandedAgentId === agentProperty.id && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="px-5 pb-5 border-t border-gray-50 bg-gray-50/30"
+                        >
+                          <div className="pt-4 space-y-4">
+                            <p className="text-sm text-gray-600 italic leading-relaxed">
+                              {agentProperty.description || 'No description available for this agent.'}
+                            </p>
+                            <div className="grid grid-cols-3 gap-2">
+                              <div className="bg-white p-2 rounded-lg border border-gray-100 text-center">
+                                <p className="text-[10px] text-gray-400 font-bold uppercase">{t('AgentList.properties') || 'Props'}</p>
+                                <p className="text-sm font-bold text-gray-800">{agentProperty.agentStats?.totalPropertiesPosted || 0}</p>
+                              </div>
+                              <div className="bg-white p-2 rounded-lg border border-gray-100 text-center">
+                                <p className="text-[10px] text-gray-400 font-bold uppercase">{t('AgentList.sold') || 'Sold'}</p>
+                                <p className="text-sm font-bold text-gray-800">{agentProperty.agentStats?.totalPropertiesSold || 0}</p>
+                              </div>
+                              <div className="bg-white p-2 rounded-lg border border-gray-100 text-center">
+                                <p className="text-[10px] text-gray-400 font-bold uppercase">{t('AgentList.clients') || 'Clients'}</p>
+                                <p className="text-sm font-bold text-gray-800">{agentProperty.agentStats?.totalClients || 0}</p>
+                              </div>
+                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                router.push(`/agent-profile/${agentProperty.profileName}`)
+                              }}
+                              className="w-full py-2 bg-[#2a1407] text-white rounded-lg text-sm font-bold hover:bg-[#3d1d0a] transition-colors shadow-sm"
+                            >
+                              Full Profile
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence> */}
                   </motion.div>
                 ))}
               </div>

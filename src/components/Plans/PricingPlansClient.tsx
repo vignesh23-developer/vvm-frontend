@@ -16,6 +16,22 @@ export default function PricingPlansClient({ plans, featuresList, apiPlans }: Pr
   const { activeSubscription, error, loading: isLoading } = useUserSubscription()
   const [activeTab, setActiveTab] = React.useState<string>('MONTHLY')
 
+  const getCycleLabel = React.useCallback((cycle: string) => {
+    const normalized = cycle.toLowerCase()
+    if (normalized === 'monthly' || normalized === 'yearly') {
+      return t(`Pricing.${normalized}`)
+    }
+    return cycle.charAt(0).toUpperCase() + cycle.slice(1).toLowerCase()
+  }, [t])
+
+  const getPeriodLabel = React.useCallback((cycle: string) => {
+    const key = cycle.toLowerCase().replace('ly', '')
+    if (key === 'month' || key === 'year') {
+      return t(`Pricing.${key}`)
+    }
+    return key
+  }, [t])
+
   // Extract unique billing cycles for tabs
   const billingCycles = React.useMemo(() => {
     const cycles = Array.from(new Set(apiPlans.map(p => p.billingCycle || 'MONTHLY')))
@@ -139,7 +155,7 @@ export default function PricingPlansClient({ plans, featuresList, apiPlans }: Pr
                     : 'text-gray-500 hover:text-gray-700'
                     }`}
                 >
-                  {t(`Pricing.${cycle.toLowerCase()}`) || cycle.charAt(0).toUpperCase() + cycle.slice(1).toLowerCase()}
+                  {getCycleLabel(cycle)}
                 </button>
               ))}
             </div>
@@ -189,7 +205,7 @@ export default function PricingPlansClient({ plans, featuresList, apiPlans }: Pr
                       {plan.price}
                     </span>
                     <span className={`text-sm ${plan.highlight ? 'text-gray-400' : 'text-gray-500'}`}>
-                      / {t(`Pricing.${activeTab.toLowerCase().replace('ly', '')}`) || activeTab.toLowerCase().replace('ly', '')}
+                      / {getPeriodLabel(activeTab)}
                     </span>
                   </div>
                 </div>
