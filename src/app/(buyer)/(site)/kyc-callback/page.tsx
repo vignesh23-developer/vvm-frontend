@@ -52,17 +52,17 @@ export default function KYCCallbackPage() {
         }
 
         // Retrieve stored verificationId from localStorage
-        const storedData = getLocalStorageItem('kyc_verification_pending') as {
-          verificationId: string
-          timestamp: number
-        } | null
+        // const storedData = getLocalStorageItem('kyc_verification_pending') as {
+        //   verificationId: string
+        //   timestamp: number
+        // } | null
 
-        if (!storedData || !storedData.verificationId) {
-          setStatus('error')
-          setMessage('Verification session expired. Please restart the verification process.')
-          toast.error('Verification session expired')
-          return
-        }
+        // if (!storedData || !storedData.verificationId) {
+        //   setStatus('error')
+        //   setMessage('Verification session expired. Please restart the verification process.')
+        //   toast.error('Verification session expired')
+        //   return
+        // }
 
         // Call complete KYC endpoint
         const response = await postMethod(appEndpoints.completeKyc, {
