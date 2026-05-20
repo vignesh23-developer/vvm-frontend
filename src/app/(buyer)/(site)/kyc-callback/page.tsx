@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
-import { getLocalStorageItem, removeLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
+import { removeLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { useLoginModal } from '@/components/auth/LoginModalProvider'
@@ -15,62 +15,67 @@ export default function KYCCallbackPage() {
   const searchParams = useSearchParams()
   const { openLoginModal } = useLoginModal()
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
-  const [message, setMessage] = useState('Processing your KYC verification...');
-  const { user: userData, loading: authLoading, refreshAuth } = useAuth();
+  const [message, setMessage] = useState('Processing your KYC verification...')
+  const { user: userData, loading: authLoading, refreshAuth } = useAuth()
+
+  const clientId = useMemo(
+    () => searchParams.get('client_id') || searchParams.get('clientId'),
+    [searchParams],
+  )
+  const queryString = useMemo(() => searchParams.toString(), [searchParams])
+
+  const completeAttemptedRef = useRef(false)
+  const loginPromptedRef = useRef(false)
+  const authRefreshedRef = useRef(false)
+  const inFlightRef = useRef(false)
 
   useEffect(() => {
-    const completeKyc = async () => {
-      try {
-        // Refresh auth to ensure cookies are loaded after external redirect
-        await refreshAuth();
+    if (completeAttemptedRef.current) return
 
-        // Wait for auth to finish loading
-        if (authLoading) {
-          setMessage('Verifying authentication...')
+    if (authLoading) {
+      setMessage('Verifying authentication...')
+      return
+    }
+
+    const finishWithError = (errorMessage: string, toastMessage?: string) => {
+      completeAttemptedRef.current = true
+      setStatus('error')
+      setMessage(errorMessage)
+      toast.error(toastMessage ?? errorMessage)
+    }
+
+    const run = async () => {
+      if (inFlightRef.current) return
+      inFlightRef.current = true
+
+      try {
+        if (!authRefreshedRef.current) {
+          authRefreshedRef.current = true
+          await refreshAuth()
           return
         }
 
-        // Check if user is logged in
-        if (!userData || !userData.id) {
+        if (!userData?.id) {
+          inFlightRef.current = false
+          if (loginPromptedRef.current) return
+          loginPromptedRef.current = true
           setStatus('error')
           setMessage('Please login to continue')
           toast.error('Please login to continue')
-          const qs = searchParams.toString()
-          const next = qs ? `${pathname}?${qs}` : pathname || '/kyc-callback'
+          const next = queryString ? `${pathname}?${queryString}` : pathname || '/kyc-callback'
           setTimeout(() => openLoginModal({ next }), 500)
           return
         }
 
-        // Get client_id from URL query parameters
-        const clientId = searchParams.get('client_id') || searchParams.get('clientId')
-
         if (!clientId) {
-          setStatus('error')
-          setMessage('Missing verification parameters. Please try again.')
-          toast.error('Missing verification parameters')
+          finishWithError('Missing verification parameters. Please try again.', 'Missing verification parameters')
           return
         }
 
-        // Retrieve stored verificationId from localStorage
-        // const storedData = getLocalStorageItem('kyc_verification_pending') as {
-        //   verificationId: string
-        //   timestamp: number
-        // } | null
+        completeAttemptedRef.current = true
 
-        // if (!storedData || !storedData.verificationId) {
-        //   setStatus('error')
-        //   setMessage('Verification session expired. Please restart the verification process.')
-        //   toast.error('Verification session expired')
-        //   return
-        // }
+        const response = await postMethod(appEndpoints.completeKyc, { clientId })
 
-        // Call complete KYC endpoint
-        const response = await postMethod(appEndpoints.completeKyc, {
-          clientId: clientId,
-          // verificationId: storedData.verificationId
-        })
-
-        // Clear stored verification data
         removeLocalStorageItem('kyc_verification_pending')
 
         if (response.error) {
@@ -80,7 +85,6 @@ export default function KYCCallbackPage() {
           return
         }
 
-        // Success
         const kycData = response.data as {
           success: boolean
           message: string
@@ -93,23 +97,25 @@ export default function KYCCallbackPage() {
         setMessage(kycData.message || 'KYC verification completed successfully!')
         toast.success('KYC verified successfully!')
 
-        // Redirect to profile page after 2 seconds
         setTimeout(() => {
           router.push(`/profile/${userData.id}`)
         }, 2000)
       } catch (error) {
         console.error('KYC completion error:', error)
+        completeAttemptedRef.current = true
         setStatus('error')
         setMessage('An error occurred during verification. Please contact support.')
         toast.error('Verification failed')
-
-        // Clear stored verification data
         removeLocalStorageItem('kyc_verification_pending')
+      } finally {
+        if (!completeAttemptedRef.current) {
+          inFlightRef.current = false
+        }
       }
     }
 
-    completeKyc()
-  }, [router, searchParams, pathname, userData, authLoading, refreshAuth, openLoginModal])
+    void run()
+  }, [authLoading, userData?.id, clientId, queryString, pathname, router, refreshAuth, openLoginModal])
 
   const handleRetry = () => {
 
