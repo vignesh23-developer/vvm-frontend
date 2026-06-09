@@ -49,18 +49,13 @@ const axiosInstance = axios.create({
 })
 
 axiosInstance.interceptors.request.use(async config => {
-  const pathname = typeof window !== 'undefined' ? window.location.pathname : ''
-  const onPublicPage = pathname ? isPublicBrowsingPath(pathname) : false
+  const localStoredToken = await onGetCookies('authToken').then(res => {
+    if (res.isError) return null
+    return normalizeToken(res.cookies)
+  })
 
-  if (!onPublicPage) {
-    const localStoredToken = await onGetCookies('authToken').then(res => {
-      if (res.isError) return null
-      return normalizeToken(res.cookies)
-    })
-
-    if (localStoredToken) {
-      config.headers['Authorization'] = `Bearer ${localStoredToken}`
-    }
+  if (localStoredToken) {
+    config.headers['Authorization'] = `Bearer ${localStoredToken}`
   }
 
   if (config.data instanceof FormData) {
