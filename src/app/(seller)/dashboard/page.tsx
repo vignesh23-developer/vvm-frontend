@@ -1,6 +1,7 @@
 'use client'
 
-import { Download, Upload } from 'lucide-react'
+import Link from 'next/link'
+import { ArrowLeft, Download, Upload } from 'lucide-react'
 import {
   Pie,
   PieChart,
@@ -154,86 +155,98 @@ export default function DashboardPage() {
   const isPropertyLimitReached = propertyLimit !== null && propertyLimit > 0 && Number(propertyUsed) >= propertyLimit
 
   return (
-    <div className="p-4 sm:p-6 space-y-6 bg-gradient-to-br from-yellow-50 via-white to-yellow-50 min-h-screen">
-      {/* Header */}
-      <header className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-        <div className="lg:col-span-2 space-y-1">
-          <h1 className="text-xl sm:text-2xl font-extrabold text-[#2a1407]">Dashboard</h1>
-          <p className="text-gray-600 text-sm">Your performance, plan usage, and quick actions in one place.</p>
-        </div>
-        <PlanUsageWidget subscription={activeSubscription} />
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-yellow-50">
+      <div className="border-b border-yellow-200 bg-white/80 backdrop-blur px-4 sm:px-6 py-3">
+        <Link
+          href="/admin/dashboard"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-[#2a1407] hover:text-yellow-700 transition-colors"
+        >
+          <ArrowLeft size={16} />
+          Back to overview
+        </Link>
+      </div>
 
-      {/* Stats */}
-      <section className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-        {stats.map(s => (
-          <StatsCard key={s.label} {...s} />
-        ))}
-      </section>
-
-      {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Table Section */}
-        <section className="lg:col-span-2 bg-gradient-to-br from-white to-yellow-50/20 rounded-lg p-4 shadow-sm border border-yellow-200 overflow-x-auto">
-          <h2 className="text-lg font-semibold text-[#2a1407] mb-4">Leads Table</h2>
-          <div className="w-full">
-            <Table
-              columns={leadColumns}
-              data={leads}
-              enableSearch
-              enableStatusFilter
-              statusOptions={['New', 'Pending', 'Converted']}
-              statusKey="status"
-              enableDateFilter
-              dateKey="last"
-            />
+      <div className="px-4 sm:px-6 py-4 sm:py-5 space-y-6">
+        {/* Header */}
+        <header className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 items-start">
+          <div className="lg:col-span-2 space-y-1">
+            <h1 className="text-xl sm:text-2xl font-extrabold text-[#2a1407]">Dashboard</h1>
+            <p className="text-gray-600 text-sm">Your performance, plan usage, and quick actions in one place.</p>
           </div>
+          <PlanUsageWidget subscription={activeSubscription} />
+        </header>
+
+        {/* Stats */}
+        <section className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+          {stats.map(s => (
+            <StatsCard key={s.label} {...s} />
+          ))}
         </section>
 
-        {/* Charts + Actions */}
-        <aside className="space-y-6">
-          {/* Charts */}
-          <div className="bg-gradient-to-br from-white to-yellow-50/20 rounded-2xl p-4 sm:p-6 shadow-sm border border-yellow-200 space-y-6">
-            <div>
-              <h3 className="font-semibold text-[#2a1407] mb-2">Leads by Status</h3>
-              <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                  <Pie data={pieData} dataKey="value" outerRadius={70}>
-                    {pieData.map((entry, i) => (
-                      <Cell key={i} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Legend verticalAlign="bottom" height={36} />
-                </PieChart>
-              </ResponsiveContainer>
+        {/* Main Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Table Section */}
+          <section className="lg:col-span-2 bg-gradient-to-br from-white to-yellow-50/20 rounded-lg p-4 shadow-sm border border-yellow-200 overflow-x-auto">
+            <h2 className="text-lg font-semibold text-[#2a1407] mb-4">Leads Table</h2>
+            <div className="w-full">
+              <Table
+                columns={leadColumns}
+                data={leads}
+                enableSearch
+                enableStatusFilter
+                statusOptions={['New', 'Pending', 'Converted']}
+                statusKey="status"
+                enableDateFilter
+                dateKey="last"
+              />
+            </div>
+          </section>
+
+          {/* Charts + Actions */}
+          <aside className="space-y-6">
+            {/* Charts */}
+            <div className="bg-gradient-to-br from-white to-yellow-50/20 rounded-2xl p-4 sm:p-6 shadow-sm border border-yellow-200 space-y-6">
+              <div>
+                <h3 className="font-semibold text-[#2a1407] mb-2">Leads by Status</h3>
+                <ResponsiveContainer width="100%" height={200}>
+                  <PieChart>
+                    <Pie data={pieData} dataKey="value" outerRadius={70}>
+                      {pieData.map((entry, i) => (
+                        <Cell key={i} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Legend verticalAlign="bottom" height={36} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-[#2a1407] mb-2">Leads Over Week</h3>
+                <ResponsiveContainer width="100%" height={200}>
+                  <BarChart data={barData}>
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="value" fill="#2a1407" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
 
-            <div>
-              <h3 className="font-semibold text-[#2a1407] mb-2">Leads Over Week</h3>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={barData}>
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="value" fill="#2a1407" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <FeatureGate
-            locked={isPropertyLimitReached}
-            title="Plan limit reached"
-            description="You’ve reached your property listing limit. Upgrade to unlock more listings and tools."
-          >
-            <div className="bg-gradient-to-br from-white to-yellow-50/20 rounded-2xl p-4 sm:p-6 shadow-sm border border-yellow-200 space-y-4">
-              <h3 className="font-semibold text-[#2a1407]">Quick Actions</h3>
-              <QuickActionButton icon={Upload} label="Import Leads" />
-              <QuickActionButton icon={Download} label="Export Leads" />
-            </div>
-          </FeatureGate>
-        </aside>
+            {/* Quick Actions */}
+            <FeatureGate
+              locked={isPropertyLimitReached}
+              title="Plan limit reached"
+              description="You’ve reached your property listing limit. Upgrade to unlock more listings and tools."
+            >
+              <div className="bg-gradient-to-br from-white to-yellow-50/20 rounded-2xl p-4 sm:p-6 shadow-sm border border-yellow-200 space-y-4">
+                <h3 className="font-semibold text-[#2a1407]">Quick Actions</h3>
+                <QuickActionButton icon={Upload} label="Import Leads" />
+                <QuickActionButton icon={Download} label="Export Leads" />
+              </div>
+            </FeatureGate>
+          </aside>
+        </div>
       </div>
     </div>
   )

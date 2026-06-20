@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import { Users, FileText, Home, ChartBar, Eye, Wallet, BadgeCheck, Tag, HatGlasses } from 'lucide-react'
+import { Users, FileText, Home, ChartBar, Eye, Wallet, BadgeCheck, Tag, HatGlasses, Gauge } from 'lucide-react'
 import { useDashboardHook } from './(hooks)/useDashboardHook'
 import {
   ResponsiveContainer,
@@ -714,9 +714,22 @@ export default function AdminDashboardPage() {
             <p className="mt-1 text-sm text-gray-600">Overview of system activity and recent events</p>
           </div>
 
-          <Link href="/admin/dashboard/newsletters">
-            <button>NewsLetters</button>
-          </Link>
+          <div className="flex flex-wrap items-center gap-2">
+            {(role === 'AGENT' || role === 'ADMIN') && (
+              <Link href="/dashboard">
+                <Button
+                  type="button"
+                  className="inline-flex items-center gap-2 bg-[#2a1407] hover:bg-[#3b1804] text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm"
+                >
+                  <Gauge size={16} />
+                  Plan &amp; Usage
+                </Button>
+              </Link>
+            )}
+            <Link href="/admin/dashboard/newsletters">
+              <button className="text-sm font-medium text-[#2a1407] hover:underline">NewsLetters</button>
+            </Link>
+          </div>
         </header>
 
         {isLoading && payload ? (
