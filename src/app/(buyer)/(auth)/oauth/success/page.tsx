@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { useLoginModal } from '@/components/auth/LoginModalProvider'
 import { getMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import { ResponseDTO } from '@/components/dto/response_dto'
@@ -13,6 +14,7 @@ const OAuthSuccess = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { setToken, setUser } = useAuth()
+  const { openLoginModal } = useLoginModal()
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const hasProcessed = useRef(false)
@@ -96,7 +98,11 @@ const OAuthSuccess = () => {
           <h1 className="text-2xl font-bold text-red-600 mb-4">Authentication Error</h1>
           <p className="text-gray-600 mb-4">{error}</p>
           <button
-            onClick={() => router.push('/login')}
+            type="button"
+            onClick={() => {
+              router.replace('/')
+              openLoginModal()
+            }}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
           >
             Return to Login

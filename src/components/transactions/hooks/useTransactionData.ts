@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { useLoginModal } from '@/components/auth/LoginModalProvider'
 import { getMethod } from '@/services/service'
 import { ResponseDTO } from '@/components/dto/response_dto'
 import { appEndpoints } from '@/services/endpoints'
@@ -10,7 +10,7 @@ import { PaymentTransaction, PaginatedTransactionResponse, TransactionQueryParam
  * Custom hook to fetch user payment transactions with pagination and filtering
  */
 export function useTransactionData(page: number = 1, limit: number = 10, filters?: TransactionQueryParams) {
-  const router = useRouter()
+  const { openLoginModal } = useLoginModal()
   const { user: userData } = useAuth()
   const [transactions, setTransactions] = useState<PaymentTransaction[]>([])
   const [loading, setLoading] = useState(true)
@@ -24,7 +24,11 @@ export function useTransactionData(page: number = 1, limit: number = 10, filters
       setError(null)
 
       if (!userData || !(userData as { id?: string }).id) {
-        router.push('/login')
+        const next =
+          typeof window !== 'undefined'
+            ? `${window.location.pathname}${window.location.search}` || '/'
+            : '/'
+        openLoginModal({ next })
         return
       }
 
@@ -77,7 +81,7 @@ export function useTransactionData(page: number = 1, limit: number = 10, filters
     } finally {
       setLoading(false)
     }
-  }, [router, page, limit, filters, userData])
+  }, [openLoginModal, page, limit, filters, userData])
 
   useEffect(() => {
     fetchTransactions()

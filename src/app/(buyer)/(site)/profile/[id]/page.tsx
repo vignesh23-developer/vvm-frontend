@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import ChangePassword from '@/components/ui/ChangePassword/ChangePassword'
 import { useRouter, useParams } from 'next/navigation'
 import { appEndpoints } from '@/services/endpoints'
@@ -8,6 +8,7 @@ import { getMethod, postMethod } from '@/services/service'
 import ProfileForm from '../(forms)/ProfileForm'
 import { ProfileValidationSchema } from '../(validation)/ProfileValidation'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { useLoginModal } from '@/components/auth/LoginModalProvider'
 import KYCStatus from '@/components/kyc/KYCStatus'
 import { ResponseDTO } from '@/components/dto/response_dto'
 import toast from 'react-hot-toast'
@@ -20,7 +21,9 @@ import Link from 'next/link'
 const ProfilePage = () => {
   const { id } = useParams()
   const router = useRouter()
-  const { token, user } = useAuth()
+  const { token, user, loading: authLoading } = useAuth()
+  const { openLoginModal } = useLoginModal()
+  const guestGateDone = useRef(false)
 
   const [loading, setLoading] = useState(false)
   const [imageUrl, setImageUrl] = useState<string | null>(null)
@@ -40,10 +43,24 @@ const ProfilePage = () => {
   // Show KYC only for buyers and unverified agents
   const showKYC = isBuyer || (isAgent && !user?.isKycVerified)
 
-  // Redirect if no token
   useEffect(() => {
-    if (!token) router.push('/login')
-  }, [token, router])
+    if (token) {
+      guestGateDone.current = false
+    }
+  }, [token])
+
+  useEffect(() => {
+    if (authLoading || token) return
+    if (guestGateDone.current) return
+    guestGateDone.current = true
+    const nextPath = typeof id === 'string' ? `/profile/${id}` : '/profile'
+    openLoginModal({ next: nextPath })
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back()
+    } else {
+      router.replace('/')
+    }
+  }, [authLoading, token, id, openLoginModal, router])
 
   // Fetch user profile
   const fetchUserProfile = useCallback(async () => {
@@ -64,8 +81,9 @@ const ProfilePage = () => {
   }, [])
 
   useEffect(() => {
+    if (!token) return
     fetchUserProfile()
-  }, [id, fetchUserProfile])
+  }, [id, fetchUserProfile, token])
 
   // Upload profile image
   const handleProfileImageSubmit = async (file: File, resetForm: () => void) => {
@@ -93,6 +111,14 @@ const ProfilePage = () => {
       console.error('Upload error:', error)
       toast.error('Failed to upload image. Please try again.')
     }
+  }
+
+  if (authLoading) {
+    return <CustomLoader text="Loading profile..." />
+  }
+
+  if (!token) {
+    return null
   }
 
   if (loading) {
@@ -141,7 +167,7 @@ const ProfilePage = () => {
             {showKYC && <KYCStatus />}
 
             {/* Wallet */}
-            <WalletCard />
+            {/* <WalletCard /> */}
 
             {/* Become Agent CTA - Only for Buyers */}
             {isBuyer && (

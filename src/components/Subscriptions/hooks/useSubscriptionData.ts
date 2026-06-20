@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { useLoginModal } from '@/components/auth/LoginModalProvider'
 import { getMethod } from '@/services/service'
 import { ResponseDTO } from '@/components/dto/response_dto'
 import { appEndpoints } from '@/services/endpoints'
@@ -10,7 +10,7 @@ import { UserSubscription } from '../types'
  * Custom hook to fetch user subscriptions
  */
 export function useSubscriptionData() {
-  const router = useRouter()
+  const { openLoginModal } = useLoginModal()
   const { user: userData } = useAuth()
   const [subscriptions, setSubscriptions] = useState<UserSubscription[]>([])
   const [loading, setLoading] = useState(true)
@@ -23,7 +23,11 @@ export function useSubscriptionData() {
       setError(null)
 
       if (!userData || !(userData as { id?: string }).id) {
-        router.push('/login')
+        const next =
+          typeof window !== 'undefined'
+            ? `${window.location.pathname}${window.location.search}` || '/'
+            : '/'
+        openLoginModal({ next })
         return
       }
 
@@ -56,7 +60,7 @@ export function useSubscriptionData() {
     } finally {
       setLoading(false)
     }
-  }, [router, userData])
+  }, [openLoginModal, userData])
 
   useEffect(() => {
     fetchSubscriptions()

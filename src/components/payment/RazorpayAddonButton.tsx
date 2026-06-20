@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { useLoginModal } from '@/components/auth/LoginModalProvider'
 import { postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import toast from 'react-hot-toast'
@@ -36,7 +36,7 @@ export default function RazorpayAddonButton({
   disabled = false,
   buttonText = 'Purchase'
 }: RazorpayAddonButtonProps) {
-  const router = useRouter()
+  const { openLoginModal } = useLoginModal()
   const { user: userData } = useAuth()
   const [loading, setLoading] = useState(false)
   const [razorpayLoaded, setRazorpayLoaded] = useState(false)
@@ -75,7 +75,11 @@ export default function RazorpayAddonButton({
       // Verify user authentication
       if (!userData || !(userData as { id?: string }).id) {
         toast.error('Please login to continue')
-        router.push('/login')
+        const next =
+          typeof window !== 'undefined'
+            ? `${window.location.pathname}${window.location.search}` || '/'
+            : '/'
+        openLoginModal({ next })
         return
       }
 

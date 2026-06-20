@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useLoginModal } from '@/components/auth/LoginModalProvider'
 import { postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import { setLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
@@ -19,7 +19,7 @@ declare global {
 }
 
 export default function KYCPayment({ onClose }: KYCPaymentProps) {
-  const router = useRouter()
+  const { openLoginModal } = useLoginModal()
   const [loading, setLoading] = useState(false)
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
 
@@ -59,7 +59,11 @@ export default function KYCPayment({ onClose }: KYCPaymentProps) {
       setLoading(true)
       if (!userData || !userData.id) {
         toast.error('Please login to continue')
-        router.push('/login')
+        const next =
+          typeof window !== 'undefined'
+            ? `${window.location.pathname}${window.location.search}` || '/'
+            : '/'
+        openLoginModal({ next })
         return
       }
 

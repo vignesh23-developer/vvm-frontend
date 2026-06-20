@@ -15,6 +15,7 @@ import toast from 'react-hot-toast'
 import { appEndpoints } from '@/services/endpoints'
 import { postMethod } from '@/services/service'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { useLoginModal } from '@/components/auth/LoginModalProvider'
 import { OtpSchema } from '@/utils/validations/auth/AuthValidationSchema'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 
@@ -23,6 +24,7 @@ export default function OtpVerification() {
   const locale = useLocale()
   const { globalValue, reset } = useGlobalContext()
   const { setUser, setToken, token, loading } = useAuth()
+  const { openLoginModal } = useLoginModal()
   const router = useRouter()
 
   // Redirect if already logged in or missing phone number
@@ -161,9 +163,13 @@ export default function OtpVerification() {
         <motion.div variants={containerVariants} initial="hidden" animate="show" className="w-full max-w-md">
           {/* Back Button */}
           <motion.div variants={itemVariants}>
-            <Link href="/login" className="flex items-center text-sm font-semibold text-green-900 mb-2 hover:underline">
+            <button
+              type="button"
+              onClick={() => openLoginModal()}
+              className="flex items-center text-sm font-semibold text-green-900 mb-2 hover:underline w-full text-left"
+            >
               <ArrowLeft size={20} className="mr-2" /> {t('Auth.back')}
-            </Link>
+            </button>
           </motion.div>
 
           {/* Title & Description */}

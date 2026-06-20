@@ -1,6 +1,7 @@
 'use client'
 
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { useLoginModal } from '@/components/auth/LoginModalProvider'
 import { MapPin, BedSingle, Ruler, IndianRupee, Sparkles, ChevronLeft, ChevronRight, ChartBarStacked, Captions } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { PopularPropertyDto } from './dto/popularPropertiesDto'
@@ -71,6 +72,7 @@ export default function PopularProperties({
   const t = useTranslations()
   const locale = useLocale()
   const { token } = useAuth()
+  const { openLoginModal } = useLoginModal()
   const router = useRouter()
   const [hovered, setHovered] = useState<number | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
@@ -91,18 +93,17 @@ export default function PopularProperties({
     return Boolean((i as any).is_published || (i as any).is_pulished)
   })
 
-  // Handle See More - require auth, redirect to login with `next` param if unauthenticated
+  // Handle See More — guests get login modal on this page, then continue to details
   const handleSeeMoreClick = (propertyId: number) => {
     if (!propertyId) return
 
     const detailsPath = `/propertyDetails/${propertyId}`
 
     if (!token) {
-      router.push(`/login?next=${encodeURIComponent(detailsPath)}`)
+      openLoginModal({ next: detailsPath })
       return
-    } else {
-      router.push(detailsPath)
     }
+    router.push(detailsPath)
   }
 
   // Pagination calculations

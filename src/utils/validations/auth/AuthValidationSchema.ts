@@ -58,6 +58,31 @@ export const OtpSchema = Yup.object().shape({
     .max(6, 'Invalid OTP'),
 })
 
+export const ForgotPasswordSchema = (t: any) =>
+  Yup.object().shape({
+    phone: Yup.string()
+      .matches(/^[0-9]{10}$/, t('form.phone_number.error.pattern'))
+      .required(t('form.phone_number.error.required')),
+  })
+
+export const ForgotPasswordResetSchema = (t: any) =>
+  Yup.object().shape({
+    otp: Yup.array()
+      .of(
+        Yup.string()
+          .matches(/^[0-9]$/, t('form.otp.error.pattern'))
+          .required(t('form.otp.error.required')),
+      )
+      .min(6, t('form.otp.error.length'))
+      .max(6, t('form.otp.error.length')),
+    newPassword: Yup.string()
+      .min(6, 'Password must be at least 6 characters')
+      .required('Password is required'),
+    confirmPassword: Yup.string()
+      .required('Please confirm your password')
+      .oneOf([Yup.ref('newPassword')], 'Passwords must match'),
+  })
+
 export const AuthSchema = (t: any) =>
   Yup.object().shape({
     emailOrPhone: Yup.string()

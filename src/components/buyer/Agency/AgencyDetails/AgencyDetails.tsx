@@ -5,9 +5,10 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import AgentCompanyProfile from '@/app/(buyer)/(site)/agents-list/(dto)/agentCompanyProfile'
-import { getMethod, postMethod } from '@/services/service'
-import { appEndpoints } from '@/services/endpoints'
-import { ResponseDTO } from '@/components/dto/response_dto'
+import {
+  fetchAgencyByProfileNamePublic,
+  fetchAgentListingsPublic,
+} from '@/lib/api/agentProfilePublic'
 import { mockAgents, mockAgentProperties, USE_MOCK_DATA } from '@/app/(buyer)/(site)/agents-list/mockAgents'
 import { toast } from 'react-hot-toast'
 import Button from '@/components/ui/CustomComponent/Button/Button'
@@ -247,31 +248,6 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
     router.push(`/propertyDetails/${propertyId}`)
   }
 
-  const fetchAgentGetById = async (id: any) => {
-    setIsLoading(true)
-    try {
-      const response: ResponseDTO = await getMethod(appEndpoints.getAgentPropertiesById + `?agentId=${id}`)
-
-      // Normalize status check (api might return number or string)
-      const ok = response && String(response.status) === '200'
-
-      if (ok) {
-        const payload = response?.data?.data ?? response?.data ?? null
-        return payload as any
-      }
-
-      toast.error(response?.message || 'Failed to fetch agent details')
-      return null
-    } catch (error: any) {
-      toast.error(error?.message || 'Failed to fetch agent details')
-      return null
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  // console.log('Decoded Name in AgencyDetails Component:', decodedName)
-
   useEffect(() => {
     if (!decodedName) return
 
@@ -299,44 +275,34 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
       setFetchError(null)
 
       try {
-        const response: ResponseDTO = await getMethod(appEndpoints.getCompanyProfilesByName(decodedName))
+        const payload = await fetchAgencyByProfileNamePublic(decodedName)
 
         if (!isMounted) return
 
-        if (String(response?.status) === '200') {
-          const payload = Array.isArray(response?.data) ? (response.data as AgentCompanyProfile[])[0] : (response?.data as AgentCompanyProfile | null)
-          const agentId = payload?.id
-          
-          if (agentId) {
-            const agentProperties = await fetchAgentGetById(agentId)
-            if (!agentProperties || !Array.isArray(agentProperties) || agentProperties.length === 0) {
-              setAgentIdProperties([])
-              setSelectedTab(DEFAULT_TABS[0])
-            } else {
-              setAgentIdProperties(agentProperties)
-              setSelectedTab(DEFAULT_TABS[0])
-            }
-          } else {
-            setAgentIdProperties([])
-            setSelectedTab(DEFAULT_TABS[0])
-          }
-          
-          setAgencyData(payload ?? null)
-          console.log('Agency Details Response Payload:', payload)
+        if (payload?.id) {
+          setIsLoading(true)
+          const agentProperties = await fetchAgentListingsPublic(payload.id)
+          setIsLoading(false)
 
-          if (!payload) {
-            setFetchError(t('AgencyDetails.no_results'))
-          }
+          if (!isMounted) return
+
+          setAgentIdProperties(Array.isArray(agentProperties) ? agentProperties : [])
+          setSelectedTab(DEFAULT_TABS[0])
         } else {
-          setAgencyData(null)
-          setFetchError(response?.message || t('AgencyDetails.fetch_error'))
+          setAgentIdProperties([])
+          setSelectedTab(DEFAULT_TABS[0])
         }
-      } catch (error: any) {
+
+        setAgencyData(payload)
+
+        if (!payload) {
+          setFetchError(t('AgencyDetails.no_results'))
+        }
+      } catch {
         if (!isMounted) return
         setAgencyData(null)
-        const message = error?.message || t('AgencyDetails.fetch_error')
-        setFetchError(message)
-        toast.error(message)
+        setAgentIdProperties([])
+        setFetchError(t('AgencyDetails.fetch_error'))
       } finally {
         setIsFetching(false)
       }

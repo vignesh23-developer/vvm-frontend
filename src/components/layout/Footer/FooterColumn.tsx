@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { useRouter } from 'next/navigation'
+import { useLoginModal } from '@/components/auth/LoginModalProvider'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { useKycStatus } from '@/components/kyc/hooks/useKycStatus'
 
@@ -16,6 +17,7 @@ export default function FooterColumn({ title, links }: FooterColumnProps) {
   const t = useTranslations()
   const { user, token } = useAuth()
   const router = useRouter()
+  const { openLoginModal } = useLoginModal()
   // KYC Verification Hook
   // const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
 
@@ -47,7 +49,7 @@ export default function FooterColumn({ title, links }: FooterColumnProps) {
               {disabled ? (
                 <Button
                   type="button"
-                  onClick={() => router.push(`/login?next=${encodeURIComponent(href)}`)}
+                  onClick={() => openLoginModal({ next: href })}
                   className="hover:text-white"
                   title="Login required"
                 >

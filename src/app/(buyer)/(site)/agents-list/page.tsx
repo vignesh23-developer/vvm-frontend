@@ -199,6 +199,7 @@ const AgentListPage = () => {
     })
   }, [agentCompanyProfileData, filters, debouncedSearchTerm])
 
+
   const totalNumber = Number(filteredAgencies?.length ?? 0)
   const totalPages = Math.max(1, Math.ceil(totalNumber / limit))
 

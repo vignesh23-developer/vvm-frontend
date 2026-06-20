@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { useLoginModal } from '@/components/auth/LoginModalProvider'
 import { getMethod } from '@/services/service'
 import { ResponseDTO } from '@/components/dto/response_dto'
 import { appEndpoints } from '@/services/endpoints'
@@ -30,7 +30,7 @@ export function useAllSubscriptionData({
   endDate = null,
   planId = null,
 }: SubscriptionQuery = {}) {
-  const router = useRouter()
+  const { openLoginModal } = useLoginModal()
   const { user: userData } = useAuth()
 
   const [subscriptions, setSubscriptions] = useState<UserSubscription[]>([])
@@ -44,7 +44,11 @@ export function useAllSubscriptionData({
       setError(null)
 
       if (!userData || !(userData as { id?: string }).id) {
-        router.push('/login')
+        const next =
+          typeof window !== 'undefined'
+            ? `${window.location.pathname}${window.location.search}` || '/'
+            : '/'
+        openLoginModal({ next })
         return
       }
 
@@ -98,7 +102,7 @@ export function useAllSubscriptionData({
     } finally {
       setLoading(false)
     }
-  }, [router, userData, page, limit, orderBy, order, status, startDate, endDate, planId])
+  }, [openLoginModal, userData, page, limit, orderBy, order, status, startDate, endDate, planId])
 
   useEffect(() => {
     fetchSubscriptions()
