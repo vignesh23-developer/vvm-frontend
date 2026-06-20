@@ -322,12 +322,31 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
   }, [agencyData?.createdAt])
 
   const highlightStats = useMemo(
-    () => [
-      { label: 'Total Listings', value: agencyData?.agentStats?.totalPropertiesPosted ?? '—', Icon: Building2 },
-      { label: 'Active Properties', value: agencyData?.agentStats?.activeListings ?? '—', Icon: Sparkles },
-      { label: 'Closed Properties', value: agencyData?.agentStats?.totalPropertiesSold ?? '—', Icon: Handshake },
-    ],
-    [agencyData],
+    () => {
+      const visibleListings = normalizedProperties.length
+      const visibleActive = normalizedProperties.filter(
+        (property: any) => (property.status ?? 'AVAILABLE') === 'AVAILABLE',
+      ).length
+
+      return [
+        {
+          label: 'Total Listings',
+          value: isLoading ? '—' : visibleListings,
+          Icon: Building2,
+        },
+        {
+          label: 'Active Properties',
+          value: isLoading ? '—' : visibleActive,
+          Icon: Sparkles,
+        },
+        {
+          label: 'Closed Properties',
+          value: agencyData?.agentStats?.totalPropertiesSold ?? '—',
+          Icon: Handshake,
+        },
+      ]
+    },
+    [agencyData, normalizedProperties, isLoading],
   )
 
   // buyer can't see contact details unless admin or agent
