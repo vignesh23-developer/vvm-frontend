@@ -8,7 +8,7 @@ import { Heart, Share, Ruler, MapPin, Shapes } from 'lucide-react'
 import Image from 'next/image'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import FavoriteButton from '@/components/ui/CustomComponent/FavoriteButton/FavoriteButton'
-import { formatPrice } from '@/utils/converter/formatPrice'
+import { formatNumber, formatPrice } from '@/utils/converter/formatPrice'
 
 /* ------------------------------ Motion Variants ------------------------------ */
 const cardVariants: Variants = {
@@ -187,14 +187,14 @@ export default function PropertyCard(props: PropertiesCardProps) {
     const total = layout_total_sqft === '' ? undefined : layout_total_sqft
     const totalN = total !== undefined && total !== null ? Number(total) : undefined
     if (typeof totalN === 'number' && !Number.isNaN(totalN) && totalN > 0) {
-      return `${formatPrice(Math.round(totalN))} sqft`
+      return `${formatNumber(totalN)} sqft`
     }
 
     if (property_size === undefined || property_size === null || property_size === '') return '-- sqft'
     const sizeN = Number(property_size)
     const unit = (property_size_unit || 'sqft').toString().trim() || 'sqft'
     if (typeof sizeN === 'number' && !Number.isNaN(sizeN)) {
-      return `${formatPrice(Math.round(sizeN))} ${unit}`
+      return `${formatNumber(sizeN)} ${unit}`
     }
     return `${String(property_size)} ${unit}`
   }

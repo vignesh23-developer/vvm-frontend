@@ -25,3 +25,13 @@ export function formatPrice(number: any): string {
 function trimDecimal(value: number): string {
     return Number(value.toFixed(2)).toString();
 }
+
+/** Plain numeric display for areas, counts, etc. — not Lakh/Crore/Thousand words. */
+export function formatNumber(value: number | string | null | undefined): string {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return '--';
+    if (Number.isInteger(n) || Math.abs(n - Math.round(n)) < 0.001) {
+        return Math.round(n).toLocaleString('en-IN');
+    }
+    return n.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+}
