@@ -14,6 +14,8 @@ interface RazorpayPaymentProps {
   onClose?: () => void
   planAction: 'current' | 'upgrade' | 'downgrade' | 'subscribe'
   activeSubscriptionId?: number
+  className?: string
+  buttonText?: string
 }
 
 declare global {
@@ -28,7 +30,9 @@ export default function RazorpayPayment({
   amount,
   onClose,
   planAction,
-  activeSubscriptionId
+  activeSubscriptionId,
+  className,
+  buttonText: customButtonText
 }: RazorpayPaymentProps) {
   const router = useRouter()
   const { user: userData } = useAuth()
@@ -91,9 +95,9 @@ export default function RazorpayPayment({
     return (
       <button
         disabled
-        className={buttonClass}
+        className={className || buttonClass}
       >
-        {buttonText}
+        {customButtonText || buttonText}
       </button>
     )
   }
@@ -257,17 +261,15 @@ export default function RazorpayPayment({
   }
 
   return (
-
     <button
       onClick={handlePayment}
       disabled={loading}
-      className={`px-6 py-2 rounded font-medium capitalize transition-colors ${loading
+      className={className || `px-6 py-2 rounded font-medium capitalize transition-colors ${loading
         ? 'bg-gray-400 text-white cursor-not-allowed'
         : 'bg-[#2a1407] text-white hover:bg-[#5a2a0a]'
         }`}
     >
-      {loading ? 'Processing...' : planAction}
+      {loading ? 'Processing...' : (customButtonText || buttonText)}
     </button>
   )
 }
-

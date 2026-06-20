@@ -26,7 +26,7 @@ export function useUserSubscription() {
         setError(null)
 
         if (!userData?.id) {
-          router.push('/login')
+          setLoading(false)
           return
         }
         const response = await getMethod<ResponseDTO<UserSubscription[]>>(appEndpoints.getUserSubscription(userData.id))

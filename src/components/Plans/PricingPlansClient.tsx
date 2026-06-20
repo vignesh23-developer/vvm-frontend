@@ -1,10 +1,11 @@
 'use client'
-
 import { motion } from 'framer-motion'
 import React from 'react'
 import { PricingPlansClientProps } from './types'
 import { useUserSubscription } from './hooks/useUserSubscription'
 import { useTranslations } from 'next-intl'
+import RazorpayPayment from '@/components/payment/RazorpayPayment'
+import { convertToPaise } from './utils/featureUtils'
 
 
 /**
@@ -176,13 +177,16 @@ export default function PricingPlansClient({ plans, featuresList, apiPlans }: Pr
         {/* Plans Grid or Empty State */}
         {filteredPlans.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10 items-stretch">
-            {filteredPlans.map((plan, idx) => (
-              <motion.div
-                key={plan.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.1 }}
+            {filteredPlans.map((plan, idx) => {
+              const apiPlan = apiPlans.find(p => p.id === plan.id)
+              const amount = apiPlan ? convertToPaise(apiPlan.price) : 0
+              return (
+                <motion.div
+                  key={plan.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.1 }}
                 whileHover={{ y: -10, transition: { duration: 0.3 } }}
                 className={`relative flex flex-col p-8 rounded-3xl transition-all duration-300 ${plan.highlight
                   ? 'bg-gradient-to-b from-[#2a1407] to-[#1a0a04] text-white shadow-2xl ring-4 ring-yellow-500/20 scale-105 z-10'
@@ -229,19 +233,22 @@ export default function PricingPlansClient({ plans, featuresList, apiPlans }: Pr
                 </div>
 
                 {/* Action Button */}
-                <button
+                <RazorpayPayment
+                  planId={plan.id}
+                  planName={plan.name}
+                  amount={amount}
+                  planAction={plan.planAction || 'subscribe'}
+                  activeSubscriptionId={activeSubscription?.id}
                   className={`w-full py-4 rounded-xl font-bold text-sm transition-all duration-300 ${plan.planAction === 'current'
                     ? 'bg-gray-100 text-gray-400 cursor-default'
                     : plan.highlight
                       ? 'bg-yellow-500 text-[#2a1407] hover:bg-yellow-400 shadow-lg hover:shadow-yellow-500/50'
                       : 'bg-[#2a1407] text-white hover:bg-[#4a2e1d] shadow-md hover:shadow-lg'
                     }`}
-                  disabled={plan.planAction === 'current'}
-                >
-                  {plan.planAction === 'current' ? t('Pricing.current_plan') : plan.planAction === 'upgrade' ? t('Pricing.upgrade_plan') : plan.planAction === 'downgrade' ? t('Pricing.downgrade') : t('Pricing.get_started')}
-                </button>
+                  buttonText={plan.planAction === 'current' ? t('Pricing.current_plan') : plan.planAction === 'upgrade' ? t('Pricing.upgrade_plan') : plan.planAction === 'downgrade' ? t('Pricing.downgrade') : t('Pricing.get_started')}
+                />
               </motion.div>
-            ))}
+            )})}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-20 text-center">
