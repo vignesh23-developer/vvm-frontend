@@ -87,9 +87,6 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
   const { openLoginModal, closeLoginModal } = useLoginModal()
   const [showMore, setShowMore] = useState(false)
 
-  const visibleLinks = isTamil ? NAV_LINKS.slice(0, 3) : NAV_LINKS
-  const moreLinks = isTamil ? NAV_LINKS.slice(3) : []
-
   // Badge counts
   const {
     notifications: notificationCount,
@@ -118,6 +115,10 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
   const isAdmin = hasRole(userRoles, [Roles.ADMIN])
   const isAgent = hasRole(userRoles, [Roles.AGENT])
   const isBuyer = hasRole(userRoles, [Roles.BUYER]) && !isAgent && !isAdmin
+
+  const navLinks = isBuyer ? NAV_LINKS.filter(link => link.href !== '/pricing') : NAV_LINKS
+  const visibleLinks = isTamil ? navLinks.slice(0, 3) : navLinks
+  const moreLinks = isTamil ? navLinks.slice(3) : []
 
   const ui = {
     menu: t('Navbar.subMenus.menu'),
@@ -846,7 +847,7 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
           )}
 
           <nav className="p-3 space-y-1 overflow-y-auto flex-1">
-            {NAV_LINKS.map(link => {
+            {navLinks.map(link => {
               const isActive = isActiveLink(link.href)
               return (
                 <Link
