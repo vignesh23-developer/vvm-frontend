@@ -93,7 +93,7 @@ export default function MyReferralsPage() {
   const handleCopyLink = () => {
     if (!referralInfo?.referralCode) return
 
-    const referralLink = `${window.location.origin}/signup?referralCode=${referralInfo.referralCode}`
+    const referralLink = `${window.location.origin}/?referralCode=${referralInfo.referralCode}`
     navigator.clipboard.writeText(referralLink)
     setCopied(true)
     toast.success('Referral link copied to clipboard!')
@@ -237,7 +237,7 @@ export default function MyReferralsPage() {
                 <div className="bg-white rounded-md p-3 border border-yellow-300 flex items-center gap-2">
                   <input
                     type="text"
-                    value={`${typeof window !== 'undefined' ? window.location.origin : ''}/signup?referralCode=${referralInfo.referralCode}`}
+                    value={`${typeof window !== 'undefined' ? window.location.origin : ''}/?referralCode=${referralInfo.referralCode}`}
                     readOnly
                     className="flex-1 bg-transparent text-sm text-gray-700 outline-none"
                   />

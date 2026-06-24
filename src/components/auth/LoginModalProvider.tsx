@@ -5,15 +5,22 @@ import { useRouter } from 'next/navigation'
 import { OPEN_LOGIN_MODAL_EVENT, type OpenLoginModalEventDetail } from '@/lib/openLoginModalEvent'
 import ModalComponent from '@/components/ui/CustomComponent/Modal/ModalComponent'
 import LoginFormPanel from '@/components/auth/LoginFormPanel'
+import SignupFormPanel from '@/components/auth/SignupFormPanel'
 import { useForgotPasswordModal } from '@/components/auth/ForgotPasswordModalProvider'
 import { useTranslations } from 'next-intl'
 
-export type OpenLoginModalOptions = {
+export type AuthModalMode = 'login' | 'signup'
+
+export type OpenAuthModalOptions = {
   next?: string
+  referralCode?: string
+  googleId?: string
+  email?: string
 }
 
 type LoginModalContextValue = {
-  openLoginModal: (opts?: OpenLoginModalOptions) => void
+  openLoginModal: (opts?: OpenAuthModalOptions) => void
+  openSignupModal: (opts?: OpenAuthModalOptions) => void
   closeLoginModal: () => void
 }
 
@@ -27,24 +34,58 @@ export function useLoginModal(): LoginModalContextValue {
   return ctx
 }
 
+function normalizeNext(raw?: string): string {
+  return raw && raw.trim().startsWith('/') ? raw.trim() : '/'
+}
+
 export function LoginModalProvider({ children }: { children: ReactNode }) {
   const t = useTranslations()
   const router = useRouter()
   const { openForgotPasswordModal } = useForgotPasswordModal()
   const [open, setOpen] = useState(false)
+  const [mode, setMode] = useState<AuthModalMode>('login')
   const [pendingNext, setPendingNext] = useState<string | null>(null)
+  const [referralCode, setReferralCode] = useState<string | null>(null)
+  const [googleId, setGoogleId] = useState<string | null>(null)
+  const [email, setEmail] = useState<string | null>(null)
+
+  const resetModalState = useCallback(() => {
+    setPendingNext(null)
+    setReferralCode(null)
+    setGoogleId(null)
+    setEmail(null)
+    setMode('login')
+  }, [])
 
   const closeLoginModal = useCallback(() => {
     setOpen(false)
-    setPendingNext(null)
+    resetModalState()
+  }, [resetModalState])
+
+  const applyModalOptions = useCallback((opts?: OpenAuthModalOptions) => {
+    setPendingNext(normalizeNext(opts?.next))
+    setReferralCode(opts?.referralCode ?? null)
+    setGoogleId(opts?.googleId ?? null)
+    setEmail(opts?.email ?? null)
   }, [])
 
-  const openLoginModal = useCallback((opts?: OpenLoginModalOptions) => {
-    const raw = opts?.next
-    const n = raw && raw.trim().startsWith('/') ? raw.trim() : '/'
-    setPendingNext(n)
-    setOpen(true)
-  }, [])
+  const openLoginModal = useCallback(
+    (opts?: OpenAuthModalOptions) => {
+      applyModalOptions(opts)
+      setMode('login')
+      setOpen(true)
+    },
+    [applyModalOptions],
+  )
+
+  const openSignupModal = useCallback(
+    (opts?: OpenAuthModalOptions) => {
+      applyModalOptions(opts)
+      setMode('signup')
+      setOpen(true)
+    },
+    [applyModalOptions],
+  )
 
   const handleLoginSuccess = useCallback(
     (path: string) => {
@@ -54,7 +95,18 @@ export function LoginModalProvider({ children }: { children: ReactNode }) {
     [closeLoginModal, router],
   )
 
-  const value = useMemo(() => ({ openLoginModal, closeLoginModal }), [openLoginModal, closeLoginModal])
+  const handleSignupSuccess = useCallback(
+    (path: string) => {
+      closeLoginModal()
+      router.push(path)
+    },
+    [closeLoginModal, router],
+  )
+
+  const value = useMemo(
+    () => ({ openLoginModal, openSignupModal, closeLoginModal }),
+    [openLoginModal, openSignupModal, closeLoginModal],
+  )
 
   useEffect(() => {
     const onOpen = (e: Event) => {
@@ -72,24 +124,37 @@ export function LoginModalProvider({ children }: { children: ReactNode }) {
       {children}
       <ModalComponent
         open={open}
-        title={t('Auth.login')}
+        title={mode === 'signup' ? t('Auth.signup') : t('Auth.login')}
         onClose={closeLoginModal}
-        widthClass="max-w-md"
+        widthClass="max-w-lg"
         scrollable
         overlayClassName="z-[100]"
         panelClassName="sm:max-h-[min(90dvh,calc(100vh-2rem))]"
         contentClassName="pr-1 -mr-1"
       >
-        <LoginFormPanel
-          nextPath={nextForForm}
-          showHeader={false}
-          onLoginSuccess={handleLoginSuccess}
-          onBeforeSignupNavigate={closeLoginModal}
-          onForgotPasswordClick={() => {
-            closeLoginModal()
-            openForgotPasswordModal()
-          }}
-        />
+        {mode === 'login' ? (
+          <LoginFormPanel
+            nextPath={nextForForm}
+            referralCodeFromUrl={referralCode}
+            showHeader={false}
+            onLoginSuccess={handleLoginSuccess}
+            onSwitchToSignup={() => setMode('signup')}
+            onForgotPasswordClick={() => {
+              closeLoginModal()
+              openForgotPasswordModal()
+            }}
+          />
+        ) : (
+          <SignupFormPanel
+            nextPath={nextForForm}
+            referralCode={referralCode}
+            googleId={googleId}
+            email={email}
+            showHeader={false}
+            onSwitchToLogin={() => setMode('login')}
+            onSignupSuccess={handleSignupSuccess}
+          />
+        )}
       </ModalComponent>
     </LoginModalContext.Provider>
   )

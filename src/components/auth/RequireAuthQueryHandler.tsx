@@ -5,22 +5,42 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { useLoginModal } from '@/components/auth/LoginModalProvider'
 
+const SIGNUP_QUERY_KEYS = ['referralCode', 'googleId', 'email'] as const
+
 /**
- * Reads `?requireAuth=1&next=/path` (from middleware) and opens the login modal on `/`,
- * or sends an already-authenticated user to `next` and clears the query.
+ * Reads auth-related query params and opens the appropriate modal:
+ * - `?referralCode=` / `?googleId=` → signup modal
+ * - `?requireAuth=1&next=/path` (from middleware) → login modal
  */
 export default function RequireAuthQueryHandler() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { token, loading } = useAuth()
-  const { openLoginModal } = useLoginModal()
+  const { openLoginModal, openSignupModal } = useLoginModal()
 
   useEffect(() => {
     if (loading) return
 
-    const requireAuth = searchParams.get('requireAuth')
+    const referralCode = searchParams.get('referralCode')
+    const googleId = searchParams.get('googleId')
+    const email = searchParams.get('email')
+    const openSignup = searchParams.get('openSignup')
     const nextRaw = searchParams.get('next')
     const safeNext = nextRaw && nextRaw.startsWith('/') ? nextRaw : '/'
+    const requireAuth = searchParams.get('requireAuth')
+
+    const hasSignupTrigger = Boolean(referralCode || googleId || openSignup === '1')
+
+    if (hasSignupTrigger && !token) {
+      openSignupModal({
+        next: safeNext,
+        referralCode: referralCode ?? undefined,
+        googleId: googleId ?? undefined,
+        email: email ?? undefined,
+      })
+      router.replace('/')
+      return
+    }
 
     if (requireAuth !== '1') {
       return
@@ -33,7 +53,7 @@ export default function RequireAuthQueryHandler() {
 
     openLoginModal({ next: safeNext })
     router.replace('/')
-  }, [loading, token, searchParams, router, openLoginModal])
+  }, [loading, token, searchParams, router, openLoginModal, openSignupModal])
 
   return null
 }

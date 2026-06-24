@@ -84,7 +84,7 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
   const { locale, setLocale } = useTranslationContext()
   const isTamil = locale === 'ta'
   const router = useRouter()
-  const { openLoginModal, closeLoginModal } = useLoginModal()
+  const { openLoginModal, openSignupModal, closeLoginModal } = useLoginModal()
   const [showMore, setShowMore] = useState(false)
 
   // Badge counts
@@ -785,12 +785,13 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                     >
                       {t('Auth.login')}
                     </button>
-                    <Link
-                      href="/signup"
+                    <button
+                      type="button"
+                      onClick={() => openSignupModal()}
                       className="px-2 py-2 bg-white/10 text-white font-semibold text-xs rounded-lg hover:bg-white hover:text-[#2a1407] transition-all"
                     >
                       {t('Auth.register')}
-                    </Link>
+                    </button>
                   </>
                 )
               )}
@@ -1195,13 +1196,16 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                   >
                     {t('Auth.login')}
                   </button>
-                  <Link
-                    href="/register"
-                    onClick={closeMobileMenu}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      closeMobileMenu()
+                      openSignupModal()
+                    }}
                     className="flex-1 px-3 py-2 text-center bg-[#2a1407] text-white text-sm font-medium rounded-lg"
                   >
                     {ui.register}
-                  </Link>
+                  </button>
                 </div>
               </>
             )}

@@ -53,6 +53,23 @@ export function middleware(request: NextRequest) {
     return redirectHomeRequireAuth(request, safeNext, '')
   }
 
+  // Legacy /signup URL: redirect guests to home with signup query params (opens signup modal)
+  if (!hasToken && pathname === '/signup') {
+    const home = new URL('/', request.url)
+    let hasSignupParam = false
+    for (const key of ['referralCode', 'googleId', 'email', 'next'] as const) {
+      const val = request.nextUrl.searchParams.get(key)
+      if (val) {
+        home.searchParams.set(key, val)
+        if (key !== 'next') hasSignupParam = true
+      }
+    }
+    if (!hasSignupParam) {
+      home.searchParams.set('openSignup', '1')
+    }
+    return NextResponse.redirect(home)
+  }
+
   // If already logged in, don't allow access to auth pages
   if (
     hasToken &&

@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Formik, Form } from 'formik'
-import Link from 'next/link'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
 import FormikPasswordField from '@/components/ui/Formik/FormikPasswordField/FormikPasswordField'
 import { AuthSchema } from '@/utils/validations/auth/AuthValidationSchema'
@@ -41,8 +40,8 @@ export interface LoginFormPanelProps {
   onLoginSuccess?: (resolvedNext: string) => void
   /** Hide the hello / welcome heading (e.g. when the modal already has a title) */
   showHeader?: boolean
-  /** Called before navigating to Sign Up (e.g. close the global login modal) */
-  onBeforeSignupNavigate?: () => void
+  /** Switch auth modal to signup mode */
+  onSwitchToSignup?: () => void
   /** Opens forgot-password flow (e.g. close login modal and open forgot modal) */
   onForgotPasswordClick?: () => void
 }
@@ -52,7 +51,7 @@ export default function LoginFormPanel({
   referralCodeFromUrl = null,
   onLoginSuccess,
   showHeader = true,
-  onBeforeSignupNavigate,
+  onSwitchToSignup,
   onForgotPasswordClick,
 }: LoginFormPanelProps) {
   const t = useTranslations()
@@ -248,13 +247,13 @@ export default function LoginFormPanel({
               >
                 {t('Auth.forgot_password')}
               </button>
-              <Link
-                href="/signup"
-                onClick={() => onBeforeSignupNavigate?.()}
+              <button
+                type="button"
+                onClick={() => onSwitchToSignup?.()}
                 className="text-green-900 hover:text-green-700 hover:underline font-medium"
               >
                 Sign Up
-              </Link>
+              </button>
             </motion.div>
 
             <motion.div
