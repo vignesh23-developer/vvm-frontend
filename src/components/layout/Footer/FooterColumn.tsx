@@ -5,61 +5,59 @@ import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { useRouter } from 'next/navigation'
 import { useLoginModal } from '@/components/auth/LoginModalProvider'
-import Button from '@/components/ui/CustomComponent/Button/Button'
-import { useKycStatus } from '@/components/kyc/hooks/useKycStatus'
 
 interface FooterColumnProps {
   title: string
   links: { label: string; href: string }[]
 }
 
+const footerLinkClass =
+  'block w-full text-left text-sm text-gray-300 hover:text-white transition-colors bg-transparent border-0 p-0 cursor-pointer font-normal'
+
 export default function FooterColumn({ title, links }: FooterColumnProps) {
   const t = useTranslations()
-  const { user, token } = useAuth()
+  const { token } = useAuth()
   const router = useRouter()
   const { openLoginModal } = useLoginModal()
-  // KYC Verification Hook
-  // const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
 
-  // console.log('FooterColumn links:', links)
   return (
     <div>
       <h3 className="font-semibold text-lg mb-4 text-yellow-500">{title}</h3>
-      <ul className="space-y-2 text-gray-300">
+      <ul className="space-y-2 text-left">
         {links.map(({ label, href }) => {
           const requiresAuth = href === '/properties-registration'
-          const disabled = requiresAuth && !token
-          if (href === '/properties-registration' && requiresAuth && token) {
-            // If the user is logged in but not verified, disable the link
+          const labelText = t(`Footer.${label}`)
+
+          if (requiresAuth && token) {
             return (
               <li key={label}>
-                <Button
-                  type="button"
-                  onClick={() => router.push('/properties-registration')}
-                  className="hover:text-white"
-                  title={`${!token ? 'Login required' : 'Post Your Property'}`}
-                >
-                  {t(`Footer.${label}`)}
-                </Button>
+                <button type="button" onClick={() => router.push(href)} className={footerLinkClass}>
+                  {labelText}
+                </button>
               </li>
             )
           }
-          return (
-            <li key={label}>
-              {disabled ? (
-                <Button
+
+          if (requiresAuth && !token) {
+            return (
+              <li key={label}>
+                <button
                   type="button"
                   onClick={() => openLoginModal({ next: href })}
-                  className="hover:text-white"
+                  className={footerLinkClass}
                   title="Login required"
                 >
-                  {t(`Footer.${label}`)}
-                </Button>
-              ) : (
-                <Link href={href} className="hover:text-white">
-                  {t(`Footer.${label}`)}
-                </Link>
-              )}
+                  {labelText}
+                </button>
+              </li>
+            )
+          }
+
+          return (
+            <li key={label}>
+              <Link href={href} className={footerLinkClass}>
+                {labelText}
+              </Link>
             </li>
           )
         })}

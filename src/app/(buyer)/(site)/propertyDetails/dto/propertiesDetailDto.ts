@@ -22,6 +22,7 @@ export interface PropertyDetailsResponseDto {
   layout_price_max?: number | null
   layout_area_min_sqft?: number | null
   layout_area_max_sqft?: number | null
+  layout_area_unit?: string | null
   plot_total_count?: number | null
   plot_sold_count?: number | null
   plot_booked_count?: number | null

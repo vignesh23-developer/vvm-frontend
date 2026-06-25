@@ -274,8 +274,13 @@ export default function PopularProperties({
                   listing_type={(item as any).listing_type ?? ''}
                   media={(item as any).media ?? []}
                   project_status={(item as any).project_status ?? (item as any).projectStatus}
+                  property_category={(item as any).property_category}
+                  property_category_name={(item as any).property_category_name ?? (item as any).property_category?.name}
                   layout_price_min={(item as any).layout_price_min}
                   layout_price_max={(item as any).layout_price_max}
+                  layout_area_min_sqft={(item as any).layout_area_min_sqft}
+                  layout_area_max_sqft={(item as any).layout_area_max_sqft}
+                  layout_area_unit={(item as any).layout_area_unit}
                   layout_total_sqft={(item as any).layout_total_sqft}
                   property_size={(item as any).property_size}
                   property_size_unit={(item as any).property_size_unit}

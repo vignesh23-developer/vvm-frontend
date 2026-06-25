@@ -1,54 +1,58 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import PropertyCard from '@/components/buyer/PropertyCard/PropertyCard'
-import { useProperties } from '@/app/admin/dashboard/properties-pending-approval/(Hooks)/useProperties'
+import { useProperties, usePropertyApprovalCounts } from '@/app/admin/dashboard/properties-pending-approval/(Hooks)/useProperties'
 import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { PropertiesDto } from './(Dto)/propertiesDto'
-import { deleteMethod, postMethod } from '@/services/service'
+import { postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import Pagination from '@/components/ui/CustomComponent/Paginations/Pagination'
-import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 import { ResponseDTO } from '@/components/dto/response_dto'
 import ApproveOrRejectPropertyModal from '@/components/ui/CustomComponent/Modal/ApproveOrReject/ApproveOrRejectModal'
 import SkeletonLoader from '@/components/ui/CustomComponent/SkeletonLoader/SkeletonLoader'
-import toast from 'react-hot-toast'
 import PropertyOrAdsApproveRejectCard from '@/components/buyer/PropertyOrAdsApproveRejectCard/PropertyOrAdsCard'
 
 const PAGE_SIZE = 10
+
+type ApprovalTab = 'pending' | 'accepted' | 'rejected'
 
 const PropertiesPage = () => {
   const t = useTranslations()
   const { user } = useAuth()
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState('pending')
+  const [activeTab, setActiveTab] = useState<ApprovalTab>('pending')
   const [currentPage, setCurrentPage] = useState(1)
-  const [favoritedProperties, setFavoritedProperties] = useState<Set<string>>(new Set())
   const [pendingActionPropertyId, setPendingActionPropertyId] = useState<string | null>(null)
   const [modalAction, setModalAction] = useState<string>('')
   const [selectedProperty, setSelectedProperty] = useState<PropertiesDto | null>(null)
-  const [comment, setComment] = useState('')
-  const [rejectReason, setRejectReason] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  // Map UI tabs to API approval_status values
-  const approvalStatus = activeTab === 'pending' ? 'UNDER_REVIEW' : activeTab === 'rejected' ? 'REJECTED' : undefined
+  const approvalStatus =
+    activeTab === 'pending' ? 'UNDER_REVIEW' : activeTab === 'accepted' ? 'APPROVED' : activeTab === 'rejected' ? 'REJECTED' : undefined
 
-  const { properties, total, isLoading, error, mutateProperties, handlePropertyAction } = useProperties({
+  const { properties, total, isLoading, error, mutateProperties } = useProperties({
     page: currentPage,
     limit: PAGE_SIZE,
     approvalStatus,
   })
 
+  const { pendingCount, rejectedCount, acceptedCount, mutateCounts } = usePropertyApprovalCounts()
+
+  const refreshAll = useCallback(async () => {
+    await mutateProperties()
+    await mutateCounts()
+  }, [mutateProperties, mutateCounts])
+
   const tabs = useMemo(
     () => [
-      { key: 'pending', label: 'Pending' },
-      { key: 'rejected', label: 'Rejected' },
+      { key: 'pending' as const, label: 'Pending', count: pendingCount },
+      { key: 'accepted' as const, label: 'Accepted', count: acceptedCount },
+      { key: 'rejected' as const, label: 'Rejected', count: rejectedCount },
     ],
-    [],
+    [pendingCount, acceptedCount, rejectedCount],
   )
 
   const totalItems = total ?? 0
@@ -58,8 +62,6 @@ const PropertiesPage = () => {
   const openModal = (property: PropertiesDto, action: 'approve' | 'reject') => {
     setSelectedProperty(property)
     setModalAction(action)
-    setComment('')
-    setRejectReason('')
     setIsModalOpen(true)
   }
 
@@ -71,29 +73,25 @@ const PropertiesPage = () => {
 
   const changePage = (page: number) => setCurrentPage(Math.max(1, Math.min(page, totalPages)))
 
-  const { pendingCount, rejectedCount } = useMemo(() => {
-    const pending = properties?.filter(p => p.approval_status === 'UNDER_REVIEW').length || 0
-    const rejected = properties?.filter(p => p.approval_status === 'REJECTED').length || 0
-    return { pendingCount: pending, rejectedCount: rejected }
-  }, [properties])
-  const isEmptyTab = (activeTab === 'pending' ? pendingCount : rejectedCount) === 0
-
   const handleFavorite = async (propertyId: string) => {
     try {
-      const response: ResponseDTO = await postMethod(appEndpoints.toggleFavorite, { entity_type: 'property', entity_id: propertyId })
-      mutateProperties()
+      await postMethod(appEndpoints.toggleFavorite, { entity_type: 'property', entity_id: propertyId })
+      await refreshAll()
     } catch (err) {
       console.error('Error updating favorite:', err)
     }
   }
 
   const handleShare = useCallback(() => {
-    // if (typeof window !== 'undefined') {
-    //   navigator?.clipboard?.writeText(window.location.href)
-    //   toast.success('Link copied to clipboard')
-    // }
     console.log('Share clicked')
   }, [])
+
+  const handleEdit = useCallback(
+    (propertyId: string) => {
+      router.push(`/properties-registration/${propertyId}`)
+    },
+    [router],
+  )
 
   if (isLoading) {
     return (
@@ -116,7 +114,6 @@ const PropertiesPage = () => {
             <Button
               key={tab.key}
               onClick={() => {
-                // When switching tabs, reset pagination to first page so results start from page 1
                 setActiveTab(tab.key)
                 setCurrentPage(1)
               }}
@@ -124,7 +121,7 @@ const PropertiesPage = () => {
                 isActive ? 'border-[#2a1407] bg-[#2a1407] text-white' : 'border-gray-200 text-gray-700 hover:text-[#2a1407]'
               }`}
             >
-              {tab.label === 'Pending' ? `Pending (${pendingCount ?? '...'})` : `Rejected (${rejectedCount ?? '...'})`}
+              {tab.label} ({tab.count ?? '...'})
             </Button>
           )
         })}
@@ -134,8 +131,6 @@ const PropertiesPage = () => {
       <div className="text-sm text-gray-600 mb-4 text-center">
         {isEmpty ? (
           'No properties found.'
-        ) : isEmptyTab ? (
-          'No properties found in this tab.'
         ) : (
           <span className="text-left block">
             Showing {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, totalItems)} of {totalItems}
@@ -145,40 +140,35 @@ const PropertiesPage = () => {
 
       {/* Property List */}
       {isEmpty ? (
-        <div className="rounded-md border border-dashed border-gray-200 bg-white p-12 text-center text-gray-500">No properties available.</div>
+        <div className="rounded-md border border-dashed border-gray-200 bg-white p-12 text-center text-gray-500">
+          No {activeTab} properties available.
+        </div>
       ) : (
         <div className="grid gap-6 md:grid-cols xl:grid-cols">
-          {properties
-            ?.filter(p => {
-              if (activeTab === 'pending') return p.approval_status === 'UNDER_REVIEW'
-              if (activeTab === 'rejected') return p.approval_status === 'REJECTED'
-              return true
-            })
-            .map((property, i) =>
-              isLoading ? (
-                <SkeletonLoader key={`property-skeleton-${i}`} />
-              ) : (
-                <PropertyOrAdsApproveRejectCard
-                  key={property.id ?? i}
-                  {...property}
-                  language={t}
-                  primaryActionLabel="Approve"
-                  secondaryActionLabel="Reject"
-                  thirdActionLabel="View Details"
-                  media={property?.media}
-                  onPrimaryAction={() => openModal(property, 'approve')}
-                  onSecondaryAction={() => openModal(property, 'reject')}
-                  onThirdAction={() => router.push(`/propertyDetails/${property.id}`)}
-                  primaryActionDisabled={pendingActionPropertyId === property.id}
-                  secondaryActionDisabled={pendingActionPropertyId === property.id}
-                  thirdActionDisabled={pendingActionPropertyId === property.id}
-                  handleFavorite={handleFavorite}
-                  handleShare={handleShare}
-                  isUserFavorited={property.is_user_favorite}
-                  isPropertyOrAds="property"
-                />
-              ),
-            )}
+          {properties.map((property, i) => (
+            <PropertyOrAdsApproveRejectCard
+              key={property.id ?? i}
+              {...property}
+              language={t}
+              media={property?.media}
+              primaryActionLabel={activeTab === 'pending' ? 'Approve' : undefined}
+              secondaryActionLabel={activeTab === 'pending' ? 'Reject' : undefined}
+              thirdActionLabel="View Details"
+              editActionLabel="Edit Property"
+              onPrimaryAction={activeTab === 'pending' ? () => openModal(property, 'approve') : undefined}
+              onSecondaryAction={activeTab === 'pending' ? () => openModal(property, 'reject') : undefined}
+              onThirdAction={() => router.push(`/propertyDetails/${property.id}`)}
+              onEditAction={() => handleEdit(property.id)}
+              primaryActionDisabled={pendingActionPropertyId === property.id}
+              secondaryActionDisabled={pendingActionPropertyId === property.id}
+              thirdActionDisabled={pendingActionPropertyId === property.id}
+              editActionDisabled={pendingActionPropertyId === property.id}
+              handleFavorite={handleFavorite}
+              handleShare={handleShare}
+              isUserFavorited={property.is_user_favorite}
+              isPropertyOrAds="property"
+            />
+          ))}
         </div>
       )}
 
@@ -196,7 +186,7 @@ const PropertiesPage = () => {
         approveOrRejectReason={modalAction}
         userId={user?.id || ''}
         property={selectedProperty}
-        propertyRefresh={mutateProperties}
+        propertyRefresh={refreshAll}
       />
     </div>
   )

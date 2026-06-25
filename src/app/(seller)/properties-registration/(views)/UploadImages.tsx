@@ -6,7 +6,14 @@ import toast from 'react-hot-toast'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { onAddPropertyMedia, getPropertyImages, updatePropertyImage, deletePropertyImage } from '../(action)/properties_registration_action'
 import { useParams } from 'next/navigation'
-import { ResponseDTO } from '@/components/dto/response_dto'
+import {
+  extractYoutubeId,
+  getExternalVideoLabel,
+  getYoutubeThumbnail,
+  isInstagramUrl,
+  isSupportedExternalVideoUrl,
+  isYoutubeUrl,
+} from '@/utils/property/videoUrl'
 
 interface Step5UploadImagesProps {
   propertyId: string
@@ -35,7 +42,7 @@ type MediaItem = {
 
 const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
   ({ propertyId, onUploaded, onUploadingChange, onHasNewFilesChange, mode }, ref) => {
-    const [activeTab, setActiveTab] = useState<'media' | 'youtube'>('media')
+    const [activeTab, setActiveTab] = useState<'media' | 'videoLink'>('media')
     const [items, setItems] = useState<MediaItem[]>([])
     const [ispending, startTransition] = useTransition()
     const [isSubmitted, setIsSubmitted] = useState(false)
@@ -49,14 +56,14 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
             const res = await getPropertyImages(propertyId)
             if (res.success && Array.isArray(res.data)) {
               const mappedItems: MediaItem[] = res.data.map((img: any) => {
-                const isYt = img.url && (img.url.includes('youtube.com') || img.url.includes('youtu.be'))
+                const isExternalVideo = img.url && isSupportedExternalVideoUrl(img.url)
                 let preview = img.url
 
-                if (isYt) {
-                  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
-                  const match = img.url.match(regExp)
-                  const videoId = match && match[2].length === 11 ? match[2] : null
-                  if (videoId) preview = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
+                if (isYoutubeUrl(img.url)) {
+                  const videoId = extractYoutubeId(img.url)
+                  if (videoId) preview = getYoutubeThumbnail(img.url) || preview
+                } else if (isInstagramUrl(img.url)) {
+                  preview = ''
                 }
 
                 return {
@@ -144,11 +151,11 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
       const newImages = files.filter(f => f.type.startsWith('image/'))
       const newVideos = files.filter(f => f.type.startsWith('video/'))
 
-      const isYoutubeUrl = (url?: string) => Boolean(url && (url.includes('youtube.com') || url.includes('youtu.be')))
+      const isExternalVideoUrl = (url?: string) => isSupportedExternalVideoUrl(url)
 
-      // Count existing media across BOTH server + local (exclude YouTube from the 5-item device-media cap)
+      // Count existing media across BOTH server + local (exclude external video links from the 5-item device-media cap)
       const currentImages = items.filter(i => i.type === 'IMAGE' && (i.file || i.url))
-      const currentVideos = items.filter(i => i.type === 'VIDEO' && (i.file || i.url) && !isYoutubeUrl(i.url))
+      const currentVideos = items.filter(i => i.type === 'VIDEO' && (i.file || i.url) && !isExternalVideoUrl(i.url))
 
       // Limits
       // Limits
@@ -328,40 +335,33 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
       setItems(prev => prev.map(item => (item.id === id ? { ...item, title: newTitle } : item)))
     }
 
+    // EXTERNAL VIDEO LINK LOGIC (YouTube / Instagram)
     // ----------------------------------------------------------------------
-    // YOUTUBE LOGIC
-    // ----------------------------------------------------------------------
 
-    const extractYoutubeId = (url: string) => {
-      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
-      const match = url.match(regExp)
-      return match && match[2].length === 11 ? match[2] : null
-    }
+    const handleAddVideoLink = () => {
+      if (!videoLink.trim()) return
 
-    const handleAddYoutube = () => {
-      if (!videoLink) return
-
-      // Limit Check: Only 1 YouTube link allowed
-      const currentYoutube = items.filter(i => i.type === 'VIDEO' && i.url && (i.url.includes('youtube.com') || i.url.includes('youtu.be')))
-      if (currentYoutube.length >= 1) {
-        toast.error('You can only add 1 YouTube video link.')
+      const currentExternalVideos = items.filter(i => i.type === 'VIDEO' && i.url && isSupportedExternalVideoUrl(i.url))
+      if (currentExternalVideos.length >= 1) {
+        toast.error('You can only add 1 video link.')
         return
       }
 
-      const videoId = extractYoutubeId(videoLink)
-      if (!videoId) {
-        toast.error('Invalid YouTube URL. Please use a valid link.')
+      const normalizedLink = videoLink.trim()
+      if (!isSupportedExternalVideoUrl(normalizedLink)) {
+        toast.error('Please paste a valid YouTube or Instagram video link.')
         return
       }
 
+      const youtubeThumb = isYoutubeUrl(normalizedLink) ? getYoutubeThumbnail(normalizedLink) : null
       const newItem: MediaItem = {
         id: Math.random().toString(36).substr(2, 9),
-        url: videoLink,
-        title: videoTitle || 'YouTube Video',
+        url: normalizedLink,
+        title: videoTitle || getExternalVideoLabel(normalizedLink),
         type: 'VIDEO',
         isPrimary: false,
-        preview: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
-        original_filename: videoTitle || 'YouTube Video',
+        preview: youtubeThumb || '',
+        original_filename: videoTitle || getExternalVideoLabel(normalizedLink),
         file_size: 0,
         isFromServer: false,
       }
@@ -369,7 +369,7 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
       setItems(prev => [...prev, newItem])
       setVideoLink('')
       setVideoTitle('')
-      toast.success('YouTube video added')
+      toast.success('Video link added')
     }
 
     // ----------------------------------------------------------------------
@@ -441,7 +441,7 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
             throw new Error('Property ID is missing. Please save basic details first.')
           }
 
-          const isYoutubeUrl = (url?: string) => Boolean(url && (url.includes('youtube.com') || url.includes('youtu.be')))
+          const isExternalVideoUrl = (url?: string) => isSupportedExternalVideoUrl(url)
 
           // Dummy prevState to satisfy TS if strict
           const dummyState: ResponseDTO = { success: false, error: false, message: '', data: null, status: '' }
@@ -484,8 +484,8 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
             }
           }
 
-          // 2. Upload Links (YouTube)
-          const linkItems = items.filter(i => i.url && isYoutubeUrl(i.url) && !i.isFromServer)
+          // 2. Upload external video links (YouTube / Instagram)
+          const linkItems = items.filter(i => i.url && isExternalVideoUrl(i.url) && !i.isFromServer)
           if (linkItems.length > 0) {
             const payload = linkItems.map((item, index) => ({
               media_type: 'VIDEO',
@@ -509,14 +509,13 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
             const refreshed = await getPropertyImages(propertyId)
             if (refreshed.success && Array.isArray(refreshed.data)) {
               const mappedItems: MediaItem[] = refreshed.data.map((img: any) => {
-                const isYt = img.url && (img.url.includes('youtube.com') || img.url.includes('youtu.be'))
                 let preview = img.url
 
-                if (isYt) {
-                  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
-                  const match = img.url.match(regExp)
-                  const videoId = match && match[2].length === 11 ? match[2] : null
-                  if (videoId) preview = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
+                if (isYoutubeUrl(img.url)) {
+                  const videoId = extractYoutubeId(img.url)
+                  if (videoId) preview = getYoutubeThumbnail(img.url) || preview
+                } else if (isInstagramUrl(img.url)) {
+                  preview = ''
                 }
 
                 return {
@@ -564,11 +563,11 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
     // RENDER
     // ----------------------------------------------------------------------
 
-    const isYoutube = (url?: string) => url && (url.includes('youtube.com') || url.includes('youtu.be'))
+    const isExternalVideo = (url?: string) => isSupportedExternalVideoUrl(url)
 
     const imageItems = items.filter(i => i.type === 'IMAGE')
-    const localVideoItems = items.filter(i => i.type === 'VIDEO' && !isYoutube(i.url))
-    const youtubeItems = items.filter(i => i.type === 'VIDEO' && isYoutube(i.url))
+    const localVideoItems = items.filter(i => i.type === 'VIDEO' && !isExternalVideo(i.url))
+    const externalVideoItems = items.filter(i => i.type === 'VIDEO' && isExternalVideo(i.url))
 
     return (
       <div className="w-full max-w-5xl mx-auto bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100 min-h-[500px]">
@@ -598,16 +597,16 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
           </button>
 
           <button
-            onClick={() => setActiveTab('youtube')}
+            onClick={() => setActiveTab('videoLink')}
             className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
-              activeTab === 'youtube'
+              activeTab === 'videoLink'
                 ? 'bg-white text-[#2a1407] shadow-sm ring-1 ring-black/5'
                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
             }`}
           >
             <LinkIcon size={18} />
-            YouTube Link
-            <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded-md text-gray-600 border border-gray-200">{youtubeItems.length}/1</span>
+            Video Link
+            <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded-md text-gray-600 border border-gray-200">{externalVideoItems.length}/1</span>
           </button>
         </div>
 
@@ -660,7 +659,7 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {/* Unified Render Loop for Local Media (Allow mixing images and videos) */}
                 {items
-                  .filter(i => i.type === 'IMAGE' || (i.type === 'VIDEO' && !isYoutube(i.url)))
+                  .filter(i => i.type === 'IMAGE' || (i.type === 'VIDEO' && !isExternalVideo(i.url)))
                   .map((item, index) => (
                     <div
                       key={item.id}
@@ -771,38 +770,36 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
           )}
 
           {/* YOUTUBE TAB */}
-          {activeTab === 'youtube' && (
+          {activeTab === 'videoLink' && (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              {/* Limit Warning/Info */}
-              {youtubeItems.length >= 1 ? (
+              {externalVideoItems.length >= 1 ? (
                 <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-center gap-3 text-blue-800">
                   <Info size={20} />
                   <span className="text-sm font-medium">
-                    You have reached the YouTube video limit (1 max). Remove the current video to add a different one.
+                    You have reached the video link limit (1 max). Remove the current link to add a different one.
                   </span>
                 </div>
               ) : (
-                /* Add Video Form */
                 <div className="bg-gray-50 p-8 rounded-2xl border border-dashed border-gray-300">
                   <div className="max-w-xl mx-auto space-y-4">
                     <div className="text-center mb-6">
                       <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mx-auto mb-3 text-[#2a1407]">
                         <LinkIcon size={24} />
                       </div>
-                      <h3 className="text-lg font-bold text-gray-900">Add YouTube Link</h3>
-                      <p className="text-sm text-gray-500">Paste a YouTube link to showcase your property.</p>
+                      <h3 className="text-lg font-bold text-gray-900">Add Video Link</h3>
+                      <p className="text-sm text-gray-500">Paste a YouTube or Instagram reel link to showcase your property.</p>
                     </div>
 
                     <div className="flex gap-2">
                       <input
-                        type="text"
-                        placeholder="https://youtu.be/..."
+                        type="url"
+                        placeholder="https://youtube.com/... or https://instagram.com/reel/..."
                         className="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#2a1407] focus:border-transparent outline-none transition-all shadow-sm"
                         value={videoLink}
                         onChange={e => setVideoLink(e.target.value)}
                       />
                       <button
-                        onClick={handleAddYoutube}
+                        onClick={handleAddVideoLink}
                         className="bg-[#2a1407] text-white px-6 rounded-xl font-bold hover:bg-[#3d1e0b] transition-colors shadow-lg shadow-[#2a1407]/20"
                       >
                         Add
@@ -812,29 +809,35 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
                 </div>
               )}
 
-              {/* Video List */}
-              {youtubeItems.length > 0 && (
+              {externalVideoItems.length > 0 && (
                 <div className="flex justify-center">
-                  {youtubeItems.map(item => (
+                  {externalVideoItems.map(item => (
                     <div
                       key={item.id}
                       className="relative group rounded-2xl overflow-hidden shadow-xl bg-white border border-gray-100 w-full max-w-2xl transform transition-all hover:scale-[1.01]"
                     >
                       <div className="aspect-video bg-black relative">
-                        <img src={item.preview} alt={item.title} className="w-full h-full object-cover opacity-90" />
-
-                        {/* Play Icon - Opens Modal */}
-                        <div
-                          className="absolute inset-0 flex items-center justify-center cursor-pointer"
-                          onClick={() => {
-                            const videoId = extractYoutubeId(item.url || '')
-                            if (videoId) setPreviewVideoUrl(videoId)
-                          }}
-                        >
-                          <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center group-hover:scale-110 group-hover:bg-[#2a1407]/90 transition-all duration-300 shadow-2xl border border-white/30">
-                            <Play className="text-white fill-white ml-1" size={24} />
+                        {item.preview ? (
+                          <img src={item.preview} alt={item.title} className="w-full h-full object-cover opacity-90" />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045] flex items-center justify-center">
+                            <span className="text-white font-bold text-lg">Instagram Reel</span>
                           </div>
-                        </div>
+                        )}
+
+                        {isYoutubeUrl(item.url) && (
+                          <div
+                            className="absolute inset-0 flex items-center justify-center cursor-pointer"
+                            onClick={() => {
+                              const videoId = extractYoutubeId(item.url || '')
+                              if (videoId) setPreviewVideoUrl(videoId)
+                            }}
+                          >
+                            <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center group-hover:scale-110 group-hover:bg-[#2a1407]/90 transition-all duration-300 shadow-2xl border border-white/30">
+                              <Play className="text-white fill-white ml-1" size={24} />
+                            </div>
+                          </div>
+                        )}
 
                         <div className="absolute top-4 right-4 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-full backdrop-blur-md">
                           <button
@@ -850,17 +853,28 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
                         </div>
                       </div>
                       <div className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="min-w-0">
                             <h3 className="text-lg font-bold text-gray-900 truncate">{item.title}</h3>
                             <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
                               <LinkIcon size={14} />
                               <span className="truncate max-w-xs">{item.url}</span>
                             </div>
                           </div>
-                          <div className=" hidden sm:flex items-center gap-2 text-xs font-semibold text-[#2a1407] bg-[#2a1407]/5 px-3 py-1 rounded-full border border-[#2a1407]/10">
-                            <Film size={14} /> Video Preview
-                          </div>
+                          {isInstagramUrl(item.url) ? (
+                            <a
+                              href={item.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="shrink-0 text-xs font-semibold text-[#2a1407] bg-[#2a1407]/5 px-3 py-1 rounded-full border border-[#2a1407]/10 hover:bg-[#2a1407]/10"
+                            >
+                              Open Reel
+                            </a>
+                          ) : (
+                            <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-[#2a1407] bg-[#2a1407]/5 px-3 py-1 rounded-full border border-[#2a1407]/10">
+                              <Film size={14} /> Video Preview
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>

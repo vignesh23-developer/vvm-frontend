@@ -67,6 +67,7 @@ interface PropertiesCardProps {
   onPrimaryAction?: () => void
   onSecondaryAction?: () => void
   onThirdAction?: () => void
+  onEditAction?: () => void
   handleFavorite: (propertyId: string) => void
   handleShare?: () => void
   isUserFavorited?: boolean
@@ -74,9 +75,11 @@ interface PropertiesCardProps {
   primaryActionLabel?: string
   secondaryActionLabel?: string
   thirdActionLabel?: string
+  editActionLabel?: string
   primaryActionDisabled?: boolean
   secondaryActionDisabled?: boolean
   thirdActionDisabled?: boolean
+  editActionDisabled?: boolean
   propertyPreviewMode?: boolean
 }
 
@@ -119,9 +122,12 @@ export default function PropertyOrAdsApproveRejectCard(props: PropertiesCardProp
     onPrimaryAction,
     onSecondaryAction,
     onThirdAction,
+    onEditAction,
     primaryActionDisabled = false,
     secondaryActionDisabled = false,
     thirdActionDisabled = false,
+    editActionDisabled = false,
+    editActionLabel,
     propertyPreviewMode = false,
   } = props
 
@@ -139,6 +145,7 @@ export default function PropertyOrAdsApproveRejectCard(props: PropertiesCardProp
     primary: primaryActionLabel ?? t(language, 'PropertiesListCard.contact_agent', 'Contact agent'),
     secondary: secondaryActionLabel ?? t(language, 'PropertiesListCard.get_phone_number', 'Get phone number'),
     third: thirdActionLabel ?? t(language, 'PropertiesListCard.check_affordability', 'Check affordability'),
+    edit: editActionLabel ?? t(language, 'PropertiesListCard.edit_property', 'Edit Property'),
   }
 
   // Find primary image or fall back to first image
@@ -247,9 +254,11 @@ export default function PropertyOrAdsApproveRejectCard(props: PropertiesCardProp
         onPrimaryAction={onPrimaryAction}
         onSecondaryAction={onSecondaryAction}
         onThirdAction={onThirdAction}
+        onEditAction={onEditAction}
         primaryDisabled={primaryActionDisabled}
         secondaryDisabled={secondaryActionDisabled}
         thirdDisabled={thirdActionDisabled}
+        editDisabled={editActionDisabled}
         propertyPreviewMode={propertyPreviewMode}
         onlyAdmin={onlyAdmin}
       />
@@ -394,12 +403,21 @@ const ActionSection = ({
   onPrimaryAction,
   onSecondaryAction,
   onThirdAction,
+  onEditAction,
   primaryDisabled,
   secondaryDisabled,
   thirdDisabled,
+  editDisabled,
   propertyPreviewMode,
   onlyAdmin,
-}: any) => (
+}: any) => {
+  const canEdit =
+    typeof onEditAction === 'function' &&
+    (approval_status === 'UNDER_REVIEW' ||
+      approval_status === 'REJECTED' ||
+      approval_status === 'APPROVED')
+
+  return (
   <div className="flex w-full flex-col justify-between bg-gradient-to-b from-[#1F130B] via-[#1A120B] to-[#111111] px-4 py-4 sm:px-5 sm:py-6 lg:w-[250px]">
     <div className="text-left lg:text-right space-y-1">
       <p className="text-[10px] uppercase tracking-[0.16em] text-yellow-400/90 font-semibold">
@@ -414,11 +432,21 @@ const ActionSection = ({
       <div className="mt-4 flex w-full flex-col gap-3">
         {buttons.primary && <ActionButton label={buttons.primary} variant="primary" onClick={onPrimaryAction} disabled={primaryDisabled} />}
         {buttons.secondary && <ActionButton label={buttons.secondary} variant="secondary" onClick={onSecondaryAction} disabled={secondaryDisabled} />}
+        {canEdit && <ActionButton label={buttons.edit} variant="edit" onClick={onEditAction} disabled={editDisabled} />}
         {buttons.third && <ActionButton label={buttons.third} variant="third" onClick={onThirdAction} disabled={thirdDisabled} />}
       </div>
     ) : approval_status === 'APPROVED' ? (
-      <div className="mt-4 flex w-full flex-col mb-15 gap-3">
-        {buttons.primary && <ActionButton label={buttons.primary} variant="primary" onClick={onPrimaryAction} disabled={primaryDisabled} />}
+      <div className="mt-4 flex w-full flex-col gap-3">
+        {canEdit && <ActionButton label={buttons.edit} variant="edit" onClick={onEditAction} disabled={editDisabled} />}
+        {buttons.third && <ActionButton label={buttons.third} variant="third" onClick={onThirdAction} disabled={thirdDisabled} />}
+      </div>
+    ) : canEdit ? (
+      <div className="mt-4 flex w-full flex-col gap-3">
+        <ActionButton label={buttons.edit} variant="edit" onClick={onEditAction} disabled={editDisabled} />
+        {buttons.third && <ActionButton label={buttons.third} variant="third" onClick={onThirdAction} disabled={thirdDisabled} />}
+        <p className="text-center text-xs font-medium italic text-gray-400">
+          This property is {approval_status.replace(/_/g, ' ').toLowerCase()}.
+        </p>
       </div>
     ) : (
       <div className="mb-20 text-center text-sm font-medium italic text-gray-500">
@@ -426,7 +454,8 @@ const ActionSection = ({
       </div>
     )}
   </div>
-)
+  )
+}
 
 const ActionButton = ({
   label,
@@ -435,7 +464,7 @@ const ActionButton = ({
   disabled,
 }: {
   label: string
-  variant: 'primary' | 'secondary' | 'third'
+  variant: 'primary' | 'secondary' | 'third' | 'edit'
   onClick?: () => void
   disabled?: boolean
 }) => (
@@ -449,6 +478,8 @@ const ActionButton = ({
           ? 'border border-gray-200 bg-gray-100 text-gray-400'
           : variant === 'primary'
           ? 'bg-black text-white hover:bg-gray-800'
+          : variant === 'edit'
+            ? 'border border-yellow-400/60 bg-yellow-400 text-[#2a1407] hover:bg-yellow-300'
           : 'border bg-white hover:bg-gray-200'
       }`}
     >
