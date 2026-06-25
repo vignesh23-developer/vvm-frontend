@@ -421,7 +421,7 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
               {user ? (
                 <>
                   {/* AGENT: Wallet */}
-                  {isAgent && (
+                  {/* {isAgent && (
                     <Link
                       href="/view-transactions"
                       className="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-white/10 rounded-lg text-white hover:bg-white/20 transition-all"
@@ -429,7 +429,7 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                       <span className="text-green-400 font-bold text-sm">₹</span>
                       <span className="text-sm font-medium">{walletBalance.toLocaleString('en-IN')}</span>
                     </Link>
-                  )}
+                  )} */}
 
                   {/* Notifications */}
                   <div className="relative">
