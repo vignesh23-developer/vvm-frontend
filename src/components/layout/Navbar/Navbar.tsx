@@ -256,7 +256,7 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
     { href: '/admin/dashboard/properties-pending-approval', icon: <Clock className="w-4 h-4" />, label: ui.pending },
     { href: '/admin/dashboard/property-reports', icon: <AlertTriangle className="w-4 h-4" />, label: ui.reported },
 
-    { href: '/ads-list', icon: <Megaphone className="w-4 h-4" />, label: ui.allAds },
+    { href: '/ads/list', icon: <Megaphone className="w-4 h-4" />, label: ui.allAds },
     { href: '/admin/dashboard/ads-reports', icon: <AlertTriangle className="w-4 h-4" />, label: ui.reportedAds },
 
     { href: '/admin/dashboard/property-enquiry', icon: <MessageSquare className="w-4 h-4" />, label: ui.enquiries, badge: newEnquiriesCount },
@@ -939,7 +939,7 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
 
                     <p className="mt-2 px-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">{ui.myAds}</p>
                     <Link
-                      href="/ads-list"
+                      href="/ads/list"
                       onClick={closeMobileMenu}
                       className="flex items-center gap-2 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg text-sm font-medium"
                     >

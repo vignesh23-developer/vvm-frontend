@@ -55,7 +55,18 @@ import { appEndpoints } from '@/services/endpoints'
 import { getMethod, postMethod } from '@/services/service'
 import EnquiryPropertyModal from './modal/EnquiryPropertyModal'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
-import { formatPrice } from '@/utils/converter/formatPrice'
+import { formatNumber, formatPrice } from '@/utils/converter/formatPrice'
+import {
+  isLayoutPropertyDisplay,
+  resolvePropertyPriceLabel,
+  resolvePropertySizeLabel,
+} from '@/utils/property/resolvePropertyDisplay'
+import {
+  getYoutubeEmbedUrl,
+  getYoutubeThumbnail,
+  isInstagramUrl,
+  isYoutubeUrl,
+} from '@/utils/property/videoUrl'
 import ApproveOrRejectPropertyModal from '@/components/ui/CustomComponent/Modal/ApproveOrReject/ApproveOrRejectModal'
 import { ResponseDTO } from '@/components/dto/response_dto'
 import EnquiryForm from '@/components/enquiry/forms/EnquiryFormCard'
@@ -190,6 +201,25 @@ const page = () => {
     '💧 24/7 water supply with modern infrastructure',
   ]
   const { propertyDetailsData, propertyDetailsFetchLoader, propertyDetailsFetchErr, propertyDetailsRefresh } = usePropertiesDetail({ id: propertyId })
+
+  const isLayoutProperty = useMemo(
+    () =>
+      isLayoutPropertyDisplay({
+        property_category_name: propertyDetailsData?.property_category_name,
+        property_category: propertyDetailsData?.property_category,
+      }),
+    [propertyDetailsData?.property_category_name, propertyDetailsData?.property_category],
+  )
+
+  const displayPriceLabel = useMemo(() => {
+    if (!propertyDetailsData) return 'Price on request'
+    return resolvePropertyPriceLabel(propertyDetailsData)
+  }, [propertyDetailsData])
+
+  const displaySizeLabel = useMemo(() => {
+    if (!propertyDetailsData) return 'Price per unit'
+    return resolvePropertySizeLabel(propertyDetailsData)
+  }, [propertyDetailsData])
 
   // Fetch similar properties based on city + category via search service
   const { similarProperties, isLoadingSimilar } = useSimilarProperties({
@@ -353,9 +383,10 @@ const page = () => {
 
     return sortedMedia
       .filter((item: any) => item.url && item.url.trim() !== '')
+      .filter((item: any) => !(item.media_type === 'VIDEO' && isInstagramUrl(item.url)))
       .map((item: any) => ({
         url: item.url,
-        type: item.media_type === 'VIDEO' ? 'video' : 'image',
+        type: item.media_type === 'VIDEO' && isYoutubeUrl(item.url) ? 'video' : 'image',
         is_primary: item.is_primary,
       }))
   }, [propertyDetailsData?.media])
@@ -370,16 +401,8 @@ const page = () => {
   const totalImageCount = apiImages?.length || 0
 
   const getVideoEmbedUrlWithFallback = useCallback((url: string) => {
-    const fallback = 'https://www.youtube.com/embed/dQw4w9WgXcQ'
-    if (!url) return fallback
-
-    if (url.includes('youtube.com/watch')) {
-      return url.replace('watch?v=', 'embed/')
-    }
-    if (url.includes('youtu.be/')) {
-      return url.replace('youtu.be/', 'www.youtube.com/embed/')
-    }
-    return url
+    if (!url || !isYoutubeUrl(url)) return ''
+    return getYoutubeEmbedUrl(url)
   }, [])
 
   // Property Overview Cards - always render up to 5 cards derived from backend data
@@ -424,17 +447,34 @@ const page = () => {
     if (items.length < 5 && propertyDetailsData) {
       const coreCandidates: OverviewItem[] = []
 
-      if (propertyDetailsData.price) {
+      if (propertyDetailsData.project_status && isLayoutProperty) {
         coreCandidates.push({
-          label: 'Price',
-          value: `₹ ${formatPrice(propertyDetailsData.price)}`,
+          label: 'Project Status',
+          value: String(propertyDetailsData.project_status).replace(/_/g, ' '),
         })
       }
 
-      if (propertyDetailsData.property_size) {
+      if (isLayoutProperty) {
+        coreCandidates.push({
+          label: 'Price Range',
+          value: resolvePropertyPriceLabel(propertyDetailsData),
+        })
+      } else if (propertyDetailsData.price) {
+        coreCandidates.push({
+          label: 'Price',
+          value: resolvePropertyPriceLabel(propertyDetailsData),
+        })
+      }
+
+      if (isLayoutProperty) {
+        coreCandidates.push({
+          label: 'Area Range',
+          value: resolvePropertySizeLabel(propertyDetailsData),
+        })
+      } else if (propertyDetailsData.property_size) {
         coreCandidates.push({
           label: 'Size',
-          value: `${propertyDetailsData.property_size} ${propertyDetailsData.property_size_unit || 'sqft'}`,
+          value: resolvePropertySizeLabel(propertyDetailsData),
         })
       }
 
@@ -452,35 +492,24 @@ const page = () => {
         })
       }
 
-      if (propertyDetailsData.project_status) {
-        coreCandidates.push({
-          label: 'Project Status',
-          value: String(propertyDetailsData.project_status).replace(/_/g, ' '),
-        })
-      }
-
-      if (propertyDetailsData.layout_price_min != null || propertyDetailsData.layout_price_max != null) {
-        const min = propertyDetailsData.layout_price_min != null ? `₹ ${formatPrice(Number(propertyDetailsData.layout_price_min))}` : '—'
-        const max = propertyDetailsData.layout_price_max != null ? `₹ ${formatPrice(Number(propertyDetailsData.layout_price_max))}` : '—'
-        coreCandidates.push({
-          label: 'Layout Price Range',
-          value: `${min} - ${max}`,
-        })
-      }
-
-      if (propertyDetailsData.layout_area_min_sqft != null || propertyDetailsData.layout_area_max_sqft != null) {
-        const min = propertyDetailsData.layout_area_min_sqft != null ? `${propertyDetailsData.layout_area_min_sqft} sqft` : '—'
-        const max = propertyDetailsData.layout_area_max_sqft != null ? `${propertyDetailsData.layout_area_max_sqft} sqft` : '—'
-        coreCandidates.push({
-          label: 'Layout Area Range',
-          value: `${min} - ${max}`,
-        })
-      }
-
-      if (propertyDetailsData.layout_total_sqft != null) {
+      if (propertyDetailsData.layout_total_sqft != null && isLayoutProperty) {
         coreCandidates.push({
           label: 'Layout Total Sqft',
-          value: `${propertyDetailsData.layout_total_sqft} sqft`,
+          value: `${formatNumber(propertyDetailsData.layout_total_sqft)} sqft`,
+        })
+      }
+
+      if (isLayoutProperty && propertyDetailsData.plot_total_count != null) {
+        coreCandidates.push({
+          label: 'Total Plots',
+          value: String(propertyDetailsData.plot_total_count),
+        })
+      }
+
+      if (isLayoutProperty && propertyDetailsData.plot_available_count != null) {
+        coreCandidates.push({
+          label: 'Available Plots',
+          value: String(propertyDetailsData.plot_available_count),
         })
       }
 
@@ -521,7 +550,7 @@ const page = () => {
       value: item.value,
       values: item.values,
     }))
-  }, [propertyDetailsData])
+  }, [propertyDetailsData, isLayoutProperty])
 
   // Key Features - Extract from API feature_values and description
   const keyFeatures = useMemo(() => {
@@ -607,20 +636,20 @@ const page = () => {
     return list.slice(0, 8)
   }, [similarProperties, popularSimilarProperties, propertyId])
 
-  // Derive primary video URL from media
-  const primaryVideoMedia = useMemo(() => propertyDetailsData?.media?.find(media => media.media_type === 'VIDEO'), [propertyDetailsData])
+  const instagramReelUrl = useMemo(() => {
+    const reel = propertyDetailsData?.media?.find(
+      (media: any) => media.media_type === 'VIDEO' && isInstagramUrl(media.url),
+    )
+    return reel?.url?.trim() || null
+  }, [propertyDetailsData?.media])
 
-  // Helper to convert video URL to embed URL
-  const getVideoEmbedUrl = useCallback((url: string) => {
-    if (!url) return ''
-    if (url.includes('youtube.com/watch')) {
-      return url.replace('watch?v=', 'embed/')
-    }
-    if (url.includes('youtu.be/')) {
-      return url.replace('youtu.be/', 'www.youtube.com/embed/')
-    }
-    return url
-  }, [])
+  // Derive primary YouTube video URL from media (Instagram reels use external link)
+  const primaryVideoMedia = useMemo(
+    () => propertyDetailsData?.media?.find((media: any) => media.media_type === 'VIDEO' && isYoutubeUrl(media.url)),
+    [propertyDetailsData],
+  )
+
+  const getVideoEmbedUrl = useCallback((url: string) => getYoutubeEmbedUrl(url), [])
 
   const hasVirtualTourVideo = Boolean(primaryVideoMedia?.url)
 
@@ -634,11 +663,7 @@ const page = () => {
   const videoThumbnailUrl = useMemo(() => {
     const url = primaryVideoMedia?.url
     if (!url) return null
-    // Robust regex for YouTube Video ID
-    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^#&?]+)/)
-    const vidId = match ? match[1] : null
-    if (vidId) return `https://img.youtube.com/vi/${vidId}/maxresdefault.jpg`
-    return null
+    return getYoutubeThumbnail(url)
   }, [primaryVideoMedia])
 
   // Video cover image (avoid passing empty string to <Image src>)
@@ -987,6 +1012,25 @@ const page = () => {
               </div>
             )}
 
+            {instagramReelUrl ? (
+              <div className="border-t border-gray-100 bg-white px-4 py-4 sm:px-6">
+                <div className="mx-auto flex max-w-7xl flex-col gap-3 rounded-2xl border border-pink-100 bg-gradient-to-r from-pink-50 via-white to-orange-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-[#2a1407]">Instagram Reel</p>
+                    <p className="mt-1 text-sm text-gray-600">Watch a short reel about this property on Instagram.</p>
+                  </div>
+                  <a
+                    href={instagramReelUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center rounded-xl bg-[#2a1407] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#3d1e0b]"
+                  >
+                    View Instagram Reel
+                  </a>
+                </div>
+              </div>
+            ) : null}
+
             {/* Floating Action Buttons */}
             <div className="absolute top-32 right-10 flex gap-3 z-40">
               <motion.button
@@ -1027,7 +1071,7 @@ const page = () => {
                     <span className="px-3 py-1.5 rounded-full bg-yellow-50 border border-yellow-200 text-[#2a1407] text-xs font-semibold uppercase">
                       {propertyDetailsData?.property_category_name || 'Category'}
                     </span>
-                    {propertyDetailsData?.project_status && (
+                    {isLayoutProperty && propertyDetailsData?.project_status && (
                       <span
                         className={cn(
                           'px-3 py-1.5 rounded-full border text-xs font-semibold uppercase',
@@ -1103,13 +1147,11 @@ const page = () => {
                     whileHover={cardHover}
                     className="bg-gradient-to-br from-yellow-50 to-yellow-100/50 rounded-xl p-6 border border-yellow-200 shadow-sm"
                   >
-                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">Price</p>
-                    <p className="text-3xl md:text-4xl font-bold text-[#2a1407] mb-2">₹ {formatPrice(propertyDetailsData?.price)}</p>
-                    <p className="text-sm text-gray-600">
-                      {propertyDetailsData?.property_size
-                        ? `${propertyDetailsData.property_size} ${propertyDetailsData.property_size_unit || 'sqft'}`
-                        : 'Price per unit'}
+                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">
+                      {isLayoutProperty ? 'Price Range' : 'Price'}
                     </p>
+                    <p className="text-3xl md:text-4xl font-bold text-[#2a1407] mb-2">{displayPriceLabel}</p>
+                    <p className="text-sm text-gray-600">{displaySizeLabel}</p>
                   </motion.div>
 
                   {/* Construction Status */}
@@ -2075,13 +2117,13 @@ const page = () => {
                         <div>
                           <p className="text-[10px] uppercase text-gray-500 font-medium tracking-wide mb-0.5">Price</p>
                           <p className="text-lg font-bold text-[#2a1407]">
-                            {property.price ? `₹${formatPrice(Number(property.price))}` : 'Price on request'}
+                            {resolvePropertyPriceLabel(property)}
                           </p>
                         </div>
                         <div className="text-right">
                           <p className="text-[10px] uppercase text-gray-500 font-medium tracking-wide mb-0.5">Size</p>
                           <p className="text-sm font-semibold text-gray-700">
-                            {property.property_size ? `${property.property_size} ${property.property_size_unit || 'sqft'}` : 'N/A'}
+                            {resolvePropertySizeLabel(property)}
                           </p>
                         </div>
                       </div>

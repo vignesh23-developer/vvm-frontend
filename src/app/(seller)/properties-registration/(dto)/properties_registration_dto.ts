@@ -257,6 +257,7 @@ export class LandRegistrationPayloadDTO {
   layout_price_max?: number | string
   layout_area_min_sqft?: number | string
   layout_area_max_sqft?: number | string
+  layout_area_unit?: string
   plot_total_count?: number | string
   plot_sold_count?: number | string
   plot_booked_count?: number | string
@@ -293,6 +294,7 @@ export class LandRegistrationPayloadDTO {
     this.layout_price_max = init.layout_price_max
     this.layout_area_min_sqft = init.layout_area_min_sqft
     this.layout_area_max_sqft = init.layout_area_max_sqft
+    this.layout_area_unit = init.layout_area_unit
     this.plot_total_count = init.plot_total_count
     this.plot_sold_count = init.plot_sold_count
     this.plot_booked_count = init.plot_booked_count
@@ -331,6 +333,7 @@ export class LandRegistrationPayloadDTO {
       layout_price_max: this.layout_price_max === '' ? undefined : this.layout_price_max,
       layout_area_min_sqft: this.layout_area_min_sqft === '' ? undefined : this.layout_area_min_sqft,
       layout_area_max_sqft: this.layout_area_max_sqft === '' ? undefined : this.layout_area_max_sqft,
+      layout_area_unit: this.layout_area_unit === '' ? undefined : this.layout_area_unit,
       plot_total_count: this.plot_total_count === '' ? undefined : this.plot_total_count,
       plot_sold_count: this.plot_sold_count === '' ? undefined : this.plot_sold_count,
       plot_booked_count: this.plot_booked_count === '' ? undefined : this.plot_booked_count,

@@ -8,7 +8,12 @@ import { Heart, Share, Ruler, MapPin, Shapes } from 'lucide-react'
 import Image from 'next/image'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import FavoriteButton from '@/components/ui/CustomComponent/FavoriteButton/FavoriteButton'
-import { formatNumber, formatPrice } from '@/utils/converter/formatPrice'
+import {
+  isLayoutPropertyDisplay,
+  resolvePropertyPriceLabel,
+  resolvePropertySizeLabel,
+  type PropertyDisplaySource,
+} from '@/utils/property/resolvePropertyDisplay'
 
 /* ------------------------------ Motion Variants ------------------------------ */
 const cardVariants: Variants = {
@@ -45,9 +50,13 @@ interface PropertiesCardProps {
   price: string
   layout_price_min?: string | number
   layout_price_max?: string | number
+  layout_area_min_sqft?: string | number
+  layout_area_max_sqft?: string | number
+  layout_area_unit?: string | null
   layout_total_sqft?: string | number
   property_size?: string | number
   property_size_unit?: string
+  property_category_name?: string
   status: string
   project_status?: string
   listing_type?: string
@@ -64,7 +73,6 @@ interface PropertiesCardProps {
   agent?: string
   operatingSince?: string
   subtitle?: string
-  property_category_name?: string
   language?: (key: string) => string
   pricePerSqft?: string
   onPrimaryAction?: () => void
@@ -97,9 +105,13 @@ export default function PropertyCard(props: PropertiesCardProps) {
     media,
     layout_price_min,
     layout_price_max,
+    layout_area_min_sqft,
+    layout_area_max_sqft,
+    layout_area_unit,
     layout_total_sqft,
     property_size,
     property_size_unit,
+    property_category_name,
     address_line,
     district,
     city,
@@ -114,7 +126,6 @@ export default function PropertyCard(props: PropertiesCardProps) {
     propertyPreviewMode = false,
     isVerified,
     property_category,
-    project_status,
   } = props
 
   const getMediaUrls = () => {
@@ -165,39 +176,23 @@ export default function PropertyCard(props: PropertiesCardProps) {
   const mediaUrls = getMediaUrls()
   const imageUrl = mediaUrls.image
 
-  const resolvePriceRangeLabel = () => {
-    const min = layout_price_min === '' ? undefined : layout_price_min
-    const max = layout_price_max === '' ? undefined : layout_price_max
-    const minN = min !== undefined && min !== null ? Number(min) : undefined
-    const maxN = max !== undefined && max !== null ? Number(max) : undefined
-
-    const hasRange = typeof minN === 'number' && !Number.isNaN(minN) || typeof maxN === 'number' && !Number.isNaN(maxN)
-    if (hasRange) {
-      const left = typeof minN === 'number' && !Number.isNaN(minN) ? `₹ ${formatPrice(Math.abs(minN))}` : '₹ --'
-      const right = typeof maxN === 'number' && !Number.isNaN(maxN) ? `₹ ${formatPrice(Math.abs(maxN))}` : '₹ --'
-      return `${left} - ${right}`
-    }
-
-    const priceN = Number(price)
-    if (typeof priceN === 'number' && !Number.isNaN(priceN)) return `₹ ${formatPrice(Math.abs(priceN))}`
-    return price ? `₹ ${price}` : 'Price on request'
+  const displaySource: PropertyDisplaySource = {
+    price,
+    property_size,
+    property_size_unit,
+    layout_price_min,
+    layout_price_max,
+    layout_area_min_sqft,
+    layout_area_max_sqft,
+    layout_area_unit,
+    layout_total_sqft,
+    property_category_name,
+    property_category,
   }
 
-  const resolveSqftLabel = () => {
-    const total = layout_total_sqft === '' ? undefined : layout_total_sqft
-    const totalN = total !== undefined && total !== null ? Number(total) : undefined
-    if (typeof totalN === 'number' && !Number.isNaN(totalN) && totalN > 0) {
-      return `${formatNumber(totalN)} sqft`
-    }
-
-    if (property_size === undefined || property_size === null || property_size === '') return '-- sqft'
-    const sizeN = Number(property_size)
-    const unit = (property_size_unit || 'sqft').toString().trim() || 'sqft'
-    if (typeof sizeN === 'number' && !Number.isNaN(sizeN)) {
-      return `${formatNumber(sizeN)} ${unit}`
-    }
-    return `${String(property_size)} ${unit}`
-  }
+  const isLayout = isLayoutPropertyDisplay(displaySource)
+  const priceLabel = resolvePropertyPriceLabel(displaySource)
+  const sizeLabel = resolvePropertySizeLabel(displaySource)
 
   return (
     <motion.div
@@ -221,19 +216,6 @@ export default function PropertyCard(props: PropertiesCardProps) {
             {property_category && (
               <span className="px-2.5 py-1 rounded-full bg-white/90 text-[#2a1407] border border-white/70 text-[11px] font-semibold shadow-sm backdrop-blur flex items-center gap-1">
                 {property_category.name}
-              </span>
-            )}
-
-            {project_status && (
-              <span
-                className={(() => {
-                  const v = project_status?.toUpperCase()
-                  if (v === 'UPCOMING') return 'px-2.5 py-1 rounded-full bg-blue-50/95 text-blue-700 border border-blue-200/70 text-[11px] font-bold shadow-sm backdrop-blur'
-                  if (v === 'COMPLETED') return 'px-2.5 py-1 rounded-full bg-green-50/95 text-green-700 border border-green-200/70 text-[11px] font-bold shadow-sm backdrop-blur'
-                  return 'px-2.5 py-1 rounded-full bg-yellow-50/95 text-yellow-800 border border-yellow-200/70 text-[11px] font-bold shadow-sm backdrop-blur'
-                })()}
-              >
-                {project_status}
               </span>
             )}
           </div>
@@ -308,21 +290,23 @@ export default function PropertyCard(props: PropertiesCardProps) {
           </span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-50 text-gray-700 border border-gray-100 px-3 py-1">
             <Ruler size={14} className="shrink-0 text-gray-600" />
-            <span className="text-[11px] font-semibold">{resolveSqftLabel()}</span>
+            <span className="text-[11px] font-semibold">{sizeLabel}</span>
           </span>
         </div>
 
         <div className="mt-auto pt-4">
           <div className="flex items-end justify-between gap-3 border-t border-gray-100 pt-3">
             <div className="min-w-0">
-              <div className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">Price range</div>
-              <div className="mt-1 text-base sm:text-lg font-extrabold text-[#2a1407] truncate" title={resolvePriceRangeLabel()}>
-                {resolvePriceRangeLabel()}
+              <div className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">
+                {isLayout ? 'Price range' : 'Price'}
+              </div>
+              <div className="mt-1 text-base sm:text-lg font-extrabold text-[#2a1407] truncate" title={priceLabel}>
+                {priceLabel}
               </div>
             </div>
             <div className="shrink-0 text-right">
-              <div className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">Sqft</div>
-              <div className="mt-1 text-sm font-bold text-gray-700">{resolveSqftLabel()}</div>
+              <div className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">Size</div>
+              <div className="mt-1 text-sm font-bold text-gray-700">{sizeLabel}</div>
             </div>
           </div>
         </div>

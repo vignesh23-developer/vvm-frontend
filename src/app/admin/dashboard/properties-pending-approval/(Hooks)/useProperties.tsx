@@ -141,3 +141,53 @@ export function useProperties(options: UsePropertiesOptions = {}) {
     handlePropertyAction,
   }
 }
+
+const COUNT_KEY_PREFIX = 'property-approval-count'
+
+async function fetchApprovalCount(status: string): Promise<number> {
+  const url = `${appEndpoints.getAllProperties}?limit=1&page=1&approval_status=${encodeURIComponent(status)}`
+  const response = await getMethod<ApiResponse<PropertiesDto[]>>(url)
+  if (response.error) return 0
+
+  const metaTotal = response.data?.meta?.total
+  const nestedTotal = response.data?.total
+  if (typeof metaTotal === 'number') return metaTotal
+  if (typeof nestedTotal === 'number') return nestedTotal
+
+  const payload = response.data?.data
+  return Array.isArray(payload) ? payload.length : 0
+}
+
+export function usePropertyApprovalCounts() {
+  const swrConfig: SWRConfiguration = useMemo(
+    () => ({
+      dedupingInterval: 15_000,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      shouldRetryOnError: false,
+    }),
+    [],
+  )
+
+  const { data: pendingCount = 0, mutate: mutatePending } = useSWR(
+    `${COUNT_KEY_PREFIX}-UNDER_REVIEW`,
+    () => fetchApprovalCount('UNDER_REVIEW'),
+    swrConfig,
+  )
+  const { data: rejectedCount = 0, mutate: mutateRejected } = useSWR(
+    `${COUNT_KEY_PREFIX}-REJECTED`,
+    () => fetchApprovalCount('REJECTED'),
+    swrConfig,
+  )
+  const { data: acceptedCount = 0, mutate: mutateAccepted } = useSWR(
+    `${COUNT_KEY_PREFIX}-APPROVED`,
+    () => fetchApprovalCount('APPROVED'),
+    swrConfig,
+  )
+
+  const mutateCounts = async () => {
+    await Promise.all([mutatePending(), mutateRejected(), mutateAccepted()])
+  }
+
+  return { pendingCount, rejectedCount, acceptedCount, mutateCounts }
+}

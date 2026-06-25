@@ -9,6 +9,7 @@ import { Dispatch, SetStateAction } from 'react'
 import { FeatureMappingDTO } from '../(dto)/properties_registration_dto'
 import { PropertyCategoryFeatureMappingResponse } from '../(hook)/properties_registration_hook'
 import LucideIconRenderer from '@/components/ui/CustomComponent/LucideIconRenderer/LucideIconRenderer'
+import { isLayoutCategory } from '@/utils/property/isLayoutCategory'
 
 interface Step1BasicDetailsProps {
   formik: FormikProps<PropertyCreationFormValues>
@@ -18,6 +19,7 @@ interface Step1BasicDetailsProps {
   refresh?: () => void
   setFeatureData: Dispatch<SetStateAction<Array<FeatureMappingDTO> | null>>
   onGetPropertyCategoryFeatureMapping: (id: string) => Promise<PropertyCategoryFeatureMappingResponse>
+  onPropertyTypeChange?: (categoryId: string) => void
 }
 
 export default function Step1BasicDetails({
@@ -28,8 +30,11 @@ export default function Step1BasicDetails({
   refresh,
   onGetPropertyCategoryFeatureMapping,
   setFeatureData,
+  onPropertyTypeChange,
 }: Step1BasicDetailsProps) {
   const { values, errors, touched, handleChange, setFieldValue } = formik
+  const selectedCategory = data?.find(c => c.id === values.propertyType)
+  const isLayout = isLayoutCategory(selectedCategory?.name)
 
   async function onSelectPropertyHandler(id: string) {
     const result = await onGetPropertyCategoryFeatureMapping(id)
@@ -37,6 +42,7 @@ export default function Step1BasicDetails({
     if (!result?.error) {
       setFeatureData(result?.data?.mappings)
       setFieldValue('propertyType', id)
+      onPropertyTypeChange?.(id)
     } else {
       // console.log('log on onSelectPropertyHandler error case', result?.message)
     }
@@ -124,7 +130,8 @@ export default function Step1BasicDetails({
           {touched.purpose && errors.purpose && <p className="text-red-600 text-xs mt-1">{errors.purpose}</p>}
         </div>
 
-        {/* Project Status */}
+        {/* Project Status — layout category only */}
+        {isLayout && (
         <div>
           <label className="block text-sm font-semibold text-gray-700">
             Project Status <span className="text-red-500">*</span>
@@ -145,6 +152,7 @@ export default function Step1BasicDetails({
           </div>
           {touched.project_status && (errors as any).project_status && <p className="text-red-600 text-xs mt-1">{(errors as any).project_status}</p>}
         </div>
+        )}
 
         {/* Description */}
         <div>

@@ -1,12 +1,13 @@
 'use client'
-import { CheckCircle, ContactRound, Home, MapPin, Star, Camera, Check, ArrowRight, ArrowLeft } from 'lucide-react'
+import { CheckCircle, Home, MapPin, Star, Camera, Check, ArrowRight, ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { SetStateAction, startTransition, use, useActionState, useEffect, useState, useTransition, useRef } from 'react'
 import { Formik, Form, FormikHelpers } from 'formik'
 import * as Yup from 'yup'
 
 // Step components
-import Step3ContactDetails from './(views)/ContactDetails'
+// Step3ContactDetails hidden in UI — contact fields auto-filled from user profile for backend
+// import Step3ContactDetails from './(views)/ContactDetails'
 import Step1BasicDetails from './(views)/BasicDetails'
 import Step2LocationPrice from './(views)/LocationPrice'
 import Step4FeaturesAmenities from './(views)/FeaturesAmenities'
@@ -27,7 +28,8 @@ import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { useKycStatus } from '@/components/kyc/hooks/useKycStatus'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 import Step5UploadImages, { UploadImagesRef } from './(views)/UploadImages'
-// import Step5UploadImages from './(views)/UploadImages'
+import { getPropertyStepValidationSchema } from './validationSchemas'
+import { findCategoryName, isLayoutCategory } from '@/utils/property/isLayoutCategory'
 
 const mapFeatureValuesToPayload = (featureValues: any[] | undefined, mappings: FeatureMappingDTO[] | null): FeaturePayloadDTO[] => {
   if (!Array.isArray(featureValues)) {
@@ -131,6 +133,7 @@ export interface PropertyCreationFormValues {
   layout_price_max: number | string
   layout_area_min_sqft: number | string
   layout_area_max_sqft: number | string
+  layout_area_unit: string
   plot_total_count: number | string
   plot_sold_count: number | string
   plot_booked_count: number | string
@@ -172,10 +175,10 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
   const steps = [
     { title: 'Step 1', subtitle: 'Basic Details', icon: <Home className="w-5 h-5" /> },
     { title: 'Step 2', subtitle: 'Location & Price', icon: <MapPin className="w-5 h-5" /> },
-    { title: 'Step 3', subtitle: 'Contact Details', icon: <ContactRound className="w-5 h-5" /> },
-    { title: 'Step 4', subtitle: 'Features & Amenities', icon: <Star className="w-5 h-5" /> },
-    { title: 'Step 5', subtitle: 'Photos', icon: <Camera className="w-5 h-5" /> },
-    { title: 'Step 6', subtitle: 'Review & Submit', icon: <Check className="w-5 h-5" /> },
+    // { title: 'Step 3', subtitle: 'Contact Details', icon: <ContactRound className="w-5 h-5" /> },
+    { title: 'Step 3', subtitle: 'Features & Amenities', icon: <Star className="w-5 h-5" /> },
+    { title: 'Step 4', subtitle: 'Photos', icon: <Camera className="w-5 h-5" /> },
+    { title: 'Step 5', subtitle: 'Review & Submit', icon: <Check className="w-5 h-5" /> },
   ]
   const {
     propertyCategoryData,
@@ -231,6 +234,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
   const [uploadCompleted, setUploadCompleted] = useState<boolean>(false)
   const [isUploadingImages, setIsUploadingImages] = useState<boolean>(false)
   const [hasNewMediaFiles, setHasNewMediaFiles] = useState<boolean>(false)
+  const [validationCategoryId, setValidationCategoryId] = useState<string>('')
 
   const initialValues: PropertyCreationFormValues = {
     contactName: '',
@@ -262,6 +266,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
     layout_price_max: '',
     layout_area_min_sqft: '',
     layout_area_max_sqft: '',
+    layout_area_unit: 'Sqft',
     plot_total_count: '',
     plot_sold_count: '',
     plot_booked_count: '',
@@ -292,99 +297,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
     features: [],
   }
 
-  // Validation schemas per step
-  const validationSchemas: { [key: number]: Yup.ObjectSchema<any, Yup.AnyObject, any> | any } = {
-    // STEP 1: (Correct - No changes)
-    1: Yup.object().shape({
-      propertyTitle: Yup.string().trim().required('Property title is required'),
-      propertyType: Yup.string().required('Property type is required'),
-      purpose: Yup.string().required('Purpose is required'),
-      description: Yup.string().trim().required('Property description is required'),
-      project_status: Yup.string().oneOf(['CURRENT', 'UPCOMING', 'COMPLETED']).required('Project status is required'),
-    }),
-
-    // STEP 2: (Correct - No changes)
-    2: Yup.object().shape({
-      // door_number: Yup.string().trim().required('Door number is required'),
-      // street_name: Yup.string().trim().required('Street name is required'),
-      door_number: Yup.string().trim().optional().notRequired(),
-      street_name: Yup.string().trim().optional().notRequired(),
-      address_line: Yup.string().trim().required('Address line is required'),
-      // city: Yup.string().trim().required('City is required'),
-      // district: Yup.string().trim().required('District is required'),
-      city: Yup.string().trim().optional().notRequired(),
-      district: Yup.string().trim().required('District is required'),
-      state: Yup.string().oneOf(['Tamil Nadu'], 'State must be Tamil Nadu'),
-      // postal_code: Yup.string().trim().required('Postal code is required'),
-      postal_code: Yup.string().trim().optional().notRequired(),
-      country: Yup.string().oneOf(['India'], 'Country must be India'),
-      price: Yup.number().typeError('Price must be a number').positive('Price must be greater than zero').required('Price is required'),
-      size: Yup.number().typeError('Size must be a number').positive('Size must be greater than zero').required('Size is required'),
-      unit: Yup.string().trim().required('Unit is required'),
-      latitude: Yup.number().optional().notRequired(),
-      longitude: Yup.number().optional().notRequired(),
-    }),
-
-    // STEP 3: (Corrected - Contact rules removed)
-
-    3: Yup.object().shape({
-      contactName: Yup.string().trim().required('Contact name is required'),
-      contactNumber: Yup.string()
-        .trim()
-        .required('Contact number is required')
-        .matches(/^[0-9]{10}$/, 'Please enter a valid 10-digit contact number'),
-      // .matches(/^\+?[1-9]\d{1,14}$/, 'Please enter a valid phone number'),
-      contactEmail: Yup.string().email('Invalid email address').required('Contact email is required'),
-    }),
-
-    // STEP 4: (Correct - No changes)
-    4: Yup.mixed({}).notRequired().nonNullable(),
-
-    // STEP 5: (Corrected - Photo rules + Contact rules)
-    5: Yup.object().shape({
-      // Photo Upload Logic (from your original schema)
-      uploadType: Yup.string().oneOf(['chooseFromDevice', 'addViaLink']).required('Upload type is required'),
-
-      propertyPhoto: Yup.array().when('uploadType', (uploadTypeValue, schema) => {
-        if (uploadTypeValue.includes('addViaLink')) {
-          return schema
-            .of(
-              Yup.object().shape({
-                media_type: Yup.string().oneOf(['VIDEO', 'IMAGE']).required('Media type is required'),
-                title: Yup.string().required('Title is required'),
-                url: Yup.string().required('URL is required'),
-                is_primary: Yup.boolean().transform((value, originalValue) => {
-                  // Check if the incoming value is an array (like ["on"] or [])
-
-                  if (Array.isArray(originalValue)) {
-                    // If it's ["on"], length is 1, returns true.
-                    // If it's [], length is 0, returns false.
-                    return originalValue.length > 0
-                  }
-
-                  // Fallback for undefined, null, or already correct booleans
-                  return value
-                }),
-              }),
-            )
-            .min(1, 'At least one property photo is required')
-        }
-        return schema.notRequired()
-      }),
-
-      localpropertyPhoto: Yup.object().when('uploadType', (uploadTypeValue, schema) => {
-        if (uploadTypeValue.includes('chooseFromDevice')) {
-          return schema.shape({
-            files: Yup.array().of(Yup.mixed().required('File is required')).min(1, 'At least one file is required'),
-          })
-        }
-        return schema.notRequired()
-      }),
-    }),
-
-    // STEP 6: (Review step, likely no validation needed)
-    6: Yup.object().shape({}),
-  }
+  // Validation schemas are resolved per step based on selected property category (see Formik render).
 
   const isLastStep = currentStep === steps.length
 
@@ -457,8 +370,8 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
 
   const handleSubmit = async (values: PropertyCreationFormValues, actions: FormikHelpers<PropertyCreationFormValues>) => {
     try {
-      // Validate only the schema for the current step
-      await validationSchemas[currentStep].validate(values, { abortEarly: false })
+      const isLayout = isLayoutCategory(findCategoryName(propertyCategoryData, values.propertyType))
+      await getPropertyStepValidationSchema(currentStep, isLayout).validate(values, { abortEarly: false })
 
       if (isLastStep) {
         actions.setSubmitting(false)
@@ -474,7 +387,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
           // setLocalStorageItem(LOCAL_STORAGE_NAME?.propertyDetails, JSON.stringify(values))
         }
 
-        if (currentStep === 4 && featureData) {
+        if (currentStep === 3 && featureData) {
           // Extract all mandatory feature category IDs
           const mandatoryFeatures = featureData.filter(val => val.is_mandatory)
           const mandatoryIds = mandatoryFeatures.map(f => f.feature_category_id)
@@ -500,30 +413,37 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
           }
         }
 
-        if (currentStep === 4 && featureData) {
-          // Proceed when mandatory selection requirement is satisfied
+        if (currentStep === 3 && featureData) {
           const selectedFeatures = (values.features?.length ? values.features : (inputFeatureData ?? [])) as FeaturePayloadDTO[]
+          const categoryName = findCategoryName(propertyCategoryData, values.propertyType)
+          const isLayout = isLayoutCategory(categoryName)
+
+          const resolvedPrice = isLayout ? values.layout_price_min : values.price
+          const resolvedSize = isLayout ? values.layout_area_min_sqft : values.size
+          const resolvedUnit = isLayout ? values.layout_area_unit || 'Sqft' : values.unit
+
           const LandRegistrationData: LandRegistrationPayloadDTO = new LandRegistrationPayloadDTO({
-            contact_name: values?.contactName,
-            contact_phone: values?.contactNumber,
-            contact_email: values?.contactEmail,
+            contact_name: values?.contactName || `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim(),
+            contact_phone: values?.contactNumber || user?.phoneNumber || '',
+            contact_email: values?.contactEmail || user?.email || '',
             title: values?.propertyTitle,
             description: values?.description,
             property_category_id: values?.propertyType,
-            price: values?.price as number,
-            property_size: values?.size as number,
-            property_size_unit: values?.unit,
+            price: resolvedPrice as number,
+            property_size: resolvedSize as number,
+            property_size_unit: resolvedUnit,
             listing_type: values?.purpose,
-            project_status: values?.project_status,
-            layout_price_min: values?.layout_price_min as any,
-            layout_price_max: values?.layout_price_max as any,
-            layout_area_min_sqft: values?.layout_area_min_sqft as any,
-            layout_area_max_sqft: values?.layout_area_max_sqft as any,
-            plot_total_count: values?.plot_total_count as any,
-            plot_sold_count: values?.plot_sold_count as any,
-            plot_booked_count: values?.plot_booked_count as any,
-            plot_available_count: values?.plot_available_count as any,
-            layout_total_sqft: values?.layout_total_sqft as any,
+            project_status: isLayout ? values?.project_status : undefined,
+            layout_price_min: isLayout ? (values?.layout_price_min as any) : undefined,
+            layout_price_max: isLayout ? (values?.layout_price_max as any) : undefined,
+            layout_area_min_sqft: isLayout ? (values?.layout_area_min_sqft as any) : undefined,
+            layout_area_max_sqft: isLayout ? (values?.layout_area_max_sqft as any) : undefined,
+            layout_area_unit: isLayout ? values?.layout_area_unit : undefined,
+            plot_total_count: isLayout ? (values?.plot_total_count as any) : undefined,
+            plot_sold_count: isLayout ? (values?.plot_sold_count as any) : undefined,
+            plot_booked_count: isLayout ? (values?.plot_booked_count as any) : undefined,
+            plot_available_count: isLayout ? (values?.plot_available_count as any) : undefined,
+            layout_total_sqft: isLayout ? (values?.layout_total_sqft as any) : undefined,
             door_number: values?.door_number,
             street_name: values?.street_name,
             address_line: values?.address_line,
@@ -709,8 +629,17 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
           })}
         </div>
       </div>
-      <Formik initialValues={initialValues} validationSchema={validationSchemas[currentStep]} onSubmit={handleSubmit}>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={getPropertyStepValidationSchema(
+          currentStep,
+          isLayoutCategory(findCategoryName(propertyCategoryData, validationCategoryId)),
+        )}
+        onSubmit={handleSubmit}
+      >
         {formik => {
+          const isLayout = isLayoutCategory(findCategoryName(propertyCategoryData, formik.values.propertyType))
+
           async function init() {
             // 1) If editing (propertiesId present and valueData fetched), populate with server data
             if (propertiesId && valueData) {
@@ -727,6 +656,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
                 propertyType: valueData?.property_category_id ?? valueData?.property_category_id ?? '',
                 purpose: valueData?.listing_type ?? valueData?.listing_type ?? '',
                 description: valueData?.description ?? '',
+                project_status: valueData?.project_status ?? 'CURRENT',
 
                 door_number: valueData?.door_number ?? '',
                 street_name: valueData?.street_name ?? '',
@@ -739,6 +669,17 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
                 price: valueData?.price ?? '',
                 size: valueData?.property_size ?? '',
                 unit: valueData?.property_size_unit ?? 'Sqft',
+
+                layout_price_min: valueData?.layout_price_min ?? valueData?.price ?? '',
+                layout_price_max: valueData?.layout_price_max ?? '',
+                layout_area_min_sqft: valueData?.layout_area_min_sqft ?? valueData?.property_size ?? '',
+                layout_area_max_sqft: valueData?.layout_area_max_sqft ?? '',
+                layout_area_unit: valueData?.layout_area_unit ?? valueData?.property_size_unit ?? 'Sqft',
+                plot_total_count: valueData?.plot_total_count ?? '',
+                plot_sold_count: valueData?.plot_sold_count ?? '',
+                plot_booked_count: valueData?.plot_booked_count ?? '',
+                plot_available_count: valueData?.plot_available_count ?? '',
+                layout_total_sqft: valueData?.layout_total_sqft ?? '',
 
                 latitude: valueData?.latitude ?? 0,
                 longitude: valueData?.longitude ?? 0,
@@ -759,6 +700,10 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
               Object.entries(serverToForm)
                 .filter(([key]) => key !== 'features')
                 .forEach(([key, value]) => formik.setFieldValue(key, value))
+
+              if (serverToForm.propertyType) {
+                setValidationCategoryId(String(serverToForm.propertyType))
+              }
 
               // If server already has media, mark upload as completed so Next is enabled
               if (Array.isArray(valueData?.media) && valueData.media.length > 0) {
@@ -787,6 +732,15 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
             }
           }
           useEffect(() => {
+            if (user) {
+              const name = `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim()
+              if (!formik.values.contactName && name) formik.setFieldValue('contactName', name)
+              if (!formik.values.contactNumber && user.phoneNumber) formik.setFieldValue('contactNumber', user.phoneNumber)
+              if (!formik.values.contactEmail && user.email) formik.setFieldValue('contactEmail', user.email)
+            }
+          }, [user])
+
+          useEffect(() => {
             init()
           }, [valueData, propertiesId])
 
@@ -801,11 +755,13 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
                   formik={formik}
                   onGetPropertyCategoryFeatureMapping={onGetPropertyCategoryFeatureMapping}
                   setFeatureData={setFeatureData}
+                  onPropertyTypeChange={setValidationCategoryId}
                 />
               )}
-              {currentStep === 2 && <Step2LocationPrice formik={formik} />}
-              {currentStep === 3 && <Step3ContactDetails formik={formik} />}
-              {currentStep === 4 && (
+              {currentStep === 2 && <Step2LocationPrice formik={formik} propertyCategories={propertyCategoryData} />}
+              {/* Contact Details step hidden — values sent from user profile */}
+              {/* {currentStep === 3 && <Step3ContactDetails formik={formik} />} */}
+              {currentStep === 3 && (
                 <Step4FeaturesAmenities
                   inputFeatureData={inputFeatureData}
                   setInputFeatureData={setInputFeatureData}
@@ -814,8 +770,8 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
                   hasInitialFeatureValues={Boolean(valueData?.feature_values?.length)}
                 />
               )}
-              {/* Step 5 uses Step5UploadImages */}
-              {currentStep === 5 && (
+              {/* Step 4 uses Step5UploadImages */}
+              {currentStep === 4 && (
                 <Step5UploadImages
                   propertyId={effectivePropertyId}
                   onUploaded={() => {
@@ -828,7 +784,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
                   ref={uploadRef}
                 />
               )}
-              {currentStep === 6 && (
+              {currentStep === 5 && (
                 <Step6ReviewSubmit propertyCategoryData={propertyCategoryData} formik={formik} propertyId={effectivePropertyId} />
               )}
 
@@ -841,9 +797,9 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
                 >
                   <ArrowLeft size={20} /> {localStorage.getItem(LOCAL_STORAGE_NAME?.propertyDetails) ? 'Edit' : 'Previous'}
                 </Button>
-                {currentStep !== 6 && (
+                {currentStep !== 5 && (
                   <>
-                    {currentStep !== 5
+                    {currentStep !== 4
                       ? (() => {
                           const isLoading = formik.isSubmitting || LRIsPending || ULRIsPending
                           return (
@@ -857,7 +813,7 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
                             >
                               {!isLoading ? (
                                 <>
-                                  {isLastStep ? 'Submit' : currentStep === 4 ? 'Save Property' : 'Next Step'}
+                                  {isLastStep ? 'Submit' : currentStep === 3 ? 'Save Property' : 'Next Step'}
                                   <ArrowRight size={20} />
                                 </>
                               ) : (

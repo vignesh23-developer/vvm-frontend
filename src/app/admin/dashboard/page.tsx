@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import { Users, FileText, Home, ChartBar, Eye, Wallet, BadgeCheck, Tag, HatGlasses, Gauge } from 'lucide-react'
+import { Users, FileText, Home, ChartBar, Eye, Wallet, BadgeCheck, Tag, HatGlasses } from 'lucide-react'
 import { useDashboardHook } from './(hooks)/useDashboardHook'
 import {
   ResponsiveContainer,
@@ -22,53 +22,40 @@ import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import formatName from '@/utils/converter/formatName'
 import Link from 'next/link'
 import Button from '@/components/ui/CustomComponent/Button/Button'
-
-// Stat Card Component
+import {
+  DashboardChartFrame,
+  DashboardEmptyState,
+  DashboardMetricTile,
+  DashboardPanel,
+  DashboardPanelHeader,
+  DashboardSegmentedControl,
+  DashboardSkeleton,
+  DashboardStatCard,
+  dashboardPageClass,
+} from '@/components/dashboard/DashboardPrimitives'
+import PlanUsageWidget from '@/components/dashboard/PlanUsageWidget'
+import { useUserSubscription } from '@/components/Plans/hooks/useUserSubscription'
 
 type IconComponent = React.ComponentType<{ size?: number }>
 
-function StatCard({ label, value, Icon }: { label: string; value: string | number; Icon?: IconComponent }) {
+function DashboardPageSkeleton() {
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-yellow-100 bg-white p-6 shadow-[0_2px_10px_rgba(0,0,0,0.03)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(42,20,7,0.08)]">
-      <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-gradient-to-br from-yellow-50 to-orange-50 opacity-50 blur-2xl transition-all group-hover:scale-150" />
-
-      <div className="relative flex items-start justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">{label}</p>
-          <p className="mt-2 text-3xl font-extrabold text-[#2a1407]">{value}</p>
-        </div>
-        {Icon ? (
-          <div className="rounded-xl bg-[#FFF8E8] p-3 text-yellow-700 shadow-sm ring-1 ring-yellow-100 transition-colors duration-300 group-hover:bg-[#2a1407] group-hover:text-yellow-400">
-            <Icon size={24} />
-          </div>
-        ) : null}
-      </div>
-    </div>
-  )
-}
-
-function Skeleton({ className }: { className?: string }) {
-  return <div className={'animate-pulse rounded-lg bg-yellow-100/70 ' + (className ?? '')} />
-}
-
-function DashboardSkeleton() {
-  return (
-    <main className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-yellow-50 p-6">
-      <div className="mx-auto w-full max-w-7xl space-y-6">
-        <header className="flex items-start justify-between gap-4">
-          <div className="space-y-2">
-            <Skeleton className="h-7 w-56" />
-            <Skeleton className="h-4 w-80" />
+    <div className={`${dashboardPageClass} -m-5`}>
+      <div className="space-y-6">
+        <header className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="space-y-2 lg:col-span-2">
+            <DashboardSkeleton className="h-7 w-56" />
+            <DashboardSkeleton className="h-4 w-80" />
           </div>
         </header>
 
-        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-2xl border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/30 p-5 shadow-sm">
-              <Skeleton className="h-3 w-28" />
-              <Skeleton className="mt-3 h-8 w-20" />
+            <div key={i} className="rounded-lg border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/30 p-4 shadow-sm text-center">
+              <DashboardSkeleton className="h-3 w-28" />
+              <DashboardSkeleton className="mt-3 h-8 w-20" />
               <div className="mt-4 flex justify-end">
-                <Skeleton className="h-12 w-12 rounded-lg" />
+                <DashboardSkeleton className="h-12 w-12 rounded-lg" />
               </div>
             </div>
           ))}
@@ -77,35 +64,35 @@ function DashboardSkeleton() {
         <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 rounded-2xl border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/20 p-6 shadow-sm">
             <div className="flex items-center justify-between">
-              <Skeleton className="h-5 w-32" />
-              <Skeleton className="h-4 w-20" />
+              <DashboardSkeleton className="h-5 w-32" />
+              <DashboardSkeleton className="h-4 w-20" />
             </div>
 
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="rounded-2xl border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/30 p-5 shadow-sm">
-                  <Skeleton className="h-3 w-24" />
-                  <Skeleton className="mt-3 h-7 w-16" />
+                  <DashboardSkeleton className="h-3 w-24" />
+                  <DashboardSkeleton className="mt-3 h-7 w-16" />
                 </div>
               ))}
             </div>
 
             <div className="mt-4 h-60 rounded-md border border-dashed border-yellow-200 bg-gradient-to-br from-yellow-50 to-yellow-100/30 p-3">
-              <Skeleton className="h-full w-full rounded-md bg-yellow-200/40" />
+              <DashboardSkeleton className="h-full w-full rounded-md bg-yellow-200/40" />
             </div>
           </div>
 
           <aside className="space-y-6">
             <div className="rounded-2xl border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/20 p-6 shadow-sm">
               <div className="flex items-center justify-between">
-                <Skeleton className="h-5 w-44" />
-                <Skeleton className="h-5 w-5 rounded-full" />
+                <DashboardSkeleton className="h-5 w-44" />
+                <DashboardSkeleton className="h-5 w-5 rounded-full" />
               </div>
               <div className="mt-4 grid grid-cols-2 gap-3">
                 {Array.from({ length: 4 }).map((_, i) => (
                   <div key={i} className="rounded-xl border border-yellow-200 bg-white/70 p-3">
-                    <Skeleton className="h-3 w-24" />
-                    <Skeleton className="mt-2 h-6 w-16" />
+                    <DashboardSkeleton className="h-3 w-24" />
+                    <DashboardSkeleton className="mt-2 h-6 w-16" />
                   </div>
                 ))}
               </div>
@@ -113,14 +100,14 @@ function DashboardSkeleton() {
 
             <div className="rounded-2xl border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/20 p-6 shadow-sm">
               <div className="flex items-center justify-between">
-                <Skeleton className="h-5 w-40" />
-                <Skeleton className="h-5 w-5 rounded-full" />
+                <DashboardSkeleton className="h-5 w-40" />
+                <DashboardSkeleton className="h-5 w-5 rounded-full" />
               </div>
               <div className="mt-4 grid grid-cols-2 gap-3">
                 {Array.from({ length: 4 }).map((_, i) => (
                   <div key={i} className="rounded-xl border border-yellow-200 bg-white/70 p-3">
-                    <Skeleton className="h-3 w-20" />
-                    <Skeleton className="mt-2 h-6 w-14" />
+                    <DashboardSkeleton className="h-3 w-20" />
+                    <DashboardSkeleton className="mt-2 h-6 w-14" />
                   </div>
                 ))}
               </div>
@@ -131,33 +118,33 @@ function DashboardSkeleton() {
         <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div className="rounded-2xl border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/20 p-6 shadow-sm">
             <div className="flex items-center justify-between">
-              <Skeleton className="h-5 w-32" />
-              <Skeleton className="h-6 w-20" />
+              <DashboardSkeleton className="h-5 w-32" />
+              <DashboardSkeleton className="h-6 w-20" />
             </div>
             <div className="mt-4 space-y-3">
               {Array.from({ length: 5 }).map((_, i) => (
                 <div key={i} className="rounded-xl border border-yellow-200 bg-white/70 px-3 py-3">
-                  <Skeleton className="h-4 w-40" />
-                  <Skeleton className="mt-2 h-3 w-64" />
+                  <DashboardSkeleton className="h-4 w-40" />
+                  <DashboardSkeleton className="mt-2 h-3 w-64" />
                 </div>
               ))}
             </div>
           </div>
 
           <div className="rounded-2xl border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/20 p-6 shadow-sm">
-            <Skeleton className="h-5 w-40" />
+            <DashboardSkeleton className="h-5 w-40" />
             <div className="mt-4 grid grid-cols-2 gap-3">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="rounded-xl border border-yellow-200 bg-white/70 p-3">
-                  <Skeleton className="h-3 w-24" />
-                  <Skeleton className="mt-2 h-6 w-16" />
+                  <DashboardSkeleton className="h-3 w-24" />
+                  <DashboardSkeleton className="mt-2 h-6 w-16" />
                 </div>
               ))}
             </div>
           </div>
         </section>
       </div>
-    </main>
+    </div>
   )
 }
 
@@ -165,8 +152,10 @@ export default function AdminDashboardPage() {
   const { user } = useAuth()
   const router = useRouter()
   const { dashboardData, error, isLoading, handleRefresh } = useDashboardHook()
+  const { activeSubscription } = useUserSubscription()
 
-  const [financeSelection, setFinanceSelection] = React.useState<'WALLET' | 'SUBSCRIPTION'>('WALLET')
+  // Wallet tab disabled for now — default to subscription view
+  const [financeSelection, setFinanceSelection] = React.useState<'WALLET' | 'SUBSCRIPTION'>('SUBSCRIPTION')
   const [propertyAdSelection, setPropertyAdSelection] = React.useState<'PROPERTIES' | 'ADS'>('PROPERTIES')
   const [statusMetricSelection, setStatusMetricSelection] = React.useState<'APPROVAL' | 'STATUS'>('APPROVAL')
   const [transactionFilter, setTransactionFilter] = React.useState<'ALL' | 'CREDIT' | 'DEBIT'>('ALL')
@@ -348,11 +337,20 @@ export default function AdminDashboardPage() {
   const buyer = payload?.buyer
   const admin = payload?.admin
 
-  const walletSummary = role === 'AGENT' ? agent?.wallet : role === 'BUYER' ? buyer?.wallet : undefined
+  // Wallet — commented out for now; keep for when wallet tab is re-enabled
+  // const walletSummary = role === 'AGENT' ? agent?.wallet : role === 'BUYER' ? buyer?.wallet : undefined
   const subscriptionSummary = role === 'AGENT' ? agent?.subscription : undefined
   const hasSubscriptionData = role === 'AGENT' ? !!subscriptionSummary : role === 'ADMIN' ? !!admin?.subscriptionStats : false
+  const isSubscriptionActive = Boolean(
+    subscriptionSummary?.hasActiveSubscription || activeSubscription?.isActive
+  )
+  const isSidebarExpanded = role === 'AGENT' && !isSubscriptionActive
+  const showSubscriptionPanel =
+    role === 'ADMIN' || (role === 'AGENT' && isSubscriptionActive)
 
-  const effectiveFinanceSelection: 'WALLET' | 'SUBSCRIPTION' = role === 'AGENT' ? financeSelection : role === 'BUYER' ? 'WALLET' : 'SUBSCRIPTION'
+  // const effectiveFinanceSelection: 'WALLET' | 'SUBSCRIPTION' =
+  //   role === 'AGENT' ? financeSelection : role === 'BUYER' ? 'WALLET' : 'SUBSCRIPTION'
+  const effectiveFinanceSelection: 'WALLET' | 'SUBSCRIPTION' = 'SUBSCRIPTION'
 
   const selectedApprovalStatus =
     propertyAdSelection === 'ADS'
@@ -402,29 +400,47 @@ export default function AdminDashboardPage() {
   const propertyAdsStatusTiles = statusMetricSelection === 'STATUS' && hasByStatusSupport ? byStatusTiles : approvalStatusTiles
 
   const financeTiles =
-    effectiveFinanceSelection === 'WALLET'
+    // Wallet tiles — commented out for now
+    // effectiveFinanceSelection === 'WALLET'
+    //   ? [
+    //       { label: 'Balance', value: walletSummary?.balance ?? 0 },
+    //       { label: 'Credited', value: walletSummary?.lifetimeCredited ?? 0 },
+    //       { label: 'Debited', value: walletSummary?.lifetimeDebited ?? 0 },
+    //       { label: 'Expired', value: walletSummary?.lifetimeExpired ?? 0 },
+    //     ]
+    //   :
+    role === 'AGENT' && isSubscriptionActive
       ? [
-          { label: 'Balance', value: walletSummary?.balance ?? 0 },
-          { label: 'Credited', value: walletSummary?.lifetimeCredited ?? 0 },
-          { label: 'Debited', value: walletSummary?.lifetimeDebited ?? 0 },
-          { label: 'Expired', value: walletSummary?.lifetimeExpired ?? 0 },
-        ]
-      : role === 'AGENT'
-      ? [
-          { label: 'Plan', value: subscriptionSummary?.planName ?? (subscriptionSummary?.hasActiveSubscription ? '-' : 'No active plan') },
-          { label: 'Status', value: subscriptionSummary?.status ?? (subscriptionSummary?.hasActiveSubscription ? '-' : 'inactive') },
+          {
+            label: 'Plan',
+            value:
+              subscriptionSummary?.planName ??
+              activeSubscription?.plan?.name ??
+              (isSubscriptionActive ? '-' : 'No active plan'),
+          },
+          {
+            label: 'Status',
+            value:
+              subscriptionSummary?.status ??
+              activeSubscription?.status ??
+              (isSubscriptionActive ? 'active' : 'inactive'),
+          },
           { label: 'Days Left', value: subscriptionSummary?.daysRemaining ?? 0 },
           {
             label: 'Ends',
-            value: subscriptionSummary?.endDate ? new Date(subscriptionSummary.endDate).toLocaleDateString() : '-',
+            value: subscriptionSummary?.endDate
+              ? new Date(subscriptionSummary.endDate).toLocaleDateString()
+              : activeSubscription?.endDate
+                ? new Date(activeSubscription.endDate).toLocaleDateString()
+                : '-',
           },
         ]
       : role === 'ADMIN'
-      ? [
-          { label: 'Active', value: admin?.subscriptionStats?.activeSubscriptions ?? 0 },
-          { label: 'Expiring Soon', value: admin?.subscriptionStats?.expiringSoon ?? 0 },
-        ]
-      : []
+        ? [
+            { label: 'Active', value: admin?.subscriptionStats?.activeSubscriptions ?? 0 },
+            { label: 'Expiring Soon', value: admin?.subscriptionStats?.expiringSoon ?? 0 },
+          ]
+        : []
 
   const title =
     role === 'ADMIN'
@@ -701,36 +717,24 @@ export default function AdminDashboardPage() {
         ]
       : []
 
-  const shouldShowSkeleton = isLoading && !payload && !error
+  const shouldShowPageSkeleton = isLoading && !payload && !error
 
-  if (shouldShowSkeleton) return <DashboardSkeleton />
+  if (shouldShowPageSkeleton) return <DashboardPageSkeleton />
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-yellow-50 p-6">
-      <div className="mx-auto w-full max-w-7xl space-y-6">
-        <header className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold text-[#2a1407]">{title}</h1>
-            <p className="mt-1 text-sm text-gray-600">Overview of system activity and recent events</p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            {(role === 'AGENT' || role === 'ADMIN') && (
-              <Link href="/dashboard">
-                <Button
-                  type="button"
-                  className="inline-flex items-center gap-2 bg-[#2a1407] hover:bg-[#3b1804] text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm"
-                >
-                  <Gauge size={16} />
-                  Plan &amp; Usage
-                </Button>
-              </Link>
-            )}
-            <Link href="/admin/dashboard/newsletters">
-              <button className="text-sm font-medium text-[#2a1407] hover:underline">NewsLetters</button>
-            </Link>
-          </div>
-        </header>
+    <div className={`${dashboardPageClass} -m-5`}>
+      <header className="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
+        <div className="space-y-1 lg:col-span-2">
+          <h1 className="text-xl font-extrabold text-[#2a1407] sm:text-2xl">{title}</h1>
+          <p className="text-sm text-gray-600">Overview of system activity and recent events</p>
+          <Link href="/admin/dashboard/newsletters">
+            <button type="button" className="mt-2 text-sm font-medium text-[#2a1407] hover:underline">
+              NewsLetters
+            </button>
+          </Link>
+        </div>
+        {(role === 'AGENT' || role === 'ADMIN') && <PlanUsageWidget subscription={activeSubscription} />}
+      </header>
 
         {isLoading && payload ? (
           <div className="rounded-2xl border border-yellow-200 bg-white p-4 text-sm text-gray-700">Refreshing dashboard…</div>
@@ -745,26 +749,23 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4">
           {stats.map(s => (
-            <StatCard key={s.label} label={s.label} value={s.value} Icon={s.Icon} />
+            <DashboardStatCard key={s.label} label={s.label} value={s.value} />
           ))}
         </section>
 
-        <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2 rounded-2xl border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/20 p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-[#2a1407]">Activity Feed</h2>
-              <div className="text-sm text-gray-600">Last 7 days</div>
-            </div>
+        <section className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:items-stretch">
+          <DashboardPanel className="lg:col-span-2 overflow-x-auto">
+            <DashboardPanelHeader title="Activity Feed" subtitle="Last 7 days" className="mb-4" />
 
-            <div className={'mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 ' + (role === 'ADMIN' ? 'lg:grid-cols-4' : 'lg:grid-cols-3')}>
+            <div className={'mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 ' + (role === 'ADMIN' ? 'xl:grid-cols-4' : 'lg:grid-cols-3')}>
               {graphStats.map(stat => (
-                <StatCard key={stat.name} label={stat.name} value={stat.value} />
+                <DashboardMetricTile key={stat.name} label={stat.name} value={stat.value} />
               ))}
             </div>
 
-            <div className="mt-4 h-60 rounded-md border border-dashed border-yellow-200 bg-gradient-to-br from-yellow-50 to-yellow-100/30 p-3">
+            <DashboardChartFrame>
               {role === 'AGENT' ? (
                 <div className="h-full text-[#2a1407]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -842,238 +843,243 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
               )}
-            </div>
-          </div>
+            </DashboardChartFrame>
+          </DashboardPanel>
 
-          <aside className="space-y-6">
+          <aside className={isSidebarExpanded ? 'flex flex-col lg:min-h-full' : 'space-y-4 sm:space-y-6'}>
             {role === 'AGENT' || role === 'ADMIN' ? (
-              <div className="rounded-2xl border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/20 p-6 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-[#2a1407]">Properties & Ads Status</h3>
-                  <div className="flex items-center gap-2 text-yellow-700">
-                    {propertyAdSelection === 'PROPERTIES' ? <Home size={18} /> : <Tag size={18} />}
-                  </div>
-                </div>
-                <div className="mt-4 inline-flex w-full rounded-xl border border-yellow-200 bg-white/70 p-1">
-                  <button
-                    type="button"
-                    onClick={() => setPropertyAdSelection('PROPERTIES')}
-                    className={
-                      'flex-1 rounded-lg px-3 py-2 text-sm font-medium transition ' +
-                      (propertyAdSelection === 'PROPERTIES' ? 'bg-yellow-100 text-[#2a1407]' : 'text-gray-700 hover:bg-yellow-50')
-                    }
-                  >
-                    Properties
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPropertyAdSelection('ADS')}
-                    className={
-                      'flex-1 rounded-lg px-3 py-2 text-sm font-medium transition ' +
-                      (propertyAdSelection === 'ADS' ? 'bg-yellow-100 text-[#2a1407]' : 'text-gray-700 hover:bg-yellow-50')
-                    }
-                  >
-                    Ads
-                  </button>
+              <DashboardPanel
+                variant="chart"
+                className={isSidebarExpanded ? 'flex flex-1 flex-col' : undefined}
+              >
+                <DashboardPanelHeader
+                  title="Properties & Ads Status"
+                  icon={propertyAdSelection === 'PROPERTIES' ? Home : Tag}
+                />
+                <div className="mt-4 space-y-3">
+                  <DashboardSegmentedControl
+                    value={propertyAdSelection}
+                    onChange={setPropertyAdSelection}
+                    options={[
+                      { value: 'PROPERTIES', label: 'Properties' },
+                      { value: 'ADS', label: 'Ads' },
+                    ]}
+                  />
+                  {!isSidebarExpanded ? (
+                    <DashboardSegmentedControl
+                      value={statusMetricSelection}
+                      onChange={setStatusMetricSelection}
+                      options={[
+                        { value: 'APPROVAL', label: 'Approval' },
+                        { value: 'STATUS', label: 'Status', disabled: !hasByStatusSupport },
+                      ]}
+                    />
+                  ) : null}
                 </div>
 
-                <div className="mt-3 inline-flex w-full rounded-xl border border-yellow-200 bg-white/70 p-1">
-                  <button
-                    type="button"
-                    onClick={() => setStatusMetricSelection('APPROVAL')}
-                    className={
-                      'flex-1 rounded-lg px-3 py-2 text-sm font-medium transition ' +
-                      (statusMetricSelection === 'APPROVAL' ? 'bg-yellow-100 text-[#2a1407]' : 'text-gray-700 hover:bg-yellow-50')
-                    }
-                  >
-                    Approval
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setStatusMetricSelection('STATUS')}
-                    disabled={!hasByStatusSupport}
-                    className={
-                      'flex-1 rounded-lg px-3 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50 ' +
-                      (statusMetricSelection === 'STATUS' ? 'bg-yellow-100 text-[#2a1407]' : 'text-gray-700 hover:bg-yellow-50')
-                    }
-                  >
-                    Status
-                  </button>
-                </div>
-                {propertyAdsStatusTiles.length === 0 ? (
-                  <div className="mt-4 text-sm text-gray-600">No data available.</div>
-                ) : (
-                  <div className={'mt-4 grid gap-3 ' + (propertyAdsStatusTiles.length === 4 ? 'grid-cols-2' : 'grid-cols-3')}>
-                    {propertyAdsStatusTiles.map(tile => (
-                      <div key={tile.label} className="rounded-xl border border-yellow-200 bg-white/70 p-3">
-                        <div className="text-[10px] font-medium uppercase text-gray-600">{tile.label}</div>
-                        <div className="mt-1 text-lg font-bold text-[#2a1407]">{tile.value}</div>
+                {isSidebarExpanded ? (
+                  <div className="mt-4 flex flex-1 flex-col gap-6">
+                    <div>
+                      <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">Approval</p>
+                      {approvalStatusTiles.length === 0 ? (
+                        <DashboardEmptyState>No approval data available.</DashboardEmptyState>
+                      ) : (
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                          {approvalStatusTiles.map(tile => (
+                            <div
+                              key={tile.label}
+                              className="flex min-h-[5.5rem] flex-col justify-center rounded-xl border border-yellow-100 bg-white/70 p-4 sm:min-h-[6.5rem] sm:p-5"
+                            >
+                              <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">{tile.label}</div>
+                              <div className="mt-2 text-2xl font-bold text-[#2a1407] sm:text-3xl">
+                                {typeof tile.value === 'number' ? tile.value.toLocaleString() : tile.value}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {hasByStatusSupport && byStatusTiles.length > 0 ? (
+                      <div className="flex flex-1 flex-col">
+                        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">Status</p>
+                        <div
+                          className={
+                            'grid flex-1 gap-3 ' +
+                            (byStatusTiles.length === 4 ? 'grid-cols-2' : 'grid-cols-1 sm:grid-cols-3')
+                          }
+                        >
+                          {byStatusTiles.map(tile => (
+                            <div
+                              key={tile.label}
+                              className="flex min-h-[5.5rem] flex-col justify-center rounded-xl border border-yellow-100 bg-white/70 p-4 sm:min-h-[6.5rem] sm:p-5"
+                            >
+                              <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">{tile.label}</div>
+                              <div className="mt-2 text-2xl font-bold text-[#2a1407] sm:text-3xl">
+                                {typeof tile.value === 'number' ? tile.value.toLocaleString() : tile.value}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
+                    ) : null}
+                  </div>
+                ) : propertyAdsStatusTiles.length === 0 ? (
+                  <DashboardEmptyState>No data available.</DashboardEmptyState>
+                ) : (
+                  <div className={'mt-4 grid gap-3 ' + (propertyAdsStatusTiles.length === 4 ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3')}>
+                    {propertyAdsStatusTiles.map(tile => (
+                      <DashboardMetricTile key={tile.label} label={tile.label} value={tile.value} />
                     ))}
                   </div>
                 )}
-              </div>
+              </DashboardPanel>
             ) : null}
 
-            <div className="rounded-2xl border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/20 p-6 shadow-sm">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-[#2a1407]">
-                  {role === 'ADMIN' ? 'Subscription' : role === 'BUYER' ? 'Wallet' : 'Wallet & Subscription'}
-                </h3>
-                <div className="flex items-center gap-2 text-yellow-700">
-                  {effectiveFinanceSelection === 'WALLET' ? <Wallet size={18} /> : <BadgeCheck size={18} />}
-                </div>
-              </div>
+            {showSubscriptionPanel ? (
+            <DashboardPanel variant="chart">
+              <DashboardPanelHeader title="Subscription" icon={BadgeCheck} />
 
+              {/* Wallet tab — commented out for now
               {role === 'AGENT' ? (
-                <div className="mt-4 inline-flex w-full rounded-xl border border-yellow-200 bg-white/70 p-1">
-                  <button
-                    type="button"
-                    onClick={() => setFinanceSelection('WALLET')}
-                    className={
-                      'flex-1 rounded-lg px-3 py-2 text-sm font-medium transition ' +
-                      (financeSelection === 'WALLET' ? 'bg-yellow-100 text-[#2a1407]' : 'text-gray-700 hover:bg-yellow-50')
-                    }
-                  >
-                    Wallet
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFinanceSelection('SUBSCRIPTION')}
-                    disabled={!hasSubscriptionData}
-                    className={
-                      'flex-1 rounded-lg px-3 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50 ' +
-                      (financeSelection === 'SUBSCRIPTION' ? 'bg-yellow-100 text-[#2a1407]' : 'text-gray-700 hover:bg-yellow-50')
-                    }
-                  >
-                    Subscription
-                  </button>
+                <div className="mt-4">
+                  <DashboardSegmentedControl
+                    value={financeSelection}
+                    onChange={setFinanceSelection}
+                    options={[
+                      { value: 'WALLET', label: 'Wallet' },
+                      { value: 'SUBSCRIPTION', label: 'Subscription', disabled: !hasSubscriptionData },
+                    ]}
+                  />
                 </div>
               ) : null}
+              */}
 
-              {financeTiles.length === 0 ? (
-                <div className="mt-4 text-sm text-gray-600">No data available.</div>
+              {role === 'AGENT' ? (
+                financeTiles.length === 0 ? (
+                  <DashboardEmptyState>No subscription data available.</DashboardEmptyState>
+                ) : (
+                  <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    {financeTiles.map(tile => (
+                      <DashboardMetricTile key={tile.label} label={tile.label} value={tile.value} />
+                    ))}
+                  </div>
+                )
+              ) : role === 'ADMIN' ? (
+                financeTiles.length === 0 ? (
+                  <DashboardEmptyState>No data available.</DashboardEmptyState>
+                ) : (
+                  <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    {financeTiles.map(tile => (
+                      <DashboardMetricTile key={tile.label} label={tile.label} value={tile.value} />
+                    ))}
+                  </div>
+                )
               ) : (
-                <div className={'mt-4 grid gap-3 ' + (financeTiles.length > 2 ? 'grid-cols-2' : 'grid-cols-2')}>
-                  {financeTiles.map(tile => (
-                    <div key={tile.label} className="rounded-xl border border-yellow-200 bg-white/70 p-3">
-                      <div className="text-xs font-medium uppercase text-gray-600">{tile.label}</div>
-                      <div className="mt-1 text-xl font-bold text-[#2a1407]">{tile.value}</div>
-                    </div>
-                  ))}
-                </div>
+                <DashboardEmptyState>No data available.</DashboardEmptyState>
               )}
-            </div>
+            </DashboardPanel>
+            ) : null}
           </aside>
         </section>
 
         {role === 'ADMIN' ? (
-          <section className="grid grid-cols-1 gap-6 text-sm text-gray-600 lg:grid-cols-3">
-            <div className="rounded-2xl border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/20 p-6 shadow-sm">
-              <h2 className="text-lg font-semibold text-[#2a1407]">Moderation Queue</h2>
+          <section className="grid grid-cols-1 gap-4 sm:gap-6 text-sm text-gray-600 lg:grid-cols-3">
+            <DashboardPanel variant="chart">
+              <DashboardPanelHeader title="Moderation Queue" />
               <div className="mt-4">
                 {!hasModerationData ? (
-                  <p className="text-sm text-gray-600">No items in the moderation queue.</p>
+                  <DashboardEmptyState>No items in the moderation queue.</DashboardEmptyState>
                 ) : (
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     {moderationTiles.map(tile => (
-                      <div key={tile.label} className="rounded-xl border border-yellow-200 bg-white/70 p-3">
-                        <div className="text-xs font-medium uppercase text-gray-600">{tile.label}</div>
-                        <div className="mt-1 text-xl font-bold text-[#2a1407]">{tile.value}</div>
-                      </div>
+                      <DashboardMetricTile key={tile.label} label={tile.label} value={tile.value} />
                     ))}
                   </div>
                 )}
               </div>
-            </div>
+            </DashboardPanel>
 
-            <div className="rounded-2xl border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/20 p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-[#2a1407]">Users by Role</h3>
+            <DashboardPanel variant="chart">
+              <DashboardPanelHeader title="Users by Role" />
               {adminRolePieData.length === 0 ? (
-                <div className="mt-4 text-sm text-gray-600">No data available.</div>
+                <DashboardEmptyState>No data available.</DashboardEmptyState>
               ) : (
                 <>
-                  <div className="mt-4 h-56 text-[#2a1407]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RePieChart>
-                        <Tooltip />
-                        <Pie data={adminRolePieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80}>
-                          {adminRolePieData.map((_, index) => (
-                            <Cell key={index} fill="currentColor" fillOpacity={0.25 + index * 0.2} />
-                          ))}
-                        </Pie>
-                      </RePieChart>
-                    </ResponsiveContainer>
-                  </div>
+                  <DashboardChartFrame>
+                    <div className="h-full text-[#2a1407]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <RePieChart>
+                          <Tooltip />
+                          <Pie data={adminRolePieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80}>
+                            {adminRolePieData.map((_, index) => (
+                              <Cell key={index} fill="currentColor" fillOpacity={0.25 + index * 0.2} />
+                            ))}
+                          </Pie>
+                        </RePieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </DashboardChartFrame>
                   <div className="mt-3 grid grid-cols-1 gap-2">
                     {adminRolePieData.map(row => (
-                      <div key={row.name} className="flex items-center justify-between rounded-xl border border-yellow-200 bg-white/70 px-3 py-2">
-                        <div className="text-xs font-medium uppercase text-gray-600">{row.name}</div>
-                        <div className="text-sm font-semibold text-[#2a1407]">{row.value}</div>
+                      <div key={row.name} className="flex items-center justify-between rounded-xl border border-yellow-200 bg-white/80 px-3 py-2.5">
+                        <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">{row.name}</div>
+                        <div className="text-sm font-bold text-[#2a1407]">{row.value}</div>
                       </div>
                     ))}
                   </div>
                 </>
               )}
-            </div>
+            </DashboardPanel>
 
-            <div className="rounded-2xl border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/20 p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-[#2a1407]">Engagement Metrics</h3>
+            <DashboardPanel variant="chart">
+              <DashboardPanelHeader title="Engagement Metrics" />
               {engagementMetrics.length === 0 ? (
-                <div className="mt-4 text-sm text-gray-600">No metrics available.</div>
+                <DashboardEmptyState>No metrics available.</DashboardEmptyState>
               ) : (
-                <div className="mt-4 grid grid-cols-2 gap-3">
+                <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {engagementMetrics.map(metric => (
-                    <div key={metric.label} className="rounded-xl border border-yellow-200 bg-white/70 p-3">
-                      <div className="text-xs font-medium uppercase text-gray-600">{metric.label}</div>
-                      <div className="mt-1 text-xl font-bold text-[#2a1407]">{metric.value}</div>
-                    </div>
+                    <DashboardMetricTile key={metric.label} label={metric.label} value={metric.value} />
                   ))}
                 </div>
               )}
-            </div>
+            </DashboardPanel>
           </section>
         ) : null}
 
         {role === 'ADMIN' ? (
-          <section className="rounded-2xl border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/20 p-6 shadow-sm">
-            <div className="flex items-center justify-between gap-4">
-              <h3 className="text-lg font-semibold text-[#2a1407]">Revenue</h3>
-              <div className="text-sm text-gray-600">Summary</div>
-            </div>
+          <DashboardPanel variant="chart">
+            <DashboardPanelHeader title="Revenue" subtitle="Summary" />
 
             {revenueTiles.every(t => (typeof t.value === 'number' ? t.value : 0) === 0) &&
             revenuePurposeRows.every(t => (typeof t.value === 'number' ? t.value : 0) === 0) ? (
-              <div className="mt-4 text-sm text-gray-600">No revenue data available.</div>
+              <DashboardEmptyState>No revenue data available.</DashboardEmptyState>
             ) : (
               <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {revenueTiles.map(tile => (
-                    <div key={tile.label} className="rounded-xl border border-yellow-200 bg-white/70 p-3">
-                      <div className="text-xs font-medium uppercase text-gray-600">{tile.label}</div>
-                      <div className="mt-1 text-xl font-bold text-[#2a1407]">{tile.value}</div>
-                    </div>
+                    <DashboardMetricTile key={tile.label} label={tile.label} value={tile.value} />
                   ))}
                 </div>
 
-                <div className="rounded-xl border border-yellow-200 bg-white/70 p-3">
-                  <div className="text-xs font-medium uppercase text-gray-600">By Purpose</div>
+                <div className="rounded-xl border border-yellow-200 bg-white/80 p-3 sm:p-4">
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">By Purpose</div>
                   <div className="mt-3 grid grid-cols-1 gap-2">
                     {revenuePurposeRows.map(row => (
-                      <div key={row.label} className="flex items-center justify-between rounded-lg border border-yellow-200 bg-white/60 px-3 py-2">
-                        <div className="text-xs font-medium uppercase text-gray-600">{row.label}</div>
-                        <div className="text-sm font-semibold text-[#2a1407]">{row.value}</div>
+                      <div key={row.label} className="flex items-center justify-between rounded-lg border border-yellow-200 bg-white/70 px-3 py-2">
+                        <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">{row.label}</div>
+                        <div className="text-sm font-bold text-[#2a1407]">{row.value}</div>
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
             )}
-          </section>
+          </DashboardPanel>
         ) : null}
 
-        <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <div className="rounded-2xl border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/20 p-6 shadow-sm">
+        <section className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
+          <DashboardPanel variant="chart">
             {role === 'ADMIN' ? (
               <>
                 <div className="flex items-center justify-between gap-4">
@@ -1147,33 +1153,29 @@ export default function AdminDashboardPage() {
                 )}
               </>
             )}
-          </div>
-          {/* Engagement Metrics */}
+          </DashboardPanel>
           {role === 'AGENT' && (
-            <div className="rounded-2xl border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/20 p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-[#2a1407]">Engagement Metrics</h3>
+            <DashboardPanel variant="chart">
+              <DashboardPanelHeader title="Engagement Metrics" />
               {engagementMetrics.length === 0 ? (
-                <div className="mt-4 text-sm text-gray-600">No metrics available.</div>
+                <DashboardEmptyState>No metrics available.</DashboardEmptyState>
               ) : (
-                <div className="mt-4 grid grid-cols-2 gap-3">
+                <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {engagementMetrics.map(metric => (
-                    <div key={metric.label} className="rounded-xl border border-yellow-200 bg-white/70 p-3">
-                      <div className="text-xs font-medium uppercase text-gray-600">{metric.label}</div>
-                      <div className="mt-1 text-xl font-bold text-[#2a1407]">{metric.value}</div>
-                    </div>
+                    <DashboardMetricTile key={metric.label} label={metric.label} value={metric.value} />
                   ))}
                 </div>
               )}
-            </div>
+            </DashboardPanel>
           )}
 
           {role === 'ADMIN' && (
-            <div className="rounded-2xl border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/20 p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-[#2a1407]">Recent Payments</h3>
+            <DashboardPanel variant="chart">
+              <DashboardPanelHeader title="Recent Payments" />
               {adminRecentPayments.length === 0 ? (
-                <div className="mt-4 text-sm text-gray-600">No recent payments.</div>
+                <DashboardEmptyState>No recent payments.</DashboardEmptyState>
               ) : (
-                <div className="mt-4 overflow-x-auto rounded-xl border border-yellow-200 bg-white/70">
+                <div className="mt-4 overflow-x-auto rounded-xl border border-yellow-200 bg-white/80">
                   <table className="min-w-full text-left text-sm">
                     <thead className="border-b border-yellow-200 bg-white/60">
                       <tr className="text-xs font-medium uppercase text-gray-600">
@@ -1205,53 +1207,31 @@ export default function AdminDashboardPage() {
                   </table>
                 </div>
               )}
-            </div>
+            </DashboardPanel>
           )}
         </section>
-        {/* recent transactions (agent only) */}
         {role === 'AGENT' ? (
-          <section className="rounded-2xl border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/20 p-6 shadow-sm">
-            <div className="flex items-center justify-between gap-4">
-              <h3 className="text-lg font-semibold text-[#2a1407]">Recent Transactions</h3>
-
-              <div className="inline-flex rounded-xl border border-yellow-200 bg-white/70 p-1">
-                <button
-                  type="button"
-                  onClick={() => setTransactionFilter('ALL')}
-                  className={
-                    'rounded-lg px-3 py-2 text-xs font-medium uppercase transition ' +
-                    (transactionFilter === 'ALL' ? 'bg-yellow-100 text-[#2a1407]' : 'text-gray-700 hover:bg-yellow-50')
-                  }
-                >
-                  All
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTransactionFilter('CREDIT')}
-                  className={
-                    'rounded-lg px-3 py-2 text-xs font-medium uppercase transition ' +
-                    (transactionFilter === 'CREDIT' ? 'bg-yellow-100 text-[#2a1407]' : 'text-gray-700 hover:bg-yellow-50')
-                  }
-                >
-                  Credit
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTransactionFilter('DEBIT')}
-                  className={
-                    'rounded-lg px-3 py-2 text-xs font-medium uppercase transition ' +
-                    (transactionFilter === 'DEBIT' ? 'bg-yellow-100 text-[#2a1407]' : 'text-gray-700 hover:bg-yellow-50')
-                  }
-                >
-                  Debit
-                </button>
-              </div>
-            </div>
+          <DashboardPanel variant="chart">
+            <DashboardPanelHeader
+              title="Recent Transactions"
+              action={
+                <DashboardSegmentedControl
+                  value={transactionFilter}
+                  onChange={setTransactionFilter}
+                  className="sm:min-w-[220px]"
+                  options={[
+                    { value: 'ALL', label: 'All' },
+                    { value: 'CREDIT', label: 'Credit' },
+                    { value: 'DEBIT', label: 'Debit' },
+                  ]}
+                />
+              }
+            />
 
             {recentTransactions.length === 0 ? (
-              <div className="mt-4 text-sm text-gray-600">No recent transactions.</div>
+              <DashboardEmptyState>No recent transactions.</DashboardEmptyState>
             ) : (
-              <ul className="mt-4 divide-y divide-yellow-100 rounded-xl border border-yellow-200 bg-white/70">
+              <ul className="mt-4 divide-y divide-yellow-100 rounded-xl border border-yellow-200 bg-white/80">
                 {recentTransactions.map(t => (
                   <li key={t.id} className="flex items-start justify-between gap-4 p-3">
                     <div className="min-w-0">
@@ -1271,9 +1251,8 @@ export default function AdminDashboardPage() {
                 ))}
               </ul>
             )}
-          </section>
+          </DashboardPanel>
         ) : null}
-      </div>
-    </main>
+    </div>
   )
 }
