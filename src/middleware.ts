@@ -92,6 +92,15 @@ export function middleware(request: NextRequest) {
     return redirectHomeRequireAuth(request, pathname, request.nextUrl.search)
   }
 
+  // Property registration: hard navigation → home + login modal; soft nav handled on page + Navbar
+  if (
+    !hasToken &&
+    (pathname === '/properties-registration' || pathname.startsWith('/properties-registration/')) &&
+    !isNextSoftNavigation(request)
+  ) {
+    return redirectHomeRequireAuth(request, pathname, request.nextUrl.search)
+  }
+
   // Admin-only: restrict Ads create/edit pages
   if (pathname === '/ads' || pathname.startsWith('/ads/edit/')) {
     if (!hasToken) {
@@ -122,5 +131,7 @@ export const config = {
     '/admin',
     '/admin/:path*',
     '/ads-list',
+    '/properties-registration',
+    '/properties-registration/:path*',
   ],
 }

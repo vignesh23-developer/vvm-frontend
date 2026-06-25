@@ -62,7 +62,7 @@ const NAV_LINKS = [
 ]
 
 /** Public nav targets that require login — stay on current page and open modal for guests */
-const AUTH_GATE_PUBLIC_HREFS = new Set<string>(['/ads-list'])
+const AUTH_GATE_PUBLIC_HREFS = new Set<string>(['/ads-list', '/properties-registration'])
 
 type SimpleNavItem = {
   href: string
@@ -221,6 +221,26 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
   }
 
   const closeMenu = () => setIsProfileOpen(false)
+
+  const handlePublicAuthGatedClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+    beforeNavigate?: () => void,
+  ) => {
+    if (!AUTH_GATE_PUBLIC_HREFS.has(href)) {
+      beforeNavigate?.()
+      return
+    }
+
+    if (token) {
+      beforeNavigate?.()
+      return
+    }
+
+    e.preventDefault()
+    beforeNavigate?.()
+    openLoginModal({ next: href })
+  }
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false)
 
@@ -412,6 +432,7 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
               {/* Post Property */}
               <Link
                 href="/properties-registration"
+                onClick={e => handlePublicAuthGatedClick(e, '/properties-registration')}
                 className="hidden sm:flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#2a1407] font-bold text-sm rounded-lg hover:shadow-lg hover:shadow-yellow-400/30 transition-all"
               >
                 <Plus className="w-4 h-4" strokeWidth={2.5} />
@@ -750,7 +771,7 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                           <div className="p-3 border-t border-[#e8d5c4]/60 bg-[#f7e8d9]/30">
                             <Link
                               href="/properties-registration"
-                              onClick={closeMenu}
+                              onClick={e => handlePublicAuthGatedClick(e, '/properties-registration', closeMenu)}
                               className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#2b1b12] font-bold text-xs rounded-lg hover:shadow-md transition-all cursor-pointer"
                             >
                               <Plus className="w-4 h-4" />
@@ -903,7 +924,7 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                     <div className="mt-2" />
                     <Link
                       href="/properties-registration"
-                      onClick={closeMobileMenu}
+                      onClick={e => handlePublicAuthGatedClick(e, '/properties-registration', closeMobileMenu)}
                       className="flex items-center justify-center gap-2 w-full px-3 py-2.5 bg-yellow-400 text-[#2a1407] font-bold rounded-lg text-sm"
                     >
                       <Plus className="w-4 h-4" /> {ui.postPropertyBecomeAgent}
@@ -1163,7 +1184,7 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                 {!isAdmin && (
                   <Link
                     href="/properties-registration"
-                    onClick={closeMobileMenu}
+                    onClick={e => handlePublicAuthGatedClick(e, '/properties-registration', closeMobileMenu)}
                     className="flex items-center justify-center gap-2 w-full px-3 py-2.5 bg-yellow-400 text-[#2a1407] font-bold rounded-lg text-sm mb-2"
                   >
                     <Plus className="w-4 h-4" /> {ui.postProperty}
@@ -1180,7 +1201,7 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
               <>
                 <Link
                   href="/properties-registration"
-                  onClick={closeMobileMenu}
+                  onClick={e => handlePublicAuthGatedClick(e, '/properties-registration', closeMobileMenu)}
                   className="flex items-center justify-center gap-2 w-full px-3 py-2.5 bg-yellow-400 text-[#2a1407] font-bold rounded-lg text-sm mb-2"
                 >
                   <Plus className="w-4 h-4" /> {ui.postProperty}

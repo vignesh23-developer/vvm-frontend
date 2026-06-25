@@ -1,6 +1,6 @@
 'use client'
 import { CheckCircle, Home, MapPin, Star, Camera, Check, ArrowRight, ArrowLeft } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { SetStateAction, startTransition, use, useActionState, useEffect, useState, useTransition, useRef } from 'react'
 import { Formik, Form, FormikHelpers } from 'formik'
 import * as Yup from 'yup'
@@ -25,6 +25,7 @@ import { getMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { useLoginModal } from '@/components/auth/LoginModalProvider'
 import { useKycStatus } from '@/components/kyc/hooks/useKycStatus'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 import Step5UploadImages, { UploadImagesRef } from './(views)/UploadImages'
@@ -169,7 +170,9 @@ export interface PropertyCreationFormValues {
   // you could also include step5 review constraints
 }
 
-export default function PropertiesRegistrationPage({ searchParams }: { searchParams: Promise<{ propertiesId?: string }> }) {
+const PROPERTIES_REGISTRATION_BASE_PATH = '/properties-registration'
+
+function PropertiesRegistrationPageContent({ searchParams }: { searchParams: Promise<{ propertiesId?: string }> }) {
   const resolvedParams = use(searchParams)
   const propertiesId = resolvedParams?.propertiesId
   const steps = [
@@ -856,4 +859,41 @@ export default function PropertiesRegistrationPage({ searchParams }: { searchPar
       </Formik>
     </div>
   )
+}
+
+export default function PropertiesRegistrationPage({ searchParams }: { searchParams: Promise<{ propertiesId?: string }> }) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const { token, loading: authLoading } = useAuth()
+  const { openLoginModal } = useLoginModal()
+  const guestGateDone = useRef(false)
+
+  const nextPath =
+    pathname && pathname.startsWith('/properties-registration') ? pathname : PROPERTIES_REGISTRATION_BASE_PATH
+
+  useEffect(() => {
+    if (authLoading || token) return
+    if (guestGateDone.current) return
+    guestGateDone.current = true
+    openLoginModal({ next: nextPath })
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back()
+    } else {
+      router.replace('/')
+    }
+  }, [authLoading, token, openLoginModal, router, nextPath])
+
+  if (authLoading) {
+    return (
+      <div className="min-h-[50vh] flex items-center justify-center text-gray-500 text-sm" aria-busy="true">
+        Loading...
+      </div>
+    )
+  }
+
+  if (!token) {
+    return null
+  }
+
+  return <PropertiesRegistrationPageContent searchParams={searchParams} />
 }
