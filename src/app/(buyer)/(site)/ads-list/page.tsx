@@ -87,6 +87,8 @@ interface FilterState {
 function AdsListPageContent() {
   const t = useTranslations()
   const router = useRouter()
+  const { token } = useAuth()
+  const { openLoginModal } = useLoginModal()
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
   const [isFiltersOpen, setIsFiltersOpen] = useState(false) // Closed by default, user can open
@@ -217,10 +219,23 @@ function AdsListPageContent() {
   const totalResults = searchedTotal ?? 0
   const totalPages = Math.max(1, Math.ceil((totalResults || 0) / limit))
 
-  const displayedAds: AdsListDto[] = searchedAds ?? []
+  const displayedAds: AdsListDto[] = (shouldUseAdvancedResults ? searchedAds : adsListData) ?? []
   const isLoadingList = isLoadingSearchedAds
 
   const changePage = (page: number) => setPage(Math.max(1, Math.min(page, totalPages)))
+
+  const handleAdClick = (adId: string | number) => {
+    if (!adId) return
+
+    const detailsPath = `/adsDetails/${adId}`
+
+    if (!token) {
+      openLoginModal({ next: detailsPath })
+      return
+    }
+
+    router.push(detailsPath)
+  }
 
   // Suggestions for autocomplete in advanced search
   const searchSuggestions = useMemo(() => {
@@ -579,7 +594,7 @@ function AdsListPageContent() {
                   >
                     <AdsCard
                       ad={ad}
-                      onPrimaryAction={() => router.push(`/adsDetails/${ad.id}`)}
+                      onPrimaryAction={() => handleAdClick(ad.id)}
                       onFavorite={handleFavoriteToggle}
                       onShare={() => handleShare(`/adsDetails/${ad.id}`)}
                       primaryActionLabel="View Details"

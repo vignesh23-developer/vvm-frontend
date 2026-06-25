@@ -1,11 +1,12 @@
 'use client'
 
-import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import SwiperWrapper from '../../../ui/CustomComponent/Slider/SwipperSlider'
-import { useAdsSlider } from './hooks/useAdsSlider'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { useLoginModal } from '@/components/auth/LoginModalProvider'
 
 interface Slide {
   id: number
@@ -46,6 +47,9 @@ const AdsSliderSkeleton = () => {
 }
 
 export default function AdsSlider({ featuredAds, featuredAdsTotal, error: adsError, isLoading: adsLoading, mutate: adsMutate }: AdsSliderProps) {
+  const router = useRouter()
+  const { token } = useAuth()
+  const { openLoginModal } = useLoginModal()
   const [isLoading, setIsLoading] = useState(true)
   const [imagesLoaded, setImagesLoaded] = useState(0)
 
@@ -66,6 +70,19 @@ export default function AdsSlider({ featuredAds, featuredAdsTotal, error: adsErr
       }
       return newCount
     })
+  }
+
+  const handleAdClick = (adId: string | number) => {
+    if (!adId) return
+
+    const detailsPath = `/adsDetails/${adId}`
+
+    if (!token) {
+      openLoginModal({ next: detailsPath })
+      return
+    }
+
+    router.push(detailsPath)
   }
 
   // Animation Variants
@@ -114,12 +131,20 @@ export default function AdsSlider({ featuredAds, featuredAdsTotal, error: adsErr
           renderItem={(item: any) => (
             <motion.div
               key={item.id}
-              className="relative w-full overflow-hidden rounded-2xl shadow-lg group aspect-[4/3] md:aspect-[3/4] lg:aspect-[4/5]"
+              role="button"
+              tabIndex={0}
+              onClick={() => handleAdClick(item.id)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  handleAdClick(item.id)
+                }
+              }}
+              className="relative w-full overflow-hidden rounded-2xl shadow-lg group aspect-[4/3] md:aspect-[3/4] lg:aspect-[4/5] cursor-pointer focus:outline-none focus:ring-2 focus:ring-yellow-500/40"
               variants={slideVariants}
             >
-              <Link href={`/adsDetails/${item.id}`}>
-                {/* Background Image Wrapper */}
-                <div className="relative w-full h-full group overflow-hidden rounded-lg">
+              {/* Background Image Wrapper */}
+              <div className="relative w-full h-full group overflow-hidden rounded-lg">
                   {item.images && item.images.length > 0 ? (
                     <Image
                       src={item.images[0].url}
@@ -151,7 +176,6 @@ export default function AdsSlider({ featuredAds, featuredAdsTotal, error: adsErr
                     <div className="h-1 w-12 bg-yellow-500 rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
                   </div>
                 </div>
-              </Link>
             </motion.div>
           )}
         />

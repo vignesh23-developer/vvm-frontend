@@ -12,6 +12,8 @@ import PropertyCard from '@/components/buyer/PropertyCard/PropertyCard'
 import Pagination from '@/components/ui/CustomComponent/Paginations/Pagination'
 import AdvancedFilters from '@/components/ui/AdvancedFilter/AdvancedFilters'
 import { toast } from 'react-hot-toast'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { useLoginModal } from '@/components/auth/LoginModalProvider'
 
 // Enhanced Property Card Skeleton
 // Enhanced Property Card Skeleton - Vertical for Grid
@@ -88,6 +90,8 @@ interface FilterState {
 const PropertiesListPage = () => {
   const t = useTranslations()
   const router = useRouter()
+  const { token } = useAuth()
+  const { openLoginModal } = useLoginModal()
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(12)
   const searchParams = useSearchParams()
@@ -304,6 +308,19 @@ const PropertiesListPage = () => {
   const isLoadingList = shouldUseAdvancedResults ? isLoadingSearchedProperties : isLoadingProperties
 
   const changePage = (page: number) => setPage(Math.max(1, Math.min(page, totalPages)))
+
+  const handlePropertyClick = (propertyId: string | number) => {
+    if (!propertyId) return
+
+    const detailsPath = `/propertyDetails/${propertyId}`
+
+    if (!token) {
+      openLoginModal({ next: detailsPath })
+      return
+    }
+
+    router.push(detailsPath)
+  }
 
   const handleFavorite = async (propertyId: string) => {
     try {
@@ -703,7 +720,7 @@ const PropertiesListPage = () => {
                         {...property}
                         language={t}
                         primaryActionLabel="View Details"
-                        onPrimaryAction={() => router.push(`/propertyDetails/${property.id}`)}
+                        onPrimaryAction={() => handlePropertyClick(property.id)}
                         handleFavorite={handleFavorite}
                         handleShare={() => handleShare(`/propertyDetails/${property.id}`)}
                         isUserFavorited={property.is_user_favorite}
