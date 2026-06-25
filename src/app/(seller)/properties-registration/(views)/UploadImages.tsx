@@ -14,6 +14,7 @@ import {
   isSupportedExternalVideoUrl,
   isYoutubeUrl,
 } from '@/utils/property/videoUrl'
+import { ResponseDTO } from '@/components/dto/response_dto'
 
 interface Step5UploadImagesProps {
   propertyId: string
