@@ -54,7 +54,10 @@ axiosInstance.interceptors.request.use(async config => {
     return normalizeToken(res.cookies)
   })
 
-  if (localStoredToken) {
+  const requestUrl = config.url ?? ''
+  const isForgotPasswordRequest = requestUrl.includes('forgot-password')
+
+  if (localStoredToken && !isForgotPasswordRequest) {
     config.headers['Authorization'] = `Bearer ${localStoredToken}`
   }
 
