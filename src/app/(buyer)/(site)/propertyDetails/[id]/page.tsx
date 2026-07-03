@@ -638,7 +638,7 @@ const page = () => {
 
   const instagramReelUrl = useMemo(() => {
     const reel = propertyDetailsData?.media?.find(
-      (media: any) => media.media_type === 'VIDEO' && isInstagramUrl(media.url),
+      (media: any) => isInstagramUrl(media.url),
     )
     return reel?.url?.trim() || null
   }, [propertyDetailsData?.media])
@@ -1012,24 +1012,6 @@ const page = () => {
               </div>
             )}
 
-            {instagramReelUrl ? (
-              <div className="border-t border-gray-100 bg-white px-4 py-4 sm:px-6">
-                <div className="mx-auto flex max-w-7xl flex-col gap-3 rounded-2xl border border-pink-100 bg-gradient-to-r from-pink-50 via-white to-orange-50 p-4 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="text-sm font-semibold text-[#2a1407]">Instagram Reel</p>
-                    <p className="mt-1 text-sm text-gray-600">Watch a short reel about this property on Instagram.</p>
-                  </div>
-                  <a
-                    href={instagramReelUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-xl bg-[#2a1407] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#3d1e0b]"
-                  >
-                    View Instagram Reel
-                  </a>
-                </div>
-              </div>
-            ) : null}
 
             {/* Floating Action Buttons */}
             <div className="absolute top-32 right-10 flex gap-3 z-40">
@@ -1109,12 +1091,12 @@ const page = () => {
                     </div>
 
                     {/* Actions stacked below owner info */}
-                    <div className="mt-4 space-y-3 max-w-md">
-                      <div className="flex gap-3 w-full">
+                    <div className="mt-4 space-y-3 max-w-md md:max-w-xl">
+                      <div className="flex flex-wrap gap-3 w-full">
                         <Button
                           type="button"
                           onClick={() => setReportModalOpen(true)}
-                          className="flex-1 bg-yellow-100 border border-yellow-200 rounded-full py-2.5 px-4 text-sm text-[#2a1407] hover:bg-yellow-50 flex items-center justify-center gap-1 transition-all"
+                          className="flex-1 min-w-[100px] bg-yellow-100 border border-yellow-200 rounded-full py-2.5 px-4 text-sm text-[#2a1407] hover:bg-yellow-50 flex items-center justify-center gap-1 transition-all"
                         >
                           <Flag size={16} />
                           <span>Report</span>
@@ -1129,13 +1111,25 @@ const page = () => {
                           }}
                           title={onlyAdminOrAgentCanViewContactDetails ? 'Only buyers and non-owners can submit enquiries.' : ''}
                           className={cn(
-                            'flex-1 bg-[#2b1b12] border border-yellow-200 rounded-full py-2.5 px-4 text-sm text-white flex items-center justify-center gap-1 transition-all',
+                            'flex-1 min-w-[100px] bg-[#2b1b12] border border-yellow-200 rounded-full py-2.5 px-4 text-sm text-white flex items-center justify-center gap-1 transition-all',
                             !hasEnquiry ? 'hover:bg-yellow-700' : 'opacity-60 cursor-not-allowed',
                           )}
                         >
                           <MessageSquare size={16} />
                           <span>Enquire</span>
                         </Button>
+                        
+                        {instagramReelUrl && (
+                          <a
+                            href={instagramReelUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 min-w-[120px] bg-gradient-to-r from-pink-500 to-orange-500 border border-pink-200 rounded-full py-2.5 px-4 text-sm font-semibold text-white flex items-center justify-center gap-1.5 transition-all hover:from-pink-600 hover:to-orange-600 shadow-sm"
+                          >
+                            <Video size={16} />
+                            <span>Instagram Reel</span>
+                          </a>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1172,6 +1166,8 @@ const page = () => {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Left Content - 2 columns */}
           <div className="lg:col-span-2 space-y-8">
+
+
             {/* Property Overview Cards - Brand colors only */}
             <motion.div variants={fadeInUp} className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {propertyOverviewCards.map((card, idx) => {

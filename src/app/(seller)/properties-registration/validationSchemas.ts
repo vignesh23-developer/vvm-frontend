@@ -42,6 +42,24 @@ export function getPropertyStepValidationSchema(step: number, isLayout: boolean)
                 .positive('Layout area min must be greater than zero')
                 .required('Layout area min is required'),
               layout_area_unit: Yup.string().trim().required('Layout area unit is required'),
+              plot_total_count: Yup.number()
+                .typeError('Must be a number')
+                .min(1, 'Must be at least 1')
+                .optional()
+                .test(
+                  'total-plots-check',
+                  'Total plots must be \u2265 sum of available, sold & booked plots',
+                  function (value) {
+                    if (value === undefined || value === null) return true;
+                    const available = Number(this.parent.plot_available_count) || 0;
+                    const sold = Number(this.parent.plot_sold_count) || 0;
+                    const booked = Number(this.parent.plot_booked_count) || 0;
+                    return value >= (available + sold + booked);
+                  }
+                ),
+              plot_available_count: Yup.number().typeError('Must be a number').min(0, 'Cannot be negative').optional(),
+              plot_sold_count: Yup.number().typeError('Must be a number').min(0, 'Cannot be negative').optional(),
+              plot_booked_count: Yup.number().typeError('Must be a number').min(0, 'Cannot be negative').optional(),
             }
           : {
               price: Yup.number()
