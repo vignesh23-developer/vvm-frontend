@@ -1,9 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import Image from 'next/image'
 import { useGlobalContext } from '@/hooks/GlobalContext/GlobalContext'
-import './simple-loader.css'
 
 const SimplePageLoader: React.FC = () => {
   const { setIsPageLoading } = useGlobalContext()
@@ -26,20 +24,12 @@ const SimplePageLoader: React.FC = () => {
   }, [setIsPageLoading])
 
   return (
-    <div className={`vvm-simple-loader ${isFadingOut ? 'fade-out' : ''}`}>
-      <div className="vvm-loader-content">
-        <Image
-          src="/footer_logo_new_en.png"
-          alt="VVM Logo"
-          width={200}
-          height={100}
-          className="vvm-loader-logo"
-          priority
-        />
-        <div className="vvm-progress-container">
-          <div className="vvm-progress-bar"></div>
-        </div>
-      </div>
+    <div
+      className={`fixed inset-0 z-[9999] flex items-center justify-center bg-white transition-opacity duration-500 ${
+        isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
+      }`}
+    >
+      <div className="h-12 w-12 animate-spin rounded-full border-4 border-yellow-500 border-t-[#2a1407]"></div>
     </div>
   )
 }

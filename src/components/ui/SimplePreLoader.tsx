@@ -1,11 +1,32 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+
+import Image from 'next/image';
 
 const SimplePrepcoLoader = () => {
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsLoaded(true);
+        }, 3000);
+
+        return () => clearTimeout(timer);
+    }, []);
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white">
-            <div className="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
+        <div className={`spl-container ${isLoaded ? 'spl-loaded' : ''}`}>
+            <div className="spl-logo-wrapper">
+                <Image
+                    src="/logo.png"
+                    alt="Prepco Logo"
+                    width={120}
+                    height={157}
+                    className="spl-logo"
+                />
+                <div className="spl-tagline-text">The Right Choice for Real Peace of Mind.</div>
+            </div>
         </div>
     );
 };
