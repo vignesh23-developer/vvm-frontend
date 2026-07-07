@@ -26,6 +26,7 @@ import {
   CircleUserRound,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Captions,
   ChartBarStacked,
   Ruler,
@@ -38,6 +39,7 @@ import {
   BarChart3,
   Eye,
   MessageSquare,
+  Plus,
 } from 'lucide-react'
 import { motion, AnimatePresence, type Variants } from 'framer-motion'
 import { useRouter } from 'next/navigation'
@@ -49,7 +51,7 @@ import { useSimilarProperties } from '@/app/(buyer)/(site)/propertyDetails/(hook
 import { usePopularProperties } from '@/components/buyer/LandingPage/PopularProperties/hooks/usePopularProperties'
 import { getUserRoles, hasRole, Roles } from '@/utils/roles/roles'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
-import { maskName, maskPhone, maskEmail } from '@/utils/converter/maskedFirstTwoChar'
+
 
 interface InfoItemProps {
   label: string
@@ -174,7 +176,8 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
   const [isFetching, setIsFetching] = useState<boolean>(true)
   const [fetchError, setFetchError] = useState<string | null>(null)
   const [hovered, setHovered] = useState<number | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
+  const [selectedAgent, setSelectedAgent] = useState<string>('All')
+  const [currentPage, setCurrentPage] = useState<number>(1)
   const [carouselScrollPosition, setCarouselScrollPosition] = useState(0)
   const carouselRef = useRef<HTMLDivElement | null>(null)
   // Prevent duplicate fetches in React 18 strict mode/dev double renders
@@ -200,48 +203,124 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
     }
   }, [availableTabs, selectedTab])
 
-  const filteredProperties = useMemo(() => {
+  const categoryFilteredProperties = useMemo(() => {
     if (!normalizedProperties.length) return []
     if (!selectedTab || selectedTab === DEFAULT_TABS[0]) return normalizedProperties
 
     return normalizedProperties.filter((property: any) => getPropertyCategoryName(property) === selectedTab)
   }, [normalizedProperties, selectedTab])
 
+  const agentsInActiveCategory = useMemo(() => {
+    if (!categoryFilteredProperties.length) return []
+
+    const names = new Set<string>()
+    categoryFilteredProperties.forEach((property: any) => {
+      const name = property.contact_name || agencyData?.contact_name || agencyData?.companyName || 'Associated Agent'
+      names.add(name)
+    })
+    return Array.from(names)
+  }, [categoryFilteredProperties, agencyData])
+
+  const agentFilteredProperties = useMemo(() => {
+    if (selectedAgent === 'All') return categoryFilteredProperties
+
+    return categoryFilteredProperties.filter((property: any) => {
+      const name = property.contact_name || agencyData?.contact_name || agencyData?.companyName || 'Associated Agent'
+      return name === selectedAgent
+    })
+  }, [categoryFilteredProperties, selectedAgent, agencyData])
+
+  const PROPERTIES_PER_PAGE = 6
+
   const totalPages = useMemo(() => {
-    if (!filteredProperties.length) {
-      return 0
-    }
-    return Math.ceil(filteredProperties.length / PROPERTIES_PER_PAGE)
-  }, [filteredProperties])
+    if (!agentFilteredProperties.length) return 0
+    return Math.ceil(agentFilteredProperties.length / PROPERTIES_PER_PAGE)
+  }, [agentFilteredProperties])
 
   const paginatedProperties = useMemo(() => {
-    if (!filteredProperties.length) {
-      return []
-    }
+    if (!agentFilteredProperties.length) return []
     const start = (currentPage - 1) * PROPERTIES_PER_PAGE
-    return filteredProperties.slice(start, start + PROPERTIES_PER_PAGE)
-  }, [filteredProperties, currentPage])
+    return agentFilteredProperties.slice(start, start + PROPERTIES_PER_PAGE)
+  }, [agentFilteredProperties, currentPage])
+
+  const paginatedGroupedAgents = useMemo(() => {
+    if (!paginatedProperties.length) return []
+
+    const groups: {
+      [key: string]: {
+        name: string
+        phone: string
+        email: string
+        properties: any[]
+      }
+    } = {}
+
+    paginatedProperties.forEach((property: any) => {
+      const name = property.contact_name || agencyData?.contact_name || agencyData?.companyName || 'Associated Agent'
+      const phone = property.contact_phone || agencyData?.contact_phone || ''
+      const email = property.contact_email || agencyData?.contact_email || ''
+
+      const key = name.toLowerCase().trim()
+
+      if (!groups[key]) {
+        groups[key] = {
+          name,
+          phone,
+          email,
+          properties: [],
+        }
+      }
+      groups[key].properties.push(property)
+    })
+
+    return Object.values(groups)
+  }, [paginatedProperties, agencyData])
+
+  const groupedAgents = useMemo(() => {
+    if (!categoryFilteredProperties.length) return []
+
+    const groups: {
+      [key: string]: {
+        name: string
+        phone: string
+        email: string
+        properties: any[]
+      }
+    } = {}
+
+    categoryFilteredProperties.forEach((property: any) => {
+      const name = property.contact_name || agencyData?.contact_name || agencyData?.companyName || 'Associated Agent'
+      const phone = property.contact_phone || agencyData?.contact_phone || ''
+      const email = property.contact_email || agencyData?.contact_email || ''
+
+      const key = name.toLowerCase().trim()
+
+      if (!groups[key]) {
+        groups[key] = {
+          name,
+          phone,
+          email,
+          properties: [],
+        }
+      }
+      groups[key].properties.push(property)
+    })
+
+    return Object.values(groups)
+  }, [categoryFilteredProperties, agencyData])
 
   useEffect(() => {
+    setSelectedAgent('All')
     setCurrentPage(1)
   }, [selectedTab])
 
   useEffect(() => {
-    if (totalPages === 0) {
-      if (currentPage !== 1) {
-        setCurrentPage(1)
-      }
-      return
-    }
-
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages)
-    }
-  }, [totalPages, currentPage])
+    setCurrentPage(1)
+  }, [selectedAgent])
 
   useEffect(() => {
     setHovered(null)
-  }, [currentPage, selectedTab])
+  }, [selectedTab])
 
   const handleSeeMoreClick = (propertyId: number) => {
     if (!propertyId) return
@@ -260,7 +339,25 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
         const mockAgent = mockAgents.find(a => a.profileName === decodedName)
         if (mockAgent) {
           setAgencyData(mockAgent)
-          const properties = mockAgentProperties[mockAgent.id] || []
+          const properties = (mockAgentProperties[mockAgent.id] || []).map((p, index) => {
+            if (index % 2 === 0) {
+              return {
+                ...p,
+                contact_name: 'Sarah Connor',
+                contact_phone: '+91 98765 43211',
+                contact_email: 'sarah@premiumrealty.com',
+                status: 'AVAILABLE',
+              }
+            } else {
+              return {
+                ...p,
+                contact_name: 'Michael Scott',
+                contact_phone: '+91 98765 43212',
+                contact_email: 'michael@premiumrealty.com',
+                status: 'SOLD',
+              }
+            }
+          })
           setAgentIdProperties(properties)
           setSelectedTab(DEFAULT_TABS[0])
         } else {
@@ -380,16 +477,10 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
     return regions.length ? regions.join(', ') : '—'
   }, [agencyData?.district, agencyData?.state, agencyData?.country])
 
-  const contactPhone = onlyAdminOrAgentCanViewContactDetails
-    ? agencyData?.contact_phone || agencyData?.user?.phoneNumber || ''
-    : maskPhone(agencyData?.contact_phone || agencyData?.user?.phoneNumber || '')
-  const contactEmail = onlyAdminOrAgentCanViewContactDetails
-    ? agencyData?.contact_email || agencyData?.user?.email || ''
-    : maskEmail(agencyData?.contact_email || agencyData?.user?.email || '')
+  const contactPhone = agencyData?.contact_phone || agencyData?.user?.phoneNumber || ''
+  const contactEmail = agencyData?.contact_email || agencyData?.user?.email || ''
   const profileTitle = agencyData?.profileName || agencyData?.companyName || name
-  const contactName = onlyAdminOrAgentCanViewContactDetails
-    ? agencyData?.contact_name || agencyData?.user?.firstName || ''
-    : maskName(agencyData?.contact_name || agencyData?.user?.firstName || '')
+  const contactName = agencyData?.contact_name || agencyData?.user?.firstName || ''
   const companyLogo = agencyData?.companyLogo || '/agency.png'
   const isVerified = Boolean(agencyData?.user?.isKycVerified)
 
@@ -529,9 +620,9 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
           <div className="space-y-10">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Left Column: Profile Info */}
-              <div className="lg:col-span-2 space-y-8">
-                <section className="overflow-hidden rounded-3xl border border-yellow-200 bg-white shadow-sm">
-                  <div className="p-6 sm:p-8">
+              <div className="lg:col-span-2 flex flex-col">
+                <section className="flex-1 flex flex-col justify-between overflow-hidden rounded-3xl border border-yellow-200 bg-white shadow-sm">
+                  <div className="p-6 sm:p-8 flex-1">
                     <div className="flex flex-col md:flex-row gap-8">
                       <div className="w-full md:w-48 shrink-0">
                         <div className="relative aspect-square overflow-hidden rounded-2xl border border-stone-100 bg-stone-50 shadow-inner">
@@ -567,154 +658,63 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
                             <span>Operating since {establishedYear}</span>
                           </div>
                         </div>
+
+                        {/* Agency Stats Row */}
+                        <div className="flex flex-wrap gap-6 pt-4 border-t border-stone-100 mt-2">
+                          {highlightStats.map((stat) => (
+                            <div key={stat.label} className="flex items-center gap-3">
+                              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+                                <stat.Icon size={18} />
+                              </div>
+                              <div>
+                                <p className="text-base font-black text-stone-900 leading-none mb-1">{stat.value}</p>
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400 leading-none">{stat.label}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="border-t border-stone-100 bg-stone-50/50 px-6 py-4 flex flex-wrap gap-6">
-                    {contactPhone && (
-                      <a href={`tel:${contactPhone}`} className="flex items-center gap-2 text-sm font-semibold text-stone-700 hover:text-amber-600 transition-colors">
-                        <Phone size={16} /> {contactPhone}
-                      </a>
-                    )}
-                    {contactEmail && (
-                      <a href={`mailto:${contactEmail}`} className="flex items-center gap-2 text-sm font-semibold text-stone-700 hover:text-amber-600 transition-colors">
-                        <Mail size={16} /> {contactEmail}
-                      </a>
-                    )}
-                  </div>
-                </section>
-
-                {/* Property Listings Section */}
-                <section className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-bold text-stone-900">Agency Listings</h2>
-                    <div className="flex gap-2">
-                      {availableTabs.map((tab) => (
-                        <button
-                          key={tab}
-                          onClick={() => setSelectedTab(tab)}
-                          className={cn(
-                            "px-4 py-1.5 rounded-full text-xs font-bold transition-all border",
-                            selectedTab === tab
-                              ? "bg-[#2a1407] text-white border-[#2a1407]"
-                              : "bg-white text-stone-600 border-stone-200 hover:border-amber-200"
-                          )}
-                        >
-                          {tab}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {isLoading ? (
-                    <PropertyGallerySkeleton />
-                  ) : paginatedProperties.length > 0 ? (
-                    <motion.div
-                      key={`page-${currentPage}-${selectedTab}`}
-                      variants={containerVariants}
-                      initial="hidden"
-                      animate="visible"
-                      className="grid grid-cols-1 sm:grid-cols-2 gap-6"
-                    >
-                      {paginatedProperties.map((item: any) => (
-                        <PropertyCard
-                          key={item.id}
-                          id={String(item.id)}
-                          title={item.title}
-                          description={item.description || ''}
-                          price={String(item.price)}
-                          property_size={item.property_size}
-                          property_size_unit={item.property_size_unit}
-                          status={item.status || 'Active'}
-                          listing_type={item.listing_type}
-                          address_line={item.address_line || ''}
-                          district={item.district || ''}
-                          city={item.city || ''}
-                          state={item.state || ''}
-                          postal_code={item.postal_code || ''}
-                          approval_status={item.approval_status || 'APPROVED'}
-                          favorite_count={item.favorite_count || 0}
-                          media={item.media}
-                          property_category={item.property_category}
-                          onPrimaryAction={() => handleSeeMoreClick(item.id)}
-                          handleFavorite={() => { }}
-                          isVerified={item.isVerified}
-                        />
-                      ))}
-                    </motion.div>
-                  ) : (
-                    <div className="text-center py-12 bg-white rounded-3xl border border-dashed border-stone-200">
-                      <p className="text-stone-500">No properties found in this category.</p>
-                    </div>
-                  )}
-
-                  {/* Pagination */}
-                  {!isFetching && totalPages > 1 && (
-                    <div className="flex items-center justify-center gap-2 pt-4">
-                      <button
-                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                        disabled={currentPage === 1}
-                        className={cn(
-                          "w-10 h-10 rounded-xl flex items-center justify-center transition-all border border-stone-200 bg-white text-stone-600 hover:border-amber-300 disabled:opacity-50 disabled:hover:border-stone-200 disabled:cursor-not-allowed"
-                        )}
-                        aria-label="Previous page"
-                      >
-                        <ChevronLeft size={16} />
-                      </button>
-
-                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-                        <button
-                          key={pageNum}
-                          onClick={() => setCurrentPage(pageNum)}
-                          className={cn(
-                            "w-10 h-10 rounded-xl font-bold text-sm transition-all",
-                            currentPage === pageNum
-                              ? "bg-amber-500 text-white shadow-lg shadow-amber-200"
-                              : "bg-white text-stone-600 border border-stone-200 hover:border-amber-300"
-                          )}
-                        >
-                          {pageNum}
-                        </button>
-                      ))}
-
-                      <button
-                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                        disabled={currentPage === totalPages}
-                        className={cn(
-                          "w-10 h-10 rounded-xl flex items-center justify-center transition-all border border-stone-200 bg-white text-stone-600 hover:border-amber-300 disabled:opacity-50 disabled:hover:border-stone-200 disabled:cursor-not-allowed"
-                        )}
-                        aria-label="Next page"
-                      >
-                        <ChevronRight size={16} />
-                      </button>
+                  {(contactPhone || contactEmail) && (
+                    <div className="border-t border-stone-100 bg-stone-50/50 px-6 py-4 flex flex-wrap gap-6">
+                      {contactPhone && (
+                        <a href={`tel:${contactPhone}`} className="flex items-center gap-2 text-sm font-semibold text-stone-700 hover:text-amber-600 transition-colors">
+                          <Phone size={16} /> {contactPhone}
+                        </a>
+                      )}
+                      {contactEmail && (
+                        <a href={`mailto:${contactEmail}`} className="flex items-center gap-2 text-sm font-semibold text-stone-700 hover:text-amber-600 transition-colors">
+                          <Mail size={16} /> {contactEmail}
+                        </a>
+                      )}
                     </div>
                   )}
                 </section>
               </div>
 
               {/* Right Column: Stats & Actions */}
-              <div className="space-y-6">
-                <section className="rounded-3xl border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/30 p-6 shadow-sm">
-                  <h3 className="text-lg font-bold text-stone-900 mb-6">Performance Stats</h3>
-                  <div className="space-y-4">
-                    {highlightStats.map((stat) => (
-                      <div key={stat.label} className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-stone-100 shadow-sm">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
-                          <stat.Icon size={24} />
-                        </div>
-                        <div>
-                          <p className="text-2xl font-bold text-stone-900">{stat.value}</p>
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400">{stat.label}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-
-                <section className="rounded-3xl border border-stone-100 bg-white p-6 shadow-sm space-y-4">
+              <div className="flex flex-col">
+                <section className="flex-1 rounded-3xl border border-stone-100 bg-white p-6 shadow-sm space-y-4 flex flex-col">
                   <h3 className="text-lg font-bold text-stone-900">Quick Actions</h3>
                   <div className="grid gap-3">
+                    {isCheckPropertiesOwner && (
+                      <>
+                        <Link
+                          href="/properties-registration"
+                          className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition-all shadow-md shadow-emerald-200"
+                        >
+                          <Plus size={18} /> Add Property
+                        </Link>
+                        <Link
+                          href={`/company-profile/${agencyData?.id}`}
+                          className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl border border-stone-200 font-bold text-stone-700 hover:bg-stone-50 transition-all"
+                        >
+                          <Building2 size={18} /> Edit Profile
+                        </Link>
+                      </>
+                    )}
                     <button
                       onClick={handleShare}
                       className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl border border-stone-200 font-bold text-stone-700 hover:bg-stone-50 transition-all"
@@ -731,31 +731,269 @@ export default function AgencyDetails({ decodedName }: { decodedName: string }) 
                     )}
                   </div>
                 </section>
-
-                <section className="rounded-3xl border border-stone-100 bg-white p-6 shadow-sm">
-                  <h3 className="text-lg font-bold text-stone-900 mb-4">Location</h3>
-                  <div className="h-48 rounded-2xl overflow-hidden border border-stone-100 grayscale hover:grayscale-0 transition-all duration-500">
-                    <MapView
-                      center={{
-                        lat: Number(agencyData?.latitude || 0),
-                        lng: Number(agencyData?.longitude || 0),
-                      }}
-                      markers={[
-                        {
-                          lat: Number(agencyData?.latitude || 0),
-                          lng: Number(agencyData?.longitude || 0),
-                        },
-                      ]}
-                      zoom={12}
-                    />
-                  </div>
-                  <p className="mt-4 text-xs text-stone-500 flex items-center gap-2">
-                    <MapPin size={14} className="text-amber-500" />
-                    {fullAddress}
-                  </p>
-                </section>
               </div>
             </div>
+
+            {/* Property Listings Section - FULL WIDTH */}
+            <section id="agency-listings-section" className="space-y-8 scroll-mt-24 w-full">
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <h2 className="text-2xl font-bold text-stone-900">Agency Listings</h2>
+                    {isCheckPropertiesOwner && (
+                      <Link
+                        href="/properties-registration"
+                        className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-full transition-all shrink-0"
+                      >
+                        <Plus size={12} /> Add Property
+                      </Link>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3 self-start sm:self-auto">
+                    <div className="flex gap-2 overflow-x-auto pb-1 sm:pb-0">
+                      {availableTabs.map((tab) => (
+                        <button
+                          key={tab}
+                          onClick={() => setSelectedTab(tab)}
+                          className={cn(
+                            "px-4 py-1.5 rounded-full text-xs font-bold transition-all border shrink-0",
+                            selectedTab === tab
+                              ? "bg-[#2a1407] text-white border-[#2a1407]"
+                              : "bg-white text-stone-600 border-stone-200 hover:border-amber-200"
+                          )}
+                        >
+                          {tab}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Agent Dropdown Selector */}
+                    {!isLoading && agentsInActiveCategory.length >= 1 && (
+                      <div className="relative shrink-0">
+                        <select
+                          value={selectedAgent}
+                          onChange={(e) => setSelectedAgent(e.target.value)}
+                          className="appearance-none bg-white text-stone-700 border border-stone-200 hover:border-amber-400 rounded-full px-4 py-1.5 pr-9 text-xs font-bold transition-all cursor-pointer shadow-sm focus:outline-none focus:ring-1 focus:ring-amber-500"
+                        >
+                          <option value="All">All Agents ({categoryFilteredProperties.length})</option>
+                          {agentsInActiveCategory.map((name) => {
+                            const count = categoryFilteredProperties.filter((p: any) => {
+                              const pName = p.contact_name || agencyData?.contact_name || agencyData?.companyName || 'Associated Agent'
+                              return pName === name
+                            }).length
+                            return (
+                              <option key={name} value={name}>
+                                {name} ({count})
+                              </option>
+                            )
+                          })}
+                        </select>
+                        <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-stone-400">
+                          <ChevronDown size={14} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Agents Properties Grid List */}
+              {isLoading ? (
+                <PropertyGallerySkeleton />
+              ) : paginatedProperties.length > 0 ? (
+                <div className="space-y-12">
+                  {paginatedGroupedAgents.map((agent) => {
+                    const agentId = `agent-section-${agent.name.toLowerCase().replace(/\s+/g, '-')}`
+                    const initials = agent.name
+                      .split(' ')
+                      .map((n) => n[0])
+                      .join('')
+                      .substring(0, 2)
+                      .toUpperCase()
+
+                    return (
+                      <motion.div
+                        key={agent.name}
+                        id={agentId}
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: '-100px' }}
+                        transition={{ duration: 0.5 }}
+                        className="space-y-6 scroll-mt-24"
+                      >
+                        {/* Agent Header */}
+                        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-5 rounded-3xl bg-stone-50/70 border border-stone-200/50 shadow-sm">
+                          {/* Left: Agent Info and Stats */}
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-6">
+                            <div className="flex items-center gap-4">
+                              <div className="h-12 w-12 rounded-full bg-gradient-to-tr from-[#2a1407] to-[#4e2812] text-white flex items-center justify-center font-bold text-base shadow-sm shrink-0">
+                                {initials || <CircleUserRound size={24} />}
+                              </div>
+                              <div>
+                                <h3 className="text-lg font-extrabold text-stone-900">{agent.name}</h3>
+                                <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">Associated Agent</p>
+                              </div>
+                            </div>
+
+                            {/* Stats Row */}
+                            {(() => {
+                              const fullAgentProperties = categoryFilteredProperties.filter((p: any) => {
+                                const pName = p.contact_name || agencyData?.contact_name || agencyData?.companyName || 'Associated Agent'
+                                return pName === agent.name
+                              })
+                              const totalListings = fullAgentProperties.length
+                              const activeListings = fullAgentProperties.filter(
+                                (p: any) => (p.status ?? 'AVAILABLE') === 'AVAILABLE',
+                              ).length
+                              const closedListings = fullAgentProperties.filter(
+                                (p: any) => p.status === 'SOLD' || p.status === 'RENTED',
+                              ).length
+
+                              return (
+                                <div className="flex items-center gap-4 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-2xl border border-stone-200/40 shadow-inner">
+                                  <div className="text-center px-1">
+                                    <span className="block text-xs font-extrabold text-stone-700">{totalListings}</span>
+                                    <span className="text-[9px] font-bold uppercase tracking-wider text-stone-400">Total</span>
+                                  </div>
+                                  <div className="h-6 w-px bg-stone-200" />
+                                  <div className="text-center px-1">
+                                    <span className="block text-xs font-extrabold text-emerald-600">{activeListings}</span>
+                                    <span className="text-[9px] font-bold uppercase tracking-wider text-stone-400">Active</span>
+                                  </div>
+                                  <div className="h-6 w-px bg-stone-200" />
+                                  <div className="text-center px-1">
+                                    <span className="block text-xs font-extrabold text-amber-600">{closedListings}</span>
+                                    <span className="text-[9px] font-bold uppercase tracking-wider text-stone-400">Closed</span>
+                                  </div>
+                                </div>
+                              )
+                            })()}
+                          </div>
+
+                          {/* Right: Pagination and Contact Buttons */}
+                          <div className="flex flex-wrap items-center gap-4">
+                            {/* Pagination Numbers (on the right side of Agent Header) */}
+                            {totalPages > 1 && (
+                              <div className="flex items-center gap-1 bg-white/60 backdrop-blur-sm p-1 rounded-2xl border border-stone-200/40 shadow-inner">
+                                <button
+                                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                                  disabled={currentPage === 1}
+                                  className="w-8 h-8 rounded-xl flex items-center justify-center transition-all bg-white text-stone-600 hover:border-amber-300 disabled:opacity-50 disabled:cursor-not-allowed border border-stone-100"
+                                  aria-label="Previous page"
+                                >
+                                  <ChevronLeft size={14} />
+                                </button>
+
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                                  <button
+                                    key={pageNum}
+                                    onClick={() => setCurrentPage(pageNum)}
+                                    className={cn(
+                                      "w-8 h-8 rounded-xl font-bold text-xs transition-all",
+                                      currentPage === pageNum
+                                        ? "bg-amber-500 text-white shadow-md shadow-amber-200"
+                                        : "bg-white text-stone-600 border border-stone-100 hover:border-amber-300"
+                                    )}
+                                  >
+                                    {pageNum}
+                                  </button>
+                                ))}
+
+                                <button
+                                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                                  disabled={currentPage === totalPages}
+                                  className="w-8 h-8 rounded-xl flex items-center justify-center transition-all bg-white text-stone-600 hover:border-amber-300 disabled:opacity-50 disabled:cursor-not-allowed border border-stone-100"
+                                  aria-label="Next page"
+                                >
+                                  <ChevronRight size={14} />
+                                </button>
+                              </div>
+                            )}
+
+                            {/* Contact Actions */}
+                            <div className="flex items-center gap-2">
+                              {agent.phone && (
+                                <a
+                                  href={`tel:${agent.phone}`}
+                                  className="flex h-9 px-3 items-center gap-1.5 rounded-xl border border-stone-200 bg-white text-xs font-bold text-stone-700 hover:border-amber-400 hover:text-amber-700 transition-all shadow-sm"
+                                >
+                                  <Phone size={14} className="text-stone-500" /> Call Agent
+                                </a>
+                              )}
+                              {agent.email && (
+                                <a
+                                  href={`mailto:${agent.email}`}
+                                  className="flex h-9 px-3 items-center gap-1.5 rounded-xl border border-stone-200 bg-white text-xs font-bold text-stone-700 hover:border-amber-400 hover:text-amber-700 transition-all shadow-sm"
+                                >
+                                  <Mail size={14} className="text-stone-500" /> Email
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Properties Grid */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {agent.properties.map((item: any) => (
+                            <PropertyCard
+                              key={item.id}
+                              id={String(item.id)}
+                              title={item.title}
+                              description={item.description || ''}
+                              price={String(item.price)}
+                              property_size={item.property_size}
+                              property_size_unit={item.property_size_unit}
+                              status={item.status || 'Active'}
+                              listing_type={item.listing_type}
+                              address_line={item.address_line || ''}
+                              district={item.district || ''}
+                              city={item.city || ''}
+                              state={item.state || ''}
+                              postal_code={item.postal_code || ''}
+                              approval_status={item.approval_status || 'APPROVED'}
+                              favorite_count={item.favorite_count || 0}
+                              media={item.media}
+                              property_category={item.property_category}
+                              onPrimaryAction={() => handleSeeMoreClick(item.id)}
+                              handleFavorite={() => { }}
+                              isVerified={item.isVerified}
+                            />
+                          ))}
+                        </div>
+                      </motion.div>
+                    )
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-12 bg-white rounded-3xl border border-dashed border-stone-200">
+                  <p className="text-stone-500">No properties found in this category.</p>
+                </div>
+              )}
+            </section>
+
+            {/* Location Section - FULL WIDTH AT BOTTOM */}
+            <section className="rounded-3xl border border-stone-100 bg-white p-6 sm:p-8 shadow-sm w-full mt-10">
+              <h3 className="text-xl font-bold text-stone-900 mb-6">Location</h3>
+              <div className="h-[450px] w-full rounded-2xl overflow-hidden border border-stone-100 grayscale hover:grayscale-0 transition-all duration-500 shadow-inner">
+                <MapView
+                  center={{
+                    lat: Number(agencyData?.latitude || 0),
+                    lng: Number(agencyData?.longitude || 0),
+                  }}
+                  markers={[
+                    {
+                      lat: Number(agencyData?.latitude || 0),
+                      lng: Number(agencyData?.longitude || 0),
+                    },
+                  ]}
+                  zoom={12}
+                />
+              </div>
+              <p className="mt-4 text-sm text-stone-600 flex items-center gap-2">
+                <MapPin size={18} className="text-amber-500" />
+                <span className="font-semibold">{fullAddress}</span>
+              </p>
+            </section>
 
             {/* Main Content Grid */}
             <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
