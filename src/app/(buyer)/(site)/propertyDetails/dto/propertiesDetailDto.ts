@@ -18,6 +18,7 @@ export interface PropertyDetailsResponseDto {
   listing_type: 'RENT' | 'SALE' | string
   status: 'AVAILABLE' | 'SOLD' | 'RENTED' | string
   project_status?: 'CURRENT' | 'UPCOMING' | 'COMPLETED' | string
+  offer?: string | null
   layout_price_min?: number | null
   layout_price_max?: number | null
   layout_area_min_sqft?: number | null

@@ -20,6 +20,7 @@ interface FilterState {
   projectStatus: string[]
   verified: string[]
   featured: string[]
+  offer: string[]
   priceRangePreset: string[]
   furnishing: string[]
   facing: string[]
@@ -326,6 +327,7 @@ export default function AdvancedFilters({
     (filters.projectStatus.length > 0 ? 1 : 0) +
     (filters.verified.length > 0 ? 1 : 0) +
     (filters.featured.length > 0 ? 1 : 0) +
+    (filters.offer?.length > 0 ? 1 : 0) +
     (filters.priceRangePreset.length > 0 ? 1 : 0) +
     (filters.priceRange[0] > 0 || filters.priceRange[1] < 100000000 ? 1 : 0) +
     (filters.furnishing.length > 0 ? 1 : 0) +
@@ -778,6 +780,26 @@ function FilterContent({
                   <span className="text-sm text-gray-700">{type}</span>
                 </label>
               ))}
+            </div>
+          </FilterSection>
+        )}
+
+        {/* Offer - properties with a promotional offer */}
+        {pageType === 'property' && (
+          <FilterSection title="Offer" isExpanded={expandedSections.offer || false} onToggle={() => toggleSection('offer')}>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => toggleArrayFilter('offer', 'Offer')}
+                className={cn(
+                  'px-3 py-1.5 rounded-full text-sm font-semibold border transition-colors',
+                  Array.isArray(filters.offer) && filters.offer.includes('Offer')
+                    ? 'bg-yellow-500 text-[#2a1407] border-yellow-500'
+                    : 'bg-white text-gray-700 border-gray-200 hover:border-yellow-400',
+                )}
+              >
+                Offer
+              </button>
             </div>
           </FilterSection>
         )}

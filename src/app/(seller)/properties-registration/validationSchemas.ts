@@ -31,6 +31,7 @@ export function getPropertyStepValidationSchema(step: number, isLayout: boolean)
         country: Yup.string().oneOf(['India'], 'Country must be India'),
         latitude: Yup.number().optional().notRequired(),
         longitude: Yup.number().optional().notRequired(),
+        offer: Yup.string().trim().max(255, 'Offer must be at most 255 characters').optional(),
         ...(isLayout
           ? {
               layout_price_min: Yup.number()

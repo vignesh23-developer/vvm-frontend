@@ -250,6 +250,29 @@ export default function Step2LocationPrice({ formik, propertyCategories = [] }: 
         </div>
       )}
 
+      {/* Offer — below price-related fields */}
+      <div className="border-t border-gray-200 pt-6 space-y-2">
+        <label htmlFor="offer" className="block text-sm font-medium text-gray-800">
+          Offer <span className="text-gray-400 font-normal">(optional)</span>
+        </label>
+        <input
+          id="offer"
+          name="offer"
+          type="text"
+          placeholder="e.g. 10% off for early buyers, Free registration..."
+          value={values.offer || ''}
+          onChange={handleChange}
+          maxLength={255}
+          aria-invalid={!!((errors as any).offer && (touched as any).offer)}
+          className={`w-full px-4 py-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none
+            ${(errors as any).offer && (touched as any).offer ? 'border-red-300 bg-red-50' : 'border-gray-300'}`}
+        />
+        {(touched as any).offer && (errors as any).offer && (
+          <p className="text-red-600 text-xs mt-1">{(errors as any).offer}</p>
+        )}
+        <div className="text-xs text-gray-500">{(values.offer || '').length}/255 characters</div>
+      </div>
+
       <LocationPickerModal
         open={isMapView}
         setOpen={setIsMapView}

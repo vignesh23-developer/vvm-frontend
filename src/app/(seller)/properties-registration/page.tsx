@@ -114,6 +114,7 @@ export interface PropertyCreationFormValues {
   purpose: string
   description: string
   project_status: 'CURRENT' | 'UPCOMING' | 'COMPLETED' | string
+  offer: string
 
   // Step 2
   door_number: string
@@ -249,6 +250,7 @@ function PropertiesRegistrationPageContent({ searchParams }: { searchParams: Pro
     purpose: '',
     description: '',
     project_status: 'CURRENT',
+    offer: '',
 
     door_number: '',
     street_name: '',
@@ -436,6 +438,7 @@ function PropertiesRegistrationPageContent({ searchParams }: { searchParams: Pro
             property_size: resolvedSize as number,
             property_size_unit: resolvedUnit,
             listing_type: values?.purpose,
+            offer: values?.offer?.trim() || undefined,
             project_status: isLayout ? values?.project_status : undefined,
             layout_price_min: isLayout ? (values?.layout_price_min as any) : undefined,
             layout_price_max: isLayout ? (values?.layout_price_max as any) : undefined,
@@ -660,6 +663,7 @@ function PropertiesRegistrationPageContent({ searchParams }: { searchParams: Pro
                 purpose: valueData?.listing_type ?? valueData?.listing_type ?? '',
                 description: valueData?.description ?? '',
                 project_status: valueData?.project_status ?? 'CURRENT',
+                offer: valueData?.offer ?? '',
 
                 door_number: valueData?.door_number ?? '',
                 street_name: valueData?.street_name ?? '',

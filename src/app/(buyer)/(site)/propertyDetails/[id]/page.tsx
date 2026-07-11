@@ -37,6 +37,7 @@ import {
   Camera,
   Play,
   Lock,
+  Tag,
 } from 'lucide-react'
 import FavoriteButton from '@/components/ui/CustomComponent/FavoriteButton/FavoriteButton'
 import type { LucideIcon } from 'lucide-react'
@@ -466,6 +467,13 @@ const page = () => {
         })
       }
 
+      if (propertyDetailsData.offer?.trim()) {
+        coreCandidates.push({
+          label: 'Offer',
+          value: propertyDetailsData.offer.trim(),
+        })
+      }
+
       if (isLayoutProperty) {
         coreCandidates.push({
           label: 'Area Range',
@@ -513,7 +521,7 @@ const page = () => {
         })
       }
 
-      if (propertyDetailsData.city || propertyDetailsData.district) {
+      if (!propertyDetailsData.offer?.trim() && (propertyDetailsData.city || propertyDetailsData.district)) {
         coreCandidates.push({
           label: 'Location',
           value: [propertyDetailsData.district, propertyDetailsData.city].filter(Boolean).join(', '),
@@ -537,6 +545,7 @@ const page = () => {
       if (lower.includes('water')) return Droplets
       if (lower.includes('tower') || lower.includes('building')) return Building2
       if (lower.includes('status')) return BadgeCheck
+      if (lower.includes('offer')) return Tag
       if (lower.includes('location') || lower.includes('city')) return MapPin
 
       // fallback rotation

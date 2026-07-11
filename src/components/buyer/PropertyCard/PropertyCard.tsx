@@ -4,10 +4,11 @@ import { type ReactNode } from 'react'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { hasRole, Roles, getUserRoles } from '@/utils/roles/roles'
 import { motion, type Variants } from 'framer-motion'
-import { Heart, Share, Ruler, MapPin, Shapes } from 'lucide-react'
+import { Heart, Share, Ruler, MapPin, Shapes, Tag } from 'lucide-react'
 import Image from 'next/image'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import FavoriteButton from '@/components/ui/CustomComponent/FavoriteButton/FavoriteButton'
+import { cn } from '@/lib/utils'
 import {
   isLayoutPropertyDisplay,
   resolvePropertyPriceLabel,
@@ -59,6 +60,7 @@ interface PropertiesCardProps {
   property_category_name?: string
   status: string
   project_status?: string
+  offer?: string | null
   listing_type?: string
   address_line: string
   district: string
@@ -126,7 +128,11 @@ export default function PropertyCard(props: PropertiesCardProps) {
     propertyPreviewMode = false,
     isVerified,
     property_category,
+    offer,
   } = props
+
+  const offerText = typeof offer === 'string' ? offer.trim() : ''
+  const hasOffer = offerText.length > 0
 
   const getMediaUrls = () => {
     const fallbackImage = '/villa.png'
@@ -235,9 +241,26 @@ export default function PropertyCard(props: PropertiesCardProps) {
           )}
         </div>
 
-        {/* Favorite & Share Buttons (Overlay) */}
-        {(typeof handleFavorite === 'function' || typeof handleShare === 'function') && (
-          <div className="absolute bottom-3 right-3 flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+        {/* Offer badge + Favorite & Share Buttons (Overlay) */}
+        {(hasOffer || typeof handleFavorite === 'function' || typeof handleShare === 'function') && (
+          <div
+            className={cn(
+              'absolute bottom-3 right-3 flex items-center gap-2 z-10 transition-opacity',
+              hasOffer ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
+            )}
+          >
+            {hasOffer && (
+              <div
+                className="max-w-[140px] sm:max-w-[180px] bg-yellow-400 text-[#2a1407] px-2.5 py-1.5 rounded-full shadow-md border border-yellow-300"
+                onClick={e => e.stopPropagation()}
+                title={offerText}
+              >
+                <div className="flex items-center gap-1">
+                  <Tag size={13} className="shrink-0" />
+                  <span className="text-[11px] font-bold truncate">{offerText}</span>
+                </div>
+              </div>
+            )}
             {typeof handleFavorite === 'function' && (
               <div
                 className="bg-white/95 backdrop-blur p-2 rounded-full shadow-sm hover:bg-white transition-colors"

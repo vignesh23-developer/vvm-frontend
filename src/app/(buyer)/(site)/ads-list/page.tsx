@@ -61,6 +61,7 @@ interface FilterState {
   projectStatus: string[]
   verified: string[]
   featured: string[]
+  offer: string[]
   priceRangePreset: string[]
   furnishing: string[]
   facing: string[]
@@ -106,6 +107,7 @@ function AdsListPageContent() {
     projectStatus: [],
     verified: [],
     featured: [],
+    offer: [],
     priceRangePreset: [],
     furnishing: [],
     facing: [],
@@ -277,6 +279,7 @@ function AdsListPageContent() {
       projectStatus: [],
       verified: [],
       featured: [],
+      offer: [],
       priceRangePreset: [],
       furnishing: [],
       facing: [],

@@ -253,6 +253,7 @@ export class LandRegistrationPayloadDTO {
   listing_type: string
   status: string
   project_status?: string
+  offer?: string
   layout_price_min?: number | string
   layout_price_max?: number | string
   layout_area_min_sqft?: number | string
@@ -290,6 +291,7 @@ export class LandRegistrationPayloadDTO {
     this.listing_type = init.listing_type ?? ''
     this.status = init.status ?? ''
     this.project_status = init.project_status
+    this.offer = init.offer
     this.layout_price_min = init.layout_price_min
     this.layout_price_max = init.layout_price_max
     this.layout_area_min_sqft = init.layout_area_min_sqft
@@ -329,6 +331,7 @@ export class LandRegistrationPayloadDTO {
       listing_type: this.listing_type.toUpperCase(),
       status: 'AVAILABLE',
       project_status: this.project_status,
+      offer: this.offer?.trim() || undefined,
       layout_price_min: this.layout_price_min === '' ? undefined : this.layout_price_min,
       layout_price_max: this.layout_price_max === '' ? undefined : this.layout_price_max,
       layout_area_min_sqft: this.layout_area_min_sqft === '' ? undefined : this.layout_area_min_sqft,

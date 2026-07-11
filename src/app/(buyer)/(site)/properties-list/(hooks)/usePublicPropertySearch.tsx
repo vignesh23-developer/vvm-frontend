@@ -16,6 +16,7 @@ interface FilterState {
   projectStatus: string[]
   verified: string[]
   featured: string[]
+  offer: string[]
   priceRangePreset: string[]
   furnishing: string[]
   facing: string[]
@@ -196,6 +197,9 @@ export function usePublicPropertySearch<T = any>({
   }
   if (filters.featured.includes('Featured Properties')) {
     params.is_featured = true
+  }
+  if (filters.offer?.includes('Offer')) {
+    params.has_offer = true
   }
   if (filters.isPremium) {
     params.is_premium = true

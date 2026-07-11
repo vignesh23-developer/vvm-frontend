@@ -64,6 +64,7 @@ interface FilterState {
   projectStatus: string[]
   verified: string[]
   featured: string[]
+  offer: string[]
   priceRangePreset: string[]
   furnishing: string[]
   facing: string[]
@@ -119,6 +120,7 @@ const PropertiesListPage = () => {
     projectStatus: [],
     verified: [],
     featured: [],
+    offer: [],
     priceRangePreset: [],
     furnishing: [],
     facing: [],
@@ -389,6 +391,7 @@ const PropertiesListPage = () => {
       projectStatus: [],
       verified: [],
       featured: [],
+      offer: [],
       priceRangePreset: [],
       furnishing: [],
       facing: [],
@@ -633,6 +636,22 @@ const PropertiesListPage = () => {
                   <button
                     onClick={() => {
                       setFilters(prev => ({ ...prev, verified: prev.verified.filter(v => v !== ver) }))
+                    }}
+                    className="ml-1 hover:bg-yellow-600 rounded-full p-0.5 cursor-pointer"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+              {(filters.offer || []).map(offer => (
+                <span
+                  key={offer}
+                  className="px-3 py-1 bg-yellow-500/90 text-[#2a1407] rounded-full text-xs font-semibold flex items-center gap-1 shadow-sm"
+                >
+                  {offer}
+                  <button
+                    onClick={() => {
+                      setFilters(prev => ({ ...prev, offer: (prev.offer || []).filter(o => o !== offer) }))
                     }}
                     className="ml-1 hover:bg-yellow-600 rounded-full p-0.5 cursor-pointer"
                   >

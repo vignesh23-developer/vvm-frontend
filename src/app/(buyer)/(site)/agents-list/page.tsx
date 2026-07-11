@@ -55,6 +55,7 @@ interface FilterState {
   projectStatus: string[]
   verified: string[]
   featured: string[]
+  offer: string[]
   priceRangePreset: string[]
   furnishing: string[]
   facing: string[]
@@ -98,6 +99,7 @@ const AgentListPage = () => {
     projectStatus: [],
     verified: [],
     featured: [],
+    offer: [],
     priceRangePreset: [],
     furnishing: [],
     facing: [],
@@ -263,6 +265,7 @@ const AgentListPage = () => {
       projectStatus: [],
       verified: [],
       featured: [],
+      offer: [],
       priceRangePreset: [],
       furnishing: [],
       facing: [],
