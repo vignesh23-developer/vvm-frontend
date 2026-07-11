@@ -104,6 +104,7 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
   const [activeAdminTab, setActiveAdminTab] = useState('overview')
   const [companyProfileId, setCompanyProfileId] = useState<string>('')
+  const [companyProfileSlug, setCompanyProfileSlug] = useState<string>('')
 
   // Refs
   const langRef = useRef<HTMLDivElement>(null)
@@ -163,6 +164,8 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
     allTransactions: t('Navbar.subMenus.all_transactions'),
     myProfile: t('Navbar.subMenus.my_profile'),
     companyProfile: t('Navbar.subMenus.company_profile'),
+    viewCompanyProfile: t('Navbar.subMenus.view_company_profile'),
+    editCompanyProfile: t('Navbar.subMenus.edit_company_profile'),
     enquiries: t('Navbar.subMenus.enquiries'),
     wallet: t('Navbar.subMenus.wallet'),
     subscription: t('Navbar.subMenus.subscription'),
@@ -184,7 +187,13 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
     const fetchData = async () => {
       const companyProfiles = await getMethod(appEndpoints.getCompanyProfilesByUserID(user.id))
       const companyProfilesData = Array.isArray(companyProfiles?.data) ? (companyProfiles.data as any[]) : []
-      setCompanyProfileId(companyProfilesData?.length > 0 ? companyProfilesData[0].id : '')
+      if (companyProfilesData?.length > 0) {
+        setCompanyProfileId(companyProfilesData[0].id)
+        setCompanyProfileSlug(companyProfilesData[0].profileName || '')
+      } else {
+        setCompanyProfileId('')
+        setCompanyProfileSlug('')
+      }
     }
     fetchData()
   }, [token, user])
@@ -269,6 +278,13 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
     { href: `/profile/${user?.id}`, icon: <UserCog className="w-4 h-4" />, label: ui.profileSettings },
   ]
 
+  const companyProfileItems = companyProfileId ? [
+    { href: `/agent-profile/${companyProfileSlug}`, icon: <Building2 className="w-4 h-4" />, label: ui.viewCompanyProfile },
+    { href: `/company-profile/${companyProfileId}`, icon: <Building2 className="w-4 h-4" />, label: ui.editCompanyProfile },
+  ] : [
+    { href: '/company-profile', icon: <Building2 className="w-4 h-4" />, label: ui.companyProfile },
+  ]
+
   const agentMenu: SimpleNavItem[] = [
     { href: '/admin/dashboard', icon: <LayoutDashboard className="w-4 h-4" />, label: ui.dashboard },
 
@@ -280,6 +296,7 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
     { href: '/admin/dashboard/ads-reports', icon: <AlertTriangle className="w-4 h-4" />, label: ui.reportedAds },
 
     { href: '/admin/dashboard/property-enquiry', icon: <MessageSquare className="w-4 h-4" />, label: ui.enquiries, badge: newEnquiriesCount },
+    ...companyProfileItems,
     { href: '/view-subscriptions', icon: <CreditCard className="w-4 h-4" />, label: ui.subscription },
     { href: '/view-transactions', icon: <Wallet className="w-4 h-4" />, label: ui.wallet },
     { href: `/profile/${user?.id}`, icon: <UserCog className="w-4 h-4" />, label: ui.profileKyc },
@@ -1172,6 +1189,36 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                     >
                       <UserCog className="w-4 h-4 text-gray-400" /> {t('Navbar.profile')}
                     </Link>
+                    {isAgent && (
+                      <>
+                        {companyProfileId ? (
+                          <>
+                            <Link
+                              href={`/agent-profile/${companyProfileSlug}`}
+                              onClick={closeMobileMenu}
+                              className="flex items-center gap-2 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg text-sm font-medium"
+                            >
+                              <Building2 className="w-4 h-4 text-gray-400" /> {ui.viewCompanyProfile}
+                            </Link>
+                            <Link
+                              href={`/company-profile/${companyProfileId}`}
+                              onClick={closeMobileMenu}
+                              className="flex items-center gap-2 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg text-sm font-medium"
+                            >
+                              <Building2 className="w-4 h-4 text-gray-400" /> {ui.editCompanyProfile}
+                            </Link>
+                          </>
+                        ) : (
+                          <Link
+                            href="/company-profile"
+                            onClick={closeMobileMenu}
+                            className="flex items-center gap-2 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg text-sm font-medium"
+                          >
+                            <Building2 className="w-4 h-4 text-gray-400" /> {ui.companyProfile}
+                          </Link>
+                        )}
+                      </>
+                    )}
                   </>
                 )}
               </>
