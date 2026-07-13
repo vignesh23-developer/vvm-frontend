@@ -232,6 +232,54 @@ const PropertiesListPage = () => {
       filters.amenities,
       filters.listingType,
       filters.status,
+      filters.projectStatus,
+      filters.verified,
+      filters.featured,
+      filters.offer,
+      filters.priceRangePreset,
+      filters.furnishing,
+      filters.facing,
+      filters.parking,
+      filters.district,
+      filters.state,
+      filters.postalCode,
+      filters.propertyCategoryId,
+      filters.category_id,
+    ]
+
+    if (arrayFilters.some(bucket => Array.isArray(bucket) && bucket.length > 0)) return true
+
+    if (filters.priceRange[0] > 0 || filters.priceRange[1] < 100000000) return true
+    if (filters.sizeRange[0] > 0 || filters.sizeRange[1] > 0) return true
+    if (filters.layoutPriceRange?.[0] > 0 || filters.layoutPriceRange?.[1] > 0) return true
+    if (filters.layoutAreaRange?.[0] > 0 || filters.layoutAreaRange?.[1] > 0) return true
+    if (filters.layoutTotalSqftRange?.[0] > 0 || filters.layoutTotalSqftRange?.[1] > 0) return true
+    if (filters.plotAvailableRange?.[0] > 0 || filters.plotAvailableRange?.[1] > 0) return true
+    if (filters.sortBy) return true
+    if (filters.isPremium) return true
+    if (filters.ownerId || filters.agentId) return true
+    if (filters.lat !== undefined || filters.lon !== undefined || !!filters.radius) return true
+
+    return false
+  }, [filters])
+
+  const hasOfferFilter = Array.isArray(filters.offer) && filters.offer.includes('Offer')
+
+  const propertyHasOffer = (property: any) => {
+    if (property?.has_offer === true) return true
+    return typeof property?.offer === 'string' && property.offer.trim().length > 0
+  }
+
+  const hasFiltersBesidesOffer = useMemo(() => {
+    const arrayFilters = [
+      filters.propertyType,
+      filters.bedrooms,
+      filters.bathrooms,
+      filters.location,
+      filters.amenities,
+      filters.listingType,
+      filters.status,
+      filters.projectStatus,
       filters.verified,
       filters.featured,
       filters.priceRangePreset,
@@ -245,17 +293,21 @@ const PropertiesListPage = () => {
       filters.category_id,
     ]
 
-    if (arrayFilters.some(bucket => bucket.length > 0)) return true
-
+    if (arrayFilters.some(bucket => Array.isArray(bucket) && bucket.length > 0)) return true
     if (filters.priceRange[0] > 0 || filters.priceRange[1] < 100000000) return true
     if (filters.sizeRange[0] > 0 || filters.sizeRange[1] > 0) return true
+    if (filters.layoutPriceRange?.[0] > 0 || filters.layoutPriceRange?.[1] > 0) return true
+    if (filters.layoutAreaRange?.[0] > 0 || filters.layoutAreaRange?.[1] > 0) return true
+    if (filters.layoutTotalSqftRange?.[0] > 0 || filters.layoutTotalSqftRange?.[1] > 0) return true
+    if (filters.plotAvailableRange?.[0] > 0 || filters.plotAvailableRange?.[1] > 0) return true
     if (filters.sortBy) return true
     if (filters.isPremium) return true
     if (filters.ownerId || filters.agentId) return true
     if (filters.lat !== undefined || filters.lon !== undefined || !!filters.radius) return true
+    if (trimmedSearch.length > 0) return true
 
     return false
-  }, [filters])
+  }, [filters, trimmedSearch])
 
   const shouldUseAdvancedResults = trimmedSearch.length > 0 || hasActivePropertyFilters
 
@@ -303,10 +355,28 @@ const PropertiesListPage = () => {
   }, [autocompleteResponse])
 
   const baseTotal = Number(total ?? 0)
-  const totalResults = shouldUseAdvancedResults ? (searchedTotal ?? 0) : baseTotal
-  const totalPages = Math.max(1, Math.ceil((totalResults || 0) / limit))
+  let totalResults = shouldUseAdvancedResults ? (searchedTotal ?? 0) : baseTotal
+  let displayedProperties = shouldUseAdvancedResults ? searchedProperties : properties
 
-  const displayedProperties = shouldUseAdvancedResults ? searchedProperties : properties
+  // Offer filter: include offer in active filters + fall back when ES has no offer field yet
+  if (hasOfferFilter) {
+    const filteredSearch = (searchedProperties || []).filter(propertyHasOffer)
+    const filteredBase = (properties || []).filter(propertyHasOffer)
+
+    if (filteredSearch.length > 0) {
+      displayedProperties = filteredSearch
+      totalResults = typeof searchedTotal === 'number' && searchedTotal > 0 ? searchedTotal : filteredSearch.length
+    } else if (!hasFiltersBesidesOffer) {
+      // Only Offer selected and ES returned nothing — filter SQL list (has offer column)
+      displayedProperties = filteredBase
+      totalResults = filteredBase.length
+    } else {
+      displayedProperties = []
+      totalResults = 0
+    }
+  }
+
+  const totalPages = Math.max(1, Math.ceil((totalResults || 0) / limit))
   const isLoadingList = shouldUseAdvancedResults ? isLoadingSearchedProperties : isLoadingProperties
 
   const changePage = (page: number) => setPage(Math.max(1, Math.min(page, totalPages)))

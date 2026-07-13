@@ -66,6 +66,7 @@ import {
   getYoutubeEmbedUrl,
   getYoutubeThumbnail,
   isInstagramUrl,
+  isYoutubeShortsUrl,
   isYoutubeUrl,
 } from '@/utils/property/videoUrl'
 import ApproveOrRejectPropertyModal from '@/components/ui/CustomComponent/Modal/ApproveOrReject/ApproveOrRejectModal'
@@ -384,10 +385,14 @@ const page = () => {
 
     return sortedMedia
       .filter((item: any) => item.url && item.url.trim() !== '')
-      .filter((item: any) => !(item.media_type === 'VIDEO' && isInstagramUrl(item.url)))
+      // Instagram + YouTube Shorts open as external link buttons (not gallery embeds)
+      .filter(
+        (item: any) =>
+          !(item.media_type === 'VIDEO' && (isInstagramUrl(item.url) || isYoutubeShortsUrl(item.url))),
+      )
       .map((item: any) => ({
         url: item.url,
-        type: item.media_type === 'VIDEO' && isYoutubeUrl(item.url) ? 'video' : 'image',
+        type: item.media_type === 'VIDEO' && isYoutubeUrl(item.url) && !isYoutubeShortsUrl(item.url) ? 'video' : 'image',
         is_primary: item.is_primary,
       }))
   }, [propertyDetailsData?.media])
@@ -646,15 +651,21 @@ const page = () => {
   }, [similarProperties, popularSimilarProperties, propertyId])
 
   const instagramReelUrl = useMemo(() => {
-    const reel = propertyDetailsData?.media?.find(
-      (media: any) => isInstagramUrl(media.url),
-    )
+    const reel = propertyDetailsData?.media?.find((media: any) => isInstagramUrl(media.url))
     return reel?.url?.trim() || null
   }, [propertyDetailsData?.media])
 
-  // Derive primary YouTube video URL from media (Instagram reels use external link)
+  const youtubeShortsUrl = useMemo(() => {
+    const shorts = propertyDetailsData?.media?.find((media: any) => isYoutubeShortsUrl(media.url))
+    return shorts?.url?.trim() || null
+  }, [propertyDetailsData?.media])
+
+  // Regular YouTube (not Shorts) for in-page embed / virtual tour
   const primaryVideoMedia = useMemo(
-    () => propertyDetailsData?.media?.find((media: any) => media.media_type === 'VIDEO' && isYoutubeUrl(media.url)),
+    () =>
+      propertyDetailsData?.media?.find(
+        (media: any) => media.media_type === 'VIDEO' && isYoutubeUrl(media.url) && !isYoutubeShortsUrl(media.url),
+      ),
     [propertyDetailsData],
   )
 
@@ -1137,6 +1148,18 @@ const page = () => {
                           >
                             <Video size={16} />
                             <span>Instagram Reel</span>
+                          </a>
+                        )}
+
+                        {youtubeShortsUrl && (
+                          <a
+                            href={youtubeShortsUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 min-w-[120px] bg-gradient-to-r from-red-600 to-red-500 border border-red-200 rounded-full py-2.5 px-4 text-sm font-semibold text-white flex items-center justify-center gap-1.5 transition-all hover:from-red-700 hover:to-red-600 shadow-sm"
+                          >
+                            <Video size={16} />
+                            <span>YouTube Shorts</span>
                           </a>
                         )}
                       </div>

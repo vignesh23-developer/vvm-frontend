@@ -113,6 +113,7 @@ export default function AdvancedFilters({
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     price: true,
     verified: true,
+    offer: true,
     propertyType: true,
     bedrooms: true,
     location: true,

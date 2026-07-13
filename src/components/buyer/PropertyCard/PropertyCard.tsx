@@ -8,7 +8,6 @@ import { Heart, Share, Ruler, MapPin, Shapes, Tag } from 'lucide-react'
 import Image from 'next/image'
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import FavoriteButton from '@/components/ui/CustomComponent/FavoriteButton/FavoriteButton'
-import { cn } from '@/lib/utils'
 import {
   isLayoutPropertyDisplay,
   resolvePropertyPriceLabel,
@@ -241,26 +240,23 @@ export default function PropertyCard(props: PropertiesCardProps) {
           )}
         </div>
 
-        {/* Offer badge + Favorite & Share Buttons (Overlay) */}
-        {(hasOffer || typeof handleFavorite === 'function' || typeof handleShare === 'function') && (
+        {/* Offer badge (bottom-left) — always visible when present */}
+        {hasOffer && (
           <div
-            className={cn(
-              'absolute bottom-3 right-3 flex items-center gap-2 z-10 transition-opacity',
-              hasOffer ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
-            )}
+            className="absolute bottom-3 left-3 z-10 max-w-[160px] sm:max-w-[200px] bg-yellow-400 text-[#2a1407] px-2.5 py-1.5 rounded-full shadow-md border border-yellow-300"
+            onClick={e => e.stopPropagation()}
+            title={offerText}
           >
-            {hasOffer && (
-              <div
-                className="max-w-[140px] sm:max-w-[180px] bg-yellow-400 text-[#2a1407] px-2.5 py-1.5 rounded-full shadow-md border border-yellow-300"
-                onClick={e => e.stopPropagation()}
-                title={offerText}
-              >
-                <div className="flex items-center gap-1">
-                  <Tag size={13} className="shrink-0" />
-                  <span className="text-[11px] font-bold truncate">{offerText}</span>
-                </div>
-              </div>
-            )}
+            <div className="flex items-center gap-1">
+              <Tag size={13} className="shrink-0" />
+              <span className="text-[11px] font-bold truncate">{offerText}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Favorite & Share — always visible (not hover-only) */}
+        {(typeof handleFavorite === 'function' || typeof handleShare === 'function') && (
+          <div className="absolute bottom-3 right-3 flex items-center gap-2 z-10">
             {typeof handleFavorite === 'function' && (
               <div
                 className="bg-white/95 backdrop-blur p-2 rounded-full shadow-sm hover:bg-white transition-colors"

@@ -14,6 +14,9 @@ import { useState, useMemo, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import { formatPrice } from '@/utils/converter/formatPrice'
 import PropertyCard from '@/components/buyer/PropertyCard/PropertyCard'
+import { postMethod } from '@/services/service'
+import { appEndpoints } from '@/services/endpoints'
+import toast from 'react-hot-toast'
 
 // Skeleton Loader for Popular Properties
 const PopularPropertiesSkeleton = () => {
@@ -104,6 +107,34 @@ export default function PopularProperties({
       return
     }
     router.push(detailsPath)
+  }
+
+  const handleFavorite = async (propertyId: string) => {
+    if (!token) {
+      openLoginModal({ next: typeof window !== 'undefined' ? window.location.pathname : '/' })
+      return
+    }
+    try {
+      await postMethod(appEndpoints.toggleFavorite, { entity_type: 'property', entity_id: propertyId })
+      await PropertiesMutate?.()
+    } catch (err) {
+      console.error('Error updating favorite:', err)
+    }
+  }
+
+  const handleShare = async (propertyId: string | number) => {
+    const shareUrl = typeof window !== 'undefined' ? `${window.location.origin}/propertyDetails/${propertyId}` : `/propertyDetails/${propertyId}`
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ url: shareUrl })
+      } else {
+        await navigator.clipboard.writeText(shareUrl)
+        toast.success('Link copied to clipboard')
+      }
+    } catch (err) {
+      console.error('Share failed', err)
+    }
   }
 
   // Pagination calculations
@@ -284,8 +315,11 @@ export default function PopularProperties({
                   layout_total_sqft={(item as any).layout_total_sqft}
                   property_size={(item as any).property_size}
                   property_size_unit={(item as any).property_size_unit}
+                  offer={(item as any).offer}
+                  isUserFavorited={Boolean((item as any).is_user_favorite)}
                   onPrimaryAction={() => handleSeeMoreClick(item.id)}
-                  // Landing cards: no favorite/share UI here
+                  handleFavorite={handleFavorite}
+                  handleShare={() => handleShare(item.id)}
                 />
               </motion.div>
             ))}

@@ -1,8 +1,9 @@
-/** True when the property category is a layout/plot development type. */
+/** True when the property category is a Layout development type (not Plot). */
 export function isLayoutCategory(categoryName?: string | null): boolean {
   if (!categoryName) return false
   const normalized = categoryName.toLowerCase().trim()
-  return normalized.includes('layout') || normalized.includes('plot')
+  // Exact / word match for "layout" only — Plot uses standard price/size fields
+  return normalized === 'layout' || normalized.includes('layout')
 }
 
 export function findCategoryName(
