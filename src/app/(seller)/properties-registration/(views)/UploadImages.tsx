@@ -12,6 +12,7 @@ import {
   getYoutubeThumbnail,
   isInstagramUrl,
   isSupportedExternalVideoUrl,
+  isYoutubeShortsUrl,
   isYoutubeUrl,
 } from '@/utils/property/videoUrl'
 import { ResponseDTO } from '@/components/dto/response_dto'
@@ -336,21 +337,31 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
       setItems(prev => prev.map(item => (item.id === id ? { ...item, title: newTitle } : item)))
     }
 
-    // EXTERNAL VIDEO LINK LOGIC (YouTube / Instagram)
+    // EXTERNAL VIDEO LINK LOGIC (YouTube / YouTube Shorts / Instagram)
     // ----------------------------------------------------------------------
 
     const handleAddVideoLink = () => {
       if (!videoLink.trim()) return
 
-      const currentExternalVideos = items.filter(i => i.type === 'VIDEO' && i.url && isSupportedExternalVideoUrl(i.url))
-      if (currentExternalVideos.length >= 1) {
-        toast.error('You can only add 1 video link.')
+      const normalizedLink = videoLink.trim()
+      if (!isSupportedExternalVideoUrl(normalizedLink)) {
+        toast.error('Please paste a valid YouTube, YouTube Shorts, or Instagram video link.')
         return
       }
 
-      const normalizedLink = videoLink.trim()
-      if (!isSupportedExternalVideoUrl(normalizedLink)) {
-        toast.error('Please paste a valid YouTube or Instagram video link.')
+      const currentExternalVideos = items.filter(i => i.type === 'VIDEO' && i.url && isSupportedExternalVideoUrl(i.url))
+      if (currentExternalVideos.length >= 2) {
+        toast.error('You can add up to 2 video links (e.g. YouTube Shorts + Instagram).')
+        return
+      }
+
+      // Prevent duplicate platform types (one YouTube + one Instagram)
+      if (isInstagramUrl(normalizedLink) && currentExternalVideos.some(i => isInstagramUrl(i.url))) {
+        toast.error('An Instagram reel link is already added.')
+        return
+      }
+      if (isYoutubeUrl(normalizedLink) && currentExternalVideos.some(i => isYoutubeUrl(i.url))) {
+        toast.error('A YouTube / Shorts link is already added.')
         return
       }
 
@@ -370,7 +381,7 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
       setItems(prev => [...prev, newItem])
       setVideoLink('')
       setVideoTitle('')
-      toast.success('Video link added')
+      toast.success(`${getExternalVideoLabel(normalizedLink)} added`)
     }
 
     // ----------------------------------------------------------------------
@@ -770,14 +781,14 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
             </div>
           )}
 
-          {/* YOUTUBE TAB */}
+          {/* YOUTUBE / SHORTS / INSTAGRAM TAB */}
           {activeTab === 'videoLink' && (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              {externalVideoItems.length >= 1 ? (
+              {externalVideoItems.length >= 2 ? (
                 <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-center gap-3 text-blue-800">
                   <Info size={20} />
                   <span className="text-sm font-medium">
-                    You have reached the video link limit (1 max). Remove the current link to add a different one.
+                    You have reached the video link limit (2 max — e.g. YouTube Shorts + Instagram). Remove one to add another.
                   </span>
                 </div>
               ) : (
@@ -788,13 +799,15 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
                         <LinkIcon size={24} />
                       </div>
                       <h3 className="text-lg font-bold text-gray-900">Add Video Link</h3>
-                      <p className="text-sm text-gray-500">Paste a YouTube or Instagram reel link to showcase your property.</p>
+                      <p className="text-sm text-gray-500">
+                        Paste a YouTube, YouTube Shorts, or Instagram reel link to showcase your property.
+                      </p>
                     </div>
 
                     <div className="flex gap-2">
                       <input
                         type="url"
-                        placeholder="https://youtube.com/... or https://instagram.com/reel/..."
+                        placeholder="https://youtube.com/shorts/... or https://instagram.com/reel/..."
                         className="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#2a1407] focus:border-transparent outline-none transition-all shadow-sm"
                         value={videoLink}
                         onChange={e => setVideoLink(e.target.value)}
@@ -811,7 +824,7 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
               )}
 
               {externalVideoItems.length > 0 && (
-                <div className="flex justify-center">
+                <div className="flex flex-col items-center gap-6">
                   {externalVideoItems.map(item => (
                     <div
                       key={item.id}
@@ -822,11 +835,17 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
                           <img src={item.preview} alt={item.title} className="w-full h-full object-cover opacity-90" />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045] flex items-center justify-center">
-                            <span className="text-white font-bold text-lg">Instagram Reel</span>
+                            <span className="text-white font-bold text-lg">
+                              {isYoutubeShortsUrl(item.url)
+                                ? 'YouTube Shorts'
+                                : isInstagramUrl(item.url)
+                                  ? 'Instagram Reel'
+                                  : 'Video Link'}
+                            </span>
                           </div>
                         )}
 
-                        {isYoutubeUrl(item.url) && (
+                        {isYoutubeUrl(item.url) && !isYoutubeShortsUrl(item.url) && (
                           <div
                             className="absolute inset-0 flex items-center justify-center cursor-pointer"
                             onClick={() => {
@@ -862,14 +881,14 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
                               <span className="truncate max-w-xs">{item.url}</span>
                             </div>
                           </div>
-                          {isInstagramUrl(item.url) ? (
+                          {isInstagramUrl(item.url) || isYoutubeShortsUrl(item.url) ? (
                             <a
                               href={item.url}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="shrink-0 text-xs font-semibold text-[#2a1407] bg-[#2a1407]/5 px-3 py-1 rounded-full border border-[#2a1407]/10 hover:bg-[#2a1407]/10"
                             >
-                              Open Reel
+                              {isYoutubeShortsUrl(item.url) ? 'Open Shorts' : 'Open Reel'}
                             </a>
                           ) : (
                             <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-[#2a1407] bg-[#2a1407]/5 px-3 py-1 rounded-full border border-[#2a1407]/10">
