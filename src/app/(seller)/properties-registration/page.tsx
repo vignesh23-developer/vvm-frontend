@@ -29,8 +29,10 @@ import { useLoginModal } from '@/components/auth/LoginModalProvider'
 import { useKycStatus } from '@/components/kyc/hooks/useKycStatus'
 import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
 import Step5UploadImages, { UploadImagesRef } from './(views)/UploadImages'
+import AdminPostingAs, { AdminPostingTarget } from './(views)/AdminPostingAs'
 import { getPropertyStepValidationSchema } from './validationSchemas'
 import { findCategoryName, isLayoutCategory } from '@/utils/property/isLayoutCategory'
+import { getUserRoles, hasRole, Roles } from '@/utils/roles/roles'
 
 const mapFeatureValuesToPayload = (featureValues: any[] | undefined, mappings: FeatureMappingDTO[] | null): FeaturePayloadDTO[] => {
   if (!Array.isArray(featureValues)) {
@@ -199,6 +201,12 @@ function PropertiesRegistrationPageContent({ searchParams }: { searchParams: Pro
   const { user, setUser } = useAuth()
   const router = useRouter()
   const [valueData, setValueData] = useState<any>(null)
+  const userRoles = getUserRoles(user)
+  const isAdmin = hasRole(userRoles, [Roles.ADMIN])
+  const [adminPostingAs, setAdminPostingAs] = useState<AdminPostingTarget>({
+    ownerId: '',
+    agentId: '',
+  })
 
   const uploadRef = useRef<UploadImagesRef>(null)
 
@@ -206,9 +214,9 @@ function PropertiesRegistrationPageContent({ searchParams }: { searchParams: Pro
   const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
 
   useEffect(() => {
-    if (isKycLoading || kycError) return
+    if (isAdmin || isKycLoading || kycError) return
 
-    // Block ad creation/edit until KYC is verified
+    // Block property creation/edit until KYC is verified (admins can post on behalf)
     if (kycStatus?.isVerified === false) {
       toast('Please complete KYC verification to register your properties.', {
         icon: '⚠️',
@@ -216,7 +224,7 @@ function PropertiesRegistrationPageContent({ searchParams }: { searchParams: Pro
       })
       router.replace('/kyc-pending')
     }
-  }, [isKycLoading, kycError, kycStatus?.isVerified, router])
+  }, [isAdmin, isKycLoading, kycError, kycStatus?.isVerified, router])
 
   const fectchPropertiesById = async (id: string | undefined) => {
     if (id) {
@@ -341,10 +349,9 @@ function PropertiesRegistrationPageContent({ searchParams }: { searchParams: Pro
     if (LRActionState?.success) {
       toast.success('Property Created Successfully')
 
-      // console.log('property id:', LRActionState?.data?.id, user)
-
-      // byuer to agent manual setting
-      if (user?.roles && user?.roles.length <= 1) {
+      // buyer to agent manual setting — only when admin is not posting on behalf of someone else
+      const createdForSelf = !isAdmin || !adminPostingAs.ownerId || adminPostingAs.ownerId === user?.id
+      if (createdForSelf && user?.roles && user?.roles.length <= 1) {
         user.roles = [...user.roles, 'AGENT']
         setUser({ ...user })
       }
@@ -419,6 +426,12 @@ function PropertiesRegistrationPageContent({ searchParams }: { searchParams: Pro
         }
 
         if (currentStep === 3 && featureData) {
+          if (isAdmin && !adminPostingAs.ownerId && !propertiesId && !globalValue) {
+            toast.error('Please select an agent account to post this property for.')
+            actions.setSubmitting(false)
+            return
+          }
+
           const selectedFeatures = (values.features?.length ? values.features : (inputFeatureData ?? [])) as FeaturePayloadDTO[]
           const categoryName = findCategoryName(propertyCategoryData, values.propertyType)
           const isLayout = isLayoutCategory(categoryName)
@@ -426,6 +439,12 @@ function PropertiesRegistrationPageContent({ searchParams }: { searchParams: Pro
           const resolvedPrice = isLayout ? values.layout_price_min : values.price
           const resolvedSize = isLayout ? values.layout_area_min_sqft : values.size
           const resolvedUnit = isLayout ? values.layout_area_unit || 'Sqft' : values.unit
+
+          const selectedOwnerId = isAdmin && adminPostingAs.ownerId ? adminPostingAs.ownerId : user?.id
+          const selectedAgentId =
+            isAdmin && adminPostingAs.ownerId
+              ? adminPostingAs.agentId || ''
+              : user?.agent?.agent_id || ''
 
           const LandRegistrationData: LandRegistrationPayloadDTO = new LandRegistrationPayloadDTO({
             contact_name: values?.contactName || `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim(),
@@ -460,7 +479,7 @@ function PropertiesRegistrationPageContent({ searchParams }: { searchParams: Pro
             country: values?.country,
             latitude: values?.latitude,
             longitude: values?.longitude,
-            agent_id: user?.agent?.agent_id || '',
+            agent_id: selectedAgentId,
             // Ensure each feature is an instance of FeaturePayloadDTO so `toObject()` exists at runtime.
             features: selectedFeatures.map((feature: FeaturePayloadDTO) =>
               feature instanceof FeaturePayloadDTO ? feature : new FeaturePayloadDTO(feature as any),
@@ -479,7 +498,7 @@ function PropertiesRegistrationPageContent({ searchParams }: { searchParams: Pro
             })
           } else {
             startTransition(async () => {
-              LRAction({ payload, userId: user?.id })
+              LRAction({ payload, userId: selectedOwnerId })
             })
           }
           return
@@ -739,13 +758,15 @@ function PropertiesRegistrationPageContent({ searchParams }: { searchParams: Pro
             }
           }
           useEffect(() => {
+            // Prefer admin-selected agent contact when posting on behalf
+            if (isAdmin && adminPostingAs.ownerId) return
             if (user) {
               const name = `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim()
               if (!formik.values.contactName && name) formik.setFieldValue('contactName', name)
               if (!formik.values.contactNumber && user.phoneNumber) formik.setFieldValue('contactNumber', user.phoneNumber)
               if (!formik.values.contactEmail && user.email) formik.setFieldValue('contactEmail', user.email)
             }
-          }, [user])
+          }, [user, isAdmin, adminPostingAs.ownerId])
 
           useEffect(() => {
             init()
@@ -753,6 +774,14 @@ function PropertiesRegistrationPageContent({ searchParams }: { searchParams: Pro
 
           return (
             <Form>
+              {isAdmin && !propertiesId && (
+                <AdminPostingAs
+                  formik={formik}
+                  value={adminPostingAs}
+                  onChange={setAdminPostingAs}
+                  disabled={Boolean(globalValue) || isEdit}
+                />
+              )}
               {currentStep === 1 && (
                 <Step1BasicDetails
                   data={propertyCategoryData}

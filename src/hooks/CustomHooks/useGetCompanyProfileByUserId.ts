@@ -3,50 +3,49 @@
 import useSWR from 'swr'
 import { appEndpoints } from '@/services/endpoints'
 import { getMethod } from '@/services/service'
-import toast from 'react-hot-toast'
 
-// Custom hook for managing property reports
-export function useCompanyProfilesByUserId(userId: string) {
-  // Fetcher using our generic API helper
-  const fetcher = async (url: string): Promise<any[]> => {
-    try {
-      const response = await getMethod<any>(url)
-      console.log('Fetched company profiles ResponseDTO:', response)
+function extractCompanyProfiles(payload: unknown): any[] {
+  if (!payload) return []
+  if (Array.isArray(payload)) return payload
 
-      if (response?.error) {
-        toast.error(response.message || 'Failed to fetch company profiles')
-        console.error('API error while fetching company profiles:', response.message)
-        return []
-      }
-
-      // Safe extraction of data
-      if (Array.isArray(response?.data)) {
-        return response.data
-      }
-
-      // If API returns a single object, wrap it into an array
-      if (response?.data) {
-        return response.data[0].id
-      }
-
-      console.warn('Unexpected data format:', response?.data)
-      return []
-    } catch (error) {
-      console.error('Failed to fetch company profiles:', error)
-      return []
+  if (typeof payload === 'object') {
+    const nested = (payload as { data?: unknown }).data
+    if (Array.isArray(nested)) return nested
+    // Single profile object
+    if (nested && typeof nested === 'object' && 'id' in (nested as object)) {
+      return [nested]
+    }
+    if ('id' in (payload as object)) {
+      return [payload]
     }
   }
 
-  // SWR handles caching, revalidation, and errors
+  return []
+}
+
+export function useCompanyProfilesByUserId(userId: string) {
+  const fetcher = async (url: string): Promise<any[]> => {
+    const response = await getMethod<any>(url)
+
+    if (response?.error) {
+      throw new Error(response.message || 'Failed to fetch company profiles')
+    }
+
+    return extractCompanyProfiles(response?.data)
+  }
+
   const {
-    data: getCompanyProfile,
+    data: companyProfiles,
     error,
     isLoading,
     mutate: mutateCompanyProfiles,
-  } = useSWR<any[]>(`${appEndpoints.getCompanyProfilesByUserID(userId)}`, fetcher)
+  } = useSWR<any[]>(userId ? `${appEndpoints.getCompanyProfilesByUserID(userId)}` : null, fetcher, {
+    revalidateOnFocus: false,
+    shouldRetryOnError: false,
+  })
 
   return {
-    companyProfiles: getCompanyProfile ?? [],
+    companyProfiles: companyProfiles ?? [],
     error,
     isLoading,
     mutate: mutateCompanyProfiles,

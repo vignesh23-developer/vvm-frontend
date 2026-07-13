@@ -16,6 +16,8 @@ import ApproveOrRejectPropertyModal from '@/components/ui/CustomComponent/Modal/
 import { useGlobalContext } from '@/hooks/GlobalContext/GlobalContext'
 import SkeletonLoader from '@/components/ui/CustomComponent/SkeletonLoader/SkeletonLoader'
 import PropertyOrAdsApproveRejectCard from '@/components/buyer/PropertyOrAdsApproveRejectCard/PropertyOrAdsCard'
+import { getUserRoles, hasRole, Roles } from '@/utils/roles/roles'
+import toast from 'react-hot-toast'
 
 interface ListingDetails {
   type?: string
@@ -61,7 +63,15 @@ export default function Step6ReviewSubmit({ listingData, onSubmit, formik, prope
 
   const handleSubmit = () => {
     reset()
-    router.push('/properties-list')
+    const isAdmin = hasRole(getUserRoles(user), [Roles.ADMIN])
+    toast.success(isAdmin ? 'Listing published successfully' : 'Listing submitted for review')
+
+    // Admin posts are auto-approved + published; agents still go through review
+    if (isAdmin) {
+      router.push('/properties-list')
+    } else {
+      router.push('/properties/list')
+    }
   }
 
   const handleTermsChange = (e: React.ChangeEvent<HTMLInputElement>) => setAgreedToTerms(e.target.checked)
@@ -118,6 +128,13 @@ export default function Step6ReviewSubmit({ listingData, onSubmit, formik, prope
             <div className="flex items-start">
               <span className="text-blue-700 mr-2 mt-0.5">•</span>
               <span className="text-blue-700 text-sm">Your listing will be reviewed within 24 hours</span>
+            </div>
+
+            <div className="flex items-start">
+              <span className="text-blue-700 mr-2 mt-0.5">•</span>
+              <span className="text-blue-700 text-sm">
+                Agent listings stay under review until approved. Super Admin listings are published immediately.
+              </span>
             </div>
 
             <div className="flex items-start">
