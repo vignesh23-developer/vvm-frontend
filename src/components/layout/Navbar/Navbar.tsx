@@ -221,6 +221,8 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
   }
 
   const handleLogout = () => {
+    const confirmed = window.confirm('Are you sure you want to logout?')
+    if (!confirmed)  {return}
     closeLoginModal()
     void logout()
     reset()
