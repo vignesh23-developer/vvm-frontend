@@ -1,0 +1,148 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import ModalComponent from '@/components/ui/CustomComponent/Modal/ModalComponent'
+import { Formik, Form } from 'formik'
+import { toast } from 'react-hot-toast'
+import Button from '@/components/ui/CustomComponent/Button/Button'
+import FormikSelectField from '@/components/ui/Formik/FormikSelectField/FormikSelectField'
+import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
+import FormikCheckboxField from '@/components/ui/Formik/FormikCheckboxField/FormikCheckboxField'
+import ReportPropertyValidation from '../validation/ReportPropertyValidation'
+import { postMethod } from '@/services/service'
+import { appEndpoints } from '@/services/endpoints'
+import { ResponseDTO } from '@/components/dto/response_dto'
+
+interface ReportPropertyModalProps {
+  reportModalOpen: boolean
+  setReportModalOpen: (open: boolean) => void
+  propertyId: string | number
+  propertyDetailsRefresh: () => void
+}
+
+interface ReportFormValues {
+  report_type: string
+  description: string
+  is_anonymous: boolean
+  evidenceLink: string
+  severity: number
+  reporter_id?: string | number | null
+}
+
+const ReportPropertyModal = ({
+  reportModalOpen,
+  setReportModalOpen,
+  propertyId,
+  propertyDetailsRefresh,
+}: ReportPropertyModalProps & { propertyDetailsRefresh: () => void }) => {
+  const { user } = useAuth()
+  const options = [
+    { value: 'FAKE_LISTING', label: 'Fake Listing' },
+    { value: 'MISLEADING_INFO', label: 'Misleading Information' },
+    { value: 'SCAM_ACTIVITY', label: 'Scam / Fraudulent Activity' },
+    { value: 'OTHER', label: 'Other' },
+  ]
+
+  const initialValues: ReportFormValues = {
+    report_type: '',
+    description: '',
+    is_anonymous: false,
+    evidenceLink: '',
+    severity: 1,
+    reporter_id: user ? user?.id : null,
+  }
+
+  const handleReportSubmit = async (values: any, { resetForm }: any) => {
+    const payload = {
+      report_type: values.report_type,
+      description: values.description,
+      is_anonymous: values.is_anonymous,
+      severity: Number(values.severity),
+      evidence: { links: values.evidenceLink ? [values.evidenceLink] : [] },
+    }
+
+    try {
+      const response = (await postMethod(appEndpoints.createPropertyReport(propertyId as string), payload)) as ResponseDTO
+      if (Number(response.status) === 201) {
+        toast.success('Report submitted successfully!')
+        propertyDetailsRefresh()
+      }
+      resetForm()
+      setReportModalOpen(false)
+    } catch (error) {
+      toast.error('Failed to submit report')
+    }
+  }
+  return (
+    <div>
+      <ModalComponent open={reportModalOpen} title="Report Property" onClose={() => setReportModalOpen(false)} widthClass="max-w-md" footer={null}>
+        <Formik initialValues={initialValues} validationSchema={ReportPropertyValidation} onSubmit={handleReportSubmit}>
+          {({ isSubmitting }) => (
+            <Form className="space-y-4">
+              <p className="text-gray-700 font-medium">Please specify the reason for reporting this property:</p>
+
+              {/* Report Type */}
+              <div>
+                <FormikSelectField label="Report Type" name="report_type" options={options} />
+              </div>
+
+              {/* Description */}
+              <div>
+                <FormikTextField
+                  label="Description"
+                  as="textarea"
+                  name="description"
+                  placeholder="Enter your reason..."
+                  className="w-full border border-gray-300 rounded-md p-2 text-sm"
+                />
+              </div>
+
+              {/* Anonymous Option */}
+              <div className="flex items-center space-x-2">
+                <FormikCheckboxField label="Submit anonymously" name="is_anonymous" className="rounded border-gray-300" />
+              </div>
+
+              {/* Evidence Links */}
+              <div>
+                <FormikTextField
+                  type="url"
+                  label="Evidence Link (optional)"
+                  name="evidenceLink"
+                  placeholder="https://example.com/proof"
+                  className="w-full border border-gray-300 rounded-md p-2 text-sm"
+                />
+              </div>
+
+              {/* Severity */}
+              <div>
+                <FormikTextField type="number" label="Severity" name="severity" className="w-full border border-gray-300 rounded-md p-2 text-sm" />
+              </div>
+
+              {/* Buttons */}
+              <div className="flex justify-end gap-3 pt-4">
+                <Button
+                  type="button"
+                  onClick={() => setReportModalOpen(false)}
+                  className="border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-100"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  onClick={() => {}}
+                  className="bg-[#2a1407] text-white px-4 py-2 rounded-md hover:bg-[#2a1407] disabled:opacity-50"
+                >
+                  {isSubmitting ? 'Submitting...' : 'Submit'}
+                </Button>
+              </div>
+            </Form>
+          )}
+        </Formik>
+      </ModalComponent>
+    </div>
+  )
+}
+
+export default ReportPropertyModal

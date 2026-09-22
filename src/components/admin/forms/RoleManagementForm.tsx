@@ -1,0 +1,79 @@
+'use client'
+
+import { Formik, Form } from 'formik'
+import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
+import { useRouter } from 'next/navigation'
+import roleManagementSchema from '@/utils/validations/admin/roleManagementValidation'
+
+export interface FormValues {
+  name: string
+  description: string
+}
+
+interface RoleManagementFormProps {
+  initialValues: FormValues
+  /** Submit handler */
+  onSubmit: (values: FormValues) => Promise<void>
+
+  /** Optional — Change button label dynamically */
+  submitLabel?: string
+
+  /** Optional — Change button state for add/edit */
+  isEdit?: boolean
+}
+
+export default function RoleManagementForm({ initialValues, onSubmit, submitLabel, isEdit = false }: RoleManagementFormProps) {
+  const router = useRouter()
+
+  return (
+    <Formik initialValues={initialValues} validationSchema={roleManagementSchema} enableReinitialize onSubmit={onSubmit}>
+      {({ isSubmitting }) => (
+        <Form className="space-y-6">
+          {/* Role Name */}
+          <div>
+            <FormikTextField
+              label="Role Name *"
+              type="text"
+              name="name"
+              placeholder="Enter Role Name"
+              className="w-full border-0 bg-gray-100 rounded-md px-4 py-3 text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-black focus:bg-white transition"
+            />
+          </div>
+
+          {/* Description */}
+          <div>
+            <FormikTextField
+              label="Description"
+              as="textarea"
+              name="description"
+              placeholder="Enter Description"
+              className="w-full border-0 bg-gray-100 rounded-md px-4 py-3 h-36 text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-black focus:bg-white transition"
+            />
+          </div>
+
+          {/* Buttons */}
+          <div className="flex justify-end items-center gap-4 pt-4">
+            <button
+              type="button"
+              onClick={() => router.push('/admin/role-management')}
+              className="px-6 py-2 rounded-md bg-gray-200 hover:bg-gray-300 cursor-pointer text-gray-800 font-medium transition"
+              title="cancel"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`px-6 py-2 rounded-md text-white font-medium transition ${
+                isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-black hover:bg-gray-800 cursor-pointer'
+              }`}
+              title="submit"
+            >
+              {isSubmitting ? (isEdit ? 'Updating...' : 'Creating...') : submitLabel || (isEdit ? 'Update Role' : 'Create Role')}
+            </button>
+          </div>
+        </Form>
+      )}
+    </Formik>
+  )
+}

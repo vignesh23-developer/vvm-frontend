@@ -1,0 +1,932 @@
+'use client'
+import { CheckCircle, Home, MapPin, Star, Camera, Check, ArrowRight, ArrowLeft } from 'lucide-react'
+import { useRouter, usePathname } from 'next/navigation'
+import { SetStateAction, startTransition, use, useActionState, useEffect, useState, useTransition, useRef } from 'react'
+import { Formik, Form, FormikHelpers } from 'formik'
+import * as Yup from 'yup'
+
+// Step components
+// Step3ContactDetails hidden in UI — contact fields auto-filled from user profile for backend
+// import Step3ContactDetails from './(views)/ContactDetails'
+import Step1BasicDetails from './(views)/BasicDetails'
+import Step2LocationPrice from './(views)/LocationPrice'
+import Step4FeaturesAmenities from './(views)/FeaturesAmenities'
+import Step5PhotosContact from './(views)/PhotosContact'
+import Step6ReviewSubmit from './(views)/ReviewSubmit'
+import useLandRegistration, { PropertyCategoryFeatureMappingResponse } from './(hook)/properties_registration_hook'
+import { FeatureMappingDTO, FeaturePayloadDTO, LandRegistrationPayloadDTO } from './(dto)/properties_registration_dto'
+
+import toast from 'react-hot-toast'
+import { ResponseDTO } from '@/components/dto/response_dto'
+import { useGlobalContext } from '@/hooks/GlobalContext/GlobalContext'
+import { onAddPropertyMedia, onCreateProperty, onUpdateProperty } from './(action)/properties_registration_action'
+import { LOCAL_STORAGE_NAME } from '@/utils/local_storage/local_storage_constant'
+import { getMethod } from '@/services/service'
+import { appEndpoints } from '@/services/endpoints'
+import Button from '@/components/ui/CustomComponent/Button/Button'
+import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
+import { useLoginModal } from '@/components/auth/LoginModalProvider'
+import { useKycStatus } from '@/components/kyc/hooks/useKycStatus'
+import CustomLoader from '@/components/ui/CustomComponent/Loader/CustomLoader'
+import Step5UploadImages, { UploadImagesRef } from './(views)/UploadImages'
+import AdminPostingAs, { AdminPostingTarget } from './(views)/AdminPostingAs'
+import { getPropertyStepValidationSchema } from './validationSchemas'
+import { findCategoryName, isLayoutCategory } from '@/utils/property/isLayoutCategory'
+import { getUserRoles, hasRole, Roles } from '@/utils/roles/roles'
+
+const mapFeatureValuesToPayload = (featureValues: any[] | undefined, mappings: FeatureMappingDTO[] | null): FeaturePayloadDTO[] => {
+  if (!Array.isArray(featureValues)) {
+    return []
+  }
+
+  return featureValues
+    .map(feature => {
+      const categoryId = feature?.feature_category?.id ?? feature?.feature_category_id ?? feature?.category_id
+
+      if (!categoryId) {
+        return null
+      }
+      // console.log('Mapping feature value:', feature)
+      const mapping = mappings?.find(m => m.feature_category_id === categoryId)
+      const inputType = mapping?.input_type ?? feature?.feature_category?.input_type ?? ''
+
+      let optionIds: string[] = []
+      let valueText: string | undefined
+      let valueNumber: number | undefined
+      let valueBoolean: string | undefined
+
+      if (inputType.includes('boolean')) {
+        const rawBoolean = feature?.value_boolean ?? feature?.values
+        // console.log('Raw Boolean Value:', rawBoolean)
+        valueBoolean = rawBoolean === true || rawBoolean === 'true' ? 'true' : 'false'
+      } else if (inputType.includes('text')) {
+        const rawText = feature?.value_text ?? feature?.display_value ?? feature?.value
+        valueText = typeof rawText === 'string' ? rawText : rawText != null ? String(rawText) : ''
+      } else if (inputType.includes('numeric')) {
+        const rawNumber = feature?.value_number ?? feature?.display_value ?? feature?.value
+        const parsed = typeof rawNumber === 'number' ? rawNumber : Number(rawNumber)
+        valueNumber = Number.isFinite(parsed) ? parsed : undefined
+      } else {
+        if (Array.isArray(feature?.option_ids)) {
+          optionIds = feature.option_ids.map((id: any) => String(id))
+        } else if (Array.isArray(feature?.feature_options)) {
+          optionIds = feature.feature_options.map((opt: any) => String(opt?.id ?? opt?.option_id ?? opt))
+        } else if (feature?.option_id) {
+          optionIds = [String(feature.option_id)]
+        }
+      }
+
+      const groupId = feature?.feature_group?.id ?? feature?.feature_group_id ?? feature?.group_id ?? mapping?.feature_group_id ?? null
+
+      return new FeaturePayloadDTO({
+        feature_category_id: categoryId,
+        feature_group_id: groupId,
+        option_ids: optionIds,
+        value_text: valueText,
+        value_number: valueNumber,
+        value_boolean: valueBoolean,
+        is_mandator: mapping?.is_mandatory ?? feature?.is_mandatory ?? false,
+      })
+    })
+    .filter(Boolean) as FeaturePayloadDTO[]
+}
+
+interface Amenity {
+  id: string
+  name: string
+  selected: boolean
+}
+
+type PurposeType = 'Sale' | 'Rent' | 'Lease'
+
+export type LocalPropertyPhotoPayloadItem = {
+  // metadata only (serializable) — the actual File objects live in localpropertyPhoto.files
+  is_primary: boolean
+  title: string
+  media_type: 'IMAGE' | 'VIDEO'
+  sort_order: number
+  media_category: string
+}
+
+// Types for your combined form data (include all steps)
+export interface PropertyCreationFormValues {
+  // Step 1
+  propertyTitle: string
+  propertyType: string
+  purpose: string
+  description: string
+  project_status: 'CURRENT' | 'UPCOMING' | 'COMPLETED' | string
+  offer: string
+
+  // Step 2
+  door_number: string
+  street_name: string
+  address_line: string
+  city: string
+  district: string
+  state: string // default "Tamil Nadu"
+  postal_code: string
+  country: string // maybe default "India"
+  price: number | string
+  size: number | string
+  unit: string
+  latitude: number
+  longitude: number
+
+  layout_price_min: number | string
+  layout_price_max: number | string
+  layout_area_min_sqft: number | string
+  layout_area_max_sqft: number | string
+  layout_area_unit: string
+  plot_total_count: number | string
+  plot_sold_count: number | string
+  plot_booked_count: number | string
+  plot_available_count: number | string
+  layout_total_sqft: number | string
+
+  // Step 3
+  contactName: string
+  contactNumber: string
+  contactEmail: string
+
+  // Step 4
+  option_ids: Array<string>
+  // amenities: string[] — we might collect selected amenity names
+
+  // Step 5
+  uploadType: string
+  propertyPhoto: Array<{
+    media_type: string
+    url: string
+    title: string
+    is_primary: boolean
+  }>
+
+  localpropertyPhoto: {
+    files: Array<File>
+    payload: Array<LocalPropertyPhotoPayloadItem>
+  }
+  boostListing: boolean
+  uploadedFiles: File[] // maybe just store File[] or previews
+
+  features: Array<FeaturePayloadDTO>
+  // you could also include step5 review constraints
+}
+
+const PROPERTIES_REGISTRATION_BASE_PATH = '/properties-registration'
+
+function PropertiesRegistrationPageContent({ searchParams }: { searchParams: Promise<{ propertiesId?: string }> }) {
+  const resolvedParams = use(searchParams)
+  const propertiesId = resolvedParams?.propertiesId
+  const steps = [
+    { title: 'Step 1', subtitle: 'Basic Details', icon: <Home className="w-5 h-5" /> },
+    { title: 'Step 2', subtitle: 'Location & Price', icon: <MapPin className="w-5 h-5" /> },
+    // { title: 'Step 3', subtitle: 'Contact Details', icon: <ContactRound className="w-5 h-5" /> },
+    { title: 'Step 3', subtitle: 'Features & Amenities', icon: <Star className="w-5 h-5" /> },
+    { title: 'Step 4', subtitle: 'Photos', icon: <Camera className="w-5 h-5" /> },
+    { title: 'Step 5', subtitle: 'Review & Submit', icon: <Check className="w-5 h-5" /> },
+  ]
+  const {
+    propertyCategoryData,
+    propertyCategoryFetchLoader,
+    propertyCategoryFetchErr,
+    propertyCategoryRefresh,
+    onGetPropertyCategoryFeatureMapping,
+  } = useLandRegistration()
+
+  const { globalValue, setGlobalValue } = useGlobalContext()
+
+  const effectivePropertyId = propertiesId ?? (globalValue != null ? String(globalValue) : '')
+
+  const { user, setUser } = useAuth()
+  const router = useRouter()
+  const [valueData, setValueData] = useState<any>(null)
+  const userRoles = getUserRoles(user)
+  const isAdmin = hasRole(userRoles, [Roles.ADMIN])
+  const [adminPostingAs, setAdminPostingAs] = useState<AdminPostingTarget>({
+    ownerId: '',
+    agentId: '',
+  })
+
+  const uploadRef = useRef<UploadImagesRef>(null)
+
+  // KYC Verification Hook
+  const { kycStatus, loading: isKycLoading, error: kycError, refetch } = useKycStatus()
+
+  useEffect(() => {
+    if (isAdmin || isKycLoading || kycError) return
+
+    // Block property creation/edit until KYC is verified (admins can post on behalf)
+    if (kycStatus?.isVerified === false) {
+      toast('Please complete KYC verification to register your properties.', {
+        icon: '⚠️',
+        style: { borderRadius: '8px', background: '#fff3cd', color: '#856404' },
+      })
+      router.replace('/kyc-pending')
+    }
+  }, [isAdmin, isKycLoading, kycError, kycStatus?.isVerified, router])
+
+  const fectchPropertiesById = async (id: string | undefined) => {
+    if (id) {
+      const res = (await getMethod(appEndpoints.getPropertiesByID(id as string))) as ResponseDTO<any>
+      // console.log('property by id res:', res.data)
+      setValueData(res?.data)
+    }
+  }
+
+  useEffect(() => {
+    fectchPropertiesById(propertiesId)
+  }, [propertiesId])
+
+  const [currentStep, setCurrentStep] = useState(1)
+  const [featureData, setFeatureData] = useState<Array<FeatureMappingDTO> | null>(null)
+  const [inputFeatureData, setInputFeatureData] = useState<Array<FeaturePayloadDTO> | null>(null)
+
+  const [isEdit, setIsEdit] = useState<boolean>(false)
+  const [uploadCompleted, setUploadCompleted] = useState<boolean>(false)
+  const [isUploadingImages, setIsUploadingImages] = useState<boolean>(false)
+  const [hasNewMediaFiles, setHasNewMediaFiles] = useState<boolean>(false)
+  const [validationCategoryId, setValidationCategoryId] = useState<string>('')
+
+  const initialValues: PropertyCreationFormValues = {
+    contactName: '',
+    contactNumber: '',
+    contactEmail: '',
+
+    propertyTitle: '',
+    propertyType: '',
+    purpose: '',
+    description: '',
+    project_status: 'CURRENT',
+    offer: '',
+
+    door_number: '',
+    street_name: '',
+    address_line: '',
+    city: '',
+    district: '',
+    state: 'Tamil Nadu', // default "Tamil Nadu"
+    postal_code: '',
+    country: 'India', // maybe default "India"
+    price: '',
+    size: '',
+    unit: 'Sqft',
+
+    latitude: 0,
+    longitude: 0,
+
+    layout_price_min: '',
+    layout_price_max: '',
+    layout_area_min_sqft: '',
+    layout_area_max_sqft: '',
+    layout_area_unit: 'Sqft',
+    plot_total_count: '',
+    plot_sold_count: '',
+    plot_booked_count: '',
+    plot_available_count: '',
+    layout_total_sqft: '',
+
+    // Step3: we’ll handle amenities selection differently
+    option_ids: [],
+
+    uploadType: '',
+    propertyPhoto: [
+      {
+        media_type: '',
+        url: '',
+        title: '',
+        is_primary: false,
+      },
+    ],
+
+    localpropertyPhoto: {
+      files: [],
+      payload: [],
+    },
+
+    boostListing: false,
+    uploadedFiles: [],
+
+    features: [],
+  }
+
+  // Validation schemas are resolved per step based on selected property category (see Formik render).
+
+  const isLastStep = currentStep === steps.length
+
+  // on create property init state
+  const LRActionInitState: ResponseDTO = new ResponseDTO({ error: false, data: null, message: '', status: '', success: false })
+
+  // on update property init state
+  const ULRActionInitState: ResponseDTO = new ResponseDTO({ error: false, data: null, message: '', status: '', success: false })
+
+  // on add property media init state
+  const UPPActionInitState: ResponseDTO = new ResponseDTO({ error: false, data: null, message: '', status: '', success: false })
+
+  const [LRActionState, LRAction, LRIsPending] = useActionState<ResponseDTO<any>, any>(onCreateProperty, LRActionInitState)
+
+  const [ULRActionState, ULRAction, ULRIsPending] = useActionState<ResponseDTO<any>, any>(onUpdateProperty, LRActionInitState)
+
+  useEffect(() => {
+    if (ULRActionState?.error) {
+      toast.error('Faild to Update Property')
+    }
+    if (ULRActionState?.success) {
+      toast.success('Property Updated Successfully')
+      // console.log('property id:', ULRActionState?.data?.id)
+      // setGlobalValue(ULRActionState?.data?.id)
+      // setLocalStorageItem(LOCAL_STORAGE_NAME.propertyId, ULRActionState?.data?.id)
+      setCurrentStep(step => step + 1)
+      setIsEdit(true)
+    }
+  }, [ULRActionState])
+
+  useEffect(() => {
+    if (LRActionState?.error) {
+      toast.error(LRActionState?.message || 'Faild to create Property')
+      console.log('LRActionState error:', LRActionState?.message)
+    }
+    if (LRActionState?.success) {
+      toast.success('Property Created Successfully')
+
+      // buyer to agent manual setting — only when admin is not posting on behalf of someone else
+      const createdForSelf = !isAdmin || !adminPostingAs.ownerId || adminPostingAs.ownerId === user?.id
+      if (createdForSelf && user?.roles && user?.roles.length <= 1) {
+        user.roles = [...user.roles, 'AGENT']
+        setUser({ ...user })
+      }
+      setGlobalValue(LRActionState?.data?.id)
+      // setLocalStorageItem(LOCAL_STORAGE_NAME.propertyId, LRActionState?.data?.id)
+      setCurrentStep(step => step + 1)
+      setIsEdit(true)
+    }
+  }, [LRActionState])
+
+  // const [UPPActionState, UPPAction, UPPIsPending] = useActionState<
+  //   ResponseDTO<any>,
+  //   { id: any; payload: any; uploadType: 'chooseFromDevice' | 'addViaLink' }
+  // >(onAddPropertyMedia, UPPActionInitState)
+
+  // useEffect(() => {
+  //   if (UPPActionState?.error) {
+  //     toast.error('Faild to create Property')
+  //     console.log('UPPActionState error:', UPPActionState?.message)
+  //   }
+  //   if (UPPActionState?.success) {
+  //     toast.success('Property Media Added Successfully')
+  //     // mark upload as completed so the Next button can be enabled
+  //     setUploadCompleted(true)
+  //     setIsEdit(true)
+  //   }
+  // }, [UPPActionState])
+
+  const handleSubmit = async (values: PropertyCreationFormValues, actions: FormikHelpers<PropertyCreationFormValues>) => {
+    try {
+      const isLayout = isLayoutCategory(findCategoryName(propertyCategoryData, values.propertyType))
+      await getPropertyStepValidationSchema(currentStep, isLayout).validate(values, { abortEarly: false })
+
+      if (isLastStep) {
+        actions.setSubmitting(false)
+      } else {
+        // here for each step store the data on local
+        if (currentStep === 1) {
+          // setLocalStorageItem(LOCAL_STORAGE_NAME?.propertyDetails, JSON.stringify(values))
+        } else if (currentStep === 2) {
+          // setLocalStorageItem(LOCAL_STORAGE_NAME?.propertyDetails, JSON.stringify(values))
+        } else if (currentStep === 3) {
+          // setLocalStorageItem(LOCAL_STORAGE_NAME?.propertyDetails, JSON.stringify(values))
+        } else if (currentStep === 4) {
+          // setLocalStorageItem(LOCAL_STORAGE_NAME?.propertyDetails, JSON.stringify(values))
+        }
+
+        if (currentStep === 3 && featureData) {
+          // Extract all mandatory feature category IDs
+          const mandatoryFeatures = featureData.filter(val => val.is_mandatory)
+          const mandatoryIds = mandatoryFeatures.map(f => f.feature_category_id)
+          const selectedFeatures = (values.features?.length ? values.features : (inputFeatureData ?? [])) as FeaturePayloadDTO[]
+
+          // Find which mandatory features are filled by user
+          const filledMandatory = mandatoryIds.filter(id => {
+            const feature = selectedFeatures.find(f => f.feature_category_id === id)
+            if (!feature) return false
+
+            // Check if the value is actually filled depending on input type
+            return (
+              (feature.value_text && feature.value_text.trim() !== '') ||
+              feature.value_number !== undefined ||
+              feature.value_boolean !== undefined ||
+              (Array.isArray(feature.option_ids) && feature.option_ids.length > 0)
+            )
+          })
+
+          if (filledMandatory.length < mandatoryIds.length) {
+            toast.error('Please fill all mandatory fields before continuing.')
+            return
+          }
+        }
+
+        if (currentStep === 3 && featureData) {
+          if (isAdmin && !adminPostingAs.ownerId && !propertiesId && !globalValue) {
+            toast.error('Please select an agent account to post this property for.')
+            actions.setSubmitting(false)
+            return
+          }
+
+          const selectedFeatures = (values.features?.length ? values.features : (inputFeatureData ?? [])) as FeaturePayloadDTO[]
+          const categoryName = findCategoryName(propertyCategoryData, values.propertyType)
+          const isLayout = isLayoutCategory(categoryName)
+
+          const resolvedPrice = isLayout ? values.layout_price_min : values.price
+          const resolvedSize = isLayout ? values.layout_area_min_sqft : values.size
+          const resolvedUnit = isLayout ? values.layout_area_unit || 'Sqft' : values.unit
+
+          const selectedOwnerId = isAdmin && adminPostingAs.ownerId ? adminPostingAs.ownerId : user?.id
+          const selectedAgentId =
+            isAdmin && adminPostingAs.ownerId
+              ? adminPostingAs.agentId || ''
+              : user?.agent?.agent_id || ''
+
+          const LandRegistrationData: LandRegistrationPayloadDTO = new LandRegistrationPayloadDTO({
+            contact_name: values?.contactName || `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim(),
+            contact_phone: values?.contactNumber || user?.phoneNumber || '',
+            contact_email: values?.contactEmail || user?.email || '',
+            title: values?.propertyTitle,
+            description: values?.description,
+            property_category_id: values?.propertyType,
+            price: resolvedPrice as number,
+            property_size: resolvedSize as number,
+            property_size_unit: resolvedUnit,
+            listing_type: values?.purpose,
+            offer: values?.offer?.trim() || undefined,
+            project_status: isLayout ? values?.project_status : undefined,
+            layout_price_min: isLayout ? (values?.layout_price_min as any) : undefined,
+            layout_price_max: isLayout ? (values?.layout_price_max as any) : undefined,
+            layout_area_min_sqft: isLayout ? (values?.layout_area_min_sqft as any) : undefined,
+            layout_area_max_sqft: isLayout ? (values?.layout_area_max_sqft as any) : undefined,
+            layout_area_unit: isLayout ? values?.layout_area_unit : undefined,
+            plot_total_count: isLayout ? (values?.plot_total_count as any) : undefined,
+            plot_sold_count: isLayout ? (values?.plot_sold_count as any) : undefined,
+            plot_booked_count: isLayout ? (values?.plot_booked_count as any) : undefined,
+            plot_available_count: isLayout ? (values?.plot_available_count as any) : undefined,
+            layout_total_sqft: isLayout ? (values?.layout_total_sqft as any) : undefined,
+            door_number: values?.door_number,
+            street_name: values?.street_name,
+            address_line: values?.address_line,
+            city: values?.city,
+            district: values?.district,
+            state: values?.state,
+            postal_code: values?.postal_code,
+            country: values?.country,
+            latitude: values?.latitude,
+            longitude: values?.longitude,
+            agent_id: selectedAgentId,
+            // Ensure each feature is an instance of FeaturePayloadDTO so `toObject()` exists at runtime.
+            features: selectedFeatures.map((feature: FeaturePayloadDTO) =>
+              feature instanceof FeaturePayloadDTO ? feature : new FeaturePayloadDTO(feature as any),
+            ),
+          })
+
+          var payload = LandRegistrationData?.toObject()
+
+          const contextPropertyId = globalValue
+
+          // console.log('log on data sss properties:', contextPropertyId, propertiesId)
+
+          if (contextPropertyId || propertiesId) {
+            startTransition(async () => {
+              ULRAction({ payload, propertiesId: propertiesId ? propertiesId : contextPropertyId })
+            })
+          } else {
+            startTransition(async () => {
+              LRAction({ payload, userId: selectedOwnerId })
+            })
+          }
+          return
+        }
+
+        // if (currentStep === 5) {
+        //   const contextPropertyId = globalValue
+        //   console.log(contextPropertyId, 'local')
+        //   const propertyId = propertiesId ? propertiesId : contextPropertyId
+        //   console.log('Step 5 submit - propertyId:', propertyId, propertiesId, contextPropertyId, 'uploadType:', values?.uploadType)
+
+        //   if (!propertyId || !values?.uploadType) {
+        //     toast.error('Missing propertyId or uploadType')
+        //     console.error('Missing propertyId or uploadType')
+        //     actions.setSubmitting(false)
+        //     return
+        //   }
+
+        //   if (values?.uploadType === 'chooseFromDevice' && values?.localpropertyPhoto?.payload) {
+        //     const localFiles = values?.localpropertyPhoto?.files || []
+        //     const payload = values?.localpropertyPhoto?.payload || []
+
+        //     if (localFiles.length === 0) {
+        //       console.warn('No files selected for upload')
+        //       actions.setSubmitting(false)
+        //       return
+        //     }
+
+        //     setUploadCompleted(false)
+        //     actions.setSubmitting(true)
+
+        //     try {
+        //       const formData = new FormData()
+
+        //       localFiles.forEach((file, index) => {
+        //         const meta = payload[index] || {}
+
+        //         formData.append('files', file)
+        //         formData.append('media_type', meta.media_type ?? '')
+        //         formData.append('title', meta.title ?? '')
+        //         formData.append('is_primary', String(meta.is_primary ?? false))
+        //         formData.append('media_category', meta.media_category ?? '')
+        //         formData.append('sort_order', String(meta.sort_order ?? index))
+        //       })
+
+        //       console.log('Uploading all files together...', propertyId)
+
+        //       startTransition(() => {
+        //         UPPAction({
+        //           id: propertyId,
+        //           payload: formData,
+        //           uploadType: 'chooseFromDevice',
+        //         })
+        //       })
+
+        //       console.log('All files uploaded successfully!')
+        //     } catch (error) {
+        //       console.error('Error uploading files:', error)
+        //     } finally {
+        //       actions.setSubmitting(false)
+        //     }
+        //   } else if (values?.uploadType === 'addViaLink' && values?.propertyPhoto) {
+        //     const linkPayload = values.propertyPhoto
+        //     console.log('Uploading via addViaLink:', linkPayload)
+
+        //     actions.setSubmitting(true)
+        //     try {
+        //       startTransition(() => {
+        //         UPPAction({ id: propertyId, payload: linkPayload, uploadType: 'addViaLink' })
+        //       })
+        //     } catch (error) {
+        //       console.error('Error uploading via link:', error)
+        //     } finally {
+        //       actions.setSubmitting(false)
+        //     }
+        //   }
+
+        //   return
+        // }
+
+        // advance to next step
+        setCurrentStep(step => step + 1)
+        // clear touched so next step has fresh state
+        actions.setTouched({})
+        actions.setSubmitting(false)
+      }
+    } catch (err) {
+      // console.log('step 6', err)
+      if (err instanceof Yup.ValidationError) {
+        const errors: { [field: string]: string } = {}
+        err.inner.forEach(e => {
+          if (e.path) {
+            errors[e.path] = e.message
+          }
+        })
+        actions.setErrors(errors)
+        actions.setSubmitting(false)
+      }
+    }
+  }
+
+  return (
+    <div className="w-full px-4 py-6">
+      {/* Progress Stepper same as your markup */}
+      <div className="flex flex-col items-center px-4 py-6">
+        <p className="mb-6 text-lg text-gray-600 text-center max-w-md">Reach thousands of potential buyers and tenants</p>
+
+        <div className="flex w-full max-w-5xl justify-between items-start relative">
+          {steps.map((step, idx) => {
+            const stepIndex = idx + 1
+            const isActive = stepIndex === currentStep
+            const isCompleted = stepIndex < currentStep
+            const isLast = idx === steps.length - 1
+
+            return (
+              <div key={idx} className="flex flex-col items-center flex-1 relative group">
+                {/* Connector line */}
+                {!isLast && (
+                  <div
+                    className={`absolute top-5 left-1/2 right-[-50%] h-0.5 transition-all duration-300
+              ${isCompleted ? 'bg-[#2a1407]' : 'bg-gray-300 group-hover:bg-gray-400'}`}
+                  />
+                )}
+
+                {/* Step Circle */}
+                <div
+                  className={`relative flex items-center justify-center w-12 h-12 rounded-full border-2 text-sm font-semibold
+            transition-all duration-300 shadow-sm
+            ${
+              isCompleted
+                ? 'bg-[#2a1407] border-[#2a1407] text-white'
+                : isActive
+                  ? 'bg-white border-[#2a1407] text-[#2a1407] shadow-md scale-110'
+                  : 'bg-white border-gray-300 text-gray-400 group-hover:border-gray-400'
+            }`}
+                >
+                  {isCompleted ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    step.icon
+                  )}
+                </div>
+
+                {/* Step Label */}
+                <div className="mt-3 text-center">
+                  <p className={`text-sm font-semibold tracking-wide ${isActive ? 'text-gray-900' : 'text-gray-600'}`}>{step.title}</p>
+                  <p className={`text-xs mt-1 ${isActive ? 'text-gray-500' : 'text-gray-400'}`}>{step.subtitle}</p>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={getPropertyStepValidationSchema(
+          currentStep,
+          isLayoutCategory(findCategoryName(propertyCategoryData, validationCategoryId)),
+        )}
+        onSubmit={handleSubmit}
+      >
+        {formik => {
+          const isLayout = isLayoutCategory(findCategoryName(propertyCategoryData, formik.values.propertyType))
+
+          async function init() {
+            // 1) If editing (propertiesId present and valueData fetched), populate with server data
+            if (propertiesId && valueData) {
+              // console.log('Editing property with ID:', propertiesId)
+              // console.log('Fetched valueData:', valueData)
+
+              // Map server data to form fields
+              const serverToForm: Partial<PropertyCreationFormValues> = {
+                contactName: valueData?.contact_name ?? '',
+                contactNumber: valueData?.contact_phone ?? '',
+                contactEmail: valueData?.contact_email ?? '',
+
+                propertyTitle: valueData?.title ?? '',
+                propertyType: valueData?.property_category_id ?? valueData?.property_category_id ?? '',
+                purpose: valueData?.listing_type ?? valueData?.listing_type ?? '',
+                description: valueData?.description ?? '',
+                project_status: valueData?.project_status ?? 'CURRENT',
+                offer: valueData?.offer ?? '',
+
+                door_number: valueData?.door_number ?? '',
+                street_name: valueData?.street_name ?? '',
+                address_line: valueData?.address_line ?? '',
+                city: valueData?.city ?? '',
+                district: valueData?.district ?? '',
+                state: valueData?.state ?? 'Tamil Nadu',
+                postal_code: valueData?.postal_code ?? '',
+                country: valueData?.country ?? 'India',
+                price: valueData?.price ?? '',
+                size: valueData?.property_size ?? '',
+                unit: valueData?.property_size_unit ?? 'Sqft',
+
+                layout_price_min: valueData?.layout_price_min ?? valueData?.price ?? '',
+                layout_price_max: valueData?.layout_price_max ?? '',
+                layout_area_min_sqft: valueData?.layout_area_min_sqft ?? valueData?.property_size ?? '',
+                layout_area_max_sqft: valueData?.layout_area_max_sqft ?? '',
+                layout_area_unit: valueData?.layout_area_unit ?? valueData?.property_size_unit ?? 'Sqft',
+                plot_total_count: valueData?.plot_total_count ?? '',
+                plot_sold_count: valueData?.plot_sold_count ?? '',
+                plot_booked_count: valueData?.plot_booked_count ?? '',
+                plot_available_count: valueData?.plot_available_count ?? '',
+                layout_total_sqft: valueData?.layout_total_sqft ?? '',
+
+                latitude: valueData?.latitude ?? 0,
+                longitude: valueData?.longitude ?? 0,
+
+                option_ids: valueData?.option_ids ?? [],
+
+                uploadType: valueData?.media && Array.isArray(valueData.media) && valueData.media.length > 0 ? 'chooseFromDevice' : '',
+                propertyPhoto: [],
+
+                localpropertyPhoto: { files: [], payload: [] },
+                boostListing: false,
+                uploadedFiles: [],
+                features: [],
+              }
+
+              // console.log('Mapped serverToForm:', serverToForm)
+
+              Object.entries(serverToForm)
+                .filter(([key]) => key !== 'features')
+                .forEach(([key, value]) => formik.setFieldValue(key, value))
+
+              if (serverToForm.propertyType) {
+                setValidationCategoryId(String(serverToForm.propertyType))
+              }
+
+              // If server already has media, mark upload as completed so Next is enabled
+              if (Array.isArray(valueData?.media) && valueData.media.length > 0) {
+                setUploadCompleted(true)
+              } else {
+                setUploadCompleted(false)
+              }
+
+              // Fetch feature definitions
+              if (serverToForm.propertyType) {
+                const featureResult = await onGetPropertyCategoryFeatureMapping(serverToForm.propertyType as string)
+                const mappings = featureResult?.data?.mappings
+                setFeatureData(mappings)
+                // console.log('Fetched mappings:', mappings)
+                const mappedFeatures = mapFeatureValuesToPayload(valueData?.feature_values, mappings ?? null)
+                formik.setFieldValue('features', mappedFeatures)
+                setInputFeatureData(mappedFeatures)
+              } else {
+                // If no propertyType, still try to map features without mappings
+                const mappedFeatures = mapFeatureValuesToPayload(valueData?.feature_values, null)
+                formik.setFieldValue('features', mappedFeatures)
+                setInputFeatureData(mappedFeatures)
+              }
+
+              setIsEdit(true)
+            }
+          }
+          useEffect(() => {
+            // Prefer admin-selected agent contact when posting on behalf
+            if (isAdmin && adminPostingAs.ownerId) return
+            if (user) {
+              const name = `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim()
+              if (!formik.values.contactName && name) formik.setFieldValue('contactName', name)
+              if (!formik.values.contactNumber && user.phoneNumber) formik.setFieldValue('contactNumber', user.phoneNumber)
+              if (!formik.values.contactEmail && user.email) formik.setFieldValue('contactEmail', user.email)
+            }
+          }, [user, isAdmin, adminPostingAs.ownerId])
+
+          useEffect(() => {
+            init()
+          }, [valueData, propertiesId])
+
+          return (
+            <Form>
+              {isAdmin && !propertiesId && (
+                <AdminPostingAs
+                  formik={formik}
+                  value={adminPostingAs}
+                  onChange={setAdminPostingAs}
+                  disabled={Boolean(globalValue) || isEdit}
+                />
+              )}
+              {currentStep === 1 && (
+                <Step1BasicDetails
+                  data={propertyCategoryData}
+                  loading={propertyCategoryFetchLoader}
+                  error={propertyCategoryFetchErr}
+                  refresh={propertyCategoryRefresh}
+                  formik={formik}
+                  onGetPropertyCategoryFeatureMapping={onGetPropertyCategoryFeatureMapping}
+                  setFeatureData={setFeatureData}
+                  onPropertyTypeChange={setValidationCategoryId}
+                />
+              )}
+              {currentStep === 2 && <Step2LocationPrice formik={formik} propertyCategories={propertyCategoryData} />}
+              {/* Contact Details step hidden — values sent from user profile */}
+              {/* {currentStep === 3 && <Step3ContactDetails formik={formik} />} */}
+              {currentStep === 3 && (
+                <Step4FeaturesAmenities
+                  inputFeatureData={inputFeatureData}
+                  setInputFeatureData={setInputFeatureData}
+                  formik={formik}
+                  amenities={featureData ?? []}
+                  hasInitialFeatureValues={Boolean(valueData?.feature_values?.length)}
+                />
+              )}
+              {/* Step 4 uses Step5UploadImages */}
+              {currentStep === 4 && (
+                <Step5UploadImages
+                  propertyId={effectivePropertyId}
+                  onUploaded={() => {
+                    setUploadCompleted(true)
+                    setHasNewMediaFiles(false)
+                  }}
+                  onUploadingChange={setIsUploadingImages}
+                  onHasNewFilesChange={setHasNewMediaFiles}
+                  mode={isEdit ? 'edit' : 'create'}
+                  ref={uploadRef}
+                />
+              )}
+              {currentStep === 5 && (
+                <Step6ReviewSubmit propertyCategoryData={propertyCategoryData} formik={formik} propertyId={effectivePropertyId} />
+              )}
+
+              <div className="flex flex-col sm:flex-row justify-between gap-3 mt-8 pt-6 border-t border-gray-100 max-w-4xl mx-auto">
+                <Button
+                  type="button"
+                  onClick={() => setCurrentStep(s => Math.max(s - 1, 1))}
+                  disabled={currentStep === 1 || formik.isSubmitting}
+                  className="flex items-center gap-2 px-6 py-3 rounded-lg border text-gray-700 border-gray-300 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ArrowLeft size={20} /> {localStorage.getItem(LOCAL_STORAGE_NAME?.propertyDetails) ? 'Edit' : 'Previous'}
+                </Button>
+                {currentStep !== 5 && (
+                  <>
+                    {currentStep !== 4
+                      ? (() => {
+                          const isLoading = formik.isSubmitting || LRIsPending || ULRIsPending
+                          return (
+                            <Button
+                              type="submit"
+                              onClick={() => {}}
+                              disabled={isLoading}
+                              className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#2a1407] text-white hover:bg-[#641717] cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ${
+                                isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                              }`}
+                            >
+                              {!isLoading ? (
+                                <>
+                                  {isLastStep ? 'Submit' : currentStep === 3 ? 'Save Property' : 'Next Step'}
+                                  <ArrowRight size={20} />
+                                </>
+                              ) : (
+                                <span>Loading...</span>
+                              )}
+                            </Button>
+                          )
+                        })()
+                      : (() => {
+                          const isLoading = isUploadingImages
+                          const showUploadButton = hasNewMediaFiles || !uploadCompleted
+                          return (
+                            <Button
+                              type="button"
+                              onClick={() => {
+                                if (showUploadButton) uploadRef.current?.submit()
+                                else setCurrentStep(s => Math.min(s + 1, steps.length))
+                              }}
+                              disabled={isLoading || (!uploadCompleted && !showUploadButton)}
+                              className={`flex items-center gap-2 px-8 py-3 rounded-lg bg-[#2a1407] text-white hover:bg-[#641717] transition disabled:opacity-50 disabled:cursor-not-allowed ${
+                                uploadCompleted && !isLoading ? 'cursor-pointer' : ''
+                              }`}
+                            >
+                              {!isLoading ? (
+                                <>
+                                  {showUploadButton ? 'Upload Photos to Continue' : 'Next Step'} <ArrowRight size={20} />
+                                </>
+                              ) : (
+                                <span>Uploading...</span>
+                              )}
+                            </Button>
+                          )
+                        })()}
+                  </>
+                )}
+              </div>
+            </Form>
+          )
+        }}
+      </Formik>
+    </div>
+  )
+}
+
+export default function PropertiesRegistrationPage({ searchParams }: { searchParams: Promise<{ propertiesId?: string }> }) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const { token, loading: authLoading } = useAuth()
+  const { openLoginModal } = useLoginModal()
+  const guestGateDone = useRef(false)
+
+  const nextPath =
+    pathname && pathname.startsWith('/properties-registration') ? pathname : PROPERTIES_REGISTRATION_BASE_PATH
+
+  useEffect(() => {
+    if (authLoading || token) return
+    if (guestGateDone.current) return
+    guestGateDone.current = true
+    openLoginModal({ next: nextPath })
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back()
+    } else {
+      router.replace('/')
+    }
+  }, [authLoading, token, openLoginModal, router, nextPath])
+
+  if (authLoading) {
+    return (
+      <div className="min-h-[50vh] flex items-center justify-center text-gray-500 text-sm" aria-busy="true">
+        Loading...
+      </div>
+    )
+  }
+
+  if (!token) {
+    return null
+  }
+
+  return <PropertiesRegistrationPageContent searchParams={searchParams} />
+}

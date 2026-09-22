@@ -1,0 +1,183 @@
+// components/LocationPickerModal.tsx
+'use client'
+
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import MapView from '@/components/ui/map/MapView'
+import { X } from 'lucide-react'
+import toast from 'react-hot-toast'
+import Button from '../CustomComponent/Button/Button'
+
+type LocationPickerModalProps = {
+  open: boolean
+  setOpen: Dispatch<SetStateAction<boolean>>
+  initialLat?: number | string | null
+  initialLng?: number | string | null
+  onLocationSelect: (lat: number, lng: number, address: AddressParts, fullAddress: string) => void
+}
+
+export type AddressParts = {
+  doorNumber?: string
+  streetName?: string
+  city?: string
+  district?: string
+  postalCode?: string
+  state?: string
+  country?: string
+  [key: string]: any
+}
+
+export default function LocationPickerModal({ open, setOpen, initialLat, initialLng, onLocationSelect }: LocationPickerModalProps) {
+  const DEFAULT_CENTER = { lat: 13.0827, lng: 80.2707 }
+
+  const toFiniteNumber = (value: unknown, fallback: number) => {
+    const n = typeof value === 'number' ? value : Number(value)
+    return Number.isFinite(n) ? n : fallback
+  }
+
+  const [selectedLat, setSelectedLat] = useState<number>(() => toFiniteNumber(initialLat, DEFAULT_CENTER.lat))
+  const [selectedLng, setSelectedLng] = useState<number>(() => toFiniteNumber(initialLng, DEFAULT_CENTER.lng))
+
+  useEffect(() => {
+    if (!open) return
+    setSelectedLat(toFiniteNumber(initialLat, DEFAULT_CENTER.lat))
+    setSelectedLng(toFiniteNumber(initialLng, DEFAULT_CENTER.lng))
+  }, [open, initialLat, initialLng])
+
+  useEffect(() => {
+    // if (!open) return
+
+    if (!('geolocation' in navigator)) {
+      console.log('Geolocation is not supported by your browser')
+      toast.error('Geolocation is not supported by your browser')
+      return
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        const { latitude, longitude } = position.coords
+        setSelectedLat(latitude)
+        setSelectedLng(longitude)
+      },
+      error => {
+        console.log('log on get current location:', error)
+
+        toast(error.message, {
+          icon: '⚠️',
+          style: { borderRadius: '8px', background: '#fff3cd', color: '#856404' },
+        })
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      },
+    )
+  }, [])
+
+  const handleMapClick = (lat: number, lng: number) => {
+    setSelectedLat(lat)
+    setSelectedLng(lng)
+  }
+
+  const handleSave = () => {
+    try {
+      if (!Number.isFinite(selectedLat) || !Number.isFinite(selectedLng)) {
+        toast.error('Please pick a valid location')
+        return
+      }
+
+      const geocoder = new google.maps.Geocoder()
+      const latlng = { lat: selectedLat, lng: selectedLng }
+
+      geocoder
+        .geocode({ location: latlng })
+        .then(response => {
+          if (response.results[0]) {
+            const result = response.results?.[0]
+            const components = result.address_components
+            console.log('geocode components:', components)
+            const addressParts: AddressParts = {}
+
+            for (const comp of components) {
+              const types = comp.types
+              if (types.includes('street_number')) {
+                addressParts.doorNumber = comp.long_name
+              }
+              if (types.includes('route')) {
+                addressParts.streetName = comp.long_name
+              }
+              if (types.includes('locality')) {
+                addressParts.city = comp.long_name
+              }
+              if (types.includes('administrative_area_level_1')) {
+                addressParts.state = comp.long_name
+              }
+              if (types.includes('postal_code')) {
+                addressParts.postalCode = comp.long_name
+              }
+              if (types.includes('country')) {
+                addressParts.country = comp.long_name
+              }
+              if (types.includes('administrative_area_level_3')) {
+                addressParts.district = comp.long_name
+              }
+            }
+
+            console.log('log on error :', response)
+            onLocationSelect(selectedLat, selectedLng, addressParts, result?.formatted_address)
+            // setAddress(response.results[0])
+          } else {
+            toast.error('No address found')
+          }
+        })
+        .catch(e => {
+          console.error(e)
+          toast.error('Faild to pick address')
+          //   setError('Geocoder failed: ' + (e as Error).message)
+        })
+
+      setOpen(false)
+    } catch (e) {
+      console.log('error log on select location on google map:', e)
+    }
+  }
+
+  if (!open) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 p-4">
+      <div
+        className="bg-white rounded-lg 
+                  w-full max-w-2xl md:max-w-3xl xl:max-w-4xl 
+                  h-full md:h-[90%] xl:h-[75%] 
+                  overflow-hidden shadow-lg flex flex-col"
+      >
+        {/* Header */}
+        <div className="px-4 py-4 flex justify-between">
+          <h2 className="text-xl font-semibold">Pick Location</h2>
+        </div>
+        {/* Body (map container) */}
+        <div className="flex-grow px-5 md:px-11">
+          <div className="h-full">
+            <MapView
+              center={{ lat: selectedLat, lng: selectedLng }}
+              zoom={14}
+              markers={[{ lat: selectedLat, lng: selectedLng }]}
+              onMapClick={handleMapClick}
+              ifTextSearch={true}
+            />
+          </div>
+        </div>
+        {/* Footer */}
+        <div className="px-4 py-3 flex justify-end gap-2">
+          <Button type="button" className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+          <Button type="button" className="px-4 py-2 rounded bg-[#2a1407] text-white hover:bg-blue-700" onClick={handleSave}>
+            Save Location
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
