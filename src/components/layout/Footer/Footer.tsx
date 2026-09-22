@@ -113,7 +113,7 @@ export default function Footer() {
                 width={220}
                 height={110}
                 quality={100}
-                className="w-[180px] sm:w-[200px] h-auto object-contain drop-shadow-lg brightness-110 contrast-125"
+                className="w-[180px] sm:w-[200px] h-auto..."
               />
             </Link>
             <p className="text-sm text-gray-300 leading-relaxed mb-6">

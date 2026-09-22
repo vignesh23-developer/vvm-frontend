@@ -14,17 +14,19 @@ export default function KYCStatus() {
   const [initiating, setInitiating] = useState(false)
 
   const handleInitiateKyc = async () => {
+    console.log('Start Verification button clicked')
     try {
       setInitiating(true)
       const redirectUrl = `${window.location.origin}/kyc-callback`
-
+      console.log('KYC API:', appEndpoints.initiateKyc)
+      console.log('KYC Redirect URL:', redirectUrl)
       const response = await postMethod(appEndpoints.initiateKyc, {
         redirectUrl,
         verificationType: 'AADHAAR',
         entityType: 'USER',
         directCall: true,
       })
-
+      console.log('KYC API Response:', response)
       if (response.error) {
         toast.error(response.message || 'Failed to initiate KYC')
         setInitiating(false)

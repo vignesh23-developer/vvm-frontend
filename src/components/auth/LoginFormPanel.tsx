@@ -126,6 +126,9 @@ export default function LoginFormPanel({
         payload.phoneNumber = values.emailOrPhone
       }
 
+      console.log('LOGIN API URL:', appEndpoints.login)
+      console.log('LOGIN PAYLOAD:', payload)
+
       const response = (await postMethod(appEndpoints.login, payload)) as ResponseDTO<{
         accessToken?: string
         refreshToken?: string
