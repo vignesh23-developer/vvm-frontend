@@ -48,7 +48,7 @@ export default function NewsletterTable({ onRefresh }: NewsletterTableProps) {
         orderBy,
         search: search || undefined,
       })
-    }, 500)
+    }, 300)
 
     return () => {
       clearTimeout(timeout)

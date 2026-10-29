@@ -33,7 +33,7 @@ function ProfileCreation() {
     // console.log('Form Submitted ', values)
     setTimeout(() => {
       setSubmitting(false)
-    }, 1000)
+    }, 200)
   }
 
   return (

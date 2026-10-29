@@ -3,13 +3,11 @@
 import { motion } from 'framer-motion'
 import { Home, Shield, TrendingUp, Users } from 'lucide-react'
 import { Formik, Form } from 'formik'
-import { toast } from 'react-hot-toast'
+
 import Button from '@/components/ui/CustomComponent/Button/Button'
 import FormikTextField from '@/components/ui/Formik/FormikTextField/FormikTextField'
 import EnquiryFormValidation from './EnquiryFormValidation'
-import { postMethod } from '@/services/service'
-import { appEndpoints } from '@/services/endpoints'
-import { ResponseDTO } from '@/components/dto/response_dto'
+
 
 interface EnquiryFormModalProps {
   Id: string | number
@@ -167,7 +165,7 @@ const EnquiryFormCard = ({ Id, entityType, handleSubmit, defaultValues }: Enquir
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  onClick={() => {}}
+                  onClick={() => { }}
                   className="w-full bg-[#2a1407] text-white px-4 py-2 rounded-md hover:bg-[#2a1407] disabled:opacity-50"
                 >
                   {isSubmitting ? 'Connecting...' : 'Connect'}

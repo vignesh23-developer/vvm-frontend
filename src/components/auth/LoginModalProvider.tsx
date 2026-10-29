@@ -87,15 +87,7 @@ export function LoginModalProvider({ children }: { children: ReactNode }) {
     [applyModalOptions],
   )
 
-  const handleLoginSuccess = useCallback(
-    (path: string) => {
-      closeLoginModal()
-      router.push(path)
-    },
-    [closeLoginModal, router],
-  )
-
-  const handleSignupSuccess = useCallback(
+  const handleAuthSuccess = useCallback(
     (path: string) => {
       closeLoginModal()
       router.push(path)
@@ -109,12 +101,16 @@ export function LoginModalProvider({ children }: { children: ReactNode }) {
   )
 
   useEffect(() => {
-    const onOpen = (e: Event) => {
-      const detail = (e as CustomEvent<OpenLoginModalEventDetail>).detail
+    const onOpen = (event: Event) => {
+      const detail = (event as CustomEvent<OpenLoginModalEventDetail>).detail
       openLoginModal({ next: detail?.next })
     }
-    window.addEventListener(OPEN_LOGIN_MODAL_EVENT, onOpen as EventListener)
-    return () => window.removeEventListener(OPEN_LOGIN_MODAL_EVENT, onOpen as EventListener)
+
+    window.addEventListener(OPEN_LOGIN_MODAL_EVENT, onOpen)
+
+    return () => {
+      window.removeEventListener(OPEN_LOGIN_MODAL_EVENT, onOpen)
+    }
   }, [openLoginModal])
 
   const nextForForm = pendingNext ?? '/'
@@ -137,7 +133,7 @@ export function LoginModalProvider({ children }: { children: ReactNode }) {
             nextPath={nextForForm}
             referralCodeFromUrl={referralCode}
             showHeader={false}
-            onLoginSuccess={handleLoginSuccess}
+            onLoginSuccess={handleAuthSuccess}
             onSwitchToSignup={() => setMode('signup')}
             onForgotPasswordClick={() => {
               closeLoginModal()
@@ -152,7 +148,7 @@ export function LoginModalProvider({ children }: { children: ReactNode }) {
             email={email}
             showHeader={false}
             onSwitchToLogin={() => setMode('login')}
-            onSignupSuccess={handleSignupSuccess}
+            onSignupSuccess={handleAuthSuccess}
           />
         )}
       </ModalComponent>

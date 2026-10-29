@@ -1,5 +1,9 @@
-import { motion, Variants } from 'framer-motion'
-import { Plan, ApiPlan } from './types'
+'use client'
+
+import { memo, useMemo } from 'react'
+import { motion, type Variants } from 'framer-motion'
+
+import type { Plan, ApiPlan } from './types'
 import { PlanCard } from './PlanCard'
 
 interface MobilePlanCardsProps {
@@ -12,18 +16,23 @@ const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.15 },
+    transition: {
+      staggerChildren: 0.15,
+    },
   },
 }
 
-/**
- * Mobile view - Plan cards in vertical layout
- */
-export function MobilePlanCards({ 
-  plans, 
+function MobilePlanCardsComponent({
+  plans,
   apiPlans,
-  activeSubscriptionId
+  activeSubscriptionId,
 }: MobilePlanCardsProps) {
+  // Avoid searching the API plans array for every card.
+  const apiPlansById = useMemo(
+    () => new Map(apiPlans.map((apiPlan) => [apiPlan.id, apiPlan])),
+    [apiPlans],
+  )
+
   return (
     <motion.div
       variants={containerVariants}
@@ -32,18 +41,19 @@ export function MobilePlanCards({
       viewport={{ once: true }}
       className="grid grid-cols-1 gap-8 md:hidden"
     >
-      {plans.map((plan, idx) => {
-        const apiPlan = apiPlans.find(p => p.id === plan.id)
-        return (
-          <PlanCard
-            key={idx}
-            plan={plan}
-            apiPlan={apiPlan}
-            activeSubscriptionId={activeSubscriptionId}
-          />
-        )
-      })}
+      {plans.map((plan) => (
+        <PlanCard
+          key={plan.id}
+          plan={plan}
+          apiPlan={apiPlansById.get(plan.id)}
+          activeSubscriptionId={activeSubscriptionId}
+        />
+      ))}
     </motion.div>
   )
 }
+
+export const MobilePlanCards = memo(MobilePlanCardsComponent)
+
+MobilePlanCards.displayName = 'MobilePlanCards'
 

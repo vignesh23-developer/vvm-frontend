@@ -8,7 +8,7 @@ import { appEndpoints } from '@/services/endpoints'
 import { ResponseDTO } from '@/components/dto/response_dto'
 
 // Debounce hook
-function useDebounce<T>(value: T, delay = 600): T {
+function useDebounce<T>(value: T, delay = 300): T {
   const [debounced, setDebounced] = useState(value)
   useEffect(() => {
     const timeout = setTimeout(() => setDebounced(value), delay)

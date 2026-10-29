@@ -119,88 +119,58 @@ export default function AdvancedFilters({
     location: true,
   })
 
-  // Load filter metadata from backend (property page)
+  // Shared filter metadata fetcher keeps property and ads parsing consistent.
+  const fetchFilterMetadata = async (url: string, logLabel: string) => {
+    console.log(logLabel, url)
+
+    try {
+      const response = await getMethod<any>(url)
+      const dtoPayload = response.data
+
+      // Support the current response and older nested response formats.
+      let container = dtoPayload as any
+
+      for (let depth = 0; depth < 2; depth += 1) {
+        if (
+          container &&
+          typeof container === 'object' &&
+          'data' in container &&
+          !Array.isArray(container.data)
+        ) {
+          container = container.data
+        }
+      }
+
+      const filters = (container && container.filters) || {}
+      const message =
+        (container && (container as any).message) ||
+        (dtoPayload && (dtoPayload as any).message) ||
+        undefined
+
+      console.log('✅ Filter Options API Response (normalized):', {
+        raw: dtoPayload,
+        container,
+        filterKeys: Object.keys(filters),
+        message,
+      })
+
+      return { data: { filters, message } }
+    } catch (error) {
+      console.error('❌ Filter Options API Error:', error)
+      return { data: { filters: {} } }
+    }
+  }
+
+  // Load filter metadata from backend (property page).
   const { data: filtersMeta, error: filtersError } = useSWR(
     pageType !== 'ads-list' ? appEndpoints.publicSearchPropertyFilters : null,
-    async (url: string) => {
-      console.log('🔍 Filter Options API Call:', url)
-      try {
-        const response = await getMethod<any>(url)
-
-        // The backend now provides a consistent filters payload, but this parser
-        // still supports older nested formats.
-        // Supported shapes (inside ResponseDTO.data):
-        // 1) { filters: {...} }
-        // 2) { data: { filters: {...} } }
-        // 3) { data: { data: { filters: {...} } } }  (legacy)
-        const dtoPayload = response.data
-
-        let container = dtoPayload as any
-        if (container && typeof container === 'object' && 'data' in container && !Array.isArray(container.data)) {
-          container = container.data
-        }
-        if (container && typeof container === 'object' && 'data' in container && !Array.isArray(container.data)) {
-          container = container.data
-        }
-
-        const filters = (container && container.filters) || {}
-        const message = (container && (container as any).message) || (dtoPayload && (dtoPayload as any).message) || undefined
-
-        console.log('✅ Filter Options API Response (normalized):', {
-          raw: dtoPayload,
-          container,
-          filterKeys: Object.keys(filters),
-          message,
-        })
-
-        return { data: { filters, message } }
-      } catch (error) {
-        console.error('❌ Filter Options API Error:', error)
-        return { data: { filters: {} } }
-      }
-    },
+    (url: string) => fetchFilterMetadata(url, '🔍 Filter Options API Call:'),
   )
 
-  // Load filter metadata from backend (ads page)
+  // Load filter metadata from backend (ads page).
   const { data: filtersAdsMeta, error: filtersAdsError } = useSWR(
     pageType === 'ads-list' ? appEndpoints.publicSearchAdsFilters : null,
-    async (url: string) => {
-      console.log('🔍 Filter AAds Options API Call:', url)
-      try {
-        const response = await getMethod<any>(url)
-
-        // The backend now provides a consistent filters payload, but this parser
-        // still supports older nested formats.
-        // Supported shapes (inside ResponseDTO.data):
-        // 1) { filters: {...} }
-        // 2) { data: { filters: {...} } }
-        // 3) { data: { data: { filters: {...} } } }  (legacy)
-        const dtoPayload = response.data
-
-        let container = dtoPayload as any
-        if (container && typeof container === 'object' && 'data' in container && !Array.isArray(container.data)) {
-          container = container.data
-        }
-        if (container && typeof container === 'object' && 'data' in container && !Array.isArray(container.data)) {
-          container = container.data
-        }
-
-        const filters = (container && container.filters) || {}
-        const message = (container && (container as any).message) || (dtoPayload && (dtoPayload as any).message) || undefined
-
-        console.log('✅ Filter Options API Response (normalized):', {
-          raw: dtoPayload,
-          container,
-          filterKeys: Object.keys(filters),
-          message,
-        })
-
-        return { data: { filters, message } }
-      } catch (error) {
-        console.error('❌ Filter Options API Error:', error)
-        return { data: { filters: {} } }
-      }
-    },
+    (url: string) => fetchFilterMetadata(url, '🔍 Filter AAds Options API Call:'),
   )
 
   console.log('🔧 AdvancedFilters Component - Filter Meta Data:', { filtersMeta, filtersError, filtersAdsMeta, filtersAdsError })
@@ -246,13 +216,17 @@ export default function AdvancedFilters({
   }
 
   // Transform backend filter buckets (which have {value, label, count}) to simple string arrays
-  const transformFilterBuckets = (buckets: Array<{ value: string; label: string; count: number }> | undefined): string[] => {
+  const transformFilterBuckets = (
+    buckets: Array<{ value: string; label: string; count: number }> | undefined,
+  ): string[] => {
     if (!Array.isArray(buckets)) return []
     return buckets.map(b => b.value || b.label).filter(Boolean)
   }
 
   // Transform backend buckets into value/label options (so we can display names but keep IDs)
-  const transformFilterOptions = (buckets: Array<{ value: string; label: string; count: number }> | undefined): FilterOption[] => {
+  const transformFilterOptions = (
+    buckets: Array<{ value: string; label: string; count: number }> | undefined,
+  ): FilterOption[] => {
     if (!Array.isArray(buckets)) return []
     return buckets.map(b => ({ value: String(b.value ?? ''), label: String(b.label ?? b.value ?? '') })).filter(o => o.value && o.label)
   }

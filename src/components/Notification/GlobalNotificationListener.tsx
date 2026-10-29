@@ -7,16 +7,7 @@ import { getSSEService } from '@/services/sse.service'
 import { useNotification } from './hooks/useNotification'
 import { Notification } from './types'
 
-/**
- * GlobalNotificationListener Component
- * 
- * Handles global SSE notification listening and toast display
- * - Only activates when user is logged in and auth is ready
- * - Maintains SSE connection for real-time notifications
- * - Shows toast notifications (max 3 at a time with queue)
- * - Refetches unread count from backend when notification arrives
- * - Marks notification as read when toast is clicked
- */
+
 export default function GlobalNotificationListener() {
   const { user, token, loading: authLoading } = useAuth()
   const { fetchUnreadCount, markAsRead } = useNotification({

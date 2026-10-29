@@ -58,7 +58,7 @@ export default function AppPromo() {
 
   useEffect(() => {
     // Simulate loading delay
-    const timer = setTimeout(() => setIsLoading(false), 400)
+    const timer = setTimeout(() => setIsLoading(false), 300)
     return () => clearTimeout(timer)
   }, [])
 

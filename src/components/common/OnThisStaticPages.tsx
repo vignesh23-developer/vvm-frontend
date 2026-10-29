@@ -42,22 +42,42 @@ const OnThisStaticPages = ({ tocLabel, toc }: { tocLabel?: string; toc: { id: st
   return (
     <div>
       <aside className="md:col-span-1 hidden md:block">
-        <div className="sticky top-24 border border-yellow-200 rounded-md p-4 bg-gradient-to-br from-yellow-50 to-yellow-100/30">
-          <h3 className="text-sm font-bold mb-3 text-[#2a1407]">{heading}</h3>
+        <div className="sticky top-24 border border-yellow-200 rounded-lg p-4 bg-gradient-to-br from-yellow-50 to-yellow-100/30">
+          <h3 className="text-base font-bold leading-6 mb-4 text-left text-[#2a1407]">
+            {heading}
+          </h3>
           <nav>
             <ul className="space-y-2 text-sm list-none p-0 m-0">
               {toc.map(item => {
                 const { icon, marker, label } = splitLeadingMeta(String(item.text ?? ''))
                 const text = label
                 const isPrimary = item.level === 1
-                const textTone = isPrimary ? 'text-[#2a1407]' : item.level === 2 ? 'text-gray-700' : 'text-gray-600'
-                const weightTone = isPrimary ? 'font-bold' : item.level === 2 ? 'font-medium' : 'font-normal'
+
+                const isSpecialHeading = text === 'Our Team is Growing'
+
+                const textTone = isSpecialHeading
+                  ? 'text-black'
+                  : isPrimary
+                    ? 'text-[#2a1407]'
+                    : item.level === 2
+                      ? 'text-gray-700'
+                      : 'text-gray-600'
+
+                const weightTone = isSpecialHeading
+                  ? 'font-bold'
+                  : isPrimary
+                    ? 'font-bold'
+                    : item.level === 2
+                      ? 'font-medium'
+                      : 'font-normal'
+
+                const isWhatYouWillFindHere = text === 'What you will find here'
 
                 return (
                   <li key={item.id} className="list-none">
                     <a
                       href={`#${item.id}`}
-                      className={`grid grid-cols-[1rem_1fr] items-start gap-2 rounded-md px-2 py-1.5 ${textTone} text-left leading-snug whitespace-normal break-words hover:text-yellow-700 hover:bg-yellow-100/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500/50 ${weightTone}`}
+                      className={`grid grid-cols-[1.5rem_minmax(0,1fr)] items-start gap-2 rounded-md px-0 py-2 ${textTone} text-left leading-6 whitespace-normal break-words hover:text-yellow-700 hover:bg-yellow-100/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500/50 ${weightTone}`}
                       onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
                         e.preventDefault()
                         const el = document.getElementById(item.id)
@@ -67,16 +87,21 @@ const OnThisStaticPages = ({ tocLabel, toc }: { tocLabel?: string; toc: { id: st
                         // focus after small delay so browser has scrolled
                         setTimeout(() => {
                           el.setAttribute('tabindex', '-1')
-                          ;(el as HTMLElement).focus()
+                            ; (el as HTMLElement).focus()
                           if (history && history.replaceState) history.replaceState(null, '', `#${item.id}`)
                         }, 250)
                       }}
                     >
-                      <span className="flex items-start gap-1 pt-0.5 leading-none text-gray-500 font-normal tabular-nums">
-                        <span className="inline-block w-4 text-center">{icon}</span>
-                        <span>{marker}</span>
+                      <span className="flex items-start justify-start gap-1 pt-0 leading-6 text-gray-500 font-normal tabular-nums">
+                        <span className="inline-block min-w-5 text-left">
+                          {icon}
+                          {marker}
+                        </span>
                       </span>
-                      <span className="min-w-0">{text}</span>
+
+                      <span className="min-w-0 text-left leading-6">
+                        {text}
+                      </span>
                     </a>
                   </li>
                 )

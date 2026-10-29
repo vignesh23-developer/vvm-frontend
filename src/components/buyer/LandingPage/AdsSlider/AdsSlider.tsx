@@ -57,7 +57,7 @@ export default function AdsSlider({ featuredAds, featuredAdsTotal, error: adsErr
     // Simulate loading delay
     const timer = setTimeout(() => {
       setIsLoading(false)
-    }, 500)
+    }, 300)
 
     return () => clearTimeout(timer)
   }, [])

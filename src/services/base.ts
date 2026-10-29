@@ -40,7 +40,7 @@ const promptLoginModal = () => {
   requestOpenLoginModal(nextPath)
   window.setTimeout(() => {
     isRedirectingToLogin = false
-  }, 1500)
+  }, 500)
 }
 
 const axiosInstance = axios.create({

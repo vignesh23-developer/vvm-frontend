@@ -96,7 +96,7 @@ export default function KYCCallbackPage() {
         // Redirect to profile page after 2 seconds
         setTimeout(() => {
           router.push(`/profile/${userData.id}`)
-        }, 2000)
+        }, 300)
       } catch (error) {
         console.error('KYC completion error:', error)
         setStatus('error')

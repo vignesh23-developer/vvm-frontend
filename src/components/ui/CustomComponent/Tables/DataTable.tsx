@@ -263,7 +263,7 @@ const exportToPDF = async (data: ExportRow[], columns: ExportColumn[], filename:
   document.body.appendChild(element)
 
   // Wait for rendering
-  await new Promise(resolve => setTimeout(resolve, 1500))
+  await new Promise(resolve => setTimeout(resolve, 500))
 
   try {
     // Load libraries if not already loaded

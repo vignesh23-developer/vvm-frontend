@@ -97,7 +97,7 @@ export default function MyReferralsPage() {
     navigator.clipboard.writeText(referralLink)
     setCopied(true)
     toast.success('Referral link copied to clipboard!')
-    setTimeout(() => setCopied(false), 2000)
+    setTimeout(() => setCopied(false), 200)
   }
 
   const formatDate = (dateString: string) => {

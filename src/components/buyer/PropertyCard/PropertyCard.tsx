@@ -1,13 +1,18 @@
 'use client'
 
-import { type ReactNode } from 'react'
+import { memo, useMemo, type MouseEvent } from 'react'
+import Image from 'next/image'
+import { motion, type Variants } from 'framer-motion'
+import {
+  Share,
+  Ruler,
+  MapPin,
+  Shapes,
+  Tag,
+} from 'lucide-react'
+
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { hasRole, Roles, getUserRoles } from '@/utils/roles/roles'
-import { motion, type Variants } from 'framer-motion'
-import { Heart, Share, Ruler, MapPin, Shapes, Tag } from 'lucide-react'
-import Image from 'next/image'
-import Button from '@/components/ui/CustomComponent/Button/Button'
-import FavoriteButton from '@/components/ui/CustomComponent/FavoriteButton/FavoriteButton'
 import {
   isLayoutPropertyDisplay,
   resolvePropertyPriceLabel,
@@ -15,31 +20,30 @@ import {
   type PropertyDisplaySource,
 } from '@/utils/property/resolvePropertyDisplay'
 
-/* ------------------------------ Motion Variants ------------------------------ */
-const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
-  hover: { y: -5, transition: { duration: 0.2 } },
-}
+import FavoriteButton from '@/components/ui/CustomComponent/FavoriteButton/FavoriteButton'
 
-/* ------------------------------ Helper Function ------------------------------ */
-const t = (translator: ((k: string) => string) | undefined, key: string, fallback: string) =>
-  typeof translator === 'function' ? translator(key) : fallback
+/* -------------------------------------------------------------------------- */
+/* Types                                                                      */
+/* -------------------------------------------------------------------------- */
 
-/* ------------------------------ Types ------------------------------ */
 export interface MediaItem {
   id: string
-  url: string
+  url?: string
   thumbnail_url?: string
+  thumbnailUrl?: string
+  image_url?: string
+  imageUrl?: string
   is_primary?: boolean
-  [key: string]: any
+  isPrimary?: boolean
+  mime_type?: string
+  type?: string
+  media_type?: string
 }
 
 export interface propertyCategory {
   id: string
   name: string
   description?: string
-  [key: string]: any
 }
 
 interface PropertiesCardProps {
@@ -92,18 +96,139 @@ interface PropertiesCardProps {
   isVerified?: boolean
 }
 
-/* ------------------------------ Main Component ------------------------------ */
-export default function PropertyCard(props: PropertiesCardProps) {
-  const { user } = useAuth()
-  const userRoles = getUserRoles(user)
-  const onlyAdmin = hasRole(userRoles, [Roles.ADMIN])
+interface NormalizedMedia {
+  item: MediaItem
+  url: string
+  isPrimary: boolean
+}
 
+/* -------------------------------------------------------------------------- */
+/* Constants and Helpers                                                      */
+/* -------------------------------------------------------------------------- */
+
+const FALLBACK_IMAGE = '/villa.png'
+
+const cardVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 20,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.4,
+    },
+  },
+  hover: {
+    y: -5,
+    transition: {
+      duration: 0.2,
+    },
+  },
+}
+
+const VIDEO_EXTENSION_REGEX = /\.(mp4|webm|ogg|mov|m4v)(?:\?.*)?$/i
+
+function getMediaUrl(item: MediaItem | string): string | null {
+  if (typeof item === 'string') {
+    return item.trim() || null
+  }
+
+  return (
+    item.url ??
+    item.thumbnail_url ??
+    item.thumbnailUrl ??
+    item.image_url ??
+    item.imageUrl ??
+    null
+  )
+}
+
+function isVideoMedia(item: MediaItem, url: string): boolean {
+  return (
+    VIDEO_EXTENSION_REGEX.test(url) ||
+    item.mime_type?.toLowerCase().startsWith('video/') === true ||
+    item.type?.toLowerCase() === 'video' ||
+    item.media_type?.toLowerCase() === 'video'
+  )
+}
+
+function normalizeMedia(
+  items: Array<MediaItem | string>,
+): NormalizedMedia[] {
+  return items.reduce<NormalizedMedia[]>((result, item) => {
+    if (!item) return result
+
+    const url = getMediaUrl(item)
+
+    if (!url) return result
+
+    const normalizedItem: MediaItem =
+      typeof item === 'string'
+        ? { id: url, url }
+        : item
+
+    result.push({
+      item: normalizedItem,
+      url,
+      isPrimary: Boolean(
+        normalizedItem.is_primary ?? normalizedItem.isPrimary,
+      ),
+    })
+
+    return result
+  }, [])
+}
+
+function pickPrimaryMedia(
+  items: NormalizedMedia[],
+): string | null {
+  return (
+    items.find((item) => item.isPrimary)?.url ??
+    items[0]?.url ??
+    null
+  )
+}
+
+function getPropertyMedia(
+  images?: MediaItem[],
+  videos?: MediaItem[],
+  media?: MediaItem[],
+) {
+  const fallbackMedia = media ?? []
+  const imageInput = images ?? fallbackMedia
+  const videoInput = videos ?? fallbackMedia
+
+  const normalizedImages = normalizeMedia(imageInput).filter(
+    ({ item, url }) => !isVideoMedia(item, url),
+  )
+
+  const normalizedVideos = normalizeMedia(videoInput).filter(
+    ({ item, url }) => isVideoMedia(item, url),
+  )
+
+  return {
+    image: pickPrimaryMedia(normalizedImages) ?? FALLBACK_IMAGE,
+    video: pickPrimaryMedia(normalizedVideos),
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Component                                                                  */
+/* -------------------------------------------------------------------------- */
+
+function PropertyCardComponent(props: PropertiesCardProps) {
+  const { user } = useAuth()
+
+  
   const {
     id,
     title,
-    // description,
     listing_type,
     media,
+    images,
+    videos,
     layout_price_min,
     layout_price_max,
     layout_area_min_sqft,
@@ -113,10 +238,8 @@ export default function PropertyCard(props: PropertiesCardProps) {
     property_size,
     property_size_unit,
     property_category_name,
-    address_line,
     district,
     city,
-    state,
     price,
     approval_status,
     favorite_count,
@@ -130,56 +253,18 @@ export default function PropertyCard(props: PropertiesCardProps) {
     offer,
   } = props
 
+  // Retained for compatibility with the existing role-based logic.
+  // Add an explicit role-dependent UI condition if admin-only UI is required.
+  const userRoles = getUserRoles(user)
+  const onlyAdmin = hasRole(userRoles, [Roles.ADMIN])
+
   const offerText = typeof offer === 'string' ? offer.trim() : ''
   const hasOffer = offerText.length > 0
 
-  const getMediaUrls = () => {
-    const fallbackImage = '/villa.png'
-
-    const toUrl = (item: any): string | null => {
-      if (!item) return null
-      if (typeof item === 'string') return item
-      return item.url ?? item.thumbnail_url ?? item.thumbnailUrl ?? item.image_url ?? item.imageUrl ?? null
-    }
-
-    const isVideo = (url: string | null, item?: any) => {
-      if (!url) return false
-      const lower = url.toLowerCase()
-      const byExt = /\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/.test(lower)
-      const byMime = typeof item?.mime_type === 'string' ? item.mime_type.startsWith('video/') : false
-      const byType = typeof item?.type === 'string' ? item.type.toLowerCase() === 'video' : false
-      const byMediaType = typeof item?.media_type === 'string' ? item.media_type.toLowerCase() === 'video' : false
-      return byExt || byMime || byType || byMediaType
-    }
-
-    const mediaFallback = Array.isArray(media) ? media : []
-    const imagesInput = Array.isArray((props as any).images) ? (props as any).images : mediaFallback
-    const videosInput = Array.isArray((props as any).videos) ? (props as any).videos : mediaFallback
-
-    const normalize = (arr: any[]) =>
-      (Array.isArray(arr) ? arr : [])
-        .map(item => ({
-          item,
-          url: toUrl(item),
-          isPrimary: Boolean(item?.is_primary ?? item?.isPrimary),
-        }))
-        .filter(x => Boolean(x.url)) as Array<{ item: any; url: string; isPrimary: boolean }>
-
-    const normalizedImages = normalize(imagesInput).filter(x => !isVideo(x.url, x.item))
-    const normalizedVideos = normalize(videosInput).filter(x => isVideo(x.url, x.item))
-
-    const pickPrimaryOrFirst = (arr: Array<{ url: string; isPrimary: boolean }>) => {
-      return arr.find(x => x.isPrimary)?.url ?? arr[0]?.url ?? null
-    }
-
-    return {
-      image: pickPrimaryOrFirst(normalizedImages) ?? fallbackImage,
-      video: pickPrimaryOrFirst(normalizedVideos),
-    }
-  }
-
-  const mediaUrls = getMediaUrls()
-  const imageUrl = mediaUrls.image
+  const { image: imageUrl } = useMemo(
+    () => getPropertyMedia(images, videos, media),
+    [images, videos, media],
+  )
 
   const displaySource: PropertyDisplaySource = {
     price,
@@ -199,68 +284,83 @@ export default function PropertyCard(props: PropertiesCardProps) {
   const priceLabel = resolvePropertyPriceLabel(displaySource)
   const sizeLabel = resolvePropertySizeLabel(displaySource)
 
+  const stopCardClick = (event: MouseEvent<HTMLElement>) => {
+    event.stopPropagation()
+  }
+
+  const handleShareClick = (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation()
+    handleShare?.()
+  }
+
   return (
     <motion.div
       variants={cardVariants}
       initial="hidden"
       animate="visible"
       whileHover="hover"
-      className="group relative flex w-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 cursor-pointer h-full focus:outline-none focus:ring-2 focus:ring-yellow-500/30"
+      className="group relative flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-yellow-500/30"
       onClick={onPrimaryAction}
     >
-      {/* 1. Image Section */}
-      <div className="relative h-56 sm:h-60 w-full overflow-hidden bg-gray-100">
-        <Image src={imageUrl} alt={title} fill className="object-cover transition-transform duration-700 group-hover:scale-[1.06]" />
+      {/* Image Section */}
+      <div className="relative h-56 w-full overflow-hidden bg-gray-100 sm:h-60">
+        <Image
+          src={imageUrl}
+          alt={title}
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          className="object-cover transition-transform duration-700 group-hover:scale-[1.06]"
+        />
 
-        {/* Gradients for text visibility */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent pointer-events-none" />
+        {/* Image Gradient */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
 
         {/* Top Badges */}
-        <div className="absolute top-3 left-3 right-3 flex justify-between items-start gap-2 z-10">
+        <div className="absolute left-3 right-3 top-3 z-10 flex items-start justify-between gap-2">
           <div className="flex flex-wrap items-start gap-2">
             {property_category && (
-              <span className="px-2.5 py-1 rounded-full bg-white/90 text-[#2a1407] border border-white/70 text-[11px] font-semibold shadow-sm backdrop-blur flex items-center gap-1">
+              <span className="flex items-center gap-1 rounded-full border border-white/70 bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-[#2a1407] shadow-sm backdrop-blur">
                 {property_category.name}
               </span>
             )}
           </div>
 
-          {/* Approval Status Badge (if needed) */}
-          {propertyPreviewMode ? (
-            <span className="px-3 py-1 rounded-full bg-yellow-400 text-[#2a1407] text-xs font-bold shadow-sm backdrop-blur-md">Reviewing</span>
-          ) : (
-            <div /> // Spacer
+          {propertyPreviewMode && (
+            <span className="rounded-full bg-yellow-400 px-3 py-1 text-xs font-bold text-[#2a1407] shadow-sm backdrop-blur-md">
+              Reviewing
+            </span>
           )}
 
-          {/* Verified Badge */}
           {(isVerified || approval_status === 'APPROVED') && (
-            <span className="px-2.5 py-1 rounded-full bg-white/90 text-[#2a1407] border border-white/70 text-[11px] font-semibold shadow-sm backdrop-blur">
+            <span className="rounded-full border border-white/70 bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-[#2a1407] shadow-sm backdrop-blur">
               Verified
             </span>
           )}
         </div>
 
-        {/* Offer badge (bottom-left) — always visible when present */}
+        {/* Offer Badge */}
         {hasOffer && (
           <div
-            className="absolute bottom-3 left-3 z-10 max-w-[160px] sm:max-w-[200px] bg-yellow-400 text-[#2a1407] px-2.5 py-1.5 rounded-full shadow-md border border-yellow-300"
-            onClick={e => e.stopPropagation()}
+            className="absolute bottom-3 left-3 z-10 max-w-[160px] rounded-full border border-yellow-300 bg-yellow-400 px-2.5 py-1.5 text-[#2a1407] shadow-md sm:max-w-[200px]"
+            onClick={stopCardClick}
             title={offerText}
           >
             <div className="flex items-center gap-1">
               <Tag size={13} className="shrink-0" />
-              <span className="text-[11px] font-bold truncate">{offerText}</span>
+              <span className="truncate text-[11px] font-bold">
+                {offerText}
+              </span>
             </div>
           </div>
         )}
 
-        {/* Favorite & Share — always visible (not hover-only) */}
-        {(typeof handleFavorite === 'function' || typeof handleShare === 'function') && (
-          <div className="absolute bottom-3 right-3 flex items-center gap-2 z-10">
-            {typeof handleFavorite === 'function' && (
+        {/* Favorite and Share Actions */}
+        {(handleFavorite || handleShare) && (
+          <div className="absolute bottom-3 right-3 z-10 flex items-center gap-2">
+            {handleFavorite && (
               <div
-                className="bg-white/95 backdrop-blur p-2 rounded-full shadow-sm hover:bg-white transition-colors"
-                onClick={e => e.stopPropagation()}
+                className="rounded-full bg-white/95 p-2 shadow-sm backdrop-blur transition-colors hover:bg-white"
+                onClick={stopCardClick}
               >
                 <FavoriteButton
                   propertyId={id}
@@ -271,13 +371,13 @@ export default function PropertyCard(props: PropertiesCardProps) {
                 />
               </div>
             )}
-            {typeof handleShare === 'function' && (
+
+            {handleShare && (
               <button
-                onClick={e => {
-                  e.stopPropagation()
-                  handleShare?.()
-                }}
-                className="bg-white/95 backdrop-blur p-2 rounded-full shadow-sm hover:bg-white transition-colors text-gray-700 hover:text-blue-600"
+                type="button"
+                onClick={handleShareClick}
+                aria-label={`Share ${title}`}
+                className="rounded-full bg-white/95 p-2 text-gray-700 shadow-sm backdrop-blur transition-colors hover:bg-white hover:text-blue-600"
               >
                 <Share size={18} />
               </button>
@@ -286,46 +386,77 @@ export default function PropertyCard(props: PropertiesCardProps) {
         )}
       </div>
 
-      {/* 2. Content Section */}
-      <div className="flex flex-col flex-1 p-4 sm:p-5">
+      {/* Content Section */}
+      <div className="flex flex-1 flex-col p-4 sm:p-5">
         <div className="space-y-2">
-          <h3 className="text-[15px] sm:text-base font-extrabold text-gray-900 line-clamp-1 group-hover:text-[#2a1407] transition-colors">
+          <h3 className="line-clamp-1 text-[15px] font-extrabold text-gray-900 transition-colors group-hover:text-[#2a1407] sm:text-base">
             {title}
           </h3>
+
           <div className="flex items-start gap-1.5 text-gray-500">
-            <MapPin size={16} className="mt-0.5 flex-shrink-0 text-yellow-600" />
-            <p className="text-sm line-clamp-1 leading-relaxed">
+            <MapPin
+              size={16}
+              aria-hidden="true"
+              className="mt-0.5 shrink-0 text-yellow-600"
+            />
+
+            <p className="line-clamp-1 text-sm leading-relaxed">
               {district}
-              {district && city && ', '}
+              {district && city ? ', ' : ''}
               {city}
             </p>
           </div>
         </div>
 
+        {/* Property Information */}
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-50 text-yellow-900 border border-yellow-100 px-3 py-1">
-            <Shapes size={14} className="shrink-0 text-yellow-700" />
-            <span className="text-[11px] font-semibold">{listing_type || 'Listing'}</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-yellow-100 bg-yellow-50 px-3 py-1 text-yellow-900">
+            <Shapes
+              size={14}
+              aria-hidden="true"
+              className="shrink-0 text-yellow-700"
+            />
+            <span className="text-[11px] font-semibold">
+              {listing_type || 'Listing'}
+            </span>
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-50 text-gray-700 border border-gray-100 px-3 py-1">
-            <Ruler size={14} className="shrink-0 text-gray-600" />
-            <span className="text-[11px] font-semibold">{sizeLabel}</span>
+
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-gray-100 bg-gray-50 px-3 py-1 text-gray-700">
+            <Ruler
+              size={14}
+              aria-hidden="true"
+              className="shrink-0 text-gray-600"
+            />
+            <span className="text-[11px] font-semibold">
+              {sizeLabel}
+            </span>
           </span>
         </div>
 
+        {/* Price and Size */}
         <div className="mt-auto pt-4">
           <div className="flex items-end justify-between gap-3 border-t border-gray-100 pt-3">
             <div className="min-w-0">
-              <div className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
                 {isLayout ? 'Price range' : 'Price'}
               </div>
-              <div className="mt-1 text-base sm:text-lg font-extrabold text-[#2a1407] truncate" title={priceLabel}>
+
+              <div
+                className="mt-1 truncate text-base font-extrabold text-[#2a1407] sm:text-lg"
+                title={priceLabel}
+              >
                 {priceLabel}
               </div>
             </div>
+
             <div className="shrink-0 text-right">
-              <div className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">Size</div>
-              <div className="mt-1 text-sm font-bold text-gray-700">{sizeLabel}</div>
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+                Size
+              </div>
+
+              <div className="mt-1 text-sm font-bold text-gray-700">
+                {sizeLabel}
+              </div>
             </div>
           </div>
         </div>
@@ -333,3 +464,11 @@ export default function PropertyCard(props: PropertiesCardProps) {
     </motion.div>
   )
 }
+
+const PropertyCard = memo(PropertyCardComponent)
+
+PropertyCard.displayName = 'PropertyCard'
+
+export default PropertyCard
+
+

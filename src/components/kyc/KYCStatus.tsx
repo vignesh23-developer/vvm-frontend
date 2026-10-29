@@ -1,173 +1,232 @@
+
 'use client'
 
 import { useState } from 'react'
+import { Calendar, Loader2, Lock, Shield, ShieldCheck } from 'lucide-react'
+import toast from 'react-hot-toast'
+
 import { postMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import { setLocalStorageItem } from '@/utils/local_storage/local_storage_handler'
 import { useKycStatus } from './hooks/useKycStatus'
-import toast from 'react-hot-toast'
-import Image from 'next/image'
-import { ShieldCheck, Shield, Loader2, Lock, Calendar } from 'lucide-react'
+
+type KycInitiationResponse = {
+  success?: boolean
+  verificationId?: string
+  verificationUrl?: string
+  expiresInSeconds?: number
+  message?: string
+}
+
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error
+    ? error.message
+    : 'An error occurred. Please try again.'
+}
+
+function formatDate(value: string | Date): string {
+  const date = new Date(value)
+
+  if (Number.isNaN(date.getTime())) {
+    return 'Date unavailable'
+  }
+
+  return date.toLocaleDateString()
+}
+
+function StatusBadge({ verified }: { verified: boolean }) {
+  return (
+    <span
+      className={[
+        'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold',
+        verified
+          ? 'border-green-200 bg-green-50 text-green-700'
+          : 'border-amber-200 bg-amber-50 text-amber-700',
+      ].join(' ')}
+    >
+      <span
+        className={[
+          'h-1.5 w-1.5 rounded-full',
+          verified ? 'bg-green-500' : 'bg-amber-500',
+        ].join(' ')}
+      />
+      {verified ? 'VERIFIED' : 'PENDING'}
+    </span>
+  )
+}
+
+function KycLoadingState() {
+  return (
+    <div
+      role="status"
+      aria-label="Loading KYC status"
+      className="flex items-center justify-center rounded-2xl border border-[#e8d5c4] bg-white p-8"
+    >
+      <Loader2 className="h-6 w-6 animate-spin text-[#b8864b]" />
+    </div>
+  )
+}
 
 export default function KYCStatus() {
   const { kycStatus, loading } = useKycStatus()
   const [initiating, setInitiating] = useState(false)
 
-  const handleInitiateKyc = async () => {
-    console.log('Start Verification button clicked')
+  const handleInitiateKyc = async (): Promise<void> => {
+    if (initiating) return
+
+    setInitiating(true)
+
     try {
-      setInitiating(true)
       const redirectUrl = `${window.location.origin}/kyc-callback`
-      console.log('KYC API:', appEndpoints.initiateKyc)
-      console.log('KYC Redirect URL:', redirectUrl)
+
       const response = await postMethod(appEndpoints.initiateKyc, {
         redirectUrl,
         verificationType: 'AADHAAR',
         entityType: 'USER',
         directCall: true,
       })
-      console.log('KYC API Response:', response)
-      if (response.error) {
+
+      if (response?.error) {
         toast.error(response.message || 'Failed to initiate KYC')
-        setInitiating(false)
         return
       }
 
-      const kycData = response.data as {
-        success: boolean
-        verificationId: string
-        verificationUrl: string
-        expiresInSeconds: number
-        message?: string
+      const kycData = response?.data as KycInitiationResponse | undefined
+
+      if (
+        !kycData?.verificationId ||
+        !kycData?.verificationUrl
+      ) {
+        toast.error(kycData?.message || 'Failed to get verification URL')
+        return
       }
 
-      if (kycData.verificationId && kycData.verificationUrl) {
-        // Store verificationId in localStorage
-        setLocalStorageItem('kyc_verification_pending', {
-          verificationId: kycData.verificationId,
-          timestamp: Date.now(),
-        })
+      let verificationUrl: URL
 
-        toast.success('Redirecting to verification...')
-        setInitiating(false)
-
-        // Redirect to Surepass verification URL
-        window.location.href = kycData.verificationUrl
-      } else {
-        toast.error('Failed to get verification URL')
-        setInitiating(false)
+      try {
+        verificationUrl = new URL(kycData.verificationUrl)
+      } catch {
+        toast.error('Invalid verification URL received')
+        return
       }
-    } catch (error) {
+
+      // Accept only HTTPS verification URLs.
+      if (verificationUrl.protocol !== 'https:') {
+        toast.error('Invalid verification URL received')
+        return
+      }
+
+      setLocalStorageItem('kyc_verification_pending', {
+        verificationId: kycData.verificationId,
+        timestamp: Date.now(),
+      })
+
+      toast.success('Redirecting to verification...')
+
+      window.location.assign(verificationUrl.toString())
+    } catch (error: unknown) {
       console.error('Failed to initiate KYC:', error)
-      toast.error('An error occurred. Please try again.')
+      toast.error(getErrorMessage(error))
+    } finally {
       setInitiating(false)
     }
   }
 
   if (loading) {
-    return (
-      <div className="bg-white rounded-2xl border border-[#e8d5c4] p-8 flex items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-[#b8864b]" />
-      </div>
-    )
+    return <KycLoadingState />
   }
 
-  // VERIFIED STATE
-  if (kycStatus?.isVerified) {
-    return (
-      <div className="bg-white rounded-2xl border border-[#e8d5c4] shadow-sm overflow-hidden">
-        <div className="p-6">
-          {/* Status Badge */}
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-semibold text-[#7a4a1d] uppercase tracking-wide">Identity</span>
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-green-50 text-green-700 text-[10px] font-bold rounded-full border border-green-200">
-              <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-              VERIFIED
-            </span>
+  const isVerified = Boolean(kycStatus?.isVerified)
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-[#e8d5c4] bg-white shadow-sm">
+      <div className="p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <span className="text-xs font-semibold uppercase tracking-wide text-[#7a4a1d]">
+            Identity
+          </span>
+          <StatusBadge verified={isVerified} />
+        </div>
+
+        <div className="mb-4 text-center">
+          <div
+            className={[
+              'mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border bg-gradient-to-br',
+              isVerified
+                ? 'border-green-200 from-green-50 to-emerald-50'
+                : 'border-yellow-200 from-yellow-50 to-orange-50',
+            ].join(' ')}
+          >
+            {isVerified ? (
+              <ShieldCheck className="h-8 w-8 text-green-600" />
+            ) : (
+              <Shield className="h-8 w-8 text-yellow-600" />
+            )}
           </div>
+        </div>
 
-          {/* Success Icon */}
-          <div className="text-center mb-4">
-            <div className="w-16 h-16 mx-auto bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl border border-green-200 flex items-center justify-center">
-              <ShieldCheck className="w-8 h-8 text-green-600" />
-            </div>
-          </div>
+        <h3 className="mb-1 text-center text-lg font-bold text-[#2a1407]">
+          {isVerified ? 'Identity Verified' : 'Verify Your Identity'}
+        </h3>
 
-          <h3 className="text-lg font-bold text-[#2a1407] text-center mb-1">Identity Verified</h3>
-          <p className="text-xs text-[#7a4a1d] text-center mb-4">Your KYC verification is complete</p>
+        <p className="mb-5 text-center text-xs leading-relaxed text-[#7a4a1d]">
+          {isVerified
+            ? 'Your KYC verification is complete'
+            : 'Complete KYC to unlock full access and build trust with buyers and sellers'}
+        </p>
 
-          {/* Verification Details */}
-          <div className="bg-[#fdf5eb] rounded-xl p-4 space-y-2">
-            {kycStatus.aadhaarMasked && (
-              <div className="flex justify-between items-center text-sm">
+        {isVerified ? (
+          <div className="space-y-2 rounded-xl bg-[#fdf5eb] p-4">
+            {kycStatus?.aadhaarMasked && (
+              <div className="flex items-center justify-between gap-3 text-sm">
                 <span className="text-[#7a4a1d]">Aadhaar</span>
-                <span className="font-mono font-semibold text-[#2a1407]">{kycStatus.aadhaarMasked}</span>
+                <span className="break-all text-right font-mono font-semibold text-[#2a1407]">
+                  {kycStatus.aadhaarMasked}
+                </span>
               </div>
             )}
-            {kycStatus.verifiedAt && (
-              <div className="flex justify-between items-center text-sm">
+
+            {kycStatus?.verifiedAt && (
+              <div className="flex items-center justify-between gap-3 text-sm">
                 <span className="text-[#7a4a1d]">Verified</span>
-                <span className="font-medium text-[#2a1407] flex items-center gap-1">
-                  <Calendar className="w-3 h-3" />
-                  {new Date(kycStatus.verifiedAt).toLocaleDateString()}
+                <span className="flex items-center gap-1 text-right font-medium text-[#2a1407]">
+                  <Calendar className="h-3 w-3 shrink-0" />
+                  {formatDate(kycStatus.verifiedAt)}
                 </span>
               </div>
             )}
           </div>
-        </div>
-      </div>
-    )
-  }
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={handleInitiateKyc}
+              disabled={initiating}
+              aria-busy={initiating}
+              className={[
+                'w-full rounded-xl py-3.5 text-sm font-bold transition-all',
+                'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-600',
+                initiating
+                  ? 'cursor-not-allowed bg-gray-100 text-gray-400'
+                  : 'cursor-pointer bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#2a1407] hover:shadow-lg hover:shadow-yellow-400/30',
+              ].join(' ')}
+            >
+              {initiating ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Processing...
+                </span>
+              ) : (
+                'Start Verification'
+              )}
+            </button>
 
-  // NOT VERIFIED STATE
-  return (
-    <div className="bg-white rounded-2xl border border-[#e8d5c4] shadow-sm overflow-hidden">
-      <div className="p-6">
-        {/* Status Badge */}
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-xs font-semibold text-[#7a4a1d] uppercase tracking-wide">Identity</span>
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-700 text-[10px] font-bold rounded-full border border-amber-200">
-            <span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
-            PENDING
-          </span>
-        </div>
-
-        {/* Icon */}
-        <div className="text-center mb-4">
-          <div className="w-16 h-16 mx-auto bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl border border-yellow-200 flex items-center justify-center">
-            <Shield className="w-8 h-8 text-yellow-600" />
-          </div>
-        </div>
-
-        <h3 className="text-lg font-bold text-[#2a1407] text-center mb-1">Verify Your Identity</h3>
-        <p className="text-xs text-[#7a4a1d] text-center mb-5 leading-relaxed">
-          Complete KYC to unlock full access and build trust with buyers and sellers
-        </p>
-
-        {/* CTA Section */}
-        <button
-          onClick={handleInitiateKyc}
-          disabled={initiating}
-          className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${
-            initiating
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-              : 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#2a1407] hover:shadow-lg hover:shadow-yellow-400/30'
-          }`}
-        >
-          {initiating ? (
-            <span className="flex items-center justify-center gap-2">
-              <Loader2 className="w-4 h-4 animate-spin" /> Processing...
-            </span>
-          ) : (
-            'Start Verification'
-          )}
-        </button>
-
-        {/* Security Footer */}
-        <p className="text-[10px] text-gray-400 mt-4 flex items-center justify-center gap-1.5">
-          <Lock className="w-3 h-3" />
-          Secured by Surepass Digilocker
-        </p>
+            <p className="mt-4 flex items-center justify-center gap-1.5 text-[10px] text-gray-400">
+              <Lock className="h-3 w-3" />
+              Secured by Surepass Digilocker
+            </p>
+          </>
+        )}
       </div>
     </div>
   )

@@ -1,14 +1,20 @@
 'use client'
 
-import type { ReactNode } from 'react'
+import type { ReactNode, ComponentType } from 'react'
 
-/** Page shell — matches `(seller)/dashboard` */
+type IconComponent = ComponentType<{ size?: number; className?: string }>
+
+const cn = (...classes: Array<string | undefined | false>) =>
+  classes.filter(Boolean).join(' ')
+
+const formatValue = (value: string | number): string =>
+  typeof value === 'number' ? value.toLocaleString() : value
+
+/** Shared dashboard page shell */
 export const dashboardPageClass =
-  'p-4 sm:p-6 space-y-6 bg-gradient-to-br from-yellow-50 via-white to-yellow-50 min-h-screen'
+  'min-h-screen space-y-6 bg-gradient-to-br from-yellow-50 via-white to-yellow-50 p-4 sm:p-6'
 
-type IconComponent = React.ComponentType<{ size?: number; className?: string }>
-
-/** Top stat cards — matches seller `StatsCard` */
+/** Dashboard summary card */
 export function DashboardStatCard({
   label,
   value,
@@ -17,18 +23,17 @@ export function DashboardStatCard({
   value: string | number
   Icon?: IconComponent
 }) {
-  const display =
-    typeof value === 'number' ? value.toLocaleString() : value
-
   return (
     <div className="flex flex-col items-center justify-center rounded-lg border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/30 p-4 text-center shadow-sm">
-      <h2 className="text-xl font-bold text-[#2a1407] sm:text-2xl">{display}</h2>
+      <h2 className="text-xl font-bold text-[#2a1407] sm:text-2xl">
+        {formatValue(value)}
+      </h2>
       <p className="mt-1 text-sm text-gray-600">{label}</p>
     </div>
   )
 }
 
-/** Widget panel — `default` = table block, `chart` = sidebar charts */
+/** Reusable dashboard panel */
 export function DashboardPanel({
   children,
   className = '',
@@ -38,20 +43,20 @@ export function DashboardPanel({
   className?: string
   variant?: 'default' | 'chart'
 }) {
-  const radius = variant === 'chart' ? 'rounded-2xl' : 'rounded-lg'
   return (
     <div
-      className={[
-        radius,
+      className={cn(
+        variant === 'chart' ? 'rounded-2xl' : 'rounded-lg',
         'border border-yellow-200 bg-gradient-to-br from-white to-yellow-50/20 p-4 shadow-sm sm:p-6',
         className,
-      ].join(' ')}
+      )}
     >
       {children}
     </div>
   )
 }
 
+/** Panel title, subtitle, icon, and optional action */
 export function DashboardPanelHeader({
   title,
   subtitle,
@@ -66,20 +71,28 @@ export function DashboardPanelHeader({
   className?: string
 }) {
   return (
-    <div className={['flex flex-wrap items-start justify-between gap-3', className].join(' ')}>
+    <div className={cn('flex flex-wrap items-start justify-between gap-3', className)}>
       <div className="min-w-0">
         <div className="flex items-center gap-2">
-          {Icon ? <Icon size={18} className="shrink-0 text-yellow-700" /> : null}
-          <h2 className="text-lg font-semibold text-[#2a1407]">{title}</h2>
+          {Icon && (
+            <Icon size={18} className="shrink-0 text-yellow-700" />
+          )}
+          <h2 className="text-lg font-semibold text-[#2a1407]">
+            {title}
+          </h2>
         </div>
-        {subtitle ? <p className="mt-1 text-sm text-gray-600">{subtitle}</p> : null}
+
+        {subtitle && (
+          <p className="mt-1 text-sm text-gray-600">{subtitle}</p>
+        )}
       </div>
-      {action ? <div className="shrink-0">{action}</div> : null}
+
+      {action && <div className="shrink-0">{action}</div>}
     </div>
   )
 }
 
-/** Inner metric — matches `PlanUsageWidget` row tiles */
+/** Small dashboard metric */
 export function DashboardMetricTile({
   label,
   value,
@@ -89,13 +102,14 @@ export function DashboardMetricTile({
   value: string | number
   className?: string
 }) {
-  const display =
-    typeof value === 'number' ? value.toLocaleString() : value
-
   return (
-    <div className={['rounded-xl border border-yellow-100 bg-white/70 p-3', className].join(' ')}>
-      <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 line-clamp-2">{label}</div>
-      <div className="mt-1.5 text-lg font-bold text-[#2a1407] sm:text-xl">{display}</div>
+    <div className={cn('rounded-xl border border-yellow-100 bg-white/70 p-3', className)}>
+      <div className="line-clamp-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+        {label}
+      </div>
+      <div className="mt-1.5 text-lg font-bold text-[#2a1407] sm:text-xl">
+        {formatValue(value)}
+      </div>
     </div>
   )
 }
@@ -106,6 +120,7 @@ export type DashboardSegmentOption<T extends string> = {
   disabled?: boolean
 }
 
+/** Reusable segmented control */
 export function DashboardSegmentedControl<T extends string>({
   value,
   options,
@@ -118,22 +133,32 @@ export function DashboardSegmentedControl<T extends string>({
   className?: string
 }) {
   return (
-    <div className={['inline-flex w-full rounded-xl border border-yellow-200 bg-white/70 p-1', className].join(' ')}>
-      {options.map(option => {
-        const isActive = value === option.value
+    <div
+      className={cn(
+        'inline-flex w-full rounded-xl border border-yellow-200 bg-white/70 p-1',
+        className,
+      )}
+      role="group"
+    >
+      {options.map(({ value: optionValue, label, disabled }) => {
+        const isActive = value === optionValue
+
         return (
           <button
-            key={option.value}
+            key={optionValue}
             type="button"
-            disabled={option.disabled}
-            onClick={() => onChange(option.value)}
-            className={[
+            disabled={disabled}
+            aria-pressed={isActive}
+            onClick={() => onChange(optionValue)}
+            className={cn(
               'flex-1 rounded-lg px-2.5 py-2 text-xs font-medium transition sm:text-sm',
-              isActive ? 'bg-yellow-100 text-[#2a1407]' : 'text-gray-700 hover:bg-yellow-50',
-              option.disabled ? 'cursor-not-allowed opacity-50' : '',
-            ].join(' ')}
+              isActive
+                ? 'bg-yellow-100 text-[#2a1407]'
+                : 'text-gray-700 hover:bg-yellow-50',
+              disabled && 'cursor-not-allowed opacity-50',
+            )}
           >
-            {option.label}
+            {label}
           </button>
         )
       })}
@@ -141,14 +166,22 @@ export function DashboardSegmentedControl<T extends string>({
   )
 }
 
+/** Fixed-height chart container */
 export function DashboardChartFrame({ children }: { children: ReactNode }) {
   return <div className="mt-4 h-48 w-full sm:h-52 md:h-60">{children}</div>
 }
 
+/** Empty or informational dashboard state */
 export function DashboardEmptyState({ children }: { children: ReactNode }) {
   return <div className="mt-4 text-sm text-gray-600">{children}</div>
 }
 
-export function DashboardSkeleton({ className }: { className?: string }) {
-  return <div className={'animate-pulse rounded-lg bg-yellow-100/70 ' + (className ?? '')} />
+/** Loading placeholder */
+export function DashboardSkeleton({ className = '' }: { className?: string }) {
+  return (
+    <div
+      aria-hidden="true"
+      className={cn('animate-pulse rounded-lg bg-yellow-100/70', className)}
+    />
+  )
 }

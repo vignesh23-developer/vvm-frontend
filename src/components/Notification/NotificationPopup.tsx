@@ -7,7 +7,7 @@ import NotificationList from './NotificationList'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { getUserRoles, hasRole } from '@/utils/roles/roles'
-import { Roles } from '@/utils/roles/roles'
+
 
 interface NotificationPopupProps {
   isOpen: boolean

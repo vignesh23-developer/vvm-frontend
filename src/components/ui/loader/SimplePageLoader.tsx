@@ -18,7 +18,7 @@ const SimplePageLoader: React.FC = () => {
       }, 500)
       
       return () => clearTimeout(finishTimer)
-    }, 1200)
+    }, 500)
 
     return () => clearTimeout(timer)
   }, [setIsPageLoading])

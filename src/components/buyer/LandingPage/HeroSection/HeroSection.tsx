@@ -191,7 +191,7 @@ export default function HeroSection({ propertyCategories, error: categoriesError
 
   // Simulate a short loading state for hero (for skeleton)
   useEffect(() => {
-    const timer = setTimeout(() => setIsHeroLoading(false), 500)
+    const timer = setTimeout(() => setIsHeroLoading(false), 300)
     return () => clearTimeout(timer)
   }, [])
 

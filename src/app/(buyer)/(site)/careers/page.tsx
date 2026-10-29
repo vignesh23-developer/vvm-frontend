@@ -56,7 +56,10 @@ const Careers = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mt-8">
           <main className="md:col-span-3 prose max-w-none">
-            <MarkdownRenderer content={content} />
+            <MarkdownRenderer
+              content={content}
+              specialHeading="Our Team is Growing"
+            />
           </main>
 
           <OnThisStaticPages tocLabel={tocLabel} toc={toc} />

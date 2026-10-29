@@ -13,7 +13,7 @@ export default function LoaderManager({ children }: { children: React.ReactNode 
     setIsLoading(true); // Start loader for navigation
     const navTimeout = setTimeout(() => {
       setIsLoading(false); // Stop loader after delay
-    }, 3000); // Adjust navigation delay as needed
+    }, 500); // Adjust navigation delay as needed
 
     return () => clearTimeout(navTimeout); // Cleanup on navigation change
   }, [pathname]);

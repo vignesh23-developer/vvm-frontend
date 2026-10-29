@@ -14,11 +14,7 @@ export interface SSESubscriber {
   eventType?: SSEEventType
 }
 
-/**
- * SSE Service for real-time notification streaming
- * Handles Server-Sent Events connection and message distribution
- * Uses fetch API with ReadableStream to support Authorization headers
- */
+
 export class SSEService {
   private abortController: AbortController | null = null
   private subscribers: Map<string, SSESubscriber> = new Map()
@@ -187,14 +183,9 @@ export class SSEService {
       }
       return true
     } catch (error: any) {
-      // Don't log AbortError - it's expected during disconnect
-      // if (error.name !== 'AbortError') {
-      //   console.error('SSE: Connection error', error.message || error)
-      // }
       this.isConnecting = false
       this.isConnected = false
       this.reader = null
-
       // Only attempt reconnect if allowed and not aborted
       if (error.name !== 'AbortError' && this.shouldReconnect) {
         this.handleReconnect()

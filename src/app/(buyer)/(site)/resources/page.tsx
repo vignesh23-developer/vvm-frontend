@@ -19,28 +19,36 @@ const Resources = () => {
   const title = t('Resources.title') || 'Resources'
   const content = t('Resources.content') || ''
   const tocLabel = t('Resources.title') || t('Footer.on_this_page') || 'On this page'
+
   const toc = useMemo(() => {
     if (!content) return [] as { id: string; text: string; level: number }[]
+
     const lines = content.split('\n')
     const items: { id: string; text: string; level: number }[] = []
     const ids: Record<string, number> = {}
     const headingRegex = /^(#{1,3})\s+(.+)$/
+
     for (const line of lines) {
       const m = line.match(headingRegex)
+
       if (m) {
         const level = m[1].length
         const text = m[2].replace(/`/g, '').trim()
         const base = slugify(text) || `heading-${items.length + 1}`
+
         let id = base
+
         if (ids[base]) {
           ids[base] += 1
           id = `${base}-${ids[base]}`
         } else {
           ids[base] = 1
         }
+
         items.push({ id, text, level })
       }
     }
+
     return items
   }, [content])
 
