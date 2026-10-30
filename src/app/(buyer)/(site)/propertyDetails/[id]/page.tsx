@@ -1138,7 +1138,7 @@ const page = () => {
                           <MessageSquare size={16} />
                           <span>Enquire</span>
                         </Button>
-                        
+
                         {instagramReelUrl && (
                           <a
                             href={instagramReelUrl}
@@ -1556,9 +1556,8 @@ const page = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.08 }}
                       whileHover={{ y: -3, boxShadow: '0 18px 40px rgba(0,0,0,0.07)' }}
-                      className={`relative flex flex-col justify-between rounded-2xl bg-gradient-to-br from-yellow-50/50 to-white px-5 py-4 border border-yellow-100 ${
-                        isPrivileged ? 'cursor-pointer hover:shadow-md' : ''
-                      }`}
+                      className={`relative flex flex-col justify-between rounded-2xl bg-gradient-to-br from-yellow-50/50 to-white px-5 py-4 border border-yellow-100 ${isPrivileged ? 'cursor-pointer hover:shadow-md' : ''
+                        }`}
                       role={isPrivileged ? 'button' : undefined}
                       tabIndex={isPrivileged ? 0 : undefined}
                       onClick={() => {

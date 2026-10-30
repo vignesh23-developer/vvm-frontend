@@ -106,7 +106,33 @@ interface NormalizedMedia {
 /* Constants and Helpers                                                      */
 /* -------------------------------------------------------------------------- */
 
-const FALLBACK_IMAGE = '/villa.png'
+const getFallbackImage = (propertyType?: string): string => {
+  const type = propertyType?.trim().toLowerCase()
+
+  switch (type) {
+    case 'house':
+      return '/villa.png'
+
+    case 'land':
+      return '/land.png'
+
+    case 'plot':
+      return '/plot.png'
+
+    case 'layout':
+      return '/layout.png'
+
+    case 'agri land':
+    case 'agricultural land':
+      return '/Agri_land.png'
+
+    case 'commercial land':
+      return '/land.png'
+
+    default:
+      return '/villa.png'
+  }
+}
 
 const cardVariants: Variants = {
   hidden: {
@@ -195,6 +221,7 @@ function getPropertyMedia(
   images?: MediaItem[],
   videos?: MediaItem[],
   media?: MediaItem[],
+  propertyType?: string,
 ) {
   const fallbackMedia = media ?? []
   const imageInput = images ?? fallbackMedia
@@ -209,7 +236,9 @@ function getPropertyMedia(
   )
 
   return {
-    image: pickPrimaryMedia(normalizedImages) ?? FALLBACK_IMAGE,
+    image:
+      pickPrimaryMedia(normalizedImages) ??
+      getFallbackImage(propertyType),
     video: pickPrimaryMedia(normalizedVideos),
   }
 }
@@ -221,7 +250,7 @@ function getPropertyMedia(
 function PropertyCardComponent(props: PropertiesCardProps) {
   const { user } = useAuth()
 
-  
+
   const {
     id,
     title,
@@ -262,8 +291,14 @@ function PropertyCardComponent(props: PropertiesCardProps) {
   const hasOffer = offerText.length > 0
 
   const { image: imageUrl } = useMemo(
-    () => getPropertyMedia(images, videos, media),
-    [images, videos, media],
+    () =>
+      getPropertyMedia(
+        images,
+        videos,
+        media,
+        property_category_name || property_category?.name,
+      ),
+    [images, videos, media, property_category_name, property_category?.name],
   )
 
   const displaySource: PropertyDisplaySource = {
