@@ -420,7 +420,7 @@ const AdsImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
 
     const handleUploadAll = () => {
       if (items.length === 0) {
-        toast.error('Please add at least one media item.')
+        onUploaded()
         return
       }
 
@@ -531,11 +531,10 @@ const AdsImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
         <div className="flex items-center gap-1 bg-gray-100 p-1.5 rounded-xl w-fit mb-8">
           <button
             onClick={() => setActiveTab('media')}
-            className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
-              activeTab === 'media'
+            className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${activeTab === 'media'
                 ? 'bg-white text-[#2a1407] shadow-sm ring-1 ring-black/5'
                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
-            }`}
+              }`}
           >
             <ImageIcon size={18} />
             Upload Media
@@ -617,9 +616,8 @@ const AdsImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
                       onDragEnd={handleDragEnd}
                       onDragOver={e => e.preventDefault()} // Allow drop
                       className={`relative group rounded-2xl overflow-hidden shadow-sm bg-white transition-all duration-300 h-full
-                    ${
-                      item.isPrimary ? 'ring-2 ring-[#2a1407] ring-offset-2 z-10' : 'border border-gray-200 hover:border-gray-300'
-                    } cursor-move flex flex-col`}
+                    ${item.isPrimary ? 'ring-2 ring-[#2a1407] ring-offset-2 z-10' : 'border border-gray-200 hover:border-gray-300'
+                        } cursor-move flex flex-col`}
                     >
                       <div className="w-full bg-gray-100 relative h-48 shrink-0">
                         {item.type === 'IMAGE' ? (

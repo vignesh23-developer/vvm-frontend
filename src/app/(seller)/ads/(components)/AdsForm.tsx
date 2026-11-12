@@ -36,19 +36,24 @@ export default function AdsForm({ mode, initialData, adId }: AdsFormProps) {
   const [hasExistingMedia, setHasExistingMedia] = useState<boolean>(false)
   const uploadImagesRef = useRef<UploadImagesRef | null>(null)
 
-  // Admin-only guard (client-side fallback; middleware enforces on initial request)
+  // Allow Admin and Agent to access Ads creation
   useEffect(() => {
-    // if (authLoading) return
+    if (authLoading) return
 
-    // if (!token) {
-    //   const next = pathname ? `?next=${encodeURIComponent(pathname)}` : ''
-    //   router.replace(`/login${next}`)
-    //   return
-    // }
+    if (!token) {
+      const next = pathname ? `?next=${encodeURIComponent(pathname)}` : ''
+      router.replace(`/login${next}`)
+      return
+    }
 
     const userRoles = getUserRoles(user)
-    const isAdmin = hasRole(userRoles, [Roles.ADMIN])
-    if (!isAdmin) {
+
+    const canCreateAds = hasRole(userRoles, [
+      Roles.ADMIN,
+      Roles.AGENT,
+    ])
+
+    if (!canCreateAds) {
       router.replace('/')
     }
   }, [authLoading, pathname, router, token, user])

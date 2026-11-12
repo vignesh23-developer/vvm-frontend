@@ -142,7 +142,7 @@ export function middleware(request: NextRequest) {
     return redirectHomeRequireAuth(request, pathname, search)
   }
 
-  // Admin-only: restrict Ads create/edit pages
+  // Admin and Agent can access Ads create/edit pages
   if (pathname === '/ads' || pathname.startsWith('/ads/edit/')) {
     if (!hasToken) {
       return redirectHomeRequireAuth(request, pathname, search)
@@ -152,10 +152,15 @@ export function middleware(request: NextRequest) {
       userRaw,
       null,
     )
-    const userRoles = getUserRoles(user)
-    const isAdmin = hasRole(userRoles, [Roles.ADMIN])
 
-    if (!isAdmin) {
+    const userRoles = getUserRoles(user)
+
+    const canCreateAds = hasRole(userRoles, [
+      Roles.ADMIN,
+      Roles.AGENT,
+    ])
+
+    if (!canCreateAds) {
       return NextResponse.redirect(new URL('/', request.url))
     }
   }

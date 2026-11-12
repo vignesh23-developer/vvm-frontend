@@ -1,18 +1,21 @@
+
 'use client'
 
-import { memo, useMemo, type MouseEvent } from 'react'
+import { memo, useMemo, useState, useEffect, type MouseEvent } from 'react'
 import Image from 'next/image'
 import { motion, type Variants } from 'framer-motion'
 import {
-  Share,
+  Share2,
   Ruler,
   MapPin,
   Shapes,
   Tag,
+  BadgeCheck,
+  Heart,
+  ArrowUpRight,
 } from 'lucide-react'
 
-import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
-import { hasRole, Roles, getUserRoles } from '@/utils/roles/roles'
+
 import {
   isLayoutPropertyDisplay,
   resolvePropertyPriceLabel,
@@ -103,7 +106,7 @@ interface NormalizedMedia {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Constants and Helpers                                                      */
+/* Helpers                                                                    */
 /* -------------------------------------------------------------------------- */
 
 const getFallbackImage = (propertyType?: string): string => {
@@ -114,6 +117,7 @@ const getFallbackImage = (propertyType?: string): string => {
       return '/villa.png'
 
     case 'land':
+    case 'commercial land':
       return '/land.png'
 
     case 'plot':
@@ -125,32 +129,21 @@ const getFallbackImage = (propertyType?: string): string => {
     case 'agri land':
     case 'agricultural land':
       return '/Agri_land.png'
-
-    case 'commercial land':
-      return '/land.png'
-
-    default:
+     default:
       return '/villa.png'
   }
 }
 
 const cardVariants: Variants = {
-  hidden: {
-    opacity: 0,
-    y: 20,
-  },
+  hidden: { opacity: 0, y: 16 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: {
-      duration: 0.4,
-    },
+    transition: { duration: 0.35, ease: 'easeOut' },
   },
   hover: {
-    y: -5,
-    transition: {
-      duration: 0.2,
-    },
+    y: -4,
+    transition: { duration: 0.2 },
   },
 }
 
@@ -191,9 +184,7 @@ function normalizeMedia(
     if (!url) return result
 
     const normalizedItem: MediaItem =
-      typeof item === 'string'
-        ? { id: url, url }
-        : item
+      typeof item === 'string' ? { id: url, url } : item
 
     result.push({
       item: normalizedItem,
@@ -207,9 +198,7 @@ function normalizeMedia(
   }, [])
 }
 
-function pickPrimaryMedia(
-  items: NormalizedMedia[],
-): string | null {
+function pickPrimaryMedia(items: NormalizedMedia[]): string | null {
   return (
     items.find((item) => item.isPrimary)?.url ??
     items[0]?.url ??
@@ -248,10 +237,7 @@ function getPropertyMedia(
 /* -------------------------------------------------------------------------- */
 
 function PropertyCardComponent(props: PropertiesCardProps) {
-  const { user } = useAuth()
-
-
-  const {
+    const {
     id,
     title,
     listing_type,
@@ -281,15 +267,7 @@ function PropertyCardComponent(props: PropertiesCardProps) {
     property_category,
     offer,
   } = props
-
-  // Retained for compatibility with the existing role-based logic.
-  // Add an explicit role-dependent UI condition if admin-only UI is required.
-  const userRoles = getUserRoles(user)
-  const onlyAdmin = hasRole(userRoles, [Roles.ADMIN])
-
-  const offerText = typeof offer === 'string' ? offer.trim() : ''
-  const hasOffer = offerText.length > 0
-
+  
   const { image: imageUrl } = useMemo(
     () =>
       getPropertyMedia(
@@ -299,6 +277,16 @@ function PropertyCardComponent(props: PropertiesCardProps) {
         property_category_name || property_category?.name,
       ),
     [images, videos, media, property_category_name, property_category?.name],
+  )
+
+  const [displayImage, setDisplayImage] = useState(imageUrl)
+
+  useEffect(() => {
+    setDisplayImage(imageUrl)
+  }, [imageUrl])
+
+  const fallbackImage = getFallbackImage(
+    property_category_name || property_category?.name,
   )
 
   const displaySource: PropertyDisplaySource = {
@@ -319,6 +307,12 @@ function PropertyCardComponent(props: PropertiesCardProps) {
   const priceLabel = resolvePropertyPriceLabel(displaySource)
   const sizeLabel = resolvePropertySizeLabel(displaySource)
 
+  const offerText = typeof offer === 'string' ? offer.trim() : ''
+  const hasOffer = offerText.length > 0
+  const verified = isVerified || approval_status === 'APPROVED'
+
+  const location = [district, city].filter(Boolean).join(', ')
+
   const stopCardClick = (event: MouseEvent<HTMLElement>) => {
     event.stopPropagation()
   }
@@ -328,46 +322,46 @@ function PropertyCardComponent(props: PropertiesCardProps) {
     handleShare?.()
   }
 
+
   return (
-    <motion.div
+    <motion.article
       variants={cardVariants}
       initial="hidden"
       animate="visible"
       whileHover="hover"
-      className="group relative flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-yellow-500/30"
-      onClick={onPrimaryAction}
+     onClick={onPrimaryAction}
+      className="group relative flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-[#eee8df] bg-white shadow-[0_2px_12px_rgba(42,20,7,0.05)] transition-all duration-300 hover:border-[#e7d6b7] hover:shadow-[0_12px_30px_rgba(42,20,7,0.12)]"
     >
-      {/* Image Section */}
-      <div className="relative h-56 w-full overflow-hidden bg-gray-100 sm:h-60">
+      {/* Property Image */}
+      <div className="relative h-56 w-full overflow-hidden bg-[#f5f3ef] sm:h-60">
         <Image
-          src={imageUrl}
+          src={displayImage}
           alt={title}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className="object-cover transition-transform duration-700 group-hover:scale-[1.06]"
+          onError={() => {
+            if (displayImage !== fallbackImage) {
+              setDisplayImage(fallbackImage)
+            }
+          }}
+          className="object-cover transition-transform duration-700 group-hover:scale-105"
         />
 
-        {/* Image Gradient */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/5" />
 
         {/* Top Badges */}
-        <div className="absolute left-3 right-3 top-3 z-10 flex items-start justify-between gap-2">
-          <div className="flex flex-wrap items-start gap-2">
-            {property_category && (
-              <span className="flex items-center gap-1 rounded-full border border-white/70 bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-[#2a1407] shadow-sm backdrop-blur">
-                {property_category.name}
-              </span>
-            )}
-          </div>
-
-          {propertyPreviewMode && (
-            <span className="rounded-full bg-yellow-400 px-3 py-1 text-xs font-bold text-[#2a1407] shadow-sm backdrop-blur-md">
+        <div className="absolute left-3 right-3 top-3 z-10 flex items-start justify-between">
+          {propertyPreviewMode ? (
+            <span className="rounded-full bg-amber-400 px-3 py-1.5 text-[11px] font-bold text-[#321b0d] shadow-sm">
               Reviewing
             </span>
+          ) : (
+            <span />
           )}
 
-          {(isVerified || approval_status === 'APPROVED') && (
-            <span className="rounded-full border border-white/70 bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-[#2a1407] shadow-sm backdrop-blur">
+          {verified && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-white/60 bg-white/95 px-3 py-1.5 text-[11px] font-bold text-emerald-700 shadow-sm backdrop-blur">
+              <BadgeCheck size={14} />
               Verified
             </span>
           )}
@@ -375,33 +369,30 @@ function PropertyCardComponent(props: PropertiesCardProps) {
 
         {/* Offer Badge */}
         {hasOffer && (
-          <div
-            className="absolute bottom-3 left-3 z-10 max-w-[160px] rounded-full border border-yellow-300 bg-yellow-400 px-2.5 py-1.5 text-[#2a1407] shadow-md sm:max-w-[200px]"
+        <div
             onClick={stopCardClick}
             title={offerText}
+            className="absolute bottom-3 left-3 z-10 flex max-w-[65%] items-center gap-1.5 rounded-full bg-[#f9c900] px-3 py-2 text-[11px] font-bold text-[#291707] shadow-md"
           >
-            <div className="flex items-center gap-1">
-              <Tag size={13} className="shrink-0" />
-              <span className="truncate text-[11px] font-bold">
-                {offerText}
-              </span>
-            </div>
+            <Tag size={13} className="shrink-0" />
+            <span className="truncate">{offerText}</span>
           </div>
         )}
 
-        {/* Favorite and Share Actions */}
+        {/* Favorite & Share */}
         {(handleFavorite || handleShare) && (
-          <div className="absolute bottom-3 right-3 z-10 flex items-center gap-2">
+          <div className="absolute bottom-3 right-2.5 z-10 flex items-center gap-2">
             {handleFavorite && (
               <div
-                className="rounded-full bg-white/95 p-2 shadow-sm backdrop-blur transition-colors hover:bg-white"
+
                 onClick={stopCardClick}
+                 className="rounded-xl shadow-lg transition-transform hover:scale-100"
               >
                 <FavoriteButton
                   propertyId={id}
                   isUserFavorited={isUserFavorited}
                   onToggleFavorite={handleFavorite}
-                  size={18}
+                  size={15}
                   favoriteCount={favorite_count}
                 />
               </div>
@@ -412,92 +403,99 @@ function PropertyCardComponent(props: PropertiesCardProps) {
                 type="button"
                 onClick={handleShareClick}
                 aria-label={`Share ${title}`}
-                className="rounded-full bg-white/95 p-2 text-gray-700 shadow-sm backdrop-blur transition-colors hover:bg-white hover:text-blue-600"
+                className="rounded-xl bg-white p-2.5 shadow-lg transition-transform hover:scale-105"
               >
-                <Share size={18} />
+                <Share2 size={16} />
               </button>
             )}
           </div>
         )}
       </div>
 
-      {/* Content Section */}
+      {/* Property Content */}
       <div className="flex flex-1 flex-col p-4 sm:p-5">
-        <div className="space-y-2">
-          <h3 className="line-clamp-1 text-[15px] font-extrabold text-gray-900 transition-colors group-hover:text-[#2a1407] sm:text-base">
+
+        {/* Title & Location */}
+        <div className="mb-4">
+          <h3 className="line-clamp-1 text-[16px] font-extrabold tracking-tight text-[#291707] transition-colors group-hover:text-[#966000] sm:text-[17px]">
             {title}
           </h3>
 
-          <div className="flex items-start gap-1.5 text-gray-500">
+          <div className="mt-2 flex items-center gap-1.5 text-sm text-gray-500">
             <MapPin
-              size={16}
-              aria-hidden="true"
-              className="mt-0.5 shrink-0 text-yellow-600"
+              size={15}
+              className="shrink-0 text-[#bd8300]"
             />
-
-            <p className="line-clamp-1 text-sm leading-relaxed">
-              {district}
-              {district && city ? ', ' : ''}
-              {city}
+            <p className="line-clamp-1">
+              {location || 'Location unavailable'}
             </p>
           </div>
         </div>
 
-        {/* Property Information */}
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-yellow-100 bg-yellow-50 px-3 py-1 text-yellow-900">
-            <Shapes
-              size={14}
-              aria-hidden="true"
-              className="shrink-0 text-yellow-700"
-            />
-            <span className="text-[11px] font-semibold">
-              {listing_type || 'Listing'}
-            </span>
+        {/* Property Tags: Sale → Size → Category */}
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+
+          <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#f2e4b8] bg-[#fffaf0] px-3 py-1.5 text-[11px] font-bold text-[#8a5b00]">
+            <Shapes size={13} />
+            {listing_type || 'Listing'}
           </span>
 
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-gray-100 bg-gray-50 px-3 py-1 text-gray-700">
-            <Ruler
-              size={14}
-              aria-hidden="true"
-              className="shrink-0 text-gray-600"
-            />
-            <span className="text-[11px] font-semibold">
-              {sizeLabel}
-            </span>
+          <span className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-[11px] font-semibold text-gray-600">
+            <Ruler size={13} />
+            {sizeLabel}
           </span>
+
+          {property_category && (
+            <span className="inline-flex items-center rounded-lg border border-[#eee5d9] bg-[#faf8f5] px-3 py-1.5 text-[11px] font-semibold text-[#62452d]">
+              {property_category.name}
+            </span>
+          )}
         </div>
 
-        {/* Price and Size */}
-        <div className="mt-auto pt-4">
-          <div className="flex items-end justify-between gap-3 border-t border-gray-100 pt-3">
-            <div className="min-w-0">
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
-                {isLayout ? 'Price range' : 'Price'}
-              </div>
+        {/* Price Details */}
+        <div className="mt-auto border-t border-gray-100 pt-4">
+          <div className="flex items-end justify-between gap-3">
 
-              <div
-                className="mt-1 truncate text-base font-extrabold text-[#2a1407] sm:text-lg"
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-gray-400">
+                {isLayout ? 'Price Range' : 'Property Price'}
+              </p>
+
+              <p
                 title={priceLabel}
+                className="mt-1 truncate text-lg font-extrabold tracking-tight text-[#291707] sm:text-xl"
               >
                 {priceLabel}
-              </div>
+              </p>
             </div>
 
             <div className="shrink-0 text-right">
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
-                Size
-              </div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-gray-400">
+                Total Area
+              </p>
 
-              <div className="mt-1 text-sm font-bold text-gray-700">
+              <p className="mt-1 text-sm font-bold text-gray-700">
                 {sizeLabel}
-              </div>
+              </p>
             </div>
+          </div>
+
+          {/* Bottom Action */}
+          <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-3">
+            <span className="text-xs font-medium text-gray-400">
+              Vaazhga Valamudan
+            </span>
+
+            <span className="inline-flex items-center gap-1 text-xs font-bold text-[#956000] transition-all group-hover:gap-2">
+              Explore Property
+              <ArrowUpRight size={15} />
+            </span>
           </div>
         </div>
       </div>
-    </motion.div>
+    </motion.article>
   )
+
 }
 
 const PropertyCard = memo(PropertyCardComponent)
@@ -505,5 +503,4 @@ const PropertyCard = memo(PropertyCardComponent)
 PropertyCard.displayName = 'PropertyCard'
 
 export default PropertyCard
-
-
+  

@@ -222,7 +222,7 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
 
   const handleLogout = () => {
     const confirmed = window.confirm('Are you sure you want to logout?')
-    if (!confirmed)  {return}
+    if (!confirmed) { return }
     closeLoginModal()
     void logout()
     reset()
@@ -567,8 +567,8 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                                 key={tab.id}
                                 onClick={() => setActiveAdminTab(tab.id)}
                                 className={`flex-1 px-2 py-2 text-[11px] font-medium capitalize transition-all cursor-pointer ${activeAdminTab === tab.id
-                                    ? 'bg-[#fdf5eb] text-[#2b1b12] border-b-2 border-[#b8864b]'
-                                    : 'text-[#5c4533] hover:text-[#2b1b12]'
+                                  ? 'bg-[#fdf5eb] text-[#2b1b12] border-b-2 border-[#b8864b]'
+                                  : 'text-[#5c4533] hover:text-[#2b1b12]'
                                   }`}
                               >
                                 {tab.label}
@@ -825,13 +825,19 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                     >
                       {t('Auth.login')}
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => openSignupModal()}
-                      className="px-2 py-2 bg-white/10 text-white font-semibold text-xs rounded-lg hover:bg-white hover:text-[#2a1407] transition-all"
-                    >
-                      {t('Auth.register')}
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => openSignupModal()}
+                        className="group relative isolate overflow-hidden rounded-xl border border-green-300/70 bg-gradient-to-r from-lime-400 via-green-500 to-emerald-600 px-4 py-2 text-sm font-bold tracking-wide text-white shadow-[0_4px_12px_rgba(34,197,94,0.25)] transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-105 hover:border-lime-200 hover:brightness-110 hover:shadow-[0_0_12px_rgba(74,222,128,0.8),0_0_28px_rgba(34,197,94,0.55)] active:scale-95"
+                      >
+                        {/* Animated shine */}
+                        <span className="pointer-events-none absolute inset-0 -translate-x-full skew-x-[-20deg] bg-gradient-to-r from-transparent via-white/50 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+
+                        {/* Button text */}
+                        <span className="relative z-10">
+                          {t('Auth.register')}
+                        </span>
+                      </button>
                   </>
                 )
               )}
@@ -1272,9 +1278,21 @@ export default function Navbar({ logoSrc = '/logo.png', showLoginButton = true, 
                       closeMobileMenu()
                       openSignupModal()
                     }}
-                    className="flex-1 px-3 py-2 text-center bg-[#2a1407] text-white text-sm font-medium rounded-lg"
+                    className="group relative isolate flex-1 overflow-hidden rounded-xl border border-green-300/70 bg-gradient-to-b from-lime-400 via-green-500 to-emerald-700 px-4 py-3 text-sm font-extrabold tracking-wide text-white shadow-[0_5px_0_#047857,0_8px_18px_rgba(22,163,74,0.35)] transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:border-lime-200 hover:brightness-110 hover:shadow-[0_5px_0_#047857,0_0_15px_rgba(74,222,128,0.7),0_0_35px_rgba(34,197,94,0.5)] active:translate-y-1 active:scale-95"
                   >
-                    {ui.register}
+                    {/* Animated shine */}
+                    <span className="pointer-events-none absolute inset-0 -z-0 -translate-x-full skew-x-[-20deg] bg-gradient-to-r from-transparent via-white/50 to-transparent transition-transform duration-700 ease-in-out group-hover:translate-x-full" />
+
+                    {/* Green glow animation */}
+                    <span className="pointer-events-none absolute -inset-1 -z-10 rounded-xl bg-green-300/40 opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-100" />
+
+                    {/* Button content */}
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                      <span>{ui.register}</span>
+                      <span className="text-base transition-transform duration-300 group-hover:translate-x-1">
+                        →
+                      </span>
+                    </span>
                   </button>
                 </div>
               </>
