@@ -21,7 +21,7 @@ import toast from 'react-hot-toast'
 // Skeleton Loader for Popular Properties
 const PopularPropertiesSkeleton = () => {
   return (
-    <section className="relative py-10 sm:py-12 lg:py-16 overflow-hidden">
+    <section className="relative pt-4 pb-6 sm:pt-5 sm:pb-8 lg:pt-6 lg:pb-10 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-yellow-50/90 via-white/95 to-blue-50/90 z-0" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Header Skeleton */}

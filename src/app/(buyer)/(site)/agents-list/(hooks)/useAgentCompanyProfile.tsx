@@ -45,9 +45,14 @@ export default function useAgentCompanyProfile(options: AgentSearchOptions = {})
   } = useSWR<ResponseDTO>(swrKey, fetcher)
 
   const payload = agentCompanyProfileFetchValdata?.data?.data as AgentSearchPayload | AgentCompanyProfile[] | undefined
+  console.log('AGENT API RAW RESPONSE:', agentCompanyProfileFetchValdata)
+  console.log('AGENT API PARSED PAYLOAD:', payload)
+
 
   let agentCompanyProfileResult: AgentCompanyProfile[] = []
   let totalAgents = 0
+
+  console.log('AGENT COUNT:', agentCompanyProfileResult.length)
 
   if (Array.isArray(payload)) {
     agentCompanyProfileResult = payload
@@ -65,6 +70,10 @@ export default function useAgentCompanyProfile(options: AgentSearchOptions = {})
       totalAgents = agentCompanyProfileResult.length
     }
   }
+
+  console.log('AGENT API RAW RESPONSE:', agentCompanyProfileFetchValdata)
+  console.log('AGENT API PARSED PAYLOAD:', payload)
+  console.log('AGENT COUNT:', agentCompanyProfileResult.length)
 
   return {
     agentCompanyProfileData: agentCompanyProfileResult,

@@ -19,6 +19,7 @@ import { ResponseDTO } from '@/components/dto/response_dto'
 
 interface Step5UploadImagesProps {
   propertyId: string
+  propertyCategoryName?: string
   onUploaded: () => void
   onUploadingChange: (isUploading: boolean) => void
   onHasNewFilesChange?: (hasNewFiles: boolean) => void
@@ -43,7 +44,7 @@ type MediaItem = {
 }
 
 const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
-  ({ propertyId, onUploaded, onUploadingChange, onHasNewFilesChange, mode }, ref) => {
+  ({ propertyId, propertyCategoryName, onUploaded, onUploadingChange, onHasNewFilesChange, mode }, ref) => {
     const [activeTab, setActiveTab] = useState<'media' | 'videoLink'>('media')
     const [items, setItems] = useState<MediaItem[]>([])
     const [ispending, startTransition] = useTransition()
@@ -141,6 +142,30 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
     // ----------------------------------------------------------------------
     // MEDIA LOGIC (Images & Videos)
     // ----------------------------------------------------------------------
+
+    const getDefaultPropertyImage = (categoryName?: string) => {
+      const category = categoryName?.trim().toLowerCase()
+
+      if (category === 'house') return '/villa.png'
+
+      if (category === 'land' || category === 'commercial land') {
+        return '/land.png'
+      }
+
+      if (category === 'plot') return '/plot.png'
+
+      if (category === 'layout') return '/layout.png'
+
+      if (
+        category === 'agri land' ||
+        category === 'agricultural land'
+      ) {
+        return '/Agri_land.png'
+      }
+
+      return '/villa.png'
+    }
+
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files && e.target.files.length > 0) {
@@ -438,11 +463,11 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
     }
 
     const handleUploadAll = () => {
-      if (items.length === 0) {
+      if (mode === 'edit' && items.length === 0) {
         onUploaded()
         return
       }
- 
+
       if (isSubmitted) return
 
       setIsSubmitted(true)
@@ -459,7 +484,41 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
           const dummyState: ResponseDTO = { success: false, error: false, message: '', data: null, status: '' }
 
           // 1. Upload Local Files (Images & Videos)
-          const fileItems = items.filter(i => i.file)
+          let fileItems = items.filter(i => i.file)
+
+          const hasImage = items.some(
+            item => item.type === 'IMAGE' && (item.file || item.url)
+          )
+
+          if (mode === 'create' && !hasImage) {
+            const defaultImagePath = getDefaultPropertyImage(propertyCategoryName)
+
+            const response = await fetch(defaultImagePath)
+
+            if (!response.ok) {
+              throw new Error('Failed to load default property image')
+            }
+
+            const blob = await response.blob()
+
+            const fileName = defaultImagePath.split('/').pop() || 'property-default.png'
+
+            const defaultFile = new File([blob], fileName, {
+              type: blob.type || 'image/png',
+            })
+
+            const defaultMediaItem: MediaItem = {
+              id: `default-${Date.now()}`,
+              file: defaultFile,
+              title: 'Default Property Image',
+              type: 'IMAGE',
+              isPrimary: true,
+              preview: defaultImagePath,
+              isFromServer: false,
+            }
+
+            fileItems = [defaultMediaItem, ...fileItems]
+          }
           if (fileItems.length > 0) {
             const formData = new FormData()
             // Append files
@@ -596,8 +655,8 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
           <button
             onClick={() => setActiveTab('media')}
             className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${activeTab === 'media'
-                ? 'bg-white text-[#2a1407] shadow-sm ring-1 ring-black/5'
-                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
+              ? 'bg-white text-[#2a1407] shadow-sm ring-1 ring-black/5'
+              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
               }`}
           >
             <ImageIcon size={18} />
@@ -610,8 +669,8 @@ const Step5UploadImages = forwardRef<UploadImagesRef, Step5UploadImagesProps>(
           <button
             onClick={() => setActiveTab('videoLink')}
             className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${activeTab === 'videoLink'
-                ? 'bg-white text-[#2a1407] shadow-sm ring-1 ring-black/5'
-                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
+              ? 'bg-white text-[#2a1407] shadow-sm ring-1 ring-black/5'
+              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
               }`}
           >
             <LinkIcon size={18} />

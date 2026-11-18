@@ -288,6 +288,10 @@ const AgentListPage = () => {
       lon: undefined,
       radius: undefined,
     })
+
+    setSearchTerm('')
+    setDebouncedSearchTerm('')
+    setPage(1)
   }
 
   // Animation variants for cards
