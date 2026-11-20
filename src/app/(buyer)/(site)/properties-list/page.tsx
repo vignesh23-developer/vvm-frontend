@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSearchProperties } from './(hooks)/useSearchProperties'
 import { usePublicPropertySearch } from './(hooks)/usePublicPropertySearch'
-import { getMethod, postMethod } from '@/services/service'
+import { getMethod, postMethod, patchMethod } from '@/services/service'
 import { appEndpoints } from '@/services/endpoints'
 import { motion, AnimatePresence } from 'framer-motion'
 import PropertyCard from '@/components/buyer/PropertyCard/PropertyCard'
@@ -14,6 +14,7 @@ import AdvancedFilters from '@/components/ui/AdvancedFilter/AdvancedFilters'
 import { toast } from 'react-hot-toast'
 import { useAuth } from '@/hooks/AuthContext/AuthContextProvider'
 import { useLoginModal } from '@/components/auth/LoginModalProvider'
+import { getUserRoles, hasRole, Roles } from '@/utils/roles/roles'
 
 // Enhanced Property Card Skeleton
 // Enhanced Property Card Skeleton - Vertical for Grid
@@ -91,10 +92,12 @@ interface FilterState {
 const PropertiesListPage = () => {
   const t = useTranslations()
   const router = useRouter()
-  const { token } = useAuth()
+  const { user, token } = useAuth()
+  const isAdmin = hasRole(getUserRoles(user), [Roles.ADMIN])
   const { openLoginModal } = useLoginModal()
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(12)
+  const [visibilityUpdatingId, setVisibilityUpdatingId] = useState<string | null>(null)
   const searchParams = useSearchParams()
   const params = {
     district: decodeURIComponent(searchParams.get('district') || ''),
@@ -333,6 +336,47 @@ const PropertiesListPage = () => {
     includeFilters: true,
     enabled: shouldUseAdvancedResults,
   })
+
+  const {
+    data: adminPropertiesResponse,
+    mutate: mutateAdminProperties,
+    isLoading: isLoadingAdminProperties,
+  } = useSWR(
+    isAdmin && token
+      ? `${appEndpoints.adminProperties}?page=${page}&limit=${limit}&search=${encodeURIComponent(searchTerm.trim())}`
+      : null,
+    (url: string) => getMethod<any>(url),
+  )
+
+  const adminListing = (adminPropertiesResponse as any)?.data
+  const adminProperties = Array.isArray(adminListing?.data) ? adminListing.data : []
+  const adminTotal = Number(adminListing?.total ?? 0)
+
+  const handleAdminVisibilityToggle = async (propertyId: string, visibility: boolean) => {
+    if (!isAdmin || !propertyId || visibilityUpdatingId) return
+
+    setVisibilityUpdatingId(propertyId)
+    try {
+      const response = await patchMethod(
+        appEndpoints.updateAdminPropertyVisibility(propertyId),
+        { visibility },
+      )
+
+      if (response.error) {
+        toast.error(response.message || 'Unable to update property visibility')
+        return
+      }
+
+      toast.success(visibility ? 'Property enabled successfully' : 'Property hidden successfully')
+      await mutateAdminProperties()
+    } catch (error) {
+      console.error('Property visibility update failed:', error)
+      toast.error('Unable to update property visibility')
+    } finally {
+      setVisibilityUpdatingId(null)
+    }
+  }
+
   const shouldUseBackendAutocomplete = debouncedSearch.length >= 3
 
   const { data: autocompleteResponse } = useSWR(
@@ -355,11 +399,11 @@ const PropertiesListPage = () => {
   }, [autocompleteResponse])
 
   const baseTotal = Number(total ?? 0)
-  let totalResults = shouldUseAdvancedResults ? (searchedTotal ?? 0) : baseTotal
-  let displayedProperties = shouldUseAdvancedResults ? searchedProperties : properties
+  let totalResults = isAdmin ? adminTotal : (shouldUseAdvancedResults ? (searchedTotal ?? 0) : baseTotal)
+  let displayedProperties = isAdmin ? adminProperties : (shouldUseAdvancedResults ? searchedProperties : properties)
 
   // Offer filter: include offer in active filters + fall back when ES has no offer field yet
-  if (hasOfferFilter) {
+  if (!isAdmin && hasOfferFilter) {
     const filteredSearch = (searchedProperties || []).filter(propertyHasOffer)
     const filteredBase = (properties || []).filter(propertyHasOffer)
 
@@ -377,7 +421,7 @@ const PropertiesListPage = () => {
   }
 
   const totalPages = Math.max(1, Math.ceil((totalResults || 0) / limit))
-  const isLoadingList = shouldUseAdvancedResults ? isLoadingSearchedProperties : isLoadingProperties
+  const isLoadingList = isAdmin ? isLoadingAdminProperties : (shouldUseAdvancedResults ? isLoadingSearchedProperties : isLoadingProperties)
 
   const changePage = (page: number) => setPage(Math.max(1, Math.min(page, totalPages)))
 
@@ -814,6 +858,10 @@ const PropertiesListPage = () => {
                         handleShare={() => handleShare(`/propertyDetails/${property.id}`)}
                         isUserFavorited={property.is_user_favorite}
                         isVerified={property.approval_status === 'APPROVED'}
+                        isAdmin={isAdmin}
+                        admin_visibility={property.admin_visibility !== false}
+                        onToggleVisibility={isAdmin ? handleAdminVisibilityToggle : undefined}
+                        isVisibilityUpdating={visibilityUpdatingId === String(property.id)}
                       />
                     </motion.div>
                   ))}

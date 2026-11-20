@@ -97,6 +97,10 @@ interface PropertiesCardProps {
   thirdActionDisabled?: boolean
   propertyPreviewMode?: boolean
   isVerified?: boolean
+  isAdmin?: boolean
+  admin_visibility?: boolean
+  onToggleVisibility?: (propertyId: string, visibility: boolean) => void
+  isVisibilityUpdating?: boolean
 }
 
 interface NormalizedMedia {
@@ -264,6 +268,10 @@ function PropertyCardComponent(props: PropertiesCardProps) {
     onPrimaryAction,
     propertyPreviewMode = false,
     isVerified,
+    isAdmin = false,
+    admin_visibility = true,
+    onToggleVisibility,
+    isVisibilityUpdating = false,
     property_category,
     offer,
   } = props
@@ -491,6 +499,33 @@ function PropertyCardComponent(props: PropertiesCardProps) {
               <ArrowUpRight size={15} />
             </span>
           </div>
+
+          {isAdmin && onToggleVisibility && (
+            <div className="mt-3 border-t border-gray-100 pt-3">
+              <button
+                type="button"
+                disabled={isVisibilityUpdating}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  onToggleVisibility(id, !admin_visibility)
+                }}
+                className={`w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+                  admin_visibility
+                    ? 'bg-red-50 text-red-700 hover:bg-red-100'
+                    : 'bg-green-50 text-green-700 hover:bg-green-100'
+                }`}
+              >
+                {isVisibilityUpdating
+                  ? 'Updating...'
+                  : admin_visibility
+                    ? 'Hide from Public'
+                    : 'Enable for Public'}
+              </button>
+              <p className="mt-1 text-center text-xs text-gray-400">
+                {admin_visibility ? 'Visible to public users' : 'Hidden from public users'}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </motion.article>

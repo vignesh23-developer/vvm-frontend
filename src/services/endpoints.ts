@@ -55,6 +55,8 @@ export const appEndpoints = {
   // Properties Endpoints
   createProperty: '/properties',
   getAllProperties: '/properties',
+  adminProperties: '/admin/properties',
+  updateAdminPropertyVisibility: (propertyId: string) => `/admin/properties/${propertyId}/visibility`,
   // elastic search endpoints
   getSearchByProperties: '/search/properties',
   getAllPropertiesList: '/properties/search/list',
@@ -253,3 +255,4 @@ export const appEndpoints = {
 export const testAppEndpoints = {
   testKycNotification: '/kyc/test/notification',
 }
+
